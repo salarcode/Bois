@@ -33,6 +33,11 @@ namespace Salar.Bion.Tests
 			bion._input = bionReader;
 		}
 
+		private void EchoStreamSize()
+		{
+			Console.WriteLine("DataStream size: " + bionStream.Length);
+		}
+
 		void ResetStream()
 		{
 			bionStream.Seek(0, SeekOrigin.Begin);
@@ -295,13 +300,69 @@ namespace Salar.Bion.Tests
 			final.Should().Have.SameSequenceAs(init);
 		}
 
+		[TestMethod]
+		public void GenericList_StringNormal()
+		{
+			ResetStream();
+			var init = new List<string>() { "This test", "is", " for BON " };
+			bion.WriteGenericList(init);
+			ResetStream();
+
+			var final = (List<string>)bion.ReadGenericList(typeof(List<string>));
+
+			final.Should().Have.SameSequenceAs(init);
+		}
+
+		[TestMethod]
+		public void GenericList_StringNull()
+		{
+			ResetStream();
+			var init = new List<string>() { "This test", null, " for BON " };
+			bion.WriteGenericList(init);
+			ResetStream();
+
+			var final = (List<string>)bion.ReadGenericList(typeof(List<string>));
+
+			final.Should().Have.SameSequenceAs(init);
+		}
+
+		[TestMethod]
+		public void GenericList_NumberNormal()
+		{
+			ResetStream();
+			var init = new List<float>() { 11, 23.0009f, 0.00f, -90.33033f, 22 };
+			bion.WriteGenericList(init);
+			ResetStream();
+
+			var final = (List<float>)bion.ReadGenericList(typeof(List<float>));
+
+			final.Should().Have.SameSequenceAs(init);
+
+			EchoStreamSize();
+		}
+
+
+
+		[TestMethod]
+		public void GenericList_NumberNullable()
+		{
+			ResetStream();
+			var init = new List<float?>() { 11, null, 23.0009f, 0.00f, -90.33033f, null, 22 };
+			bion.WriteGenericList(init);
+			ResetStream();
+
+			var final = (List<float?>)bion.ReadGenericList(typeof(List<float?>));
+
+			final.Should().Have.SameSequenceAs(init);
+			EchoStreamSize();
+		}
 
 		[TestMethod]
 		public void GenericList_ListVersionNormal()
 		{
 			ResetStream();
 			var init = new List<Version>() { new Version(1, 2, 3, 4), new Version(0, 0, 0, 1), new Version(0, 0, 0, 0), };
-			bion.WriteArray(init);
+			bion.WriteGenericList(init);
 			ResetStream();
 
 			var final = (List<Version>)bion.ReadGenericList(typeof(List<Version>));

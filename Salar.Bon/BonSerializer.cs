@@ -20,7 +20,6 @@ namespace Salar.Bon
 	/// </Author>
 	public class BonSerializer
 	{
-		private bool _useUtcDateTime;
 		private BinaryWriter _serializeOut;
 		private int _serializeDepth;
 		private readonly ReflectionCache _reflection = new ReflectionCache();
@@ -28,19 +27,9 @@ namespace Salar.Bon
 
 		public Encoding Encoding { get; set; }
 
-		/// <summary>
-		/// Use UTC time to store date-time objects
-		/// </summary>
-		public bool UseUtcDateTime
-		{
-			get { return _useUtcDateTime; }
-			set { _useUtcDateTime = value; }
-		}
-
 		public BonSerializer()
 		{
 			Encoding = Encoding.UTF8;
-			_useUtcDateTime = true;
 		}
 
 		public void Serialize<T>(T obj, Stream output)
@@ -182,7 +171,14 @@ namespace Salar.Bon
 					}
 					else if (bonMemInfo.IsCollection || bonMemInfo.IsArray)
 					{
-						WriteArray(value as IEnumerable);
+						if (bonMemInfo.IsGeneric)
+						{
+							WriteGenericList(value as IEnumerable);
+						}
+						else
+						{
+							WriteArray(value as IEnumerable);
+						}
 					}
 					else
 					{
@@ -409,6 +405,25 @@ namespace Salar.Bon
 			PrimitivesConvertion.WriteVarInt(_serializeOut, (int)((object)e));
 		}
 
+		private void WriteGenericList(IEnumerable array)
+		{
+			int count = 0;
+			var col = array as ICollection;
+			if (col != null)
+				count = (int)col.Count;
+			else
+			{
+				foreach (object obj in array)
+					count++;
+			}
+			var itemType = array.GetType().GetGenericArguments()[0];
+			// Int32
+			PrimitivesConvertion.WriteVarInt(_serializeOut, count);
+			foreach (object obj in array)
+			{
+				WriteValue(obj, itemType);
+			}
+		}
 		private void WriteArray(IEnumerable array)
 		{
 			int count = 0;
@@ -483,11 +498,19 @@ namespace Salar.Bon
 		private void WriteDateTime(DateTime dateTime)
 		{
 			var dt = dateTime;
-			if (UseUtcDateTime)
-				dt = dateTime.ToUniversalTime();
-
-			// Int64
-			PrimitivesConvertion.WriteVarInt(_serializeOut, dt.Ticks);
+			if (dt == DateTime.MinValue || dt == DateTime.MaxValue)
+			{
+				PrimitivesConvertion.WriteVarInt(_serializeOut, dt.Ticks);
+			}
+			else
+			{
+				if (dt.Kind != DateTimeKind.Utc)
+				{
+					dt = dt.ToUniversalTime();
+				}
+				//Int64
+				PrimitivesConvertion.WriteVarInt(_serializeOut, dt.Ticks);
+			}
 		}
 
 		private void WriteTimeSpan(TimeSpan timeSpan)
@@ -927,7 +950,7 @@ namespace Salar.Bon
 			return dic;
 		}
 
-		private object ReadTimeSpan()
+		private TimeSpan ReadTimeSpan()
 		{
 			var ticks = PrimitivesConvertion.ReadVarInt64(_input);
 			return new TimeSpan(ticks);
@@ -940,9 +963,12 @@ namespace Salar.Bon
 		private object ReadDateTime()
 		{
 			var ticks = PrimitivesConvertion.ReadVarInt64(_input);
-			if (_useUtcDateTime)
-				return new DateTime(ticks, DateTimeKind.Utc).ToLocalTime();
-			return new DateTime(ticks);
+			if (ticks == DateTime.MinValue.Ticks || ticks == DateTime.MaxValue.Ticks)
+			{
+				return new DateTime(ticks);
+			}
+
+			return new DateTime(ticks, DateTimeKind.Utc).ToLocalTime();
 		}
 
 		private object ReadBoolean()

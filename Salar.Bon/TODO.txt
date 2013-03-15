@@ -1,0 +1,4 @@
+*	Support more primitive types.
+*	Better DataTable support.
+*	Depth of serialization control option.
+*	Embed cache object inside the serializer.

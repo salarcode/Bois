@@ -1,9 +1,9 @@
 ﻿using System;
 using Salar.Bon;
+using Salar.Bon.Tests.Objects;
 using SharpTestsEx;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Salar.Bion.Tests.Objects;
 
 namespace Salar.Bion.Tests
 {
@@ -96,5 +96,28 @@ namespace Salar.Bion.Tests
 			}
 			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
+
+		[TestMethod]
+		public void HierarchyObjects1Test()
+		{
+			var init = new HierarchyObjects1();
+			init.Initialize();
+			HierarchyObjects1 final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bon.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bon.Deserialize<HierarchyObjects1>(mem);
+			}
+
+			AssertionHelper.AssertMembersAreEqual(init.Child1, final.Child1);
+			AssertionHelper.AssertMembersAreEqual(init.Child2, final.Child2);
+			init.Name.Should().Be.EqualTo(final.Name);
+			init.AcceptableAges.Should().Have.SameSequenceAs(final.AcceptableAges);
+			init.LastName.Should().Be.EqualTo(final.LastName);
+		}
+
+
 	}
 }

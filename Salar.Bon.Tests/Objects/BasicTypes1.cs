@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 
-namespace Salar.Bion.Tests.Objects
+namespace Salar.Bon.Tests.Objects
 {
 	class BasicTypes1 : IBaseType
 	{
@@ -18,6 +15,8 @@ namespace Salar.Bion.Tests.Objects
 
 		public DBNull DbValueNull { get; set; }
 		public string Text { get; set; }
+		public string Text2 { get; set; }
+		public string Text3 { get; set; }
 		public SystemLanguage Language { get; set; }
 		public char AcceptChar { get; set; }
 		public DateTime TestDate { get; set; }
@@ -30,6 +29,8 @@ namespace Salar.Bion.Tests.Objects
 		public void Initialize()
 		{
 			Text = "Well, hello!";
+			Text = "This is Salar.Bon";
+			Text = "A binary serializer";
 			Language = SystemLanguage.French;
 			AcceptChar = 'c';
 			TestDate = DateTime.Now.AddDays(7);

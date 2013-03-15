@@ -65,6 +65,7 @@
     <Compile Include="Classes\AssertionHelper.cs" />
     <Compile Include="Objects\BasicTypes1.cs" />
     <Compile Include="Objects\BasicTypes1Nullable.cs" />
+    <Compile Include="Objects\HierarchyObjects1.cs" />
     <Compile Include="Objects\PrimitiveTypes1.cs" />
     <Compile Include="Objects\PrimitiveTypes1Nullable.cs" />
     <Compile Include="Objects\IBaseType.cs" />

@@ -169,20 +169,20 @@ namespace Salar.Bon
 
 		private static BonMemberInfo ReadObject(Type type)
 		{
-#if SILVERLIGHT
-			BonMemberInfo result;
-			if (_cache.TryGetValue(type, out result))
-			{
-				return result;
-			}
-#else
-			var result = _cache[type] as BonMemberInfo;
-#endif
+//#if SILVERLIGHT
+//			BonMemberInfo result;
+//			if (_cache.TryGetValue(type, out result))
+//			{
+//				return result;
+//			}
+//#else
+//			var result = _cache[type] as BonMemberInfo;
+//#endif
 
-			if (result != null)
-			{
-				return result;
-			}
+//			if (result != null)
+//			{
+//				return result;
+//			}
 
 			var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 			var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);

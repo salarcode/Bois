@@ -55,6 +55,10 @@ namespace Salar.Bion.Tests
 		public static void AssertMembersAreEqual<T>(T expected, T actual)
 		{
 			var type = typeof(T);
+			AssertMembersAreEqual(expected, actual, type);
+		}
+		public static void AssertMembersAreEqual(object expected, object actual, Type type)
+		{
 			var props =
 				type.GetProperties(BindingFlags.SetProperty | BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public);
 
@@ -78,10 +82,20 @@ namespace Salar.Bion.Tests
 					continue;
 				}
 
-				should.Should().Be.EqualTo(whatIs);
+				if (p.PropertyType.IsClass && p.PropertyType != typeof(string))
+				{
+					AssertMembersAreEqual(should, whatIs);
+				}
+				else
+				{
+					should.Should().Be.EqualTo(whatIs);
+				}
+
 				//Assert.AreEqual(should, whatIs,
 				//				string.Format("Property '{0}.{1}' of two specified objects are not equal.", type.Name, p.Name));
 			}
+
 		}
+
 	}
 }

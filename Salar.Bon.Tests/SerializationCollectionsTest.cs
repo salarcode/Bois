@@ -341,8 +341,6 @@ namespace Salar.Bion.Tests
 			EchoStreamSize();
 		}
 
-
-
 		[TestMethod]
 		public void GenericList_NumberNullable()
 		{

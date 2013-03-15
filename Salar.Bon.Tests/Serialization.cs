@@ -118,6 +118,23 @@ namespace Salar.Bion.Tests
 			init.LastName.Should().Be.EqualTo(final.LastName);
 		}
 
+		[TestMethod]
+		public void HierarchyObjects1_ChildTest()
+		{
+			var init = new HierarchyObjects1.TheChild();
+			init.Initialize();
+			HierarchyObjects1.TheChild final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bon.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bon.Deserialize<HierarchyObjects1.TheChild>(mem);
+			}
+
+			AssertionHelper.AssertMembersAreEqual(init, final);
+ 		}
+
 
 	}
 }

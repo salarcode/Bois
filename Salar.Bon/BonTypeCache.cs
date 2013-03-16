@@ -9,12 +9,14 @@ using System.Data;
 using System.Drawing;
 #endif
 
+
 namespace Salar.Bon
 {
 	public static class BonTypeCache
 	{
 		internal delegate void GenericSetter(object target, object value);
 		internal delegate object GenericGetter(object target);
+
 		internal enum EnBonMemberType
 		{
 			Object,
@@ -64,7 +66,7 @@ namespace Salar.Bon
 			public EnBonKnownType KnownType;
 			public MemberInfo Info;
 
-			public GenericSetter PropertySetter;
+			public Function<object, object, object> PropertySetter;
 			public GenericGetter PropertyGetter;
 			public override string ToString()
 			{
@@ -169,20 +171,20 @@ namespace Salar.Bon
 
 		private static BonMemberInfo ReadObject(Type type)
 		{
-//#if SILVERLIGHT
-//			BonMemberInfo result;
-//			if (_cache.TryGetValue(type, out result))
-//			{
-//				return result;
-//			}
-//#else
-//			var result = _cache[type] as BonMemberInfo;
-//#endif
+			//#if SILVERLIGHT
+			//			BonMemberInfo result;
+			//			if (_cache.TryGetValue(type, out result))
+			//			{
+			//				return result;
+			//			}
+			//#else
+			//			var result = _cache[type] as BonMemberInfo;
+			//#endif
 
-//			if (result != null)
-//			{
-//				return result;
-//			}
+			//			if (result != null)
+			//			{
+			//				return result;
+			//			}
 
 			var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 			var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
@@ -199,8 +201,8 @@ namespace Salar.Bon
 				if (p.CanWrite)
 				{
 					var info = ReadMemberInfo(p.PropertyType);
-					info.PropertyGetter = CreateGetMethod(p);
-					info.PropertySetter = CreateSetMethod(p);
+					info.PropertyGetter = GetPropertyGetter(type, p);
+					info.PropertySetter = GetPropertySetter(type, p);
 					info.Info = p;
 					info.MemberType = EnBonMemberType.Property;
 					members.Add(info);
@@ -395,6 +397,76 @@ namespace Salar.Bon
 			return ReadObject(memType);
 		}
 
+		static Type UnNullify(Type type)
+		{
+			return Nullable.GetUnderlyingType(type) ?? type;
+		}
+		/// <summary>
+		/// Slower convertion
+		/// </summary>
+		private static bool IsNumber(Type memType, out BonMemberInfo output)
+		{
+			if (memType.IsClass)
+			{
+				output = null;
+				return false;
+			}
+			output = null;
+			switch (Type.GetTypeCode(UnNullify(memType)))
+			{
+				case TypeCode.Int16:
+					output = new BonMemberInfo
+					{
+						KnownType = EnBonKnownType.Int16,
+						IsSupportedPrimitive = true,
+					};
+					break;
+
+				case TypeCode.Int32:
+					output = new BonMemberInfo
+					{
+						KnownType = EnBonKnownType.Int32,
+						IsSupportedPrimitive = true,
+					};
+					break;
+
+				case TypeCode.Int64:
+					output = new BonMemberInfo
+					{
+						KnownType = EnBonKnownType.Int64,
+						IsSupportedPrimitive = true,
+					};
+					break;
+				case TypeCode.Single:
+					output = new BonMemberInfo { KnownType = EnBonKnownType.Single };
+					break;
+				case TypeCode.Double:
+					output = new BonMemberInfo { KnownType = EnBonKnownType.Double };
+					break;
+				case TypeCode.Decimal:
+					output = new BonMemberInfo { KnownType = EnBonKnownType.Decimal };
+					break;
+
+				case TypeCode.Byte:
+					output = new BonMemberInfo { KnownType = EnBonKnownType.Byte };
+					break;
+				case TypeCode.SByte:
+					output = new BonMemberInfo { KnownType = EnBonKnownType.SByte };
+					break;
+
+				case TypeCode.UInt16:
+					output = new BonMemberInfo { KnownType = EnBonKnownType.UInt16 };
+					break;
+				case TypeCode.UInt32:
+					output = new BonMemberInfo { KnownType = EnBonKnownType.UInt32 };
+					break;
+				case TypeCode.UInt64:
+					output = new BonMemberInfo { KnownType = EnBonKnownType.UInt64 };
+					break;
+			}
+			return output != null;
+		}
+
 		private static bool TryReadNumber(Type memType, out BonMemberInfo output)
 		{
 			if (memType.IsClass)
@@ -490,7 +562,6 @@ namespace Salar.Bon
 			return true;
 		}
 
-
 		/// <summary>
 		///  Creates a dynamic setter for the property
 		/// </summary>
@@ -575,6 +646,98 @@ namespace Salar.Bon
 			* Create the delegate and return it
 			*/
 			return (GenericGetter)getter.CreateDelegate(typeof(GenericGetter));
+		}
+
+
+		private static GenericGetter GetPropertyGetter(Type objType, PropertyInfo propertyInfo)
+		{
+			var method = objType.GetMethod("get_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
+			return GetFastGetterFunc(propertyInfo, method);
+		}
+
+		private static Function<object, object, object> GetPropertySetter(Type objType, PropertyInfo propertyInfo)
+		{
+			var method = objType.GetMethod("set_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
+			return GetFastSetterFunc(propertyInfo, method);
+		}
+
+		/// <summary>
+		/// http://social.msdn.microsoft.com/Forums/en-US/netfxbcl/thread/8754500e-4426-400f-9210-554f9f2ad58b/
+		/// </summary>
+		/// <returns></returns>
+		private static GenericGetter GetFastGetterFunc(PropertyInfo p, MethodInfo getter) // untyped cast from Func<T> to Func<object> 
+		{
+			var g = new DynamicMethod("_", typeof(object), new[] { typeof(object) }, p.DeclaringType, true);
+			var il = g.GetILGenerator();
+
+			il.Emit(OpCodes.Ldarg_0);//load the delegate from function parameter
+			il.Emit(OpCodes.Castclass, p.DeclaringType);//cast
+			il.Emit(OpCodes.Callvirt, getter);//calls it's get method
+
+			if (p.PropertyType.IsValueType)
+				il.Emit(OpCodes.Box, p.PropertyType);//box
+
+			il.Emit(OpCodes.Ret);
+
+			//return (bool)((xViewModel)param1).get_IsEnabled();
+
+			var _func = (GenericGetter)g.CreateDelegate(typeof(GenericGetter));
+			return _func;
+		}
+
+		/// <summary>
+		/// http://social.msdn.microsoft.com/Forums/en-US/netfxbcl/thread/8754500e-4426-400f-9210-554f9f2ad58b/
+		/// </summary>
+		private static Function<object, object, object> GetFastSetterFunc(PropertyInfo p, MethodInfo setter)
+		{
+			var s = new DynamicMethod("_", typeof(object), new[] { typeof(object), typeof(object) }, p.DeclaringType, true);
+			var il = s.GetILGenerator();
+
+			il.Emit(OpCodes.Ldarg_0);
+			il.Emit(OpCodes.Castclass, p.DeclaringType);
+
+			il.Emit(OpCodes.Ldarg_1);
+			if (p.PropertyType.IsClass)
+			{
+				il.Emit(OpCodes.Castclass, p.PropertyType);
+			}
+			else
+			{
+				il.Emit(OpCodes.Unbox_Any, p.PropertyType);
+			}
+
+
+			il.EmitCall(OpCodes.Callvirt, setter, null);
+			il.Emit(OpCodes.Ldarg_0);
+			il.Emit(OpCodes.Ret);
+
+			//(xViewModel)param1.set_IsEnabled((bool)param2)
+			// return param1;
+
+			var _func = (Function<object, object, object>)s.CreateDelegate(typeof(Function<object, object, object>));
+			return _func;
+		}
+
+		private static GenericGetter GetPropertyGetter_(Type objType, PropertyInfo propertyInfo)
+		{
+			var method = objType.GetMethod("get_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			var dlg = Delegate.CreateDelegate(typeof(GenericGetter), method);
+			return (GenericGetter)dlg;
+		}
+		private static GenericGetter GetPropertyGetter(object obj, string propertyName)
+		{
+			var t = obj.GetType();
+			var method = t.GetMethod("get_" + propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			var dlg = Delegate.CreateDelegate(t, obj, method);
+			return (GenericGetter)dlg;
+		}
+
+		private static GenericSetter GetPropertySetter(object obj, string propertyName)
+		{
+			var t = obj.GetType();
+			var method = t.GetMethod("set_" + propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			var dlg = Delegate.CreateDelegate(t, obj, method);
+			return (GenericSetter)dlg;
 		}
 
 	}

@@ -133,7 +133,41 @@ namespace Salar.Bion.Tests
 			}
 
 			AssertionHelper.AssertMembersAreEqual(init, final);
- 		}
+		}
+
+		[TestMethod]
+		public void StructType1_NormalTest()
+		{
+			var init = new StructType1();
+			init.Initialize();
+			StructType1 final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bon.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bon.Deserialize<StructType1>(mem);
+			}
+
+			AssertionHelper.AssertMembersAreEqual(init, final);
+		}
+
+		[TestMethod]
+		public void HierarchyWithStruct_NormalTest()
+		{
+			var init = new HierarchyWithStruct();
+			init.Initialize();
+			HierarchyWithStruct final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bon.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bon.Deserialize<HierarchyWithStruct>(mem);
+			}
+
+			AssertionHelper.AssertMembersAreEqual(init, final);
+		}
 
 
 	}

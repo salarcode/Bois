@@ -16,7 +16,6 @@ namespace Salar.Bon.Tests.Objects
 			{
 				Name = "Test" + DateTime.Now.Ticks;
 				Age = 11;
-
 			}
 		}
 
@@ -38,7 +37,7 @@ namespace Salar.Bon.Tests.Objects
 
 			Name = "Father-" + DateTime.Now.Ticks;
 			LastName = "Grand-" + DateTime.Now.Ticks;
-			AcceptableAges = new List<int>()
+			AcceptableAges = new List<int>
 				                 {
 					                 10,
 					                 17,

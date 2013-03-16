@@ -261,7 +261,7 @@ namespace Salar.Bon
 					break;
 
 				case BonTypeCache.EnBonKnownType.String:
-					WriteString(value as string);
+					WriteString(value as string, false);
 					break;
 
 				case BonTypeCache.EnBonKnownType.Char:
@@ -578,6 +578,8 @@ namespace Salar.Bon
 			var dataLeng = _input.BaseStream.Length;
 			var data = _input.BaseStream;
 
+			var objType = obj.GetType();
+
 			// while all members are processed
 			while (memberProcessed < binaryMemberCount &&
 				   memberProcessed < objectMemberCount &&
@@ -595,8 +597,13 @@ namespace Salar.Bon
 					// read the value
 					var value = ReadMember(memInfo, pinfo.PropertyType);
 
-					//_reflection.SetValue(obj, value, pinfo);
-					memInfo.PropertySetter(obj, value);
+					//memInfo.PropertySetter(obj, value);
+					if (objType.IsValueType)
+						pinfo.SetValue(obj, value, null);
+					else
+					{
+						memInfo.PropertySetter(obj, value);
+					} 
 				}
 				else
 				{

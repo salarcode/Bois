@@ -202,6 +202,7 @@ namespace Salar.Bon
 				{
 					var info = ReadMemberInfo(p.PropertyType);
 					info.PropertyGetter = GetPropertyGetter(type, p);
+					//info.PropertySetter = CreateSetMethod(p);
 					info.PropertySetter = GetPropertySetter(type, p);
 					info.Info = p;
 					info.MemberType = EnBonMemberType.Property;
@@ -648,16 +649,43 @@ namespace Salar.Bon
 			return (GenericGetter)getter.CreateDelegate(typeof(GenericGetter));
 		}
 
+		private static Func<T, object> MakeDelegate_2<T, U>(MethodInfo @get)
+		{
+			var f = (Func<T, U>)Delegate.CreateDelegate(typeof(Func<T, U>), @get);
+			return t => f(t);
+		}
+
+		private static GenericGetter MakeDelegate(MethodInfo @get)
+		{
+			var f = (GenericGetter)Delegate.CreateDelegate(typeof(GenericGetter), @get);
+			return t => f(t);
+		}
 
 		private static GenericGetter GetPropertyGetter(Type objType, PropertyInfo propertyInfo)
 		{
-			var method = objType.GetMethod("get_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
-			return GetFastGetterFunc(propertyInfo, method);
+			if (objType.IsValueType &&
+				!objType.IsPrimitive &&
+				!objType.IsArray &&
+				objType != typeof(string))
+			{
+				// this is a fallback to slower method.
+				var method = propertyInfo.GetGetMethod();
+
+				// generating the caller.
+				return new GenericGetter(target => method.Invoke(target, null));
+			}
+			else
+			{
+				//var method = objType.GetMethod("get_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
+				var method = propertyInfo.GetGetMethod();
+				return GetFastGetterFunc(propertyInfo, method);
+			}
 		}
 
 		private static Function<object, object, object> GetPropertySetter(Type objType, PropertyInfo propertyInfo)
 		{
-			var method = objType.GetMethod("set_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
+			var method = propertyInfo.GetSetMethod();
+			//var method = objType.GetMethod("set_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
 			return GetFastSetterFunc(propertyInfo, method);
 		}
 
@@ -724,6 +752,7 @@ namespace Salar.Bon
 			var dlg = Delegate.CreateDelegate(typeof(GenericGetter), method);
 			return (GenericGetter)dlg;
 		}
+
 		private static GenericGetter GetPropertyGetter(object obj, string propertyName)
 		{
 			var t = obj.GetType();

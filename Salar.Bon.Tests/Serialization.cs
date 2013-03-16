@@ -166,7 +166,9 @@ namespace Salar.Bion.Tests
 				final = _bon.Deserialize<HierarchyWithStruct>(mem);
 			}
 
-			AssertionHelper.AssertMembersAreEqual(init, final);
+			AssertionHelper.AssertMembersAreEqual(init.SType, final.SType);
+			init.LastName.Should().Be.EqualTo(final.LastName);
+			init.AcceptableAges.Should().Have.SameSequenceAs(final.AcceptableAges);
 		}
 
 

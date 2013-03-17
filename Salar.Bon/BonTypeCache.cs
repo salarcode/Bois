@@ -9,7 +9,13 @@ using System.Data;
 using System.Drawing;
 #endif
 
-
+/* 
+ * Salar BON (Binary Object Notation)
+ * by Salar Khalilzadeh
+ * 
+ * https://bon.codeplex.com/
+ * Mozilla Public License v2
+ */
 namespace Salar.Bon
 {
 	public static class BonTypeCache
@@ -171,21 +177,6 @@ namespace Salar.Bon
 
 		private static BonMemberInfo ReadObject(Type type)
 		{
-			//#if SILVERLIGHT
-			//			BonMemberInfo result;
-			//			if (_cache.TryGetValue(type, out result))
-			//			{
-			//				return result;
-			//			}
-			//#else
-			//			var result = _cache[type] as BonMemberInfo;
-			//#endif
-
-			//			if (result != null)
-			//			{
-			//				return result;
-			//			}
-
 			var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 			var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
@@ -229,7 +220,8 @@ namespace Salar.Bon
 				return new BonMemberInfo
 				{
 					KnownType = EnBonKnownType.String,
-					IsNullable = true
+					IsNullable = true,
+					IsSupportedPrimitive = true,
 				};
 			}
 			bool isNullable = ReflectionHelper.IsNullable(memType);
@@ -284,19 +276,30 @@ namespace Salar.Bon
 							   IsArray = true,
 						   };
 			}
-			if (memType.IsGenericType &&
-				   ReflectionHelper.CompareInterface(memType, typeof(IDictionary)) &&
-				   memType.GetGenericArguments()[0] == typeof(string))
+			if (memType.IsGenericType)
 			{
-				return new BonMemberInfo
-						   {
-							   KnownType = EnBonKnownType.Unknown,
-							   IsNullable = isNullable,
-							   IsDictionary = true,
-							   IsStringDictionary = true,
-							   IsGeneric = true,
-						   };
+				if (ReflectionHelper.CompareInterface(memType, typeof(IDictionary)) &&
+					memType.GetGenericArguments()[0] == typeof(string))
+					return new BonMemberInfo
+							   {
+								   KnownType = EnBonKnownType.Unknown,
+								   IsNullable = isNullable,
+								   IsDictionary = true,
+								   IsStringDictionary = true,
+								   IsGeneric = true,
+							   };
+#if DotNet4
+				if (ReflectionHelper.CompareInterface(memType, typeof(ISet)))
+					return new BonMemberInfo
+						       {
+							       KnownType = EnBonKnownType.Unknown,
+							       IsNullable = isNullable,
+							       IsGeneric = true,
+							       IsSet = true,
+						       };
+#endif
 			}
+
 			if (ReflectionHelper.CompareInterface(memType, typeof(IDictionary)))
 			{
 				return new BonMemberInfo
@@ -649,11 +652,11 @@ namespace Salar.Bon
 			return (GenericGetter)getter.CreateDelegate(typeof(GenericGetter));
 		}
 
-		private static Func<T, object> MakeDelegate_2<T, U>(MethodInfo @get)
-		{
-			var f = (Func<T, U>)Delegate.CreateDelegate(typeof(Func<T, U>), @get);
-			return t => f(t);
-		}
+		//private static Func<T, object> MakeDelegate_2<T, U>(MethodInfo @get)
+		//{
+		//	var f = (Func<T, U>)Delegate.CreateDelegate(typeof(Func<T, U>), @get);
+		//	return t => f(t);
+		//}
 
 		private static GenericGetter MakeDelegate(MethodInfo @get)
 		{

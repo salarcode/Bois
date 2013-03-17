@@ -66,6 +66,36 @@ namespace Salar.Bion.Tests
 		}
 
 		[TestMethod]
+		public void Guid_Normal_Test()
+		{
+			var init = Guid.NewGuid();
+			Guid final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bon.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bon.Deserialize<Guid>(mem);
+			}
+			final.Should().Be.EqualTo(init);
+		}
+
+		[TestMethod]
+		public void Guid_Empty_Test()
+		{
+			var init = Guid.Empty;
+			Guid final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bon.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bon.Deserialize<Guid>(mem);
+			}
+			final.Should().Be.EqualTo(init);
+		}
+
+		[TestMethod]
 		public void BasicTypes1Test()
 		{
 			var init = new BasicTypes1();
@@ -169,6 +199,22 @@ namespace Salar.Bion.Tests
 			AssertionHelper.AssertMembersAreEqual(init.SType, final.SType);
 			init.LastName.Should().Be.EqualTo(final.LastName);
 			init.AcceptableAges.Should().Have.SameSequenceAs(final.AcceptableAges);
+		}
+
+		[TestMethod]
+		public void CollectionTypes1_NormalTest()
+		{
+			var init = new CollectionTypes1();
+			init.Initialize();
+			CollectionTypes1 final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bon.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bon.Deserialize<CollectionTypes1>(mem);
+			}
+			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
 
 

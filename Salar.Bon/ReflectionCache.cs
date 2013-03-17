@@ -4,6 +4,13 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
+/* 
+ * Salar BON (Binary Object Notation)
+ * by Salar Khalilzadeh
+ * 
+ * https://bon.codeplex.com/
+ * Mozilla Public License v2
+ */
 namespace Salar.Bon
 {
 

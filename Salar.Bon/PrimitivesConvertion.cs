@@ -1,6 +1,13 @@
 ﻿using System;
 using System.IO;
 
+/* 
+ * Salar BON (Binary Object Notation)
+ * by Salar Khalilzadeh
+ * 
+ * https://bon.codeplex.com/
+ * Mozilla Public License v2
+ */
 namespace Salar.Bon
 {
 	internal static class PrimitivesConvertion
@@ -61,7 +68,6 @@ namespace Salar.Bon
 			else
 			{
 				return ReadInt16(reader, insideNum);
-				//return reader.ReadInt32();
 			}
 		}
 
@@ -273,7 +279,6 @@ namespace Salar.Bon
 			{
 				// No Flag is required
 				// length of the integer bytes
-				//writer.Write(num.Value);
 				WriteInt(writer, num.Value);
 			}
 			else
@@ -324,7 +329,6 @@ namespace Salar.Bon
 			{
 				// No Flag is required
 				// length of the integer bytes
-				//writer.Write(num.Value);
 				WriteInt(writer, num.Value);
 			}
 			else

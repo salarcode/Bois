@@ -10,6 +10,13 @@ using System.Data;
 using System.Drawing;
 #endif
 
+/* 
+ * Salar BON (Binary Object Notation)
+ * by Salar Khalilzadeh
+ * 
+ * https://bon.codeplex.com/
+ * Mozilla Public License v2
+ */
 namespace Salar.Bon
 {
 	/// <summary>
@@ -85,7 +92,6 @@ namespace Salar.Bon
 			// number of writable members count
 			// Int32
 			PrimitivesConvertion.WriteVarInt(_serializeOut, bonType.Members.Length);
-
 
 			// writing the members
 			for (int i = 0; i < bonType.Members.Length; i++)
@@ -261,7 +267,7 @@ namespace Salar.Bon
 					break;
 
 				case BonTypeCache.EnBonKnownType.String:
-					WriteString(value as string, false);
+					WriteString(value as string);
 					break;
 
 				case BonTypeCache.EnBonKnownType.Char:
@@ -397,8 +403,8 @@ namespace Salar.Bon
 				WriteValue(value.Value);
 			}
 		}
-
 #endif
+
 		private void WriteEnum(Enum e)
 		{
 			// Int32
@@ -483,12 +489,14 @@ namespace Salar.Bon
 			}
 		}
 
+		[Obsolete]
 		private void WritePairString(string name, object value)
 		{
-			WriteString(name, true);
+			WriteString(name);
 			WriteValue(value);
 		}
 
+		[Obsolete]
 		private void WritePairObject(object key, object value)
 		{
 			WriteValue(key);
@@ -525,9 +533,30 @@ namespace Salar.Bon
 
 		private void WriteString(string str)
 		{
+			if (str == null)
+			{
+				PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)null);
+			}
+			else if (str.Length == 0)
+			{
+				PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)0);
+			}
+			else
+			{
+				var strBytes = Encoding.GetBytes(str);
+				// Int32
+				PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)strBytes.Length);
+				_serializeOut.Write(strBytes);
+			}
+		}
+
+		[Obsolete]
+		private void WriteString_OLD(string str)
+		{
 			WriteBytes(Encoding.GetBytes(str));
 		}
-		private void WriteString(string str, bool checkNull)
+		[Obsolete]
+		private void WriteString_OLD(string str, bool checkNull)
 		{
 			if (checkNull)
 			{
@@ -550,6 +579,13 @@ namespace Salar.Bon
 
 		private void WriteGuid(Guid g)
 		{
+			if (g == Guid.Empty)
+			{
+				// Int32
+				PrimitivesConvertion.WriteVarInt(_serializeOut, 0);
+				return;
+			}
+
 			var data = g.ToByteArray();
 			// Int32
 			PrimitivesConvertion.WriteVarInt(_serializeOut, data.Length);
@@ -598,12 +634,12 @@ namespace Salar.Bon
 					var value = ReadMember(memInfo, pinfo.PropertyType);
 
 					//memInfo.PropertySetter(obj, value);
-					if (objType.IsValueType)
-						pinfo.SetValue(obj, value, null);
-					else
-					{
-						memInfo.PropertySetter(obj, value);
-					} 
+					//if (objType.IsValueType)
+					//	pinfo.SetValue(obj, value, null);
+					//else
+					//{
+					//}
+					memInfo.PropertySetter(obj, value);
 				}
 				else
 				{
@@ -985,13 +1021,27 @@ namespace Salar.Bon
 
 		private string ReadString()
 		{
-			var strBuff = ReadBytes();
-			return Encoding.GetString(strBuff, 0, strBuff.Length);
+			int? length = PrimitivesConvertion.ReadVarInt32Nullable(_input);
+			if (length == null)
+			{
+				return null;
+			}
+			else if (length == 0)
+			{
+				return string.Empty;
+			}
+			else
+			{
+				var strBuff = _input.ReadBytes(length.Value);
+				return Encoding.GetString(strBuff, 0, strBuff.Length);
+			}
 		}
 
 		private object ReadGuid()
 		{
 			var gbuff = ReadBytes();
+			if (gbuff.Length == 0)
+				return Guid.Empty;
 			return new Guid(gbuff);
 		}
 

@@ -11,11 +11,13 @@ namespace Salar.Bon.Tests.Objects
 		{
 			public string Name { get; set; }
 			public int Age { get; set; }
+			public Guid SessionID { get; set; }
 			public DateTime Birth { get; set; }
 			public void Initialize()
 			{
 				Name = "Test" + DateTime.Now.Ticks;
 				Age = 11;
+				SessionID = Guid.NewGuid();
 			}
 		}
 

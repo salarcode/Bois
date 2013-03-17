@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.BonTests", "Salar.Bon
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bon.SL", "Salar.Bon.SL\Salar.Bon.SL.csproj", "{AD67729A-5E8C-4E99-A581-CD8C52896FC4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.BonBenchmark", "Salar.BonBenchmark\Salar.BonBenchmark.csproj", "{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,16 @@ Global
 		{AD67729A-5E8C-4E99-A581-CD8C52896FC4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{AD67729A-5E8C-4E99-A581-CD8C52896FC4}.Release|x86.ActiveCfg = Release|Any CPU
 		{AD67729A-5E8C-4E99-A581-CD8C52896FC4}.Release|x86.Build.0 = Release|Any CPU
+		{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

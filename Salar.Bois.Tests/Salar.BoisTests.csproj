@@ -78,7 +78,7 @@
     <Compile Include="SerializationCollectionsTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Salar.Bon\Salar.Bois.csproj">
+    <ProjectReference Include="..\Salar.Bois\Salar.Bois.csproj">
       <Project>{26FC10C3-638F-4747-9D7B-9C1715EC3C6E}</Project>
       <Name>Salar.Bois</Name>
     </ProjectReference>

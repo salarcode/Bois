@@ -29,7 +29,7 @@ namespace Salar.Bois.Tests.Objects
 		public void Initialize()
 		{
 			Text = "Well, hello!";
-			Text = "This is Salar.Bon";
+			Text = "This is Salar.Bois";
 			Text = "A binary serializer";
 			Language = SystemLanguage.French;
 			AcceptChar = 'c';

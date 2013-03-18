@@ -11,7 +11,7 @@ namespace Salar.Bois.Tests
 	[TestClass]
 	public class PrimitivesTest
 	{
-		private BonSerializer _bonSerializer;
+		private BoisSerializer _boisSerializer;
 		private dynamic bion;
 		private MemoryStream bionStream;
 		private BinaryReader bionReader;
@@ -20,8 +20,8 @@ namespace Salar.Bois.Tests
 		[TestInitialize]
 		public void Initialize()
 		{
-			_bonSerializer = new BonSerializer();
-			bion = _bonSerializer.AsDynamic();
+			_boisSerializer = new BoisSerializer();
+			bion = _boisSerializer.AsDynamic();
 			bionStream = new MemoryStream();
 			bionReader = new BinaryReader(bionStream);
 			bionWriter = new BinaryWriter(bionStream);

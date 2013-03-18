@@ -2,10 +2,10 @@
 using System.IO;
 
 /* 
- * Salar BON (Binary Object Notation)
+ * Salar BOIS (Binary Object Indexed Serialization)
  * by Salar Khalilzadeh
  * 
- * https://bon.codeplex.com/
+ * https://bois.codeplex.com/
  * Mozilla Public License v2
  */
 namespace Salar.Bois

@@ -57,10 +57,10 @@
     <Reference Include="System.Windows.Browser" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Salar.Bois\BonSerializer.cs">
+    <Compile Include="..\Salar.Bois\BoisSerializer.cs">
       <Link>BoisSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\Salar.Bois\BonTypeCache.cs">
+    <Compile Include="..\Salar.Bois\BoisTypeCache.cs">
       <Link>BoisTypeCache.cs</Link>
     </Compile>
     <Compile Include="..\Salar.Bois\PrimitivesConvertion.cs">

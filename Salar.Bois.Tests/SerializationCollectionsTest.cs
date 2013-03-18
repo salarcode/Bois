@@ -14,7 +14,7 @@ namespace Salar.Bois.Tests
 	[TestClass]
 	public class SerializationCollectionsTest
 	{
-		private BonSerializer _bonSerializer;
+		private BoisSerializer _boisSerializer;
 		private dynamic bion;
 		private MemoryStream bionStream;
 		private BinaryReader bionReader;
@@ -23,8 +23,8 @@ namespace Salar.Bois.Tests
 		[TestInitialize]
 		public void Initialize()
 		{
-			_bonSerializer = new BonSerializer();
-			bion = _bonSerializer.AsDynamic();
+			_boisSerializer = new BoisSerializer();
+			bion = _boisSerializer.AsDynamic();
 			bionStream = new MemoryStream();
 			bionReader = new BinaryReader(bionStream);
 			bionWriter = new BinaryWriter(bionStream);
@@ -304,7 +304,7 @@ namespace Salar.Bois.Tests
 		public void GenericList_StringNormal()
 		{
 			ResetStream();
-			var init = new List<string>() { "This test", "is", " for BON " };
+			var init = new List<string>() { "This test", "is", " for BOIS " };
 			bion.WriteGenericList(init);
 			ResetStream();
 
@@ -317,7 +317,7 @@ namespace Salar.Bois.Tests
 		public void GenericList_StringNull()
 		{
 			ResetStream();
-			var init = new List<string>() { "This test", null, " for BON " };
+			var init = new List<string>() { "This test", null, " for BOIS " };
 			bion.WriteGenericList(init);
 			ResetStream();
 

@@ -34,7 +34,7 @@ namespace Salar.BoisBenchmark.Objects
 								        new class1()
 									        {
 										        Code = "15",
-										        Name = "Salar.BON",
+										        Name = "Salar.Bois",
 										        description = "This is sample text",
 										        guid = Guid.NewGuid()
 									        },
@@ -42,7 +42,7 @@ namespace Salar.BoisBenchmark.Objects
 							        },
 						date = DateTime.Now,
 						multilineString = @"
-						Salar.Bon is a fast, light and powerful binary serializer for .NET Framework.
+						Salar.Bois is a fast, light and powerful binary serializer for .NET Framework.
 						Stack Overflow is a question and answer
 						site for professional and enthusiast programmers.
 						",

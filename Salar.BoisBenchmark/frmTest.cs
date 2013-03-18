@@ -58,7 +58,7 @@ namespace Salar.BoisBenchmark
 			Log("BasicTypes benchmark---------- repeat count: " + count);
 			var benchobj1 = BasicTypes.CreateObject();
 
-			BonBenchmark(benchobj1, count, 2);
+			BoisBenchmark(benchobj1, count, 2);
 
 			ProtoBufNetBenchmark(benchobj1, count);
 
@@ -78,7 +78,7 @@ namespace Salar.BoisBenchmark
 			Log("HierarchyObject benchmark---------- repeat count: " + count);
 
 			var benchobj2 = HierarchyObject.CreateObject();
-			BonBenchmark(benchobj2, count, 2);
+			BoisBenchmark(benchobj2, count, 2);
 
 			ProtoBufNetBenchmark(benchobj2, count);
 
@@ -96,7 +96,7 @@ namespace Salar.BoisBenchmark
 			Log("Collections benchmark---------- repeat count: " + count);
 
 			var benchobj3 = Collections.CreateObject();
-			BonBenchmark(benchobj3, count, 2);
+			BoisBenchmark(benchobj3, count, 2);
 
 			ProtoBufNetBenchmark(benchobj3, count);
 
@@ -114,7 +114,7 @@ namespace Salar.BoisBenchmark
 			Log("SpecialCollections benchmark---------- repeat count: " + count);
 
 			var benchobj4 = SpecialCollections.CreateObject();
-			BonBenchmark(benchobj4, count, 2);
+			BoisBenchmark(benchobj4, count, 2);
 
 			ProtoBufNetBenchmark(benchobj4, count);
 
@@ -143,8 +143,8 @@ namespace Salar.BoisBenchmark
 
 		private void Initialize()
 		{
-			BonTypeCache.Initialize<BasicTypes>();
-			BonTypeCache.Initialize<HierarchyObject>();
+			BoisTypeCache.Initialize<BasicTypes>();
+			BoisTypeCache.Initialize<HierarchyObject>();
 			if (!_netSerializer)
 			{
 				try
@@ -168,7 +168,7 @@ namespace Salar.BoisBenchmark
 
   
 
-		private void BonBenchmark<T>(T obj, int count, int which)
+		private void BoisBenchmark<T>(T obj, int count, int which)
 		{
 			
 
@@ -176,12 +176,12 @@ namespace Salar.BoisBenchmark
 			{
 				Stopwatch sw;
 				//-----------------------------------
-				var bonSerializer = new BonSerializer();
-				var bonMem = new MemoryStream();
+				var boisSerializer = new BoisSerializer();
+				var boisMem = new MemoryStream();
 
-				bonSerializer.Serialize(obj, bonMem);
-				bonMem.Seek(0, SeekOrigin.Begin);
-				bonSerializer.Deserialize<T>(bonMem);
+				boisSerializer.Serialize(obj, boisMem);
+				boisMem.Seek(0, SeekOrigin.Begin);
+				boisSerializer.Deserialize<T>(boisMem);
 
 				if (which != 0)
 				{
@@ -190,12 +190,12 @@ namespace Salar.BoisBenchmark
 						sw = Stopwatch.StartNew();
 						for (int i = 0; i < count; i++)
 						{
-							bonSerializer.Serialize(obj, mem);
+							boisSerializer.Serialize(obj, mem);
 							mem.SetLength(0);
 						}
 					}
 					sw.Stop();
-					Log("bonSerializer.Serialize		took: " + ToString(sw.Elapsed) + "  data-size: " + bonMem.Length);
+					Log("BoisSerializer.Serialize		took: " + ToString(sw.Elapsed) + "  data-size: " + boisMem.Length);
 				}
 
 				if (which != 1)
@@ -203,16 +203,16 @@ namespace Salar.BoisBenchmark
 					sw = Stopwatch.StartNew();
 					for (int i = 0; i < count; i++)
 					{
-						bonMem.Seek(0, SeekOrigin.Begin);
-						bonSerializer.Deserialize<T>(bonMem);
+						boisMem.Seek(0, SeekOrigin.Begin);
+						boisSerializer.Deserialize<T>(boisMem);
 					}
 					sw.Stop();
-					Log("bonDeserializer.Deserialize		took: " + ToString(sw.Elapsed));
+					Log("BoisDeserializer.Deserialize		took: " + ToString(sw.Elapsed));
 				}
 			}
 			catch (Exception ex)
 			{
-				Log("Bon failed, " + ex.Message);
+				Log("Bois failed, " + ex.Message);
 			}
 		}
 

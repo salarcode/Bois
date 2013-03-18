@@ -10,26 +10,26 @@ using System.Drawing;
 #endif
 
 /* 
- * Salar BON (Binary Object Notation)
+ * Salar BOIS (Binary Object Indexed Serialization)
  * by Salar Khalilzadeh
  * 
- * https://bon.codeplex.com/
+ * https://bois.codeplex.com/
  * Mozilla Public License v2
  */
 namespace Salar.Bois
 {
-	public static class BonTypeCache
+	public static class BoisTypeCache
 	{
 		internal delegate void GenericSetter(object target, object value);
 		internal delegate object GenericGetter(object target);
 
-		internal enum EnBonMemberType
+		internal enum EnBoisMemberType
 		{
 			Object,
 			Property,
 			Field
 		}
-		internal enum EnBonKnownType
+		internal enum EnBoisKnownType
 		{
 			Unknown = 0,
 			Int16,
@@ -58,7 +58,7 @@ namespace Salar.Bois
 			Version,
 			DbNull,
 		}
-		internal class BonMemberInfo
+		internal class BoisMemberInfo
 		{
 			public bool IsNullable;
 			public bool IsGeneric;
@@ -68,8 +68,8 @@ namespace Salar.Bois
 			public bool IsArray;
 			public bool IsSupportedPrimitive;
 
-			public EnBonMemberType MemberType;
-			public EnBonKnownType KnownType;
+			public EnBoisMemberType MemberType;
+			public EnBoisKnownType KnownType;
 			public MemberInfo Info;
 
 			public Function<object, object, object> PropertySetter;
@@ -80,9 +80,9 @@ namespace Salar.Bois
 			}
 		}
 
-		internal class BonTypeInfo : BonMemberInfo
+		internal class BoisTypeInfo : BoisMemberInfo
 		{
-			public BonMemberInfo[] Members;
+			public BoisMemberInfo[] Members;
 			public override string ToString()
 			{
 				return string.Format("{0}: {1}: {2}: Members= {3}", MemberType, KnownType, Info,
@@ -90,14 +90,14 @@ namespace Salar.Bois
 			}
 		}
 #if SILVERLIGHT
-		private static Dictionary<Type, BonMemberInfo> _cache;
-		static BonTypeCache()
+		private static Dictionary<Type, BoisMemberInfo> _cache;
+		static BoisTypeCache()
 		{
-			_cache = new Dictionary<Type, BonMemberInfo>();
+			_cache = new Dictionary<Type, BoisMemberInfo>();
 		}
 #else
 		private static Hashtable _cache;
-		static BonTypeCache()
+		static BoisTypeCache()
 		{
 			_cache = new Hashtable();
 		}
@@ -132,16 +132,16 @@ namespace Salar.Bois
 			}
 		}
 
-		internal static BonMemberInfo GetTypeInfo(Type type, bool generate)
+		internal static BoisMemberInfo GetTypeInfo(Type type, bool generate)
 		{
 #if SILVERLIGHT
-			BonMemberInfo memInfo;
+			BoisMemberInfo memInfo;
 			if (_cache.TryGetValue(type, out memInfo))
 			{
 				return memInfo;
 			}
 #else
-			var memInfo = _cache[type] as BonMemberInfo;
+			var memInfo = _cache[type] as BoisMemberInfo;
 #endif
 
 			if (memInfo != null)
@@ -164,7 +164,7 @@ namespace Salar.Bois
 				CacheInsert(type, info);
 			}
 		}
-		private static void CacheInsert(Type type, BonMemberInfo memInfo)
+		private static void CacheInsert(Type type, BoisMemberInfo memInfo)
 		{
 			lock (_cache)
 			{
@@ -175,18 +175,18 @@ namespace Salar.Bois
 			}
 		}
 
-		private static BonMemberInfo ReadObject(Type type)
+		private static BoisMemberInfo ReadObject(Type type)
 		{
 			var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 			var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
-			var typeInfo = new BonTypeInfo
+			var typeInfo = new BoisTypeInfo
 							   {
-								   MemberType = EnBonMemberType.Object,
-								   KnownType = EnBonKnownType.Unknown,
+								   MemberType = EnBoisMemberType.Object,
+								   KnownType = EnBoisKnownType.Unknown,
 								   IsNullable = true
 							   };
-			var members = new List<BonMemberInfo>();
+			var members = new List<BoisMemberInfo>();
 			foreach (var p in props)
 			{
 				if (p.CanWrite)
@@ -196,7 +196,7 @@ namespace Salar.Bois
 					//info.PropertySetter = CreateSetMethod(p);
 					info.PropertySetter = GetPropertySetter(type, p);
 					info.Info = p;
-					info.MemberType = EnBonMemberType.Property;
+					info.MemberType = EnBoisMemberType.Property;
 					members.Add(info);
 				}
 			}
@@ -204,7 +204,7 @@ namespace Salar.Bois
 			{
 				var info = ReadMemberInfo(f.FieldType);
 				info.Info = f;
-				info.MemberType = EnBonMemberType.Field;
+				info.MemberType = EnBoisMemberType.Field;
 				members.Add(info);
 			}
 			typeInfo.Members = members.ToArray();
@@ -213,13 +213,13 @@ namespace Salar.Bois
 			return typeInfo;
 		}
 
-		private static BonMemberInfo ReadMemberInfo(Type memType)
+		private static BoisMemberInfo ReadMemberInfo(Type memType)
 		{
 			if (memType == typeof(string))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.String,
+					KnownType = EnBoisKnownType.String,
 					IsNullable = true,
 					IsSupportedPrimitive = true,
 				};
@@ -228,50 +228,50 @@ namespace Salar.Bois
 
 			if (memType == typeof(char) || memType == typeof(char?))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.Char,
+					KnownType = EnBoisKnownType.Char,
 					IsNullable = isNullable
 				};
 			}
 			if (memType == typeof(bool) || memType == typeof(bool?))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.Bool,
+							   KnownType = EnBoisKnownType.Bool,
 							   IsNullable = isNullable
 						   };
 			}
 			if (memType == typeof(DateTime) || memType == typeof(DateTime?))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.DateTime,
+							   KnownType = EnBoisKnownType.DateTime,
 							   IsNullable = isNullable
 						   };
 			}
 			if (memType == typeof(byte[]))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.ByteArray,
+							   KnownType = EnBoisKnownType.ByteArray,
 							   IsNullable = isNullable,
 							   IsArray = true
 						   };
 			}
 			if (ReflectionHelper.CompareSubType(memType, typeof(Enum)))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.Enum,
+							   KnownType = EnBoisKnownType.Enum,
 							   IsNullable = isNullable
 						   };
 			}
 			if (ReflectionHelper.CompareSubType(memType, typeof(Array)))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.Unknown,
+							   KnownType = EnBoisKnownType.Unknown,
 							   IsNullable = isNullable,
 							   IsArray = true,
 						   };
@@ -280,9 +280,9 @@ namespace Salar.Bois
 			{
 				if (ReflectionHelper.CompareInterface(memType, typeof(IDictionary)) &&
 					memType.GetGenericArguments()[0] == typeof(string))
-					return new BonMemberInfo
+					return new BoisMemberInfo
 							   {
-								   KnownType = EnBonKnownType.Unknown,
+								   KnownType = EnBoisKnownType.Unknown,
 								   IsNullable = isNullable,
 								   IsDictionary = true,
 								   IsStringDictionary = true,
@@ -290,9 +290,9 @@ namespace Salar.Bois
 							   };
 #if DotNet4
 				if (ReflectionHelper.CompareInterface(memType, typeof(ISet)))
-					return new BonMemberInfo
+					return new BoisMemberInfo
 						       {
-							       KnownType = EnBonKnownType.Unknown,
+							       KnownType = EnBoisKnownType.Unknown,
 							       IsNullable = isNullable,
 							       IsGeneric = true,
 							       IsSet = true,
@@ -302,9 +302,9 @@ namespace Salar.Bois
 
 			if (ReflectionHelper.CompareInterface(memType, typeof(IDictionary)))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.Unknown,
+							   KnownType = EnBoisKnownType.Unknown,
 							   IsNullable = isNullable,
 							   IsDictionary = true,
 							   IsGeneric = true,
@@ -312,50 +312,50 @@ namespace Salar.Bois
 			}
 			if (memType == typeof(TimeSpan) || memType == typeof(TimeSpan?))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.TimeSpan,
+							   KnownType = EnBoisKnownType.TimeSpan,
 							   IsNullable = isNullable
 						   };
 			}
 			if (memType == typeof(Version))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.Version,
+							   KnownType = EnBoisKnownType.Version,
 							   IsNullable = isNullable
 						   };
 			}
 #if !SILVERLIGHT
 			if (memType == typeof(Color) || memType == typeof(Color?))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.Color,
+							   KnownType = EnBoisKnownType.Color,
 							   IsNullable = isNullable
 						   };
 			}
 			if (ReflectionHelper.CompareSubType(memType, typeof(DataSet)))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.DataSet,
+							   KnownType = EnBoisKnownType.DataSet,
 							   IsNullable = isNullable
 						   };
 			}
 			if (ReflectionHelper.CompareSubType(memType, typeof(DataTable)))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.DataTable,
+							   KnownType = EnBoisKnownType.DataTable,
 							   IsNullable = isNullable
 						   };
 			}
 			if (ReflectionHelper.CompareSubType(memType, typeof(NameValueCollection)))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.NameValueColl,
+							   KnownType = EnBoisKnownType.NameValueColl,
 							   IsNullable = isNullable
 						   };
 			}
@@ -364,9 +364,9 @@ namespace Salar.Bois
 			if (ReflectionHelper.CompareInterface(memType, typeof(IList)) ||
 				   ReflectionHelper.CompareInterface(memType, typeof(ICollection)))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.Unknown,
+							   KnownType = EnBoisKnownType.Unknown,
 							   IsNullable = isNullable,
 							   IsGeneric = memType.IsGenericType,
 							   IsCollection = true,
@@ -374,7 +374,7 @@ namespace Salar.Bois
 						   };
 			}
 
-			BonMemberInfo output;
+			BoisMemberInfo output;
 			if (TryReadNumber(memType, out output))
 			{
 				output.IsNullable = isNullable;
@@ -382,18 +382,18 @@ namespace Salar.Bois
 			}
 			if (memType == typeof(Guid) || memType == typeof(Guid?))
 			{
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.Guid,
+							   KnownType = EnBoisKnownType.Guid,
 							   IsNullable = isNullable
 						   };
 			}
 			if (memType == typeof(DBNull))
 			{
 				// ignore!
-				return new BonMemberInfo
+				return new BoisMemberInfo
 						   {
-							   KnownType = EnBonKnownType.DbNull,
+							   KnownType = EnBoisKnownType.DbNull,
 							   IsNullable = isNullable
 						   };
 			}
@@ -408,7 +408,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// Slower convertion
 		/// </summary>
-		private static bool IsNumber(Type memType, out BonMemberInfo output)
+		private static bool IsNumber(Type memType, out BoisMemberInfo output)
 		{
 			if (memType.IsClass)
 			{
@@ -419,59 +419,59 @@ namespace Salar.Bois
 			switch (Type.GetTypeCode(UnNullify(memType)))
 			{
 				case TypeCode.Int16:
-					output = new BonMemberInfo
+					output = new BoisMemberInfo
 					{
-						KnownType = EnBonKnownType.Int16,
+						KnownType = EnBoisKnownType.Int16,
 						IsSupportedPrimitive = true,
 					};
 					break;
 
 				case TypeCode.Int32:
-					output = new BonMemberInfo
+					output = new BoisMemberInfo
 					{
-						KnownType = EnBonKnownType.Int32,
+						KnownType = EnBoisKnownType.Int32,
 						IsSupportedPrimitive = true,
 					};
 					break;
 
 				case TypeCode.Int64:
-					output = new BonMemberInfo
+					output = new BoisMemberInfo
 					{
-						KnownType = EnBonKnownType.Int64,
+						KnownType = EnBoisKnownType.Int64,
 						IsSupportedPrimitive = true,
 					};
 					break;
 				case TypeCode.Single:
-					output = new BonMemberInfo { KnownType = EnBonKnownType.Single };
+					output = new BoisMemberInfo { KnownType = EnBoisKnownType.Single };
 					break;
 				case TypeCode.Double:
-					output = new BonMemberInfo { KnownType = EnBonKnownType.Double };
+					output = new BoisMemberInfo { KnownType = EnBoisKnownType.Double };
 					break;
 				case TypeCode.Decimal:
-					output = new BonMemberInfo { KnownType = EnBonKnownType.Decimal };
+					output = new BoisMemberInfo { KnownType = EnBoisKnownType.Decimal };
 					break;
 
 				case TypeCode.Byte:
-					output = new BonMemberInfo { KnownType = EnBonKnownType.Byte };
+					output = new BoisMemberInfo { KnownType = EnBoisKnownType.Byte };
 					break;
 				case TypeCode.SByte:
-					output = new BonMemberInfo { KnownType = EnBonKnownType.SByte };
+					output = new BoisMemberInfo { KnownType = EnBoisKnownType.SByte };
 					break;
 
 				case TypeCode.UInt16:
-					output = new BonMemberInfo { KnownType = EnBonKnownType.UInt16 };
+					output = new BoisMemberInfo { KnownType = EnBoisKnownType.UInt16 };
 					break;
 				case TypeCode.UInt32:
-					output = new BonMemberInfo { KnownType = EnBonKnownType.UInt32 };
+					output = new BoisMemberInfo { KnownType = EnBoisKnownType.UInt32 };
 					break;
 				case TypeCode.UInt64:
-					output = new BonMemberInfo { KnownType = EnBonKnownType.UInt64 };
+					output = new BoisMemberInfo { KnownType = EnBoisKnownType.UInt64 };
 					break;
 			}
 			return output != null;
 		}
 
-		private static bool TryReadNumber(Type memType, out BonMemberInfo output)
+		private static bool TryReadNumber(Type memType, out BoisMemberInfo output)
 		{
 			if (memType.IsClass)
 			{
@@ -480,82 +480,82 @@ namespace Salar.Bois
 			}
 			if (memType == typeof(int) || memType == typeof(int?))
 			{
-				output = new BonMemberInfo
+				output = new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.Int32,
+					KnownType = EnBoisKnownType.Int32,
 					IsSupportedPrimitive = true,
 				};
 			}
 			else if (memType == typeof(long) || memType == typeof(long?))
 			{
-				output = new BonMemberInfo
+				output = new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.Int64,
+					KnownType = EnBoisKnownType.Int64,
 					IsSupportedPrimitive = true,
 				};
 			}
 			else if (memType == typeof(short) || memType == typeof(short?))
 			{
-				output = new BonMemberInfo
+				output = new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.Int16,
+					KnownType = EnBoisKnownType.Int16,
 					IsSupportedPrimitive = true,
 				};
 			}
 			else if (memType == typeof(double) || memType == typeof(double?))
 			{
-				output = new BonMemberInfo
+				output = new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.Double,
+					KnownType = EnBoisKnownType.Double,
 				};
 			}
 			else if (memType == typeof(decimal) || memType == typeof(decimal?))
 			{
-				output = new BonMemberInfo
+				output = new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.Decimal,
+					KnownType = EnBoisKnownType.Decimal,
 				};
 			}
 			else if (memType == typeof(float) || memType == typeof(float?))
 			{
-				output = new BonMemberInfo
+				output = new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.Single,
+					KnownType = EnBoisKnownType.Single,
 				};
 			}
 			else if (memType == typeof(byte) || memType == typeof(byte?))
 			{
-				output = new BonMemberInfo
+				output = new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.Byte,
+					KnownType = EnBoisKnownType.Byte,
 				};
 			}
 			else if (memType == typeof(sbyte) || memType == typeof(sbyte?))
 			{
-				output = new BonMemberInfo
+				output = new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.SByte,
+					KnownType = EnBoisKnownType.SByte,
 				};
 			}
 			else if (memType == typeof(ushort) || memType == typeof(ushort?))
 			{
-				output = new BonMemberInfo
+				output = new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.UInt16,
+					KnownType = EnBoisKnownType.UInt16,
 				};
 			}
 			else if (memType == typeof(uint) || memType == typeof(uint?))
 			{
-				output = new BonMemberInfo
+				output = new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.UInt32,
+					KnownType = EnBoisKnownType.UInt32,
 				};
 			}
 			else if (memType == typeof(ulong) || memType == typeof(ulong?))
 			{
-				output = new BonMemberInfo
+				output = new BoisMemberInfo
 				{
-					KnownType = EnBonKnownType.UInt64,
+					KnownType = EnBoisKnownType.UInt64,
 				};
 			}
 			else

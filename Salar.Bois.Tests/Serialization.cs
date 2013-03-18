@@ -10,7 +10,7 @@ namespace Salar.Bois.Tests
 	[TestClass]
 	public class Serialization
 	{
-		BonSerializer _bon = new BonSerializer();
+		BoisSerializer _bois = new BoisSerializer();
 
 		[TestMethod]
 		public void PrimitiveTypes1Test()
@@ -21,9 +21,9 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 				mem.Seek(0, SeekOrigin.Begin);
-				final = _bon.Deserialize<PrimitiveTypes1>(mem);
+				final = _bois.Deserialize<PrimitiveTypes1>(mem);
 			}
 			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
@@ -37,11 +37,11 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 
 				mem.Seek(0, SeekOrigin.Begin);
 
-				final = _bon.Deserialize<PrimitiveTypes1Nullable>(mem);
+				final = _bois.Deserialize<PrimitiveTypes1Nullable>(mem);
 			}
 			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
@@ -54,10 +54,10 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 				mem.Seek(0, SeekOrigin.Begin);
 
-				final = _bon.Deserialize<DBNull>(mem);
+				final = _bois.Deserialize<DBNull>(mem);
 
 				// means deserialize should advance the position in stream 
 				mem.Position.Should().Be.GreaterThan(0);
@@ -73,9 +73,9 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 				mem.Seek(0, SeekOrigin.Begin);
-				final = _bon.Deserialize<Guid>(mem);
+				final = _bois.Deserialize<Guid>(mem);
 			}
 			final.Should().Be.EqualTo(init);
 		}
@@ -88,9 +88,9 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 				mem.Seek(0, SeekOrigin.Begin);
-				final = _bon.Deserialize<Guid>(mem);
+				final = _bois.Deserialize<Guid>(mem);
 			}
 			final.Should().Be.EqualTo(init);
 		}
@@ -104,9 +104,9 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 				mem.Seek(0, SeekOrigin.Begin);
-				final = _bon.Deserialize<BasicTypes1>(mem);
+				final = _bois.Deserialize<BasicTypes1>(mem);
 			}
 			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
@@ -120,9 +120,9 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 				mem.Seek(0, SeekOrigin.Begin);
-				final = _bon.Deserialize<BasicTypes1Nullable>(mem);
+				final = _bois.Deserialize<BasicTypes1Nullable>(mem);
 			}
 			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
@@ -136,9 +136,9 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 				mem.Seek(0, SeekOrigin.Begin);
-				final = _bon.Deserialize<HierarchyObjects1>(mem);
+				final = _bois.Deserialize<HierarchyObjects1>(mem);
 			}
 
 			AssertionHelper.AssertMembersAreEqual(init.Child1, final.Child1);
@@ -157,9 +157,9 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 				mem.Seek(0, SeekOrigin.Begin);
-				final = _bon.Deserialize<HierarchyObjects1.TheChild>(mem);
+				final = _bois.Deserialize<HierarchyObjects1.TheChild>(mem);
 			}
 
 			AssertionHelper.AssertMembersAreEqual(init, final);
@@ -174,9 +174,9 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 				mem.Seek(0, SeekOrigin.Begin);
-				final = _bon.Deserialize<StructType1>(mem);
+				final = _bois.Deserialize<StructType1>(mem);
 			}
 
 			AssertionHelper.AssertMembersAreEqual(init, final);
@@ -191,9 +191,9 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 				mem.Seek(0, SeekOrigin.Begin);
-				final = _bon.Deserialize<HierarchyWithStruct>(mem);
+				final = _bois.Deserialize<HierarchyWithStruct>(mem);
 			}
 
 			AssertionHelper.AssertMembersAreEqual(init.SType, final.SType);
@@ -210,9 +210,9 @@ namespace Salar.Bois.Tests
 
 			using (var mem = new MemoryStream())
 			{
-				_bon.Serialize(init, mem);
+				_bois.Serialize(init, mem);
 				mem.Seek(0, SeekOrigin.Begin);
-				final = _bon.Deserialize<CollectionTypes1>(mem);
+				final = _bois.Deserialize<CollectionTypes1>(mem);
 			}
 			AssertionHelper.AssertMembersAreEqual(init, final);
 		}

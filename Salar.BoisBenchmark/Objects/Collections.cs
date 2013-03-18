@@ -37,7 +37,7 @@ namespace Salar.BoisBenchmark.Objects
 						//					 {0, "zero"}
 						//				 },
 						Ages = new int[] { 30, 27, 17, 70 },
-						Names = new string[] { "Salar", "Bon", "Codeplex" },
+						Names = new string[] { "Salar", "BOIS", "Codeplex" },
 						StringDictionary = new Dictionary<string, int?>()
 											   {
 												   {"NULL", null},

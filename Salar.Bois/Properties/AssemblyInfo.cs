@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Salar.Bon")]
-[assembly: AssemblyDescription("Salar's Serializer for Binary Object Notation")]
+[assembly: AssemblyTitle("Salar.Bois")]
+[assembly: AssemblyDescription("Salar's Serializer for Binary Object Indexed Serialization")]
 [assembly: AssemblyCompany("Salar Khalilzadeh")]
-[assembly: AssemblyProduct("Salar's Binary Object Notation")]
+[assembly: AssemblyProduct("Salar's Binary Object Indexed Serialization")]
 [assembly: AssemblyCopyright("MPLv2 © 2013")]
 [assembly: AssemblyTrademark("")]
 
@@ -21,5 +21,5 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("fe6e6e30-d634-4a5c-a716-f1e8aeb86e04")]
 
-[assembly: AssemblyVersion("1.0.0318.68")]
-[assembly: AssemblyFileVersion("1.0.0318.68")]
+[assembly: AssemblyVersion("1.0.0318.71")]
+[assembly: AssemblyFileVersion("1.0.0318.71")]

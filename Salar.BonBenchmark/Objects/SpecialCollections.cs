@@ -21,6 +21,8 @@ namespace Salar.BonBenchmark.Objects
 							                {
 								                "2","1","3"
 							                },
+
+						//// Uncomment this part before using this test for benchmark
 						//NameValue = new NameValueCollection()
 						//				{
 						//					{"1","one"},

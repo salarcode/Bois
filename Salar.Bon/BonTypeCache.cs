@@ -687,9 +687,27 @@ namespace Salar.Bon
 
 		private static Function<object, object, object> GetPropertySetter(Type objType, PropertyInfo propertyInfo)
 		{
-			var method = propertyInfo.GetSetMethod();
-			//var method = objType.GetMethod("set_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
-			return GetFastSetterFunc(propertyInfo, method);
+			if (objType.IsValueType &&
+				!objType.IsPrimitive &&
+				!objType.IsArray &&
+				objType != typeof(string))
+			{
+				// this is a fallback to slower method.
+				var method = propertyInfo.GetSetMethod();
+
+				// generating the caller.
+				return new Function<object, object, object>((target, value) => method.Invoke(target, new object[] { value }));
+			}
+			else
+			{
+				//var method = objType.GetMethod("set_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
+				var method = propertyInfo.GetSetMethod();
+				return GetFastSetterFunc(propertyInfo, method);
+			}
+
+			////var method = objType.GetMethod("set_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
+			//var method = propertyInfo.GetSetMethod();
+			//return GetFastSetterFunc(propertyInfo, method);
 		}
 
 		/// <summary>

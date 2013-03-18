@@ -46,7 +46,7 @@ namespace Salar.BonBenchmark
 		}
 		private void btnBenchmark_Click(object sender, EventArgs e)
 		{
-			RunTheTests(2000);
+			RunTheTests(10000);
 		}
 
 
@@ -166,8 +166,12 @@ namespace Salar.BonBenchmark
 			}
 		}
 
+  
+
 		private void BonBenchmark<T>(T obj, int count, int which)
 		{
+			
+
 			try
 			{
 				Stopwatch sw;

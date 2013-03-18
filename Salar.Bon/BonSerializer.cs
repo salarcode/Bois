@@ -633,11 +633,12 @@ namespace Salar.Bon
 					// read the value
 					var value = ReadMember(memInfo, pinfo.PropertyType);
 
-					//memInfo.PropertySetter(obj, value);
+					////memInfo.PropertySetter(obj, value);
 					//if (objType.IsValueType)
 					//	pinfo.SetValue(obj, value, null);
 					//else
 					//{
+					//	memInfo.PropertySetter(obj, value);
 					//}
 					memInfo.PropertySetter(obj, value);
 				}

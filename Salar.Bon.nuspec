@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>Salar.Bon</id>
+		<version>1.0.0318.68</version>
+		<title>BON (Binary Object Notation)</title>
+		<authors>Salar Khalilzadeh</authors>
+		<owners>Salar Khalilzadeh</owners>
+		<licenseUrl>http://bon.codeplex.com/license</licenseUrl>
+		<projectUrl>http://bon.codeplex.com/</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>
+			Salar.Bon is a fast, light and powerful binary serializer for .NET Framework.
+			With Bon you can serialize your existing objects with almost no change.
+		</description>
+		<releaseNotes></releaseNotes>
+		<copyright>Copyright 2013</copyright>
+		<tags>Serialization Serialize Binary BSON JSON BON</tags>
+		<dependencies>
+		</dependencies>
+	</metadata>
+	<files>
+		<file src="Salar.Bon\Bin\Release\*.dll" target="lib\net20" />
+		<file src="Salar.Bon\Bin\Release\*.xml" target="lib\net20" />
+		<file src="Salar.Bon.SL\Bin\Release\*.dll" target="lib\sl4" />
+		<file src="Salar.Bon.SL\Bin\Release\*.xml" target="lib\sl4" />
+	</files>
+</package>

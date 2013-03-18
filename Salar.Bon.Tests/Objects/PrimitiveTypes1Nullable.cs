@@ -1,4 +1,4 @@
-﻿namespace Salar.Bon.Tests.Objects
+﻿namespace Salar.Bois.Tests.Objects
 {
 	class PrimitiveTypes1Nullable : IBaseType
 	{

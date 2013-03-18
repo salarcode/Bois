@@ -7,8 +7,8 @@
     <ProjectGuid>{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Salar.BonBenchmark</RootNamespace>
-    <AssemblyName>Salar.BonBenchmark</AssemblyName>
+    <RootNamespace>Salar.BoisBenchmark</RootNamespace>
+    <AssemblyName>Salar.BoisBenchmark</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -72,9 +72,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Salar.Bon\Salar.Bon.csproj">
+    <ProjectReference Include="..\Salar.Bon\Salar.Bois.csproj">
       <Project>{26fc10c3-638f-4747-9d7b-9c1715ec3c6e}</Project>
-      <Name>Salar.Bon</Name>
+      <Name>Salar.Bois</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

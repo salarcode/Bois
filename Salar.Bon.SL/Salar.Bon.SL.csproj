@@ -9,8 +9,8 @@
     <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Salar.Bon.SL</RootNamespace>
-    <AssemblyName>Salar.Bon.SL</AssemblyName>
+    <RootNamespace>Salar.Bois.SL</RootNamespace>
+    <AssemblyName>Salar.Bois.SL</AssemblyName>
     <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
@@ -57,19 +57,19 @@
     <Reference Include="System.Windows.Browser" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Salar.Bon\BonSerializer.cs">
-      <Link>BonSerializer.cs</Link>
+    <Compile Include="..\Salar.Bois\BonSerializer.cs">
+      <Link>BoisSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\Salar.Bon\BonTypeCache.cs">
-      <Link>BonTypeCache.cs</Link>
+    <Compile Include="..\Salar.Bois\BonTypeCache.cs">
+      <Link>BoisTypeCache.cs</Link>
     </Compile>
-    <Compile Include="..\Salar.Bon\PrimitivesConvertion.cs">
+    <Compile Include="..\Salar.Bois\PrimitivesConvertion.cs">
       <Link>PrimitivesConvertion.cs</Link>
     </Compile>
-    <Compile Include="..\Salar.Bon\ReflectionCache.cs">
+    <Compile Include="..\Salar.Bois\ReflectionCache.cs">
       <Link>ReflectionCache.cs</Link>
     </Compile>
-    <Compile Include="..\Salar.Bon\ReflectionHelper.cs">
+    <Compile Include="..\Salar.Bois\ReflectionHelper.cs">
       <Link>ReflectionHelper.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />

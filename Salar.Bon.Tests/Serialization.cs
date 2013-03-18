@@ -1,11 +1,11 @@
 ﻿using System;
-using Salar.Bon;
-using Salar.Bon.Tests.Objects;
+using Salar.Bois;
+using Salar.Bois.Tests.Objects;
 using SharpTestsEx;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Salar.Bion.Tests
+namespace Salar.Bois.Tests
 {
 	[TestClass]
 	public class Serialization

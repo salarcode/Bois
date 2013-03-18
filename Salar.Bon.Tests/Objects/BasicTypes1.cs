@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace Salar.Bon.Tests.Objects
+namespace Salar.Bois.Tests.Objects
 {
 	class BasicTypes1 : IBaseType
 	{

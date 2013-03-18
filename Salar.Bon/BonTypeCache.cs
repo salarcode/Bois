@@ -16,7 +16,7 @@ using System.Drawing;
  * https://bon.codeplex.com/
  * Mozilla Public License v2
  */
-namespace Salar.Bon
+namespace Salar.Bois
 {
 	public static class BonTypeCache
 	{

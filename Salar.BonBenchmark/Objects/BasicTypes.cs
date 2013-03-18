@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using ProtoBuf;
 
-namespace Salar.BonBenchmark.Objects
+namespace Salar.BoisBenchmark.Objects
 {
 	[ProtoContract]
 	[Serializable]

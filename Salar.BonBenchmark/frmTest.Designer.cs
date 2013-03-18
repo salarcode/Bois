@@ -1,4 +1,4 @@
-﻿namespace Salar.BonBenchmark
+﻿namespace Salar.BoisBenchmark
 {
 	partial class frmTest
 	{

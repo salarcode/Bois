@@ -2,15 +2,15 @@
 using Newtonsoft.Json.Bson;
 using Polenter.Serialization;
 using ProtoBuf;
-using Salar.Bon;
-using Salar.BonBenchmark.Objects;
+using Salar.Bois;
+using Salar.BoisBenchmark.Objects;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
-namespace Salar.BonBenchmark
+namespace Salar.BoisBenchmark
 {
 	public partial class frmTest : Form
 	{

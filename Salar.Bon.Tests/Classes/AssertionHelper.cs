@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Salar.Bion.Tests
+namespace Salar.Bois.Tests
 {
 	public static class AssertionHelper
 	{

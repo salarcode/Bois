@@ -17,7 +17,7 @@ using System.Drawing;
  * https://bon.codeplex.com/
  * Mozilla Public License v2
  */
-namespace Salar.Bon
+namespace Salar.Bois
 {
 	/// <summary>
 	/// Salar.Bon Serializer. BON stands for 'Binary Object Notation'.

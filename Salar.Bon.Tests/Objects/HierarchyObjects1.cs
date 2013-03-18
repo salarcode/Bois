@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Salar.Bon.Tests.Objects
+namespace Salar.Bois.Tests.Objects
 {
 	public class HierarchyObjects1 : IBaseType
 	{

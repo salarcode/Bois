@@ -11,7 +11,7 @@ using System.Reflection.Emit;
  * https://bon.codeplex.com/
  * Mozilla Public License v2
  */
-namespace Salar.Bon
+namespace Salar.Bois
 {
 
 	class ReflectionCache

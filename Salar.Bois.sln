@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bon", "Salar.Bon\Salar.Bon.csproj", "{26FC10C3-638F-4747-9D7B-9C1715EC3C6E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois", "Salar.Bois\Salar.Bois.csproj", "{26FC10C3-638F-4747-9D7B-9C1715EC3C6E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.BonTests", "Salar.Bon.Tests\Salar.BonTests.csproj", "{3AFF0FB0-780D-4A2A-B4F2-0F826AE14072}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.BoisTests", "Salar.Bois.Tests\Salar.BoisTests.csproj", "{3AFF0FB0-780D-4A2A-B4F2-0F826AE14072}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bon.SL", "Salar.Bon.SL\Salar.Bon.SL.csproj", "{AD67729A-5E8C-4E99-A581-CD8C52896FC4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.SL", "Salar.Bois.SL\Salar.Bois.SL.csproj", "{AD67729A-5E8C-4E99-A581-CD8C52896FC4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.BonBenchmark", "Salar.BonBenchmark\Salar.BonBenchmark.csproj", "{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.BoisBenchmark", "Salar.BoisBenchmark\Salar.BoisBenchmark.csproj", "{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

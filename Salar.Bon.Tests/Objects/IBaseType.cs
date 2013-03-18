@@ -1,4 +1,4 @@
-﻿namespace Salar.Bon.Tests.Objects
+﻿namespace Salar.Bois.Tests.Objects
 {
 	interface IBaseType
 	{

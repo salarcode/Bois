@@ -8,7 +8,7 @@ using System.Reflection;
  * https://bon.codeplex.com/
  * Mozilla Public License v2
  */
-namespace Salar.Bon
+namespace Salar.Bois
 {
 	public delegate TResult Function<in T1, in T2, out TResult>(T1 arg1, T2 arg2);
 

@@ -5,11 +5,11 @@ using System.Collections.Specialized;
 using System.Drawing;
 using System.IO;
 using ReflectionMagic;
-using Salar.Bon;
+using Salar.Bois;
 using SharpTestsEx;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Salar.Bion.Tests
+namespace Salar.Bois.Tests
 {
 	[TestClass]
 	public class SerializationCollectionsTest

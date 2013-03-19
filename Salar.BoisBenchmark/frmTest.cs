@@ -46,7 +46,7 @@ namespace Salar.BoisBenchmark
 		}
 		private void btnBenchmark_Click(object sender, EventArgs e)
 		{
-			RunTheTests(10000);
+			RunTheTests(5000);
 		}
 
 
@@ -72,6 +72,7 @@ namespace Salar.BoisBenchmark
 
 			JsonNetBenchmark(benchobj1, count);
 
+			ServiceStackBechmark(benchobj1, count);
 
 
 			Log("");
@@ -92,6 +93,8 @@ namespace Salar.BoisBenchmark
 
 			JsonNetBenchmark(benchobj2, count);
 
+			ServiceStackBechmark(benchobj2, count);
+
 			Log("");
 			Log("Collections benchmark---------- repeat count: " + count);
 
@@ -110,6 +113,8 @@ namespace Salar.BoisBenchmark
 
 			JsonNetBenchmark(benchobj3, count);
 
+			ServiceStackBechmark(benchobj3, count);
+			
 			Log("");
 			Log("SpecialCollections benchmark---------- repeat count: " + count);
 
@@ -127,6 +132,8 @@ namespace Salar.BoisBenchmark
 			BsonBenchmark(benchobj4, count);
 
 			JsonNetBenchmark(benchobj4, count);
+
+			ServiceStackBechmark(benchobj4, count);
 		}
 
 
@@ -166,11 +173,11 @@ namespace Salar.BoisBenchmark
 			}
 		}
 
-  
+
 
 		private void BoisBenchmark<T>(T obj, int count, int which)
 		{
-			
+
 
 			try
 			{
@@ -482,6 +489,46 @@ namespace Salar.BoisBenchmark
 		}
 
 
+		private void ServiceStackBechmark<T>(T obj, int count)
+		{
+			try
+			{
+				long initlength = 0;
+				Stopwatch sw;
+				//-----------------------------------
+				var sstSerializer = new ServiceStack.Text.JsonSerializer<T>();
+
+
+				var initSerialized = sstSerializer.SerializeToString(obj);
+				initlength = initSerialized.Length;
+				sstSerializer.DeserializeFromString(initSerialized);
+
+
+				using (var sharperMem = new MemoryStream())
+				{
+					sw = Stopwatch.StartNew();
+					for (int i = 0; i < count; i++)
+					{
+						sstSerializer.SerializeToString(obj);
+					}
+				}
+				sw.Stop();
+				Log("ServiceStackText Serialize		took: " + ToString(sw.Elapsed) + "  data-size: " + initlength);
+
+
+				sw = Stopwatch.StartNew();
+				for (int i = 0; i < count; i++)
+				{
+					sstSerializer.DeserializeFromString(initSerialized);
+				}
+				sw.Stop();
+				Log("ServiceStackText Deserialize		took: " + ToString(sw.Elapsed));
+			}
+			catch (Exception ex)
+			{
+				Log("ServiceStackText failed, " + ex.Message);
+			}
+		}
 
 	}
 }

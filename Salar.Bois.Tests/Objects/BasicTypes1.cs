@@ -17,6 +17,8 @@ namespace Salar.Bois.Tests.Objects
 		public string Text { get; set; }
 		public string Text2 { get; set; }
 		public string Text3 { get; set; }
+		public string Text4 { get; set; }
+		public string Text5 { get; set; }
 		public SystemLanguage Language { get; set; }
 		public char AcceptChar { get; set; }
 		public DateTime TestDate { get; set; }
@@ -29,8 +31,10 @@ namespace Salar.Bois.Tests.Objects
 		public void Initialize()
 		{
 			Text = "Well, hello!";
-			Text = "This is Salar.Bois";
-			Text = "A binary serializer";
+			Text2 = "This is Salar.Bois";
+			Text3 = "";
+			Text4 = null;
+			Text5 = "A binary serializer";
 			Language = SystemLanguage.French;
 			AcceptChar = 'c';
 			TestDate = DateTime.Now.AddDays(7);

@@ -52,7 +52,7 @@
 			this.txtLog.Multiline = true;
 			this.txtLog.Name = "txtLog";
 			this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtLog.Size = new System.Drawing.Size(730, 342);
+			this.txtLog.Size = new System.Drawing.Size(730, 436);
 			this.txtLog.TabIndex = 1;
 			// 
 			// btnClear
@@ -70,7 +70,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(754, 395);
+			this.ClientSize = new System.Drawing.Size(754, 489);
 			this.Controls.Add(this.btnClear);
 			this.Controls.Add(this.txtLog);
 			this.Controls.Add(this.btnBenchmark);

@@ -10,7 +10,7 @@ using System.Reflection;
  */
 namespace Salar.Bois
 {
-	public delegate TResult Function<in T1, in T2, out TResult>(T1 arg1, T2 arg2);
+	internal delegate TResult Function<in T1, in T2, out TResult>(T1 arg1, T2 arg2);
 
 	class ReflectionHelper
 	{

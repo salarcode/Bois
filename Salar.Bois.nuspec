@@ -12,6 +12,7 @@
 		<description>
 			Salar.Bois is a fast, light and powerful binary serializer for .NET Framework.
 			With Bois you can serialize your existing objects with almost no change.
+			More info: http://bois.codeplex.com
 		</description>
 		<releaseNotes></releaseNotes>
 		<copyright>Copyright 2013</copyright>

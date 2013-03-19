@@ -20,7 +20,9 @@ using System.Drawing;
 namespace Salar.Bois
 {
 	/// <summary>
-	/// Salar.Bois Serializer. BOIS stands for 'Binary Object Indexed Serialization'.
+	/// Salar.Bois serializer.
+	/// Which provides binary serialization and deserialzation for .NET objects.
+	/// BOIS stands for 'Binary Object Indexed Serialization'.
 	/// </summary>
 	/// <Author>
 	/// Salar Khalilzadeh
@@ -34,11 +36,20 @@ namespace Salar.Bois
 
 		public Encoding Encoding { get; set; }
 
+		/// <summary>
+		/// Initializing a new instance of Bois serializar.
+		/// </summary>
 		public BoisSerializer()
 		{
 			Encoding = Encoding.UTF8;
 		}
 
+		/// <summary>
+		/// Serializing an object to binary bois format.
+		/// </summary>
+		/// <param name="obj">The object to be serialized.</param>
+		/// <param name="output">The output of the serialization in binary.</param>
+		/// <typeparam name="T">The object type.</typeparam>
 		public void Serialize<T>(T obj, Stream output)
 		{
 			if (obj == null)
@@ -49,12 +60,26 @@ namespace Salar.Bois
 			WriteValue(obj, typeof(T));
 		}
 
+		/// <summary>
+		/// Deserilizing binary data to a new instance.
+		/// </summary>
+		/// <param name="objectData">The binary data.</param>
+		/// <typeparam name="T">The object type.</typeparam>
+		/// <returns>New instance of the deserialized data.</returns>
 		public T Deserialize<T>(Stream objectData)
 		{
 			_input = new BinaryReader(objectData, Encoding);
 			return (T)ReadMember(typeof(T));
 		}
 
+		/// <summary>
+		/// Deserilizing binary data to a new instance.
+		/// </summary>
+		/// <param name="objectBuffer">The binary data.</param>
+		/// <param name="index">The index in buffer at which the stream begins.</param>
+		/// <param name="count">The length of the stream in bytes.</param>
+		/// <typeparam name="T">The object type.</typeparam>
+		/// <returns>New instance of the deserialized data.</returns>
 		public T Deserialize<T>(byte[] objectBuffer, int index, int count)
 		{
 			using (var mem = new MemoryStream(objectBuffer, index, count, false))
@@ -64,16 +89,30 @@ namespace Salar.Bois
 			}
 		}
 
+		/// <summary>
+		/// Removes all cached information about types.
+		/// </summary>
+		[Obsolete("Planned to be removed in next releases.", false)]
 		public void ClearCache()
 		{
 			BoisTypeCache.ClearCache();
 		}
 
+		/// <summary>
+		/// Reads type information and caches it.
+		/// </summary>
+		/// <typeparam name="T">The object type.</typeparam>
+		[Obsolete("Planned to be removed in next releases.", false)]
 		public static void Initialize<T>()
 		{
 			BoisTypeCache.Initialize<T>();
 		}
 
+		/// <summary>
+		/// Reads type information and caches it.
+		/// </summary>
+		/// <param name="types">The objects types.</param>
+		[Obsolete("Planned to be removed in next releases.", false)]
 		public static void Initialize(params Type[] types)
 		{
 			BoisTypeCache.Initialize(types);

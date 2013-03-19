@@ -18,6 +18,9 @@ using System.Drawing;
  */
 namespace Salar.Bois
 {
+	/// <summary>
+	/// Cached information about types, for internal use.
+	/// </summary>
 	public static class BoisTypeCache
 	{
 		internal delegate void GenericSetter(object target, object value);
@@ -103,6 +106,10 @@ namespace Salar.Bois
 		}
 #endif
 
+		/// <summary>
+		/// Removes all cached information about types.
+		/// </summary>
+		[Obsolete("Planned to be removed in next releases.", false)]
 		public static void ClearCache()
 		{
 			lock (_cache)
@@ -110,6 +117,11 @@ namespace Salar.Bois
 				_cache.Clear();
 			}
 		}
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="type"></param>
+		[Obsolete("Planned to be removed in next releases.", false)]
 		public static void RemoveEntry(Type type)
 		{
 			lock (_cache)
@@ -118,12 +130,22 @@ namespace Salar.Bois
 			}
 		}
 
+		/// <summary>
+		/// Reads type information and caches it.
+		/// </summary>
+		/// <typeparam name="T">The object type.</typeparam>
+		[Obsolete("Planned to be removed in next releases.", false)]
 		public static void Initialize<T>()
 		{
 			var type = typeof(T);
 			InitializeInternal(type);
 		}
 
+		/// <summary>
+		/// Reads type information and caches it.
+		/// </summary>
+		/// <param name="types">The objects types.</param>
+		[Obsolete("Planned to be removed in next releases.", false)]
 		public static void Initialize(params Type[] types)
 		{
 			foreach (var t in types)

@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Salar.Bois.Tests
 {
 	[TestClass]
-	public class Serialization
+	public class ObjectsTest
 	{
 		BoisSerializer _bois = new BoisSerializer();
 

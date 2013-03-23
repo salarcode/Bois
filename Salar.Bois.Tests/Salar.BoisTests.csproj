@@ -65,6 +65,8 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Classes\AssertionHelper.cs" />
+    <Compile Include="CollectionsTest.cs" />
+    <Compile Include="ObjectsTest.cs" />
     <Compile Include="Objects\BasicTypes1.cs" />
     <Compile Include="Objects\BasicTypes1Nullable.cs" />
     <Compile Include="Objects\BasicTypes2Nullable.cs" />
@@ -75,10 +77,8 @@
     <Compile Include="Objects\PrimitiveTypes1Nullable.cs" />
     <Compile Include="Objects\IBaseType.cs" />
     <Compile Include="Objects\StructType1.cs" />
-    <Compile Include="Serialization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PrimitivesTest.cs" />
-    <Compile Include="SerializationCollectionsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Salar.Bois\Salar.Bois.csproj">

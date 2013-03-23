@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Salar.Bois.Tests
 {
 	[TestClass]
-	public class SerializationCollectionsTest
+	public class CollectionsTest
 	{
 		private BoisSerializer _boisSerializer;
 		private dynamic bion;

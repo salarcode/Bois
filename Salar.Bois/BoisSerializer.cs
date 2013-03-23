@@ -34,6 +34,9 @@ namespace Salar.Bois
 		private readonly ReflectionCache _reflection = new ReflectionCache();
 		private BinaryReader _input;
 
+		/// <summary>
+		/// Character encoding for strings.
+		/// </summary>
 		public Encoding Encoding { get; set; }
 
 		/// <summary>
@@ -129,8 +132,8 @@ namespace Salar.Bois
 			var boisType = BoisTypeCache.GetTypeInfo(type, true) as BoisTypeCache.BoisTypeInfo;
 
 			// number of writable members count
-			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, boisType.Members.Length);
+			// Int32? nullable
+			PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)boisType.Members.Length);
 
 			// writing the members
 			for (int i = 0; i < boisType.Members.Length; i++)
@@ -196,7 +199,7 @@ namespace Salar.Bois
 					WriteNullableType(true);
 					return;
 				}
-				else if (boisMemInfo.IsNullable)
+				else if (boisMemInfo.IsNullable && !boisMemInfo.IsContainerObject)
 				{
 					WriteNullableType(false);
 				}
@@ -636,24 +639,29 @@ namespace Salar.Bois
 
 		private object ReadObject(Type type)
 		{
+			//Int32
+			var binaryMemberCount = PrimitivesConvertion.ReadVarInt32Nullable(_input);
+			if (binaryMemberCount == null)
+			{
+				return null;
+			}
+
 			var bionType = BoisTypeCache.GetTypeInfo(type, true) as BoisTypeCache.BoisTypeInfo;
 
 			var members = bionType.Members;
 			var resultObj = _reflection.CreateInstance(type);
-			ReadMembers(resultObj, members);
+			ReadMembers(resultObj, members, binaryMemberCount.Value);
 			return resultObj;
 		}
 
-		private void ReadMembers(object obj, BoisTypeCache.BoisMemberInfo[] memberList)
+		private void ReadMembers(object obj, BoisTypeCache.BoisMemberInfo[] memberList, int binaryMemberCount)
 		{
-			//Int32
-			var binaryMemberCount = PrimitivesConvertion.ReadVarInt32(_input);
 			var objectMemberCount = memberList.Length;
 			var memberProcessed = 0;
 			var dataLeng = _input.BaseStream.Length;
 			var data = _input.BaseStream;
 
-			var objType = obj.GetType();
+			//var objType = obj.GetType();
 
 			// while all members are processed
 			while (memberProcessed < binaryMemberCount &&
@@ -702,7 +710,9 @@ namespace Salar.Bois
 
 		private object ReadMember(BoisTypeCache.BoisMemberInfo memInfo, Type memType)
 		{
-			if (memInfo.IsNullable && !memInfo.IsSupportedPrimitive)
+			if (memInfo.IsNullable &&
+				!memInfo.IsSupportedPrimitive &&
+				!memInfo.IsContainerObject)
 			{
 				bool isNull = _input.ReadByte() != 0;
 
@@ -711,34 +721,41 @@ namespace Salar.Bois
 					return null;
 				}
 			}
+			var actualMemberType = memType;
+			if (memInfo.IsNullable && memInfo.NullableUnderlyingType != null)
+			{
+				actualMemberType = memInfo.NullableUnderlyingType;
+			}
+
 			switch (memInfo.KnownType)
 			{
 				case BoisTypeCache.EnBoisKnownType.Unknown:
 
-					if (memInfo.IsStringDictionary)
+					if (memInfo.IsContainerObject)
 					{
-						return ReadStringDictionary(memType);
+						return ReadObject(actualMemberType);
+					}
+					else if (memInfo.IsStringDictionary)
+					{
+						return ReadStringDictionary(actualMemberType);
 					}
 					else if (memInfo.IsDictionary)
 					{
-						return ReadDictionary(memType);
+						return ReadDictionary(actualMemberType);
 					}
 					else if (memInfo.IsCollection)
 					{
 						if (memInfo.IsGeneric)
 						{
-							return ReadGenericList(memType);
+							return ReadGenericList(actualMemberType);
 						}
-						return ReadArray(memType);
+						return ReadArray(actualMemberType);
 					}
 					else if (memInfo.IsArray)
 					{
-						return ReadArray(memType);
+						return ReadArray(actualMemberType);
 					}
-					else
-					{
-						return ReadObject(memType);
-					}
+
 					break;
 
 				case BoisTypeCache.EnBoisKnownType.Int16:
@@ -806,7 +823,7 @@ namespace Salar.Bois
 					return ReadBoolean();
 
 				case BoisTypeCache.EnBoisKnownType.Enum:
-					return ReadEnum(memType);
+					return ReadEnum(actualMemberType);
 
 				case BoisTypeCache.EnBoisKnownType.DateTime:
 					return ReadDateTime();
@@ -816,13 +833,13 @@ namespace Salar.Bois
 
 #if !SILVERLIGHT
 				case BoisTypeCache.EnBoisKnownType.DataSet:
-					return ReadDataset(memType);
+					return ReadDataset(actualMemberType);
 
 				case BoisTypeCache.EnBoisKnownType.DataTable:
 					return ReadDataTable();
 
 				case BoisTypeCache.EnBoisKnownType.NameValueColl:
-					return ReadCollectionNameValue(memType);
+					return ReadCollectionNameValue(actualMemberType);
 
 				case BoisTypeCache.EnBoisKnownType.Color:
 					return ReadColor();

@@ -71,9 +71,15 @@ namespace Salar.Bois
 			public bool IsArray;
 			public bool IsSupportedPrimitive;
 
+			/// <summary>
+			/// Has Fields or Properties
+			/// </summary>
+			public bool IsContainerObject;
+
 			public EnBoisMemberType MemberType;
 			public EnBoisKnownType KnownType;
 			public MemberInfo Info;
+			public Type NullableUnderlyingType;
 
 			public Function<object, object, object> PropertySetter;
 			public GenericGetter PropertyGetter;
@@ -118,9 +124,9 @@ namespace Salar.Bois
 			}
 		}
 		/// <summary>
-		/// 
+		/// Removes a cached entry.
 		/// </summary>
-		/// <param name="type"></param>
+		/// <param name="type">The object type.</param>
 		[Obsolete("Planned to be removed in next releases.", false)]
 		public static void RemoveEntry(Type type)
 		{
@@ -206,7 +212,8 @@ namespace Salar.Bois
 							   {
 								   MemberType = EnBoisMemberType.Object,
 								   KnownType = EnBoisKnownType.Unknown,
-								   IsNullable = true
+								   IsNullable = true,
+								   IsContainerObject = true
 							   };
 			var members = new List<BoisMemberInfo>();
 			foreach (var p in props)
@@ -246,62 +253,81 @@ namespace Salar.Bois
 					IsSupportedPrimitive = true,
 				};
 			}
-			bool isNullable = ReflectionHelper.IsNullable(memType);
+			Type memActualType = memType;
+			Type underlyingTypeNullable;
+			bool isNullable = ReflectionHelper.IsNullable(memType, out underlyingTypeNullable);
 
-			if (memType == typeof(char) || memType == typeof(char?))
+			// check the underling type
+			if (isNullable && underlyingTypeNullable != null)
+			{
+				memActualType = underlyingTypeNullable;
+			}
+			else
+			{
+				underlyingTypeNullable = null;
+			}
+
+
+			if (memActualType == typeof(char) || memActualType == typeof(char?))
 			{
 				return new BoisMemberInfo
 				{
 					KnownType = EnBoisKnownType.Char,
-					IsNullable = isNullable
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
 				};
 			}
-			if (memType == typeof(bool) || memType == typeof(bool?))
+			if (memActualType == typeof(bool) || memActualType == typeof(bool?))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.Bool,
-							   IsNullable = isNullable
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (memType == typeof(DateTime) || memType == typeof(DateTime?))
+			if (memActualType == typeof(DateTime) || memActualType == typeof(DateTime?))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.DateTime,
-							   IsNullable = isNullable
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (memType == typeof(byte[]))
+			if (memActualType == typeof(byte[]))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.ByteArray,
 							   IsNullable = isNullable,
-							   IsArray = true
+							   IsArray = true,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (ReflectionHelper.CompareSubType(memType, typeof(Enum)))
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(Enum)))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.Enum,
-							   IsNullable = isNullable
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (ReflectionHelper.CompareSubType(memType, typeof(Array)))
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(Array)))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.Unknown,
 							   IsNullable = isNullable,
 							   IsArray = true,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (memType.IsGenericType)
+			if (memActualType.IsGenericType)
 			{
-				if (ReflectionHelper.CompareInterface(memType, typeof(IDictionary)) &&
-					memType.GetGenericArguments()[0] == typeof(string))
+				if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)) &&
+					memActualType.GetGenericArguments()[0] == typeof(string))
 					return new BoisMemberInfo
 							   {
 								   KnownType = EnBoisKnownType.Unknown,
@@ -309,6 +335,7 @@ namespace Salar.Bois
 								   IsDictionary = true,
 								   IsStringDictionary = true,
 								   IsGeneric = true,
+								   NullableUnderlyingType = underlyingTypeNullable,
 							   };
 #if DotNet4
 				if (ReflectionHelper.CompareInterface(memType, typeof(ISet)))
@@ -318,11 +345,12 @@ namespace Salar.Bois
 							       IsNullable = isNullable,
 							       IsGeneric = true,
 							       IsSet = true,
+					NullableUnderlyingType = underlyingTypeNullable,
 						       };
 #endif
 			}
 
-			if (ReflectionHelper.CompareInterface(memType, typeof(IDictionary)))
+			if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)))
 			{
 				return new BoisMemberInfo
 						   {
@@ -330,97 +358,110 @@ namespace Salar.Bois
 							   IsNullable = isNullable,
 							   IsDictionary = true,
 							   IsGeneric = true,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (memType == typeof(TimeSpan) || memType == typeof(TimeSpan?))
+			if (memActualType == typeof(TimeSpan) || memActualType == typeof(TimeSpan?))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.TimeSpan,
-							   IsNullable = isNullable
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (memType == typeof(Version))
+			if (memActualType == typeof(Version))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.Version,
-							   IsNullable = isNullable
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
 #if !SILVERLIGHT
-			if (memType == typeof(Color) || memType == typeof(Color?))
+			if (memActualType == typeof(Color) || memActualType == typeof(Color?))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.Color,
-							   IsNullable = isNullable
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (ReflectionHelper.CompareSubType(memType, typeof(DataSet)))
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataSet)))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.DataSet,
-							   IsNullable = isNullable
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (ReflectionHelper.CompareSubType(memType, typeof(DataTable)))
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataTable)))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.DataTable,
-							   IsNullable = isNullable
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (ReflectionHelper.CompareSubType(memType, typeof(NameValueCollection)))
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(NameValueCollection)))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.NameValueColl,
-							   IsNullable = isNullable
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
 #endif
 
-			if (ReflectionHelper.CompareInterface(memType, typeof(IList)) ||
-				   ReflectionHelper.CompareInterface(memType, typeof(ICollection)))
+			if (ReflectionHelper.CompareInterface(memActualType, typeof(IList)) ||
+				   ReflectionHelper.CompareInterface(memActualType, typeof(ICollection)))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.Unknown,
 							   IsNullable = isNullable,
-							   IsGeneric = memType.IsGenericType,
+							   IsGeneric = memActualType.IsGenericType,
 							   IsCollection = true,
 							   IsArray = true,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
 
 			BoisMemberInfo output;
-			if (TryReadNumber(memType, out output))
+			if (TryReadNumber(memActualType, out output))
 			{
 				output.IsNullable = isNullable;
+				output.NullableUnderlyingType = underlyingTypeNullable;
 				return output;
 			}
-			if (memType == typeof(Guid) || memType == typeof(Guid?))
+			if (memActualType == typeof(Guid) || memActualType == typeof(Guid?))
 			{
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.Guid,
-							   IsNullable = isNullable
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (memType == typeof(DBNull))
+			if (memActualType == typeof(DBNull))
 			{
 				// ignore!
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.DbNull,
-							   IsNullable = isNullable
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
 
-			return ReadObject(memType);
+			var objectMemInfo = ReadObject(memType);
+			objectMemInfo.NullableUnderlyingType = underlyingTypeNullable;
+			return objectMemInfo;
 		}
 
 		static Type UnNullify(Type type)

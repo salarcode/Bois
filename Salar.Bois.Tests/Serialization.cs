@@ -128,6 +128,22 @@ namespace Salar.Bois.Tests
 		}
 
 		[TestMethod]
+		public void BasicTypes2NullableTest()
+		{
+			var init = new BasicTypes2Nullable();
+			init.Initialize();
+			BasicTypes2Nullable final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<BasicTypes2Nullable>(mem);
+			}
+			AssertionHelper.AssertMembersAreEqual(init, final);
+		}
+
+		[TestMethod]
 		public void HierarchyObjects1Test()
 		{
 			var init = new HierarchyObjects1();

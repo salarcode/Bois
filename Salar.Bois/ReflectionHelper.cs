@@ -52,6 +52,22 @@ namespace Salar.Bois
 
 			return false; // value-type
 		}
+
+		public static bool IsNullable(Type typeofResult,out Type underlyingType)
+		{
+			underlyingType = null;
+
+			if (!typeofResult.IsValueType)
+				return true; // ref-type
+
+			underlyingType = Nullable.GetUnderlyingType(typeofResult);
+			if (underlyingType != null)
+				return true; // Nullable<T>
+
+			return false; // value-type
+		}
+ 
+
 		public static bool IsNullable<T>()
 		{
 			var type = typeof(T);
@@ -77,7 +93,7 @@ namespace Salar.Bois
 
 			return false; // value-type
 		}
- 	}
+	}
 
 	//public delegate void Procedure();
 	//public delegate void Procedure<in T1>(T1 arg1);

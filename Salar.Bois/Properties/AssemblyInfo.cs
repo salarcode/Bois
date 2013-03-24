@@ -9,9 +9,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Salar's Serializer for Binary Object Indexed Serialization")]
 [assembly: AssemblyCompany("Salar Khalilzadeh")]
 [assembly: AssemblyProduct("Salar's Binary Object Indexed Serialization")]
-[assembly: AssemblyCopyright("MPLv2 © 2013")]
+[assembly: AssemblyCopyright("MPLv2 © Salar Khalilzadeh 2013")]
 [assembly: AssemblyTrademark("")]
-
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -21,5 +20,5 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("fe6e6e30-d634-4a5c-a716-f1e8aeb86e04")]
 
-[assembly: AssemblyVersion("1.0.0324.98")]
-[assembly: AssemblyFileVersion("1.0.0324.98")]
+[assembly: AssemblyVersion("1.1.0324.105")]
+[assembly: AssemblyFileVersion("1.1.0324.105")]

@@ -126,6 +126,14 @@ namespace Salar.Bois
 
 		private void WriteObject(object obj)
 		{
+			if (obj == null)
+			{
+				// number of writable members count is null means the value is null too
+				// Int32? nullable
+				PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)null);
+				return;
+			}
+
 			_serializeDepth++;
 			var type = obj.GetType();
 
@@ -192,14 +200,14 @@ namespace Salar.Bois
 
 		void WriteValue(BoisTypeCache.BoisMemberInfo boisMemInfo, object value)
 		{
-			if (!boisMemInfo.IsSupportedPrimitive)
+			if (!boisMemInfo.IsSupportedPrimitive && !boisMemInfo.IsContainerObject)
 			{
 				if (value == null)
 				{
 					WriteNullableType(true);
 					return;
 				}
-				else if (boisMemInfo.IsNullable && !boisMemInfo.IsContainerObject)
+				else if (boisMemInfo.IsNullable)
 				{
 					WriteNullableType(false);
 				}
@@ -209,7 +217,11 @@ namespace Salar.Bois
 			{
 				case BoisTypeCache.EnBoisKnownType.Unknown:
 
-					if (boisMemInfo.IsStringDictionary)
+					if (boisMemInfo.IsContainerObject)
+					{
+						WriteObject(value);
+					}
+					else if (boisMemInfo.IsStringDictionary)
 					{
 						WriteStringDictionary(value as IDictionary);
 					}
@@ -227,10 +239,6 @@ namespace Salar.Bois
 						{
 							WriteArray(value as IEnumerable);
 						}
-					}
-					else
-					{
-						WriteObject(value);
 					}
 					break;
 
@@ -680,13 +688,7 @@ namespace Salar.Bois
 					// read the value
 					var value = ReadMember(memInfo, pinfo.PropertyType);
 
-					////memInfo.PropertySetter(obj, value);
-					//if (objType.IsValueType)
-					//	pinfo.SetValue(obj, value, null);
-					//else
-					//{
-					//	memInfo.PropertySetter(obj, value);
-					//}
+					// using the setter
 					memInfo.PropertySetter(obj, value);
 				}
 				else

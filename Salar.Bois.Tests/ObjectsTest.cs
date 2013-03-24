@@ -184,8 +184,7 @@ namespace Salar.Bois.Tests
 		[TestMethod]
 		public void StructType1_NormalTest()
 		{
-			var init = new StructType1();
-			init.Initialize();
+			var init = StructType1.InitializeThis();
 			StructType1 final;
 
 			using (var mem = new MemoryStream())
@@ -196,6 +195,23 @@ namespace Salar.Bois.Tests
 			}
 
 			AssertionHelper.AssertMembersAreEqual(init, final);
+		}
+
+		[TestMethod]
+		public void StructType1_NullableVariable()
+		{
+			StructType1? init = StructType1.InitializeThis();
+			StructType1? final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<StructType1?>(mem);
+			}
+
+			Assert.IsNotNull(final);
+			AssertionHelper.AssertMembersAreEqual(init.Value, final.Value);
 		}
 
 		[TestMethod]
@@ -211,8 +227,9 @@ namespace Salar.Bois.Tests
 				mem.Seek(0, SeekOrigin.Begin);
 				final = _bois.Deserialize<HierarchyWithStruct>(mem);
 			}
-
+			Assert.IsNull(final.STypeNull);
 			AssertionHelper.AssertMembersAreEqual(init.SType, final.SType);
+			AssertionHelper.AssertMembersAreEqual(init.STypeNullable.Value, final.STypeNullable.Value);
 			init.LastName.Should().Be.EqualTo(final.LastName);
 			init.AcceptableAges.Should().Have.SameSequenceAs(final.AcceptableAges);
 		}

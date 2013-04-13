@@ -64,6 +64,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AttributeTests.cs" />
     <Compile Include="Classes\AssertionHelper.cs" />
     <Compile Include="CollectionsTest.cs" />
     <Compile Include="ObjectsTest.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Objects\CollectionTypes1.cs" />
     <Compile Include="Objects\HierarchyObjects1.cs" />
     <Compile Include="Objects\HierarchyWithStruct.cs" />
+    <Compile Include="Objects\ObjectWithAttibute.cs" />
     <Compile Include="Objects\PrimitiveTypes1.cs" />
     <Compile Include="Objects\PrimitiveTypes1Nullable.cs" />
     <Compile Include="Objects\IBaseType.cs" />

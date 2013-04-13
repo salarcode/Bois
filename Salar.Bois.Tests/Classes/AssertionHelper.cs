@@ -59,6 +59,15 @@ namespace Salar.Bois.Tests
 		}
 		public static void AssertMembersAreEqual(object expected, object actual, Type type)
 		{
+			if (actual is Color)
+			{
+				if (((Color)expected).ToArgb() != ((Color)actual).ToArgb())
+				{
+					Assert.Fail();
+				}
+				return;
+			}
+
 			var props =
 				type.GetProperties(BindingFlags.SetProperty | BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public);
 

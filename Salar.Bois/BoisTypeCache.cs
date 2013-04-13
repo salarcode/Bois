@@ -205,9 +205,18 @@ namespace Salar.Bois
 
 		private static BoisMemberInfo ReadObject(Type type)
 		{
-			var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-			var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+			bool readFields = true, readProps = true;
 
+			var objectAttr = type.GetCustomAttributes(typeof(BoisContractAttribute), false);
+			if (objectAttr.Length > 0)
+			{
+				var boisContract = objectAttr[0] as BoisContractAttribute;
+				if (boisContract != null)
+				{
+					readFields = boisContract.Fields;
+					readProps = boisContract.Properties;
+				}
+			}
 			var typeInfo = new BoisTypeInfo
 							   {
 								   MemberType = EnBoisMemberType.Object,
@@ -216,26 +225,73 @@ namespace Salar.Bois
 								   IsContainerObject = true
 							   };
 			var members = new List<BoisMemberInfo>();
-			foreach (var p in props)
+
+			if (readProps)
 			{
-				if (p.CanWrite)
+				var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+				foreach (var p in props)
 				{
-					var info = ReadMemberInfo(p.PropertyType);
-					info.PropertyGetter = GetPropertyGetter(type, p);
-					//info.PropertySetter = CreateSetMethod(p);
-					info.PropertySetter = GetPropertySetter(type, p);
-					info.Info = p;
-					info.MemberType = EnBoisMemberType.Property;
-					members.Add(info);
+					if (p.CanWrite)
+					{
+						var index = -1;
+						var memProp = p.GetCustomAttributes(typeof(BoisMemberAttribute), false);
+						BoisMemberAttribute boisMember;
+						if (memProp.Length > 0 && (boisMember = (memProp[0] as BoisMemberAttribute)) != null)
+						{
+							if (!boisMember.Included)
+								continue;
+							index = boisMember.Index;
+						}
+
+						var info = ReadMemberInfo(p.PropertyType);
+						info.PropertyGetter = GetPropertyGetter(type, p);
+						//info.PropertySetter = CreateSetMethod(p);
+						info.PropertySetter = GetPropertySetter(type, p);
+						info.Info = p;
+						info.MemberType = EnBoisMemberType.Property;
+
+						if (index > -1)
+						{
+							members.Insert(index, info);
+						}
+						else
+						{
+							members.Add(info);
+						}
+					}
 				}
 			}
-			foreach (var f in fields)
+
+			if (readFields)
 			{
-				var info = ReadMemberInfo(f.FieldType);
-				info.Info = f;
-				info.MemberType = EnBoisMemberType.Field;
-				members.Add(info);
+				var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+				foreach (var f in fields)
+				{
+					var index = -1;
+					var memProp = f.GetCustomAttributes(typeof(BoisMemberAttribute), false);
+					BoisMemberAttribute boisMember;
+					if (memProp.Length > 0 && (boisMember = (memProp[0] as BoisMemberAttribute)) != null)
+					{
+						if (!boisMember.Included)
+							continue;
+						index = boisMember.Index;
+					}
+
+					var info = ReadMemberInfo(f.FieldType);
+					info.Info = f;
+					info.MemberType = EnBoisMemberType.Field;
+					if (index > -1)
+					{
+						members.Insert(index, info);
+					}
+					else
+					{
+						members.Add(info);
+					}
+				}
 			}
+
 			typeInfo.Members = members.ToArray();
 
 			CacheInsert(type, typeInfo);

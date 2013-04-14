@@ -31,7 +31,7 @@ namespace Salar.Bois
 	{
 		private BinaryWriter _serializeOut;
 		private int _serializeDepth;
-		private readonly ReflectionCache _reflection = new ReflectionCache();
+		private readonly BoisTypeCache _typeCache = new BoisTypeCache();
 		private BinaryReader _input;
 
 		/// <summary>
@@ -95,30 +95,27 @@ namespace Salar.Bois
 		/// <summary>
 		/// Removes all cached information about types.
 		/// </summary>
-		[Obsolete("Planned to be removed in next releases.", false)]
 		public void ClearCache()
 		{
-			BoisTypeCache.ClearCache();
+			_typeCache.ClearCache();
 		}
 
 		/// <summary>
 		/// Reads type information and caches it.
 		/// </summary>
 		/// <typeparam name="T">The object type.</typeparam>
-		[Obsolete("Planned to be removed in next releases.", false)]
-		public static void Initialize<T>()
+		public void Initialize<T>()
 		{
-			BoisTypeCache.Initialize<T>();
+			_typeCache.Initialize<T>();
 		}
 
 		/// <summary>
 		/// Reads type information and caches it.
 		/// </summary>
 		/// <param name="types">The objects types.</param>
-		[Obsolete("Planned to be removed in next releases.", false)]
-		public static void Initialize(params Type[] types)
+		public void Initialize(params Type[] types)
 		{
-			BoisTypeCache.Initialize(types);
+			_typeCache.Initialize(types);
 		}
 
 
@@ -137,7 +134,7 @@ namespace Salar.Bois
 			_serializeDepth++;
 			var type = obj.GetType();
 
-			var boisType = BoisTypeCache.GetTypeInfo(type, true) as BoisTypeCache.BoisTypeInfo;
+			var boisType = _typeCache.GetTypeInfo(type, true) as BoisTypeCache.BoisTypeInfo;
 
 			// number of writable members count
 			// Int32? nullable
@@ -172,7 +169,7 @@ namespace Salar.Bois
 		/// </summary>
 		void WriteValue(object value, Type type)
 		{
-			var bionType = BoisTypeCache.GetTypeInfo(type, true);
+			var bionType = _typeCache.GetTypeInfo(type, true);
 			if (!bionType.IsSupportedPrimitive)
 			{
 				if (value == null)
@@ -193,7 +190,7 @@ namespace Salar.Bois
 			}
 
 			var objType = value.GetType();
-			var bionType = BoisTypeCache.GetTypeInfo(objType, true);
+			var bionType = _typeCache.GetTypeInfo(objType, true);
 
 			WriteValue(bionType, value);
 		}
@@ -654,10 +651,10 @@ namespace Salar.Bois
 				return null;
 			}
 
-			var bionType = BoisTypeCache.GetTypeInfo(type, true) as BoisTypeCache.BoisTypeInfo;
+			var bionType = _typeCache.GetTypeInfo(type, true) as BoisTypeCache.BoisTypeInfo;
 
 			var members = bionType.Members;
-			var resultObj = _reflection.CreateInstance(type);
+			var resultObj = _typeCache.CreateInstance(type);
 			ReadMembers(resultObj, members, binaryMemberCount.Value);
 			return resultObj;
 		}
@@ -706,7 +703,7 @@ namespace Salar.Bois
 
 		private object ReadMember(Type memType)
 		{
-			var memInfo = BoisTypeCache.GetTypeInfo(memType, true);
+			var memInfo = _typeCache.GetTypeInfo(memType, true);
 			return ReadMember(memInfo, memType);
 		}
 
@@ -887,7 +884,7 @@ namespace Salar.Bois
 		{
 			var count = PrimitivesConvertion.ReadVarInt32(_input);
 
-			var listObj = (IList)_reflection.CreateInstance(type);
+			var listObj = (IList)_typeCache.CreateInstance(type);
 
 			var itemType = type.GetGenericArguments()[0];
 			for (int i = 0; i < count; i++)
@@ -903,7 +900,7 @@ namespace Salar.Bois
 		{
 			var count = PrimitivesConvertion.ReadVarInt32(_input);
 
-			var listObj = (IList)_reflection.CreateInstance(type);
+			var listObj = (IList)_typeCache.CreateInstance(type);
 
 			var itemType = type.GetElementType();
 			if (itemType == null)
@@ -950,7 +947,7 @@ namespace Salar.Bois
 		private object ReadCollectionNameValue(Type type)
 		{
 			var count = PrimitivesConvertion.ReadVarInt32(_input);
-			var nameValue = (NameValueCollection)_reflection.CreateInstance(type);
+			var nameValue = (NameValueCollection)_typeCache.CreateInstance(type);
 			var strType = typeof(string);
 			for (int i = 0; i < count; i++)
 			{
@@ -962,7 +959,7 @@ namespace Salar.Bois
 		}
 		private DataTable ReadDataTable()
 		{
-			var dt = _reflection.CreateInstance(typeof(DataTable)) as DataTable;
+			var dt = _typeCache.CreateInstance(typeof(DataTable)) as DataTable;
 
 			var schema = ReadString();
 			//dt.TableName = name;
@@ -999,7 +996,7 @@ namespace Salar.Bois
 		private object ReadDataset(Type memType)
 		{
 			var count = PrimitivesConvertion.ReadVarInt32(_input);
-			var ds = _reflection.CreateInstance(memType) as DataSet;
+			var ds = _typeCache.CreateInstance(memType) as DataSet;
 			for (int i = 0; i < count; i++)
 			{
 				var dt = ReadDataTable();
@@ -1019,7 +1016,7 @@ namespace Salar.Bois
 		private object ReadDictionary(Type memType)
 		{
 			var count = PrimitivesConvertion.ReadVarInt32(_input);
-			var dic = _reflection.CreateInstance(memType) as IDictionary;
+			var dic = _typeCache.CreateInstance(memType) as IDictionary;
 
 			var genericType = memType.GetGenericArguments();
 			var keyType = genericType[0];
@@ -1037,7 +1034,7 @@ namespace Salar.Bois
 		private object ReadStringDictionary(Type memType)
 		{
 			var count = PrimitivesConvertion.ReadVarInt32(_input);
-			var dic = _reflection.CreateInstance(memType) as IDictionary;
+			var dic = _typeCache.CreateInstance(memType) as IDictionary;
 
 			var genericType = memType.GetGenericArguments();
 			var keyType = genericType[0];

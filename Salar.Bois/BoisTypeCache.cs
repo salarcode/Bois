@@ -21,10 +21,11 @@ namespace Salar.Bois
 	/// <summary>
 	/// Cached information about types, for internal use.
 	/// </summary>
-	public static class BoisTypeCache
+	class BoisTypeCache
 	{
 		internal delegate void GenericSetter(object target, object value);
 		internal delegate object GenericGetter(object target);
+		internal delegate object GenericConstructor();
 
 		internal enum EnBoisMemberType
 		{
@@ -99,24 +100,27 @@ namespace Salar.Bois
 			}
 		}
 #if SILVERLIGHT
-		private static Dictionary<Type, BoisMemberInfo> _cache;
-		static BoisTypeCache()
+		private readonly Dictionary<Type, GenericConstructor> _constructorCache;
+		private readonly Dictionary<Type, BoisMemberInfo> _cache;
+		public BoisTypeCache()
 		{
 			_cache = new Dictionary<Type, BoisMemberInfo>();
+			_constructorCache = new Dictionary<Type, GenericConstructor>();
 		}
 #else
-		private static Hashtable _cache;
-		static BoisTypeCache()
+		private readonly Hashtable _constructorCache = new Hashtable();
+		private readonly Hashtable _cache;
+		public BoisTypeCache()
 		{
 			_cache = new Hashtable();
+			_constructorCache = new Hashtable();
 		}
 #endif
 
 		/// <summary>
 		/// Removes all cached information about types.
 		/// </summary>
-		[Obsolete("Planned to be removed in next releases.", false)]
-		public static void ClearCache()
+		public void ClearCache()
 		{
 			lock (_cache)
 			{
@@ -127,8 +131,7 @@ namespace Salar.Bois
 		/// Removes a cached entry.
 		/// </summary>
 		/// <param name="type">The object type.</param>
-		[Obsolete("Planned to be removed in next releases.", false)]
-		public static void RemoveEntry(Type type)
+		public void RemoveEntry(Type type)
 		{
 			lock (_cache)
 			{
@@ -140,8 +143,7 @@ namespace Salar.Bois
 		/// Reads type information and caches it.
 		/// </summary>
 		/// <typeparam name="T">The object type.</typeparam>
-		[Obsolete("Planned to be removed in next releases.", false)]
-		public static void Initialize<T>()
+		public void Initialize<T>()
 		{
 			var type = typeof(T);
 			InitializeInternal(type);
@@ -151,8 +153,7 @@ namespace Salar.Bois
 		/// Reads type information and caches it.
 		/// </summary>
 		/// <param name="types">The objects types.</param>
-		[Obsolete("Planned to be removed in next releases.", false)]
-		public static void Initialize(params Type[] types)
+		public void Initialize(params Type[] types)
 		{
 			foreach (var t in types)
 			{
@@ -160,7 +161,35 @@ namespace Salar.Bois
 			}
 		}
 
-		internal static BoisMemberInfo GetTypeInfo(Type type, bool generate)
+		internal object CreateInstance(Type t)
+		{
+			// Read from cache
+			var info = _constructorCache[t] as GenericConstructor;
+			if (info == null)
+			{
+				ConstructorInfo ctor = t.GetConstructor(Type.EmptyTypes);
+				if (ctor == null)
+				{
+					// Falling back to default parameterless constructor.
+					return Activator.CreateInstance(t, null);
+				}
+
+				var dynamicCtor = new DynamicMethod("_", t, Type.EmptyTypes, t, true);
+				var il = dynamicCtor.GetILGenerator();
+
+				il.Emit(OpCodes.Newobj, ctor);
+				il.Emit(OpCodes.Ret);
+
+				info = (GenericConstructor)dynamicCtor.CreateDelegate(typeof(GenericConstructor));
+
+				_constructorCache[t] = info;
+			}
+			if (info == null)
+				throw new MissingMethodException(string.Format("No parameterless constructor defined for '{0}'.", t));
+			return info.Invoke();
+		}
+
+		internal BoisMemberInfo GetTypeInfo(Type type, bool generate)
 		{
 #if SILVERLIGHT
 			BoisMemberInfo memInfo;
@@ -184,7 +213,7 @@ namespace Salar.Bois
 			return memInfo;
 		}
 
-		private static void InitializeInternal(Type type)
+		private void InitializeInternal(Type type)
 		{
 			if (!_cache.ContainsKey(type))
 			{
@@ -192,7 +221,7 @@ namespace Salar.Bois
 				CacheInsert(type, info);
 			}
 		}
-		private static void CacheInsert(Type type, BoisMemberInfo memInfo)
+		private void CacheInsert(Type type, BoisMemberInfo memInfo)
 		{
 			lock (_cache)
 			{
@@ -203,7 +232,7 @@ namespace Salar.Bois
 			}
 		}
 
-		private static BoisMemberInfo ReadObject(Type type)
+		private BoisMemberInfo ReadObject(Type type)
 		{
 			bool readFields = true, readProps = true;
 
@@ -298,7 +327,7 @@ namespace Salar.Bois
 			return typeInfo;
 		}
 
-		private static BoisMemberInfo ReadMemberInfo(Type memType)
+		private BoisMemberInfo ReadMemberInfo(Type memType)
 		{
 			if (memType == typeof(string))
 			{
@@ -527,7 +556,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// Slower convertion
 		/// </summary>
-		private static bool IsNumber(Type memType, out BoisMemberInfo output)
+		private bool IsNumber(Type memType, out BoisMemberInfo output)
 		{
 			if (memType.IsClass)
 			{
@@ -590,7 +619,7 @@ namespace Salar.Bois
 			return output != null;
 		}
 
-		private static bool TryReadNumber(Type memType, out BoisMemberInfo output)
+		private bool TryReadNumber(Type memType, out BoisMemberInfo output)
 		{
 			if (memType.IsClass)
 			{
@@ -692,7 +721,7 @@ namespace Salar.Bois
 		/// Gerhard Stephan 
 		/// http://jachman.wordpress.com/2006/08/22/2000-faster-using-dynamic-method-calls/
 		/// </author>
-		private static GenericSetter CreateSetMethod(PropertyInfo propertyInfo)
+		private GenericSetter CreateSetMethod(PropertyInfo propertyInfo)
 		{
 			/*
 			* If there's no setter return null
@@ -736,7 +765,7 @@ namespace Salar.Bois
 		/// Gerhard Stephan 
 		/// http://jachman.wordpress.com/2006/08/22/2000-faster-using-dynamic-method-calls/
 		/// </author>
-		private static GenericGetter CreateGetMethod(PropertyInfo propertyInfo)
+		private GenericGetter CreateGetMethod(PropertyInfo propertyInfo)
 		{
 			/*
 			* If there's no getter return null
@@ -771,19 +800,19 @@ namespace Salar.Bois
 			return (GenericGetter)getter.CreateDelegate(typeof(GenericGetter));
 		}
 
-		//private static Func<T, object> MakeDelegate_2<T, U>(MethodInfo @get)
+		//private Func<T, object> MakeDelegate_2<T, U>(MethodInfo @get)
 		//{
 		//	var f = (Func<T, U>)Delegate.CreateDelegate(typeof(Func<T, U>), @get);
 		//	return t => f(t);
 		//}
 
-		private static GenericGetter MakeDelegate(MethodInfo @get)
+		private GenericGetter MakeDelegate(MethodInfo @get)
 		{
 			var f = (GenericGetter)Delegate.CreateDelegate(typeof(GenericGetter), @get);
 			return t => f(t);
 		}
 
-		private static GenericGetter GetPropertyGetter(Type objType, PropertyInfo propertyInfo)
+		private GenericGetter GetPropertyGetter(Type objType, PropertyInfo propertyInfo)
 		{
 			if (objType.IsValueType &&
 				!objType.IsPrimitive &&
@@ -804,7 +833,7 @@ namespace Salar.Bois
 			}
 		}
 
-		private static Function<object, object, object> GetPropertySetter(Type objType, PropertyInfo propertyInfo)
+		private Function<object, object, object> GetPropertySetter(Type objType, PropertyInfo propertyInfo)
 		{
 			if (objType.IsValueType &&
 				!objType.IsPrimitive &&
@@ -833,7 +862,7 @@ namespace Salar.Bois
 		/// http://social.msdn.microsoft.com/Forums/en-US/netfxbcl/thread/8754500e-4426-400f-9210-554f9f2ad58b/
 		/// </summary>
 		/// <returns></returns>
-		private static GenericGetter GetFastGetterFunc(PropertyInfo p, MethodInfo getter) // untyped cast from Func<T> to Func<object> 
+		private GenericGetter GetFastGetterFunc(PropertyInfo p, MethodInfo getter) // untyped cast from Func<T> to Func<object> 
 		{
 			var g = new DynamicMethod("_", typeof(object), new[] { typeof(object) }, p.DeclaringType, true);
 			var il = g.GetILGenerator();
@@ -856,7 +885,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// http://social.msdn.microsoft.com/Forums/en-US/netfxbcl/thread/8754500e-4426-400f-9210-554f9f2ad58b/
 		/// </summary>
-		private static Function<object, object, object> GetFastSetterFunc(PropertyInfo p, MethodInfo setter)
+		private Function<object, object, object> GetFastSetterFunc(PropertyInfo p, MethodInfo setter)
 		{
 			var s = new DynamicMethod("_", typeof(object), new[] { typeof(object), typeof(object) }, p.DeclaringType, true);
 			var il = s.GetILGenerator();
@@ -886,14 +915,14 @@ namespace Salar.Bois
 			return _func;
 		}
 
-		private static GenericGetter GetPropertyGetter_(Type objType, PropertyInfo propertyInfo)
+		private GenericGetter GetPropertyGetter_(Type objType, PropertyInfo propertyInfo)
 		{
 			var method = objType.GetMethod("get_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 			var dlg = Delegate.CreateDelegate(typeof(GenericGetter), method);
 			return (GenericGetter)dlg;
 		}
 
-		private static GenericGetter GetPropertyGetter(object obj, string propertyName)
+		private GenericGetter GetPropertyGetter(object obj, string propertyName)
 		{
 			var t = obj.GetType();
 			var method = t.GetMethod("get_" + propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -901,7 +930,7 @@ namespace Salar.Bois
 			return (GenericGetter)dlg;
 		}
 
-		private static GenericSetter GetPropertySetter(object obj, string propertyName)
+		private GenericSetter GetPropertySetter(object obj, string propertyName)
 		{
 			var t = obj.GetType();
 			var method = t.GetMethod("set_" + propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);

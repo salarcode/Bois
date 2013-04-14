@@ -150,8 +150,6 @@ namespace Salar.BoisBenchmark
 
 		private void Initialize()
 		{
-			BoisTypeCache.Initialize<BasicTypes>();
-			BoisTypeCache.Initialize<HierarchyObject>();
 			if (!_netSerializer)
 			{
 				try
@@ -184,6 +182,10 @@ namespace Salar.BoisBenchmark
 				Stopwatch sw;
 				//-----------------------------------
 				var boisSerializer = new BoisSerializer();
+				boisSerializer.Initialize<BasicTypes>();
+				boisSerializer.Initialize<HierarchyObject>();
+
+
 				var boisMem = new MemoryStream();
 
 				boisSerializer.Serialize(obj, boisMem);

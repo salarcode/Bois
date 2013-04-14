@@ -27,78 +27,7 @@ namespace Salar.Bois
 		internal delegate object GenericGetter(object target);
 		internal delegate object GenericConstructor();
 
-		internal enum EnBoisMemberType
-		{
-			Object,
-			Property,
-			Field
-		}
-		internal enum EnBoisKnownType
-		{
-			Unknown = 0,
-			Int16,
-			Int32,
-			Int64,
-			UInt16,
-			UInt32,
-			UInt64,
-			Double,
-			Decimal,
-			Single,
-			Byte,
-			SByte,
-			ByteArray,
-			String,
-			Char,
-			Guid,
-			Bool,
-			Enum,
-			DateTime,
-			TimeSpan,
-			DataSet,
-			DataTable,
-			NameValueColl,
-			Color,
-			Version,
-			DbNull,
-		}
-		internal class BoisMemberInfo
-		{
-			public bool IsNullable;
-			public bool IsGeneric;
-			public bool IsStringDictionary;
-			public bool IsDictionary;
-			public bool IsCollection;
-			public bool IsArray;
-			public bool IsSupportedPrimitive;
 
-			/// <summary>
-			/// Has Fields or Properties
-			/// </summary>
-			public bool IsContainerObject;
-
-			public EnBoisMemberType MemberType;
-			public EnBoisKnownType KnownType;
-			public MemberInfo Info;
-			public Type NullableUnderlyingType;
-
-			public Function<object, object, object> PropertySetter;
-			public GenericGetter PropertyGetter;
-			public override string ToString()
-			{
-				return string.Format("{0}: {1}: {2}", MemberType, KnownType, Info);
-			}
-		}
-
-		internal class BoisTypeInfo : BoisMemberInfo
-		{
-			public BoisMemberInfo[] Members;
-			public override string ToString()
-			{
-				return string.Format("{0}: {1}: {2}: Members= {3}", MemberType, KnownType, Info,
-									 (Members != null) ? (Members.Length) : 0);
-			}
-		}
 #if SILVERLIGHT
 		private readonly Dictionary<Type, GenericConstructor> _constructorCache;
 		private readonly Dictionary<Type, BoisMemberInfo> _cache;

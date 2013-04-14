@@ -134,7 +134,7 @@ namespace Salar.Bois
 			_serializeDepth++;
 			var type = obj.GetType();
 
-			var boisType = _typeCache.GetTypeInfo(type, true) as BoisTypeCache.BoisTypeInfo;
+			var boisType = _typeCache.GetTypeInfo(type, true) as BoisTypeInfo;
 
 			// number of writable members count
 			// Int32? nullable
@@ -144,12 +144,12 @@ namespace Salar.Bois
 			for (int i = 0; i < boisType.Members.Length; i++)
 			{
 				var mem = boisType.Members[i];
-				if (mem.MemberType == BoisTypeCache.EnBoisMemberType.Property)
+				if (mem.MemberType == EnBoisMemberType.Property)
 				{
 					var value = mem.PropertyGetter(obj);
 					WriteValue(mem, value);
 				}
-				else if (mem.MemberType == BoisTypeCache.EnBoisMemberType.Field)
+				else if (mem.MemberType == EnBoisMemberType.Field)
 				{
 					var finfo = (FieldInfo)mem.Info;
 					var value = finfo.GetValue(obj);
@@ -195,7 +195,7 @@ namespace Salar.Bois
 			WriteValue(bionType, value);
 		}
 
-		void WriteValue(BoisTypeCache.BoisMemberInfo boisMemInfo, object value)
+		void WriteValue(BoisMemberInfo boisMemInfo, object value)
 		{
 			if (!boisMemInfo.IsSupportedPrimitive && !boisMemInfo.IsContainerObject)
 			{
@@ -212,7 +212,7 @@ namespace Salar.Bois
 
 			switch (boisMemInfo.KnownType)
 			{
-				case BoisTypeCache.EnBoisKnownType.Unknown:
+				case EnBoisKnownType.Unknown:
 
 					if (boisMemInfo.IsContainerObject)
 					{
@@ -239,7 +239,7 @@ namespace Salar.Bois
 					}
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Int16:
+				case EnBoisKnownType.Int16:
 					if (value == null || boisMemInfo.IsNullable)
 					{
 						PrimitivesConvertion.WriteVarInt(_serializeOut, (short?)value);
@@ -250,7 +250,7 @@ namespace Salar.Bois
 					}
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Int32:
+				case EnBoisKnownType.Int32:
 					if (value == null || boisMemInfo.IsNullable)
 					{
 						PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)value);
@@ -262,7 +262,7 @@ namespace Salar.Bois
 
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Int64:
+				case EnBoisKnownType.Int64:
 					if (value == null || boisMemInfo.IsNullable)
 					{
 						PrimitivesConvertion.WriteVarInt(_serializeOut, (long?)value);
@@ -273,23 +273,23 @@ namespace Salar.Bois
 					}
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.UInt16:
+				case EnBoisKnownType.UInt16:
 					_serializeOut.Write((ushort)value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.UInt32:
+				case EnBoisKnownType.UInt32:
 					_serializeOut.Write((uint)value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.UInt64:
+				case EnBoisKnownType.UInt64:
 					_serializeOut.Write((ulong)value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Double:
+				case EnBoisKnownType.Double:
 					_serializeOut.Write((double)value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Decimal:
+				case EnBoisKnownType.Decimal:
 #if SILVERLIGHT
 					WriteDecimal(_serializeOut, (decimal)value);
 #else
@@ -297,72 +297,72 @@ namespace Salar.Bois
 #endif
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Single:
+				case EnBoisKnownType.Single:
 					_serializeOut.Write((float)value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Byte:
+				case EnBoisKnownType.Byte:
 					_serializeOut.Write((byte)value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.SByte:
+				case EnBoisKnownType.SByte:
 					_serializeOut.Write((sbyte)value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.ByteArray:
+				case EnBoisKnownType.ByteArray:
 					WriteBytes((byte[])value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.String:
+				case EnBoisKnownType.String:
 					WriteString(value as string);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Char:
+				case EnBoisKnownType.Char:
 					_serializeOut.Write((char)value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Guid:
+				case EnBoisKnownType.Guid:
 					WriteGuid((Guid)value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Bool:
+				case EnBoisKnownType.Bool:
 					_serializeOut.Write((byte)(((bool)value) ? 1 : 0));
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Enum:
+				case EnBoisKnownType.Enum:
 					WriteEnum((Enum)value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.DateTime:
+				case EnBoisKnownType.DateTime:
 					WriteDateTime((DateTime)value);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.TimeSpan:
+				case EnBoisKnownType.TimeSpan:
 					WriteTimeSpan((TimeSpan)value);
 					break;
 
 #if !SILVERLIGHT
-				case BoisTypeCache.EnBoisKnownType.DataSet:
+				case EnBoisKnownType.DataSet:
 					WriteDataset(value as DataSet);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.DataTable:
+				case EnBoisKnownType.DataTable:
 					WriteDataTable(value as DataTable);
 					break;
-				case BoisTypeCache.EnBoisKnownType.NameValueColl:
+				case EnBoisKnownType.NameValueColl:
 					WriteCollectionNameValue(value as NameValueCollection);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Color:
+				case EnBoisKnownType.Color:
 					WriteColor((Color)value);
 					break;
 #endif
 
-				case BoisTypeCache.EnBoisKnownType.Version:
+				case EnBoisKnownType.Version:
 					WriteVersion(value as Version);
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.DbNull:
+				case EnBoisKnownType.DbNull:
 					// Do not write anything, it is already written as Nullable object. //WriteNullableType(true);
 					break;
 
@@ -651,7 +651,7 @@ namespace Salar.Bois
 				return null;
 			}
 
-			var bionType = _typeCache.GetTypeInfo(type, true) as BoisTypeCache.BoisTypeInfo;
+			var bionType = _typeCache.GetTypeInfo(type, true) as BoisTypeInfo;
 
 			var members = bionType.Members;
 			var resultObj = _typeCache.CreateInstance(type);
@@ -659,7 +659,7 @@ namespace Salar.Bois
 			return resultObj;
 		}
 
-		private void ReadMembers(object obj, BoisTypeCache.BoisMemberInfo[] memberList, int binaryMemberCount)
+		private void ReadMembers(object obj, BoisMemberInfo[] memberList, int binaryMemberCount)
 		{
 			var objectMemberCount = memberList.Length;
 			var memberProcessed = 0;
@@ -678,7 +678,7 @@ namespace Salar.Bois
 				memberProcessed++;
 
 				// set the value
-				if (memInfo.MemberType == BoisTypeCache.EnBoisMemberType.Property)
+				if (memInfo.MemberType == EnBoisMemberType.Property)
 				{
 					var pinfo = memInfo.Info as PropertyInfo;
 
@@ -707,7 +707,7 @@ namespace Salar.Bois
 			return ReadMember(memInfo, memType);
 		}
 
-		private object ReadMember(BoisTypeCache.BoisMemberInfo memInfo, Type memType)
+		private object ReadMember(BoisMemberInfo memInfo, Type memType)
 		{
 			if (memInfo.IsNullable &&
 				!memInfo.IsSupportedPrimitive &&
@@ -728,7 +728,7 @@ namespace Salar.Bois
 
 			switch (memInfo.KnownType)
 			{
-				case BoisTypeCache.EnBoisKnownType.Unknown:
+				case EnBoisKnownType.Unknown:
 
 					if (memInfo.IsContainerObject)
 					{
@@ -757,97 +757,97 @@ namespace Salar.Bois
 
 					break;
 
-				case BoisTypeCache.EnBoisKnownType.Int16:
+				case EnBoisKnownType.Int16:
 					if (memInfo.IsNullable)
 					{
 						return PrimitivesConvertion.ReadVarInt16Nullable(_input);
 					}
 					return PrimitivesConvertion.ReadVarInt16(_input);
 
-				case BoisTypeCache.EnBoisKnownType.Int32:
+				case EnBoisKnownType.Int32:
 					if (memInfo.IsNullable)
 					{
 						return PrimitivesConvertion.ReadVarInt32Nullable(_input);
 					}
 					return PrimitivesConvertion.ReadVarInt32(_input);
 
-				case BoisTypeCache.EnBoisKnownType.Int64:
+				case EnBoisKnownType.Int64:
 					if (memInfo.IsNullable)
 					{
 						return PrimitivesConvertion.ReadVarInt64Nullable(_input);
 					}
 					return PrimitivesConvertion.ReadVarInt64(_input);
 
-				case BoisTypeCache.EnBoisKnownType.UInt16:
+				case EnBoisKnownType.UInt16:
 					return _input.ReadUInt16();
 
-				case BoisTypeCache.EnBoisKnownType.UInt32:
+				case EnBoisKnownType.UInt32:
 					return _input.ReadUInt32();
 
-				case BoisTypeCache.EnBoisKnownType.UInt64:
+				case EnBoisKnownType.UInt64:
 					return _input.ReadUInt64();
 
-				case BoisTypeCache.EnBoisKnownType.Double:
+				case EnBoisKnownType.Double:
 					return _input.ReadDouble();
 
-				case BoisTypeCache.EnBoisKnownType.Decimal:
+				case EnBoisKnownType.Decimal:
 #if SILVERLIGHT
 					return ReadDecimal(_input);
 #else
 					return _input.ReadDecimal();
 #endif
 
-				case BoisTypeCache.EnBoisKnownType.Single:
+				case EnBoisKnownType.Single:
 					return _input.ReadSingle();
 
-				case BoisTypeCache.EnBoisKnownType.Byte:
+				case EnBoisKnownType.Byte:
 					return _input.ReadByte();
 
-				case BoisTypeCache.EnBoisKnownType.SByte:
+				case EnBoisKnownType.SByte:
 					return _input.ReadSByte();
 
-				case BoisTypeCache.EnBoisKnownType.ByteArray:
+				case EnBoisKnownType.ByteArray:
 					return ReadBytes();
 
-				case BoisTypeCache.EnBoisKnownType.String:
+				case EnBoisKnownType.String:
 					return ReadString();
 
-				case BoisTypeCache.EnBoisKnownType.Char:
+				case EnBoisKnownType.Char:
 					return _input.ReadChar();
 
-				case BoisTypeCache.EnBoisKnownType.Guid:
+				case EnBoisKnownType.Guid:
 					return ReadGuid();
 
-				case BoisTypeCache.EnBoisKnownType.Bool:
+				case EnBoisKnownType.Bool:
 					return ReadBoolean();
 
-				case BoisTypeCache.EnBoisKnownType.Enum:
+				case EnBoisKnownType.Enum:
 					return ReadEnum(actualMemberType);
 
-				case BoisTypeCache.EnBoisKnownType.DateTime:
+				case EnBoisKnownType.DateTime:
 					return ReadDateTime();
 
-				case BoisTypeCache.EnBoisKnownType.TimeSpan:
+				case EnBoisKnownType.TimeSpan:
 					return ReadTimeSpan();
 
 #if !SILVERLIGHT
-				case BoisTypeCache.EnBoisKnownType.DataSet:
+				case EnBoisKnownType.DataSet:
 					return ReadDataset(actualMemberType);
 
-				case BoisTypeCache.EnBoisKnownType.DataTable:
+				case EnBoisKnownType.DataTable:
 					return ReadDataTable();
 
-				case BoisTypeCache.EnBoisKnownType.NameValueColl:
+				case EnBoisKnownType.NameValueColl:
 					return ReadCollectionNameValue(actualMemberType);
 
-				case BoisTypeCache.EnBoisKnownType.Color:
+				case EnBoisKnownType.Color:
 					return ReadColor();
 #endif
 
-				case BoisTypeCache.EnBoisKnownType.Version:
+				case EnBoisKnownType.Version:
 					return ReadVersion();
 
-				case BoisTypeCache.EnBoisKnownType.DbNull:
+				case EnBoisKnownType.DbNull:
 					return DBNull.Value;
 
 				default:

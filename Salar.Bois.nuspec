@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Salar.Bois</id>
-		<version>1.0.0318.72</version>
+		<version>1.5.0414.129</version>
 		<title>BOIS (Binary Object Indexed Serialization)</title>
 		<authors>Salar Khalilzadeh</authors>
 		<owners>Salar Khalilzadeh</owners>
@@ -16,7 +16,7 @@
 		</description>
 		<releaseNotes></releaseNotes>
 		<copyright>Copyright 2013</copyright>
-		<tags>Serializer Serialization Serialize BOIS Binary BSON JSON BON</tags>
+		<tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>
 		<dependencies>
 		</dependencies>
 	</metadata>

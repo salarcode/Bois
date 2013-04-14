@@ -10,7 +10,7 @@
 namespace Salar.Bois
 {
 	/// <summary>
-	/// Can be used for classes and structs to specify that the serializer should serialize fields or properties.
+	/// Can be used for classes and structs to specify that the serializer should serialize fields and properties or not.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
 	public class BoisContractAttribute : Attribute

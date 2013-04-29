@@ -22,20 +22,20 @@ namespace Salar.BoisBenchmark.Objects
 								                "2","1","3"
 							                },
 
-						//// Uncomment this part before using this test for benchmark
-						//NameValue = new NameValueCollection()
-						//				{
-						//					{"1","one"},
-						//					{"2","two"},
-						//					{"0","zero"}
-						//				}
+						// Uncomment this part before using this test for benchmark
+						NameValue = new NameValueCollection()
+										{
+											{"1","one"},
+											{"2","two"},
+											{"0","zero"}
+										}
 					};
 			return result;
 		}
 
 		[ProtoMember(1)]
 		public ObservableCollection<string> ObsCollection { get; set; }
-		//[ProtoMember(2)]
-		//public NameValueCollection NameValue { get; set; }
+		[ProtoMember(2)]
+		public NameValueCollection NameValue { get; set; }
 	}
 }

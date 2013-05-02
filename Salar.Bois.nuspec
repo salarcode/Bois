@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Salar.Bois</id>
-		<version>1.5.0414.130</version>
+		<version>1.5.0426.132</version>
 		<title>BOIS (Binary Object Indexed Serialization)</title>
 		<authors>Salar Khalilzadeh</authors>
 		<owners>Salar Khalilzadeh</owners>
@@ -15,10 +15,7 @@
 			More info: http://bois.codeplex.com
 		</description>
 		<releaseNotes>
-			+ BoisContract and BoisMember attributes are added, to help controlling serializable fields and properties.
-			+ Smaller output which is the result of optimized specs.
-			* BoisTypeCache is removed and merged into the BoisSerializer.
-			* Not compatible with previous release (1.0).
+			+ The assemblies have strong name now.
 		</releaseNotes>
 		<copyright>Copyright 2013</copyright>
 		<tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>

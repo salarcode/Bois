@@ -74,6 +74,7 @@
     <Compile Include="Objects\CollectionTypes1.cs" />
     <Compile Include="Objects\HierarchyObjects1.cs" />
     <Compile Include="Objects\HierarchyWithStruct.cs" />
+    <Compile Include="Objects\HierarchyWithStruct2.cs" />
     <Compile Include="Objects\ObjectWithAttibute.cs" />
     <Compile Include="Objects\PrimitiveTypes1.cs" />
     <Compile Include="Objects\PrimitiveTypes1Nullable.cs" />

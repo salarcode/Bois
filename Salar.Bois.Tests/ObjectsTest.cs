@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Salar.Bois;
 using Salar.Bois.Tests.Objects;
 using SharpTestsEx;
@@ -233,6 +235,28 @@ namespace Salar.Bois.Tests
 			init.LastName.Should().Be.EqualTo(final.LastName);
 			init.AcceptableAges.Should().Have.SameSequenceAs(final.AcceptableAges);
 		}
+		[TestMethod]
+		public void HierarchyWithStruct2_NormalTest()
+		{
+			var init = new HierarchyWithStruct2();
+			init.Initialize();
+			HierarchyWithStruct2 final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<HierarchyWithStruct2>(mem);
+			}
+			init.CEnc.Should().Be.EqualTo(final.CEnc);
+			init.CLen.Should().Be.EqualTo(final.CLen);
+			init.CType.Should().Be.EqualTo(final.CType);
+			init.SCode.Should().Be.EqualTo(final.SCode);
+			init.SDesc.Should().Be.EqualTo(final.SDesc);
+			init.Ver.Should().Be.EqualTo(final.Ver);
+			init.ChSet.Should().Be.EqualTo(final.ChSet);
+			init.HDR.Should().Have.SameSequenceAs(final.HDR);
+		}
 
 		[TestMethod]
 		public void CollectionTypes1_NormalTest()
@@ -250,6 +274,52 @@ namespace Salar.Bois.Tests
 			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
 
+
+		[TestMethod]
+		public void ThreadSafe_NormalTest()
+		{
+			var boisThreaded = new BoisSerializer();
+			var init = new PrimitiveTypes1();
+			init.Initialize();
+			PrimitiveTypes1 final;
+
+			using (var iniToDeserialMem = new MemoryStream())
+			{
+				boisThreaded.Serialize(init, iniToDeserialMem);
+				iniToDeserialMem.Seek(0, SeekOrigin.Begin);
+
+				int done = 0;
+				var tasks = new Thread[500];
+				for (int i = 0; i < tasks.Length; i++)
+				{
+					var th = new Thread(
+						() =>
+						{
+							Thread.Sleep(50);
+							using (var mem = new MemoryStream())
+							{
+								boisThreaded.Serialize(init, mem);
+								mem.Seek(0, SeekOrigin.Begin);
+								final = boisThreaded.Deserialize<PrimitiveTypes1>(mem);
+							}
+							Interlocked.Increment(ref done);
+							AssertionHelper.AssertMembersAreEqual(init, final);
+						});
+					th.IsBackground = true;
+					th.Name = "ThreadSafe_Test_" + i;
+					tasks[i] = th;
+				}
+				foreach (var task in tasks)
+				{
+					task.Start();
+				}
+
+				while (done < tasks.Length)
+				{
+					Thread.Sleep(10);
+				}
+			}
+		}
 
 	}
 }

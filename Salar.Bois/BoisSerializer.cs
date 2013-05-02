@@ -29,10 +29,10 @@ namespace Salar.Bois
 	/// </Author>
 	public class BoisSerializer
 	{
-		private BinaryWriter _serializeOut;
+		//private BinaryWriter writer;
 		private int _serializeDepth;
 		private readonly BoisTypeCache _typeCache = new BoisTypeCache();
-		private BinaryReader _input;
+		//private BinaryReader reader;
 
 		/// <summary>
 		/// Character encoding for strings.
@@ -58,9 +58,9 @@ namespace Salar.Bois
 			if (obj == null)
 				throw new ArgumentNullException("obj", "Object cannot be null.");
 			_serializeDepth = 0;
-			_serializeOut = new BinaryWriter(output, Encoding);
+			var writer = new BinaryWriter(output, Encoding);
 
-			WriteValue(obj, typeof(T));
+			WriteValue(writer, obj, typeof(T));
 		}
 
 		/// <summary>
@@ -71,8 +71,8 @@ namespace Salar.Bois
 		/// <returns>New instance of the deserialized data.</returns>
 		public T Deserialize<T>(Stream objectData)
 		{
-			_input = new BinaryReader(objectData, Encoding);
-			return (T)ReadMember(typeof(T));
+			var reader = new BinaryReader(objectData, Encoding);
+			return (T)ReadMember(reader, typeof(T));
 		}
 
 		/// <summary>
@@ -87,8 +87,8 @@ namespace Salar.Bois
 		{
 			using (var mem = new MemoryStream(objectBuffer, index, count, false))
 			{
-				_input = new BinaryReader(mem, Encoding);
-				return (T)ReadMember(typeof(T));
+				var reader = new BinaryReader(mem, Encoding);
+				return (T)ReadMember(reader, typeof(T));
 			}
 		}
 
@@ -121,13 +121,13 @@ namespace Salar.Bois
 
 		#region Serialization methods
 
-		private void WriteObject(object obj)
+		private void WriteObject(BinaryWriter writer, object obj)
 		{
 			if (obj == null)
 			{
 				// number of writable members count is null means the value is null too
 				// Int32? nullable
-				PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)null);
+				PrimitivesConvertion.WriteVarInt(writer, (int?)null);
 				return;
 			}
 
@@ -138,7 +138,7 @@ namespace Salar.Bois
 
 			// number of writable members count
 			// Int32? nullable
-			PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)boisType.Members.Length);
+			PrimitivesConvertion.WriteVarInt(writer, (int?)boisType.Members.Length);
 
 			// writing the members
 			for (int i = 0; i < boisType.Members.Length; i++)
@@ -147,66 +147,66 @@ namespace Salar.Bois
 				if (mem.MemberType == EnBoisMemberType.Property)
 				{
 					var value = mem.PropertyGetter(obj);
-					WriteValue(mem, value);
+					WriteValue(writer, mem, value);
 				}
 				else if (mem.MemberType == EnBoisMemberType.Field)
 				{
 					var finfo = (FieldInfo)mem.Info;
 					var value = finfo.GetValue(obj);
-					WriteValue(mem, value);
+					WriteValue(writer, mem, value);
 				}
 			}
 			_serializeDepth--;
 		}
 
-		private void WriteNullableType(bool isnull)
+		private void WriteNullableType(BinaryWriter writer, bool isnull)
 		{
-			_serializeOut.Write(isnull ? (byte)1 : (byte)0);
+			writer.Write(isnull ? (byte)1 : (byte)0);
 		}
 
 		/// <summary>
 		/// Also called by root
 		/// </summary>
-		void WriteValue(object value, Type type)
+		void WriteValue(BinaryWriter writer, object value, Type type)
 		{
 			var bionType = _typeCache.GetTypeInfo(type, true);
 			if (!bionType.IsSupportedPrimitive)
 			{
 				if (value == null)
 				{
-					WriteNullableType(true);
+					WriteNullableType(writer, true);
 					return;
 				}
 			}
-			WriteValue(bionType, value);
+			WriteValue(writer, bionType, value);
 		}
 
-		void WriteValue(object value)
+		void WriteValue(BinaryWriter writer, object value)
 		{
 			if (value == null)
 			{
-				WriteNullableType(true);
+				WriteNullableType(writer, true);
 				return;
 			}
 
 			var objType = value.GetType();
 			var bionType = _typeCache.GetTypeInfo(objType, true);
 
-			WriteValue(bionType, value);
+			WriteValue(writer, bionType, value);
 		}
 
-		void WriteValue(BoisMemberInfo boisMemInfo, object value)
+		void WriteValue(BinaryWriter writer, BoisMemberInfo boisMemInfo, object value)
 		{
 			if (!boisMemInfo.IsSupportedPrimitive && !boisMemInfo.IsContainerObject)
 			{
 				if (value == null)
 				{
-					WriteNullableType(true);
+					WriteNullableType(writer, true);
 					return;
 				}
 				else if (boisMemInfo.IsNullable)
 				{
-					WriteNullableType(false);
+					WriteNullableType(writer, false);
 				}
 			}
 
@@ -216,25 +216,25 @@ namespace Salar.Bois
 
 					if (boisMemInfo.IsContainerObject)
 					{
-						WriteObject(value);
+						WriteObject(writer, value);
 					}
 					else if (boisMemInfo.IsStringDictionary)
 					{
-						WriteStringDictionary(value as IDictionary);
+						WriteStringDictionary(writer, value as IDictionary);
 					}
 					else if (boisMemInfo.IsDictionary)
 					{
-						WriteDictionary(value as IDictionary);
+						WriteDictionary(writer, value as IDictionary);
 					}
 					else if (boisMemInfo.IsCollection || boisMemInfo.IsArray)
 					{
 						if (boisMemInfo.IsGeneric)
 						{
-							WriteGenericList(value as IEnumerable);
+							WriteGenericList(writer, value as IEnumerable);
 						}
 						else
 						{
-							WriteArray(value as IEnumerable);
+							WriteArray(writer, value as IEnumerable);
 						}
 					}
 					break;
@@ -242,22 +242,22 @@ namespace Salar.Bois
 				case EnBoisKnownType.Int16:
 					if (value == null || boisMemInfo.IsNullable)
 					{
-						PrimitivesConvertion.WriteVarInt(_serializeOut, (short?)value);
+						PrimitivesConvertion.WriteVarInt(writer, (short?)value);
 					}
 					else
 					{
-						PrimitivesConvertion.WriteVarInt(_serializeOut, (short)value);
+						PrimitivesConvertion.WriteVarInt(writer, (short)value);
 					}
 					break;
 
 				case EnBoisKnownType.Int32:
 					if (value == null || boisMemInfo.IsNullable)
 					{
-						PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)value);
+						PrimitivesConvertion.WriteVarInt(writer, (int?)value);
 					}
 					else
 					{
-						PrimitivesConvertion.WriteVarInt(_serializeOut, (int)value);
+						PrimitivesConvertion.WriteVarInt(writer, (int)value);
 					}
 
 					break;
@@ -265,101 +265,101 @@ namespace Salar.Bois
 				case EnBoisKnownType.Int64:
 					if (value == null || boisMemInfo.IsNullable)
 					{
-						PrimitivesConvertion.WriteVarInt(_serializeOut, (long?)value);
+						PrimitivesConvertion.WriteVarInt(writer, (long?)value);
 					}
 					else
 					{
-						PrimitivesConvertion.WriteVarInt(_serializeOut, (long)value);
+						PrimitivesConvertion.WriteVarInt(writer, (long)value);
 					}
 					break;
 
 				case EnBoisKnownType.UInt16:
-					_serializeOut.Write((ushort)value);
+					writer.Write((ushort)value);
 					break;
 
 				case EnBoisKnownType.UInt32:
-					_serializeOut.Write((uint)value);
+					writer.Write((uint)value);
 					break;
 
 				case EnBoisKnownType.UInt64:
-					_serializeOut.Write((ulong)value);
+					writer.Write((ulong)value);
 					break;
 
 				case EnBoisKnownType.Double:
-					_serializeOut.Write((double)value);
+					writer.Write((double)value);
 					break;
 
 				case EnBoisKnownType.Decimal:
 #if SILVERLIGHT
-					WriteDecimal(_serializeOut, (decimal)value);
+					WriteDecimal(writer, (decimal)value);
 #else
-					_serializeOut.Write((decimal)value);
+					writer.Write((decimal)value);
 #endif
 					break;
 
 				case EnBoisKnownType.Single:
-					_serializeOut.Write((float)value);
+					writer.Write((float)value);
 					break;
 
 				case EnBoisKnownType.Byte:
-					_serializeOut.Write((byte)value);
+					writer.Write((byte)value);
 					break;
 
 				case EnBoisKnownType.SByte:
-					_serializeOut.Write((sbyte)value);
+					writer.Write((sbyte)value);
 					break;
 
 				case EnBoisKnownType.ByteArray:
-					WriteBytes((byte[])value);
+					WriteBytes(writer, (byte[])value);
 					break;
 
 				case EnBoisKnownType.String:
-					WriteString(value as string);
+					WriteString(writer, value as string);
 					break;
 
 				case EnBoisKnownType.Char:
-					_serializeOut.Write((char)value);
+					writer.Write((char)value);
 					break;
 
 				case EnBoisKnownType.Guid:
-					WriteGuid((Guid)value);
+					WriteGuid(writer, (Guid)value);
 					break;
 
 				case EnBoisKnownType.Bool:
-					_serializeOut.Write((byte)(((bool)value) ? 1 : 0));
+					writer.Write((byte)(((bool)value) ? 1 : 0));
 					break;
 
 				case EnBoisKnownType.Enum:
-					WriteEnum((Enum)value);
+					WriteEnum(writer, (Enum)value);
 					break;
 
 				case EnBoisKnownType.DateTime:
-					WriteDateTime((DateTime)value);
+					WriteDateTime(writer, (DateTime)value);
 					break;
 
 				case EnBoisKnownType.TimeSpan:
-					WriteTimeSpan((TimeSpan)value);
+					WriteTimeSpan(writer, (TimeSpan)value);
 					break;
 
 #if !SILVERLIGHT
 				case EnBoisKnownType.DataSet:
-					WriteDataset(value as DataSet);
+					WriteDataset(writer, value as DataSet);
 					break;
 
 				case EnBoisKnownType.DataTable:
-					WriteDataTable(value as DataTable);
+					WriteDataTable(writer, value as DataTable);
 					break;
 				case EnBoisKnownType.NameValueColl:
-					WriteCollectionNameValue(value as NameValueCollection);
+					WriteCollectionNameValue(writer, value as NameValueCollection);
 					break;
 
 				case EnBoisKnownType.Color:
-					WriteColor((Color)value);
+					WriteColor(writer, (Color)value);
 					break;
 #endif
 
 				case EnBoisKnownType.Version:
-					WriteVersion(value as Version);
+					WriteVersion(writer, value as Version);
 					break;
 
 				case EnBoisKnownType.DbNull:
@@ -373,23 +373,23 @@ namespace Salar.Bois
 
 
 #if !SILVERLIGHT
-		private void WriteCollectionNameValue(NameValueCollection nameValue)
+		private void WriteCollectionNameValue(BinaryWriter writer, NameValueCollection nameValue)
 		{
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, nameValue.Count);
+			PrimitivesConvertion.WriteVarInt(writer, nameValue.Count);
 
 			foreach (string key in nameValue)
 			{
-				WriteValue(key);
-				WriteValue(nameValue[key]);
+				WriteValue(writer, key);
+				WriteValue(writer, nameValue[key]);
 			}
 		}
 
-		private void WriteColor(Color c)
+		private void WriteColor(BinaryWriter writer, Color c)
 		{
 			int argb = c.ToArgb();
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, argb);
+			PrimitivesConvertion.WriteVarInt(writer, argb);
 		}
 
 		private string GetXmlSchema(DataTable dt)
@@ -401,34 +401,34 @@ namespace Salar.Bois
 			}
 		}
 
-		private void WriteDataset(DataSet ds)
+		private void WriteDataset(BinaryWriter writer, DataSet ds)
 		{
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, ds.Tables.Count);
+			PrimitivesConvertion.WriteVarInt(writer, ds.Tables.Count);
 
 			foreach (DataTable table in ds.Tables)
 			{
-				WriteDataTable(table);
+				WriteDataTable(writer, table);
 			}
 		}
 
-		private void WriteDataTable(DataTable table)
+		private void WriteDataTable(BinaryWriter writer, DataTable table)
 		{
 			if (string.IsNullOrEmpty(table.TableName))
 				table.TableName = "tbl_" + DateTime.Now.Ticks.GetHashCode().ToString();
-			WriteString(GetXmlSchema(table));
+			WriteString(writer, GetXmlSchema(table));
 
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, table.Rows.Count);
+			PrimitivesConvertion.WriteVarInt(writer, table.Rows.Count);
 
 			var colsCount = table.Columns.Count;
 			foreach (DataRow row in table.Rows)
 			{
-				WriteDataRow(row, colsCount);
+				WriteDataRow(writer, row, colsCount);
 			}
 		}
 
-		private void WriteDataRow(DataRow row, int columnCount)
+		private void WriteDataRow(BinaryWriter writer, DataRow row, int columnCount)
 		{
 			var values = new Dictionary<int, object>();
 			for (int i = 0; i < columnCount; i++)
@@ -440,25 +440,25 @@ namespace Salar.Bois
 
 			// count of non-null columns
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, values.Count);
+			PrimitivesConvertion.WriteVarInt(writer, values.Count);
 
 			foreach (var value in values)
 			{
 				// Int32
-				PrimitivesConvertion.WriteVarInt(_serializeOut, value.Key);
+				PrimitivesConvertion.WriteVarInt(writer, value.Key);
 
-				WriteValue(value.Value);
+				WriteValue(writer, value.Value);
 			}
 		}
 #endif
 
-		private void WriteEnum(Enum e)
+		private void WriteEnum(BinaryWriter writer, Enum e)
 		{
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, (int)((object)e));
+			PrimitivesConvertion.WriteVarInt(writer, (int)((object)e));
 		}
 
-		private void WriteGenericList(IEnumerable array)
+		private void WriteGenericList(BinaryWriter writer, IEnumerable array)
 		{
 			int count = 0;
 			var col = array as ICollection;
@@ -471,13 +471,13 @@ namespace Salar.Bois
 			}
 			var itemType = array.GetType().GetGenericArguments()[0];
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, count);
+			PrimitivesConvertion.WriteVarInt(writer, count);
 			foreach (object obj in array)
 			{
-				WriteValue(obj, itemType);
+				WriteValue(writer, obj, itemType);
 			}
 		}
-		private void WriteArray(IEnumerable array)
+		private void WriteArray(BinaryWriter writer, IEnumerable array)
 		{
 			int count = 0;
 			var col = array as ICollection;
@@ -490,24 +490,24 @@ namespace Salar.Bois
 			}
 
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, count);
+			PrimitivesConvertion.WriteVarInt(writer, count);
 			foreach (object obj in array)
 			{
-				WriteValue(obj);
+				WriteValue(writer, obj);
 			}
 		}
 
-		private void WriteBytes(byte[] bytes)
+		private void WriteBytes(BinaryWriter writer, byte[] bytes)
 		{
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, bytes.Length);
-			_serializeOut.Write(bytes);
+			PrimitivesConvertion.WriteVarInt(writer, bytes.Length);
+			writer.Write(bytes);
 		}
 
-		private void WriteDictionary(IDictionary dic)
+		private void WriteDictionary(BinaryWriter writer, IDictionary dic)
 		{
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, dic.Count);
+			PrimitivesConvertion.WriteVarInt(writer, dic.Count);
 
 			var genericType = dic.GetType().GetGenericArguments();
 			var keyType = genericType[0];
@@ -515,15 +515,15 @@ namespace Salar.Bois
 
 			foreach (DictionaryEntry entry in dic)
 			{
-				WriteValue(entry.Key, keyType);
-				WriteValue(entry.Value, valType);
+				WriteValue(writer, entry.Key, keyType);
+				WriteValue(writer, entry.Value, valType);
 			}
 		}
 
-		private void WriteStringDictionary(IDictionary dic)
+		private void WriteStringDictionary(BinaryWriter writer, IDictionary dic)
 		{
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, dic.Count);
+			PrimitivesConvertion.WriteVarInt(writer, dic.Count);
 
 			var genericType = dic.GetType().GetGenericArguments();
 			var keyType = typeof(string);
@@ -531,31 +531,31 @@ namespace Salar.Bois
 
 			foreach (DictionaryEntry entry in dic)
 			{
-				WriteValue(entry.Key.ToString(), keyType);
-				WriteValue(entry.Value, valType);
+				WriteValue(writer, entry.Key.ToString(), keyType);
+				WriteValue(writer, entry.Value, valType);
 			}
 		}
 
 		[Obsolete]
-		private void WritePairString(string name, object value)
+		private void WritePairString(BinaryWriter writer, string name, object value)
 		{
-			WriteString(name);
-			WriteValue(value);
+			WriteString(writer, name);
+			WriteValue(writer, value);
 		}
 
 		[Obsolete]
-		private void WritePairObject(object key, object value)
+		private void WritePairObject(BinaryWriter writer, object key, object value)
 		{
-			WriteValue(key);
-			WriteValue(value);
+			WriteValue(writer, key);
+			WriteValue(writer, value);
 		}
 
-		private void WriteDateTime(DateTime dateTime)
+		private void WriteDateTime(BinaryWriter writer, DateTime dateTime)
 		{
 			var dt = dateTime;
 			if (dt == DateTime.MinValue || dt == DateTime.MaxValue)
 			{
-				PrimitivesConvertion.WriteVarInt(_serializeOut, dt.Ticks);
+				PrimitivesConvertion.WriteVarInt(writer, dt.Ticks);
 			}
 			else
 			{
@@ -564,88 +564,88 @@ namespace Salar.Bois
 					dt = dt.ToUniversalTime();
 				}
 				//Int64
-				PrimitivesConvertion.WriteVarInt(_serializeOut, dt.Ticks);
+				PrimitivesConvertion.WriteVarInt(writer, dt.Ticks);
 			}
 		}
 
-		private void WriteTimeSpan(TimeSpan timeSpan)
+		private void WriteTimeSpan(BinaryWriter writer, TimeSpan timeSpan)
 		{
 			// Int64
-			PrimitivesConvertion.WriteVarInt(_serializeOut, timeSpan.Ticks);
+			PrimitivesConvertion.WriteVarInt(writer, timeSpan.Ticks);
 		}
-		private void WriteVersion(Version version)
+		private void WriteVersion(BinaryWriter writer, Version version)
 		{
-			WriteString(version.ToString());
+			WriteString(writer, version.ToString());
 		}
 
-		private void WriteString(string str)
+		private void WriteString(BinaryWriter writer, string str)
 		{
 			if (str == null)
 			{
-				PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)null);
+				PrimitivesConvertion.WriteVarInt(writer, (int?)null);
 			}
 			else if (str.Length == 0)
 			{
-				PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)0);
+				PrimitivesConvertion.WriteVarInt(writer, (int?)0);
 			}
 			else
 			{
 				var strBytes = Encoding.GetBytes(str);
 				// Int32
-				PrimitivesConvertion.WriteVarInt(_serializeOut, (int?)strBytes.Length);
-				_serializeOut.Write(strBytes);
+				PrimitivesConvertion.WriteVarInt(writer, (int?)strBytes.Length);
+				writer.Write(strBytes);
 			}
 		}
 
 		[Obsolete]
-		private void WriteString_OLD(string str)
+		private void WriteString_OLD(BinaryWriter writer, string str)
 		{
-			WriteBytes(Encoding.GetBytes(str));
+			WriteBytes(writer, Encoding.GetBytes(str));
 		}
 		[Obsolete]
-		private void WriteString_OLD(string str, bool checkNull)
+		private void WriteString_OLD(BinaryWriter writer, string str, bool checkNull)
 		{
 			if (checkNull)
 			{
 				if (str == null)
-					WriteNullableType(true);
+					WriteNullableType(writer, true);
 				else
-					WriteNullableType(false);
+					WriteNullableType(writer, false);
 			}
 			if (str == null)
 			{
 				// length of the string array
 				// Int32
-				PrimitivesConvertion.WriteVarInt(_serializeOut, (int)0);
+				PrimitivesConvertion.WriteVarInt(writer, (int)0);
 			}
 			else
 			{
-				WriteBytes(Encoding.GetBytes(str));
+				WriteBytes(writer, Encoding.GetBytes(str));
 			}
 		}
 
-		private void WriteGuid(Guid g)
+		private void WriteGuid(BinaryWriter writer, Guid g)
 		{
 			if (g == Guid.Empty)
 			{
 				// Int32
-				PrimitivesConvertion.WriteVarInt(_serializeOut, 0);
+				PrimitivesConvertion.WriteVarInt(writer, 0);
 				return;
 			}
 
 			var data = g.ToByteArray();
 			// Int32
-			PrimitivesConvertion.WriteVarInt(_serializeOut, data.Length);
-			_serializeOut.Write(data);
+			PrimitivesConvertion.WriteVarInt(writer, data.Length);
+			writer.Write(data);
 		}
 		#endregion
 
 		#region Deserialization methods
 
-		private object ReadObject(Type type)
+		private object ReadObject(BinaryReader reader, Type type)
 		{
 			//Int32
-			var binaryMemberCount = PrimitivesConvertion.ReadVarInt32Nullable(_input);
+			var binaryMemberCount = PrimitivesConvertion.ReadVarInt32Nullable(reader);
 			if (binaryMemberCount == null)
 			{
 				return null;
@@ -655,16 +655,16 @@ namespace Salar.Bois
 
 			var members = bionType.Members;
 			var resultObj = _typeCache.CreateInstance(type);
-			ReadMembers(resultObj, members, binaryMemberCount.Value);
+			ReadMembers(reader, resultObj, members, binaryMemberCount.Value);
 			return resultObj;
 		}
 
-		private void ReadMembers(object obj, BoisMemberInfo[] memberList, int binaryMemberCount)
+		private void ReadMembers(BinaryReader reader, object obj, BoisMemberInfo[] memberList, int binaryMemberCount)
 		{
 			var objectMemberCount = memberList.Length;
 			var memberProcessed = 0;
-			var dataLeng = _input.BaseStream.Length;
-			var data = _input.BaseStream;
+			var dataLeng = reader.BaseStream.Length;
+			var data = reader.BaseStream;
 
 			//var objType = obj.GetType();
 
@@ -683,7 +683,7 @@ namespace Salar.Bois
 					var pinfo = memInfo.Info as PropertyInfo;
 
 					// read the value
-					var value = ReadMember(memInfo, pinfo.PropertyType);
+					var value = ReadMember(reader, memInfo, pinfo.PropertyType);
 
 					// using the setter
 					memInfo.PropertySetter(obj, value);
@@ -693,7 +693,7 @@ namespace Salar.Bois
 					var finfo = memInfo.Info as FieldInfo;
 
 					// read the value
-					var value = ReadMember(memInfo, finfo.FieldType);
+					var value = ReadMember(reader, memInfo, finfo.FieldType);
 
 					ReflectionHelper.SetValue(obj, value, finfo);
 				}
@@ -701,19 +701,19 @@ namespace Salar.Bois
 			}
 		}
 
-		private object ReadMember(Type memType)
+		private object ReadMember(BinaryReader reader, Type memType)
 		{
 			var memInfo = _typeCache.GetTypeInfo(memType, true);
-			return ReadMember(memInfo, memType);
+			return ReadMember(reader, memInfo, memType);
 		}
 
-		private object ReadMember(BoisMemberInfo memInfo, Type memType)
+		private object ReadMember(BinaryReader reader, BoisMemberInfo memInfo, Type memType)
 		{
 			if (memInfo.IsNullable &&
 				!memInfo.IsSupportedPrimitive &&
 				!memInfo.IsContainerObject)
 			{
-				bool isNull = _input.ReadByte() != 0;
+				bool isNull = reader.ReadByte() != 0;
 
 				if (isNull)
 				{
@@ -732,27 +732,27 @@ namespace Salar.Bois
 
 					if (memInfo.IsContainerObject)
 					{
-						return ReadObject(actualMemberType);
+						return ReadObject(reader, actualMemberType);
 					}
 					else if (memInfo.IsStringDictionary)
 					{
-						return ReadStringDictionary(actualMemberType);
+						return ReadStringDictionary(reader, actualMemberType);
 					}
 					else if (memInfo.IsDictionary)
 					{
-						return ReadDictionary(actualMemberType);
+						return ReadDictionary(reader, actualMemberType);
 					}
 					else if (memInfo.IsCollection)
 					{
 						if (memInfo.IsGeneric)
 						{
-							return ReadGenericList(actualMemberType);
+							return ReadGenericList(reader, actualMemberType);
 						}
-						return ReadArray(actualMemberType);
+						return ReadArray(reader, actualMemberType);
 					}
 					else if (memInfo.IsArray)
 					{
-						return ReadArray(actualMemberType);
+						return ReadArray(reader, actualMemberType);
 					}
 
 					break;
@@ -760,92 +760,92 @@ namespace Salar.Bois
 				case EnBoisKnownType.Int16:
 					if (memInfo.IsNullable)
 					{
-						return PrimitivesConvertion.ReadVarInt16Nullable(_input);
+						return PrimitivesConvertion.ReadVarInt16Nullable(reader);
 					}
-					return PrimitivesConvertion.ReadVarInt16(_input);
+					return PrimitivesConvertion.ReadVarInt16(reader);
 
 				case EnBoisKnownType.Int32:
 					if (memInfo.IsNullable)
 					{
-						return PrimitivesConvertion.ReadVarInt32Nullable(_input);
+						return PrimitivesConvertion.ReadVarInt32Nullable(reader);
 					}
-					return PrimitivesConvertion.ReadVarInt32(_input);
+					return PrimitivesConvertion.ReadVarInt32(reader);
 
 				case EnBoisKnownType.Int64:
 					if (memInfo.IsNullable)
 					{
-						return PrimitivesConvertion.ReadVarInt64Nullable(_input);
+						return PrimitivesConvertion.ReadVarInt64Nullable(reader);
 					}
-					return PrimitivesConvertion.ReadVarInt64(_input);
+					return PrimitivesConvertion.ReadVarInt64(reader);
 
 				case EnBoisKnownType.UInt16:
-					return _input.ReadUInt16();
+					return reader.ReadUInt16();
 
 				case EnBoisKnownType.UInt32:
-					return _input.ReadUInt32();
+					return reader.ReadUInt32();
 
 				case EnBoisKnownType.UInt64:
-					return _input.ReadUInt64();
+					return reader.ReadUInt64();
 
 				case EnBoisKnownType.Double:
-					return _input.ReadDouble();
+					return reader.ReadDouble();
 
 				case EnBoisKnownType.Decimal:
 #if SILVERLIGHT
-					return ReadDecimal(_input);
+					return ReadDecimal(reader);
 #else
-					return _input.ReadDecimal();
+					return reader.ReadDecimal();
 #endif
 
 				case EnBoisKnownType.Single:
-					return _input.ReadSingle();
+					return reader.ReadSingle();
 
 				case EnBoisKnownType.Byte:
-					return _input.ReadByte();
+					return reader.ReadByte();
 
 				case EnBoisKnownType.SByte:
-					return _input.ReadSByte();
+					return reader.ReadSByte();
 
 				case EnBoisKnownType.ByteArray:
-					return ReadBytes();
+					return ReadBytes(reader);
 
 				case EnBoisKnownType.String:
-					return ReadString();
+					return ReadString(reader);
 
 				case EnBoisKnownType.Char:
-					return _input.ReadChar();
+					return reader.ReadChar();
 
 				case EnBoisKnownType.Guid:
-					return ReadGuid();
+					return ReadGuid(reader);
 
 				case EnBoisKnownType.Bool:
-					return ReadBoolean();
+					return ReadBoolean(reader);
 
 				case EnBoisKnownType.Enum:
-					return ReadEnum(actualMemberType);
+					return ReadEnum(reader, actualMemberType);
 
 				case EnBoisKnownType.DateTime:
-					return ReadDateTime();
+					return ReadDateTime(reader);
 
 				case EnBoisKnownType.TimeSpan:
-					return ReadTimeSpan();
+					return ReadTimeSpan(reader);
 
 #if !SILVERLIGHT
 				case EnBoisKnownType.DataSet:
-					return ReadDataset(actualMemberType);
+					return ReadDataset(reader, actualMemberType);
 
 				case EnBoisKnownType.DataTable:
-					return ReadDataTable();
+					return ReadDataTable(reader);
 
 				case EnBoisKnownType.NameValueColl:
-					return ReadCollectionNameValue(actualMemberType);
+					return ReadCollectionNameValue(reader, actualMemberType);
 
 				case EnBoisKnownType.Color:
-					return ReadColor();
+					return ReadColor(reader);
 #endif
 
 				case EnBoisKnownType.Version:
-					return ReadVersion();
+					return ReadVersion(reader);
 
 				case EnBoisKnownType.DbNull:
 					return DBNull.Value;
@@ -856,15 +856,15 @@ namespace Salar.Bois
 			return null;
 		}
 
-		private object ReadEnum(Type type)
+		private object ReadEnum(BinaryReader reader, Type type)
 		{
-			var val = PrimitivesConvertion.ReadVarInt32(_input);
+			var val = PrimitivesConvertion.ReadVarInt32(reader);
 			return Enum.ToObject(type, val);
 		}
 
-		private Array ReadArray(Type type)
+		private Array ReadArray(BinaryReader reader, Type type)
 		{
-			var count = PrimitivesConvertion.ReadVarInt32(_input);
+			var count = PrimitivesConvertion.ReadVarInt32(reader);
 
 			var itemType = type.GetElementType();
 			if (itemType == null)
@@ -874,31 +874,31 @@ namespace Salar.Bois
 			var lst = arr as IList;
 			for (int i = 0; i < count; i++)
 			{
-				var val = ReadMember(itemType);
+				var val = ReadMember(reader, itemType);
 				lst[i] = val;
 			}
 			return arr;
 		}
 
-		private IList ReadGenericList(Type type)
+		private IList ReadGenericList(BinaryReader reader, Type type)
 		{
-			var count = PrimitivesConvertion.ReadVarInt32(_input);
+			var count = PrimitivesConvertion.ReadVarInt32(reader);
 
 			var listObj = (IList)_typeCache.CreateInstance(type);
 
 			var itemType = type.GetGenericArguments()[0];
 			for (int i = 0; i < count; i++)
 			{
-				var val = ReadMember(itemType);
+				var val = ReadMember(reader, itemType);
 				listObj.Add(val);
 			}
 
 			return listObj;
 		}
 
-		private IList ReadIListImpl(Type type)
+		private IList ReadIListImpl(BinaryReader reader, Type type)
 		{
-			var count = PrimitivesConvertion.ReadVarInt32(_input);
+			var count = PrimitivesConvertion.ReadVarInt32(reader);
 
 			var listObj = (IList)_typeCache.CreateInstance(type);
 
@@ -908,16 +908,16 @@ namespace Salar.Bois
 
 			for (int i = 0; i < count; i++)
 			{
-				var val = ReadMember(itemType);
+				var val = ReadMember(reader, itemType);
 				listObj.Add(val);
 			}
 
 			return listObj;
 		}
-		private byte[] ReadBytes()
+		private byte[] ReadBytes(BinaryReader reader)
 		{
-			var length = PrimitivesConvertion.ReadVarInt32(_input);
-			return _input.ReadBytes(length);
+			var length = PrimitivesConvertion.ReadVarInt32(reader);
+			return reader.ReadBytes(length);
 		}
 
 #if SILVERLIGHT
@@ -940,66 +940,66 @@ namespace Salar.Bois
 			writer.Write(bits[3]);
 		}
 #else
-		private object ReadColor()
+		private object ReadColor(BinaryReader reader)
 		{
-			return Color.FromArgb(PrimitivesConvertion.ReadVarInt32(_input));
+			return Color.FromArgb(PrimitivesConvertion.ReadVarInt32(reader));
 		}
-		private object ReadCollectionNameValue(Type type)
+		private object ReadCollectionNameValue(BinaryReader reader, Type type)
 		{
-			var count = PrimitivesConvertion.ReadVarInt32(_input);
+			var count = PrimitivesConvertion.ReadVarInt32(reader);
 			var nameValue = (NameValueCollection)_typeCache.CreateInstance(type);
 			var strType = typeof(string);
 			for (int i = 0; i < count; i++)
 			{
-				var name = ReadMember(strType) as string;
-				var val = ReadMember(strType) as string;
+				var name = ReadMember(reader, strType) as string;
+				var val = ReadMember(reader, strType) as string;
 				nameValue.Add(name, val);
 			}
 			return nameValue;
 		}
-		private DataTable ReadDataTable()
+		private DataTable ReadDataTable(BinaryReader reader)
 		{
 			var dt = _typeCache.CreateInstance(typeof(DataTable)) as DataTable;
 
-			var schema = ReadString();
+			var schema = ReadString(reader);
 			//dt.TableName = name;
 			SetXmlSchema(dt, schema);
 
 			var cols = dt.Columns;
 
-			var rowCount = PrimitivesConvertion.ReadVarInt32(_input);
+			var rowCount = PrimitivesConvertion.ReadVarInt32(reader);
 			for (int i = 0; i < rowCount; i++)
 			{
 				var row = dt.Rows.Add();
-				ReadDataRow(row, cols);
+				ReadDataRow(reader, row, cols);
 			}
 			return dt;
 		}
 
-		private void ReadDataRow(DataRow row, DataColumnCollection cols)
+		private void ReadDataRow(BinaryReader reader, DataRow row, DataColumnCollection cols)
 		{
-			var itemCount = PrimitivesConvertion.ReadVarInt32(_input);
+			var itemCount = PrimitivesConvertion.ReadVarInt32(reader);
 			var colCount = cols.Count;
 			var passedIndex = 0;
 			while (passedIndex < colCount && passedIndex < itemCount)
 			{
 				passedIndex++;
 
-				var colIndex = PrimitivesConvertion.ReadVarInt32(_input);
+				var colIndex = PrimitivesConvertion.ReadVarInt32(reader);
 				var col = cols[colIndex];
-				var val = ReadMember(col.DataType);
+				var val = ReadMember(reader, col.DataType);
 				row[col] = val ?? DBNull.Value;
 			}
 
 		}
 
-		private object ReadDataset(Type memType)
+		private object ReadDataset(BinaryReader reader, Type memType)
 		{
-			var count = PrimitivesConvertion.ReadVarInt32(_input);
+			var count = PrimitivesConvertion.ReadVarInt32(reader);
 			var ds = _typeCache.CreateInstance(memType) as DataSet;
 			for (int i = 0; i < count; i++)
 			{
-				var dt = ReadDataTable();
+				var dt = ReadDataTable(reader);
 				ds.Tables.Add(dt);
 			}
 			return ds;
@@ -1013,9 +1013,9 @@ namespace Salar.Bois
 		}
 #endif
 
-		private object ReadDictionary(Type memType)
+		private object ReadDictionary(BinaryReader reader, Type memType)
 		{
-			var count = PrimitivesConvertion.ReadVarInt32(_input);
+			var count = PrimitivesConvertion.ReadVarInt32(reader);
 			var dic = _typeCache.CreateInstance(memType) as IDictionary;
 
 			var genericType = memType.GetGenericArguments();
@@ -1024,16 +1024,16 @@ namespace Salar.Bois
 
 			for (int i = 0; i < count; i++)
 			{
-				var key = ReadMember(keyType);
-				var val = ReadMember(valType);
+				var key = ReadMember(reader, keyType);
+				var val = ReadMember(reader, valType);
 				dic.Add(key, val);
 			}
 			return dic;
 		}
 
-		private object ReadStringDictionary(Type memType)
+		private object ReadStringDictionary(BinaryReader reader, Type memType)
 		{
-			var count = PrimitivesConvertion.ReadVarInt32(_input);
+			var count = PrimitivesConvertion.ReadVarInt32(reader);
 			var dic = _typeCache.CreateInstance(memType) as IDictionary;
 
 			var genericType = memType.GetGenericArguments();
@@ -1042,26 +1042,26 @@ namespace Salar.Bois
 
 			for (int i = 0; i < count; i++)
 			{
-				var key = ReadMember(keyType);
-				var val = ReadMember(valType);
+				var key = ReadMember(reader, keyType);
+				var val = ReadMember(reader, valType);
 				dic.Add(key, val);
 			}
 			return dic;
 		}
 
-		private TimeSpan ReadTimeSpan()
+		private TimeSpan ReadTimeSpan(BinaryReader reader)
 		{
-			var ticks = PrimitivesConvertion.ReadVarInt64(_input);
+			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
 			return new TimeSpan(ticks);
 		}
-		private object ReadVersion()
+		private object ReadVersion(BinaryReader reader)
 		{
-			return new Version(ReadString());
+			return new Version(ReadString(reader));
 		}
 
-		private object ReadDateTime()
+		private object ReadDateTime(BinaryReader reader)
 		{
-			var ticks = PrimitivesConvertion.ReadVarInt64(_input);
+			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
 			if (ticks == DateTime.MinValue.Ticks || ticks == DateTime.MaxValue.Ticks)
 			{
 				return new DateTime(ticks);
@@ -1070,14 +1070,14 @@ namespace Salar.Bois
 			return new DateTime(ticks, DateTimeKind.Utc).ToLocalTime();
 		}
 
-		private object ReadBoolean()
+		private object ReadBoolean(BinaryReader reader)
 		{
-			return _input.ReadByte() != 0;
+			return reader.ReadByte() != 0;
 		}
 
-		private string ReadString()
+		private string ReadString(BinaryReader reader)
 		{
-			int? length = PrimitivesConvertion.ReadVarInt32Nullable(_input);
+			int? length = PrimitivesConvertion.ReadVarInt32Nullable(reader);
 			if (length == null)
 			{
 				return null;
@@ -1088,22 +1088,22 @@ namespace Salar.Bois
 			}
 			else
 			{
-				var strBuff = _input.ReadBytes(length.Value);
+				var strBuff = reader.ReadBytes(length.Value);
 				return Encoding.GetString(strBuff, 0, strBuff.Length);
 			}
 		}
 
-		private object ReadGuid()
+		private object ReadGuid(BinaryReader reader)
 		{
-			var gbuff = ReadBytes();
+			var gbuff = ReadBytes(reader);
 			if (gbuff.Length == 0)
 				return Guid.Empty;
 			return new Guid(gbuff);
 		}
 
-		private object ReadChar()
+		private object ReadChar(BinaryReader reader)
 		{
-			return _input.ReadChar();
+			return reader.ReadChar();
 		}
 		#endregion
 

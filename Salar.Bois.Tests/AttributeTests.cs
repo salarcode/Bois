@@ -26,9 +26,6 @@ namespace Salar.Bois.Tests
 			bionStream = new MemoryStream();
 			bionReader = new BinaryReader(bionStream);
 			bionWriter = new BinaryWriter(bionStream);
-
-			bion._serializeOut = bionWriter;
-			bion._input = bionReader;
 		}
 
 		private void EchoStreamSize()

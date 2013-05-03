@@ -25,9 +25,6 @@ namespace Salar.Bois.Tests
 			bionStream = new MemoryStream();
 			bionReader = new BinaryReader(bionStream);
 			bionWriter = new BinaryWriter(bionStream);
-
-			bion._serializeOut = bionWriter;
-			bion._input = bionReader;
 		}
 
 		void ResetStream()
@@ -40,10 +37,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			int init = 250;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (int)bion.ReadMember(typeof(int));
+			var final = (int)bion.ReadMember(bionReader, typeof(int));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -52,10 +49,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			int init = 11;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (int)bion.ReadMember(typeof(int));
+			var final = (int)bion.ReadMember(bionReader, typeof(int));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -65,10 +62,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			int? init = null;
-			bion.WriteValue(init, typeof(int?));
+			bion.WriteValue(bionWriter, init, typeof(int?));
 			ResetStream();
 
-			var final = (int?)bion.ReadMember(typeof(int?));
+			var final = (int?)bion.ReadMember(bionReader, typeof(int?));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -78,10 +75,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			uint init = 250;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (uint)bion.ReadMember(typeof(uint));
+			var final = (uint)bion.ReadMember(bionReader, typeof(uint));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -91,10 +88,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			uint init = 6;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (uint)bion.ReadMember(typeof(uint));
+			var final = (uint)bion.ReadMember(bionReader, typeof(uint));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -104,10 +101,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			uint? init = null;
-			bion.WriteValue(init, typeof(uint?));
+			bion.WriteValue(bionWriter, init, typeof(uint?));
 			ResetStream();
 
-			var final = (uint?)bion.ReadMember(typeof(uint?));
+			var final = (uint?)bion.ReadMember(bionReader, typeof(uint?));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -117,10 +114,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			short init = 250;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (short)bion.ReadMember(typeof(short));
+			var final = (short)bion.ReadMember(bionReader, typeof(short));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -130,10 +127,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			short init = 23;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (short)bion.ReadMember(typeof(short));
+			var final = (short)bion.ReadMember(bionReader, typeof(short));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -143,10 +140,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			short? init = null;
-			bion.WriteValue(init, typeof(short?));
+			bion.WriteValue(bionWriter, init, typeof(short?));
 			ResetStream();
 
-			var final = (short?)bion.ReadMember(typeof(short?));
+			var final = (short?)bion.ReadMember(bionReader, typeof(short?));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -156,10 +153,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			ushort init = 250;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (ushort)bion.ReadMember(typeof(ushort));
+			var final = (ushort)bion.ReadMember(bionReader, typeof(ushort));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -169,10 +166,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			ushort init = 24;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (ushort)bion.ReadMember(typeof(ushort));
+			var final = (ushort)bion.ReadMember(bionReader, typeof(ushort));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -182,10 +179,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			ushort? init = null;
-			bion.WriteValue(init, typeof(ushort?));
+			bion.WriteValue(bionWriter, init, typeof(ushort?));
 			ResetStream();
 
-			var final = (ushort?)bion.ReadMember(typeof(ushort?));
+			var final = (ushort?)bion.ReadMember(bionReader, typeof(ushort?));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -195,10 +192,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			byte init = 250;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (byte)bion.ReadMember(typeof(byte));
+			var final = (byte)bion.ReadMember(bionReader, typeof(byte));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -209,10 +206,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			byte? init = null;
-			bion.WriteValue(init, typeof(byte?));
+			bion.WriteValue(bionWriter, init, typeof(byte?));
 			ResetStream();
 
-			var final = (byte?)bion.ReadMember(typeof(byte?));
+			var final = (byte?)bion.ReadMember(bionReader, typeof(byte?));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -221,10 +218,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			sbyte init = 122;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (sbyte)bion.ReadMember(typeof(sbyte));
+			var final = (sbyte)bion.ReadMember(bionReader, typeof(sbyte));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -234,10 +231,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			sbyte? init = null;
-			bion.WriteValue(init, typeof(sbyte?));
+			bion.WriteValue(bionWriter, init, typeof(sbyte?));
 			ResetStream();
 
-			var final = (sbyte?)bion.ReadMember(typeof(sbyte?));
+			var final = (sbyte?)bion.ReadMember(bionReader, typeof(sbyte?));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -247,10 +244,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			long init = 250;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (long)bion.ReadMember(typeof(long));
+			var final = (long)bion.ReadMember(bionReader, typeof(long));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -260,10 +257,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			long init = 16;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (long)bion.ReadMember(typeof(long));
+			var final = (long)bion.ReadMember(bionReader, typeof(long));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -273,10 +270,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			long? init = null;
-			bion.WriteValue(init, typeof(long?));
+			bion.WriteValue(bionWriter, init, typeof(long?));
 			ResetStream();
 
-			var final = (long?)bion.ReadMember(typeof(long?));
+			var final = (long?)bion.ReadMember(bionReader, typeof(long?));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -285,10 +282,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			ulong init = 250;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (ulong)bion.ReadMember(typeof(ulong));
+			var final = (ulong)bion.ReadMember(bionReader, typeof(ulong));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -298,10 +295,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			ulong init = 17;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (ulong)bion.ReadMember(typeof(ulong));
+			var final = (ulong)bion.ReadMember(bionReader, typeof(ulong));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -311,10 +308,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			ulong? init = null;
-			bion.WriteValue(init, typeof(ulong?));
+			bion.WriteValue(bionWriter, init, typeof(ulong?));
 			ResetStream();
 
-			var final = (ulong?)bion.ReadMember(typeof(ulong?));
+			var final = (ulong?)bion.ReadMember(bionReader, typeof(ulong?));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -324,10 +321,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Single init = 250;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (Single)bion.ReadMember(typeof(Single));
+			var final = (Single)bion.ReadMember(bionReader, typeof(Single));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -337,10 +334,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Single? init = null;
-			bion.WriteValue(init, typeof(Single?));
+			bion.WriteValue(bionWriter, init, typeof(Single?));
 			ResetStream();
 
-			var final = (Single?)bion.ReadMember(typeof(Single?));
+			var final = (Single?)bion.ReadMember(bionReader, typeof(Single?));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -350,10 +347,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Single init = 250.1199F;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (Single)bion.ReadMember(typeof(Single));
+			var final = (Single)bion.ReadMember(bionReader, typeof(Single));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -363,10 +360,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Single init = 0.0009F;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (Single)bion.ReadMember(typeof(Single));
+			var final = (Single)bion.ReadMember(bionReader, typeof(Single));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -376,10 +373,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Decimal init = 250;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (Decimal)bion.ReadMember(typeof(Decimal));
+			var final = (Decimal)bion.ReadMember(bionReader, typeof(Decimal));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -389,10 +386,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Decimal? init = null;
-			bion.WriteValue(init, typeof(Decimal?));
+			bion.WriteValue(bionWriter, init, typeof(Decimal?));
 			ResetStream();
 
-			var final = (Decimal?)bion.ReadMember(typeof(Decimal?));
+			var final = (Decimal?)bion.ReadMember(bionReader, typeof(Decimal?));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -401,10 +398,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Decimal init = 250.0091M;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (Decimal)bion.ReadMember(typeof(Decimal));
+			var final = (Decimal)bion.ReadMember(bionReader, typeof(Decimal));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -413,10 +410,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Decimal init = 0.0089M;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (Decimal)bion.ReadMember(typeof(Decimal));
+			var final = (Decimal)bion.ReadMember(bionReader, typeof(Decimal));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -426,10 +423,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Double init = 250;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (Double)bion.ReadMember(typeof(Double));
+			var final = (Double)bion.ReadMember(bionReader, typeof(Double));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -439,10 +436,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Decimal? init = null;
-			bion.WriteValue(init, typeof(Double?));
+			bion.WriteValue(bionWriter, init, typeof(Double?));
 			ResetStream();
 
-			var final = (Double?)bion.ReadMember(typeof(Double?));
+			var final = (Double?)bion.ReadMember(bionReader, typeof(Double?));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -451,10 +448,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Double init = 250.98765;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (Double)bion.ReadMember(typeof(Double));
+			var final = (Double)bion.ReadMember(bionReader, typeof(Double));
 
 			final.Should().Be.EqualTo(init);
 		}
@@ -463,10 +460,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			Double init = 0.000019;
-			bion.WriteValue(init);
+			bion.WriteValue(bionWriter, init);
 			ResetStream();
 
-			var final = (Double)bion.ReadMember(typeof(Double));
+			var final = (Double)bion.ReadMember(bionReader, typeof(Double));
 
 			final.Should().Be.EqualTo(init);
 		}

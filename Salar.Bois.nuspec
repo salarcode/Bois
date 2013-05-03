@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Salar.Bois</id>
-		<version>1.5.0426.132</version>
+		<version>1.6.0503.157</version>
 		<title>BOIS (Binary Object Indexed Serialization)</title>
 		<authors>Salar Khalilzadeh</authors>
 		<owners>Salar Khalilzadeh</owners>
@@ -15,7 +15,7 @@
 			More info: http://bois.codeplex.com
 		</description>
 		<releaseNotes>
-			+ The assemblies have strong name now.
+			+ BoisSerializer is thread-safe now.
 		</releaseNotes>
 		<copyright>Copyright 2013</copyright>
 		<tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>

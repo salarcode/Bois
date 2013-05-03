@@ -29,10 +29,8 @@ namespace Salar.Bois
 	/// </Author>
 	public class BoisSerializer
 	{
-		//private BinaryWriter writer;
 		private int _serializeDepth;
 		private readonly BoisTypeCache _typeCache = new BoisTypeCache();
-		//private BinaryReader reader;
 
 		/// <summary>
 		/// Character encoding for strings.
@@ -921,7 +919,7 @@ namespace Salar.Bois
 		}
 
 #if SILVERLIGHT
-		decimal ReadDecimal(BinaryReader reader)
+		private decimal ReadDecimal(BinaryReader reader)
 		{
 			var bits = new int[4];
 			bits[0] = reader.ReadInt32();

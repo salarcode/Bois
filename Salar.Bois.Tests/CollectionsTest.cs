@@ -28,9 +28,6 @@ namespace Salar.Bois.Tests
 			bionStream = new MemoryStream();
 			bionReader = new BinaryReader(bionStream);
 			bionWriter = new BinaryWriter(bionStream);
-
-			bion._serializeOut = bionWriter;
-			bion._input = bionReader;
 		}
 
 		private void EchoStreamSize()
@@ -58,10 +55,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new byte[] { 10, 50, 0, 250, 98 };
-			bion.WriteBytes(init);
+			bion.WriteBytes(bionWriter,init);
 			ResetStream();
 
-			var final = (byte[])bion.ReadBytes();
+			var final = (byte[])bion.ReadBytes(bionReader);
 
 			AssertAreEqual(init, final);
 		}
@@ -71,10 +68,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new byte[] { };
-			bion.WriteBytes(init);
+			bion.WriteBytes(bionWriter, init);
 			ResetStream();
 
-			var final = (byte[])bion.ReadBytes();
+			var final = (byte[])bion.ReadBytes(bionReader);
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -89,10 +86,10 @@ namespace Salar.Bois.Tests
 					           {"man", "down"},
 					           {"Random chars", "~!@# $ %^& * ()"}
 				           };
-			bion.WriteDictionary(init);
+			bion.WriteDictionary(bionWriter, init);
 			ResetStream();
 
-			var final = (Dictionary<string, string>)bion.ReadDictionary(typeof(Dictionary<string, string>));
+			var final = (Dictionary<string, string>)bion.ReadDictionary(bionReader,typeof(Dictionary<string, string>));
 			final.Should().Have.SameSequenceAs(init);
 		}
 
@@ -101,10 +98,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new Dictionary<string, string>();
-			bion.WriteDictionary(init);
+			bion.WriteDictionary(bionWriter, init);
 			ResetStream();
 
-			var final = (Dictionary<string, string>)bion.ReadDictionary(typeof(Dictionary<string, string>));
+			var final = (Dictionary<string, string>)bion.ReadDictionary(bionReader, typeof(Dictionary<string, string>));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -119,10 +116,10 @@ namespace Salar.Bois.Tests
 					           {10, 42677},
 					           {25000000, 90L},
 				           };
-			bion.WriteDictionary(init);
+			bion.WriteDictionary(bionWriter, init);
 			ResetStream();
 
-			var final = (Dictionary<int, long>)bion.ReadDictionary(typeof(Dictionary<int, long>));
+			var final = (Dictionary<int, long>)bion.ReadDictionary(bionReader, typeof(Dictionary<int, long>));
 			final.Should().Have.SameSequenceAs(init);
 		}
 		[TestMethod]
@@ -135,10 +132,10 @@ namespace Salar.Bois.Tests
 					           {10, null},
 					           {25000000, 90L},
 				           };
-			bion.WriteDictionary(init);
+			bion.WriteDictionary(bionWriter, init);
 			ResetStream();
 
-			var final = (Dictionary<int?, long?>)bion.ReadDictionary(typeof(Dictionary<int?, long?>));
+			var final = (Dictionary<int?, long?>)bion.ReadDictionary(bionReader, typeof(Dictionary<int?, long?>));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -148,10 +145,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new string[] { "Hi", " ~!@#$%^&*())_+ ?><|\"'}{[]\\';/.,`=- ", "Sample", "Text" };
-			bion.WriteArray(init);
+			bion.WriteArray(bionWriter, init);
 			ResetStream();
 
-			var final = (string[])bion.ReadArray(typeof(string[]));
+			var final = (string[])bion.ReadArray(bionReader, typeof(string[]));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -161,10 +158,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new string[] { };
-			bion.WriteArray(init);
+			bion.WriteArray(bionWriter, init);
 			ResetStream();
 
-			var final = (string[])bion.ReadArray(typeof(string[]));
+			var final = (string[])bion.ReadArray(bionReader, typeof(string[]));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -174,10 +171,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new double[] { 0.000, 0.0001, double.MaxValue, double.MinValue, 99.001 };
-			bion.WriteArray(init);
+			bion.WriteArray(bionWriter, init);
 			ResetStream();
 
-			var final = (double[])bion.ReadArray(typeof(double[]));
+			var final = (double[])bion.ReadArray(bionReader, typeof(double[]));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -187,10 +184,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new double[] { };
-			bion.WriteArray(init);
+			bion.WriteArray(bionWriter, init);
 			ResetStream();
 
-			var final = (double[])bion.ReadArray(typeof(double[]));
+			var final = (double[])bion.ReadArray(bionReader, typeof(double[]));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -200,10 +197,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new DateTime[] { DateTime.MinValue, DateTime.MaxValue, DateTime.Now };
-			bion.WriteArray(init);
+			bion.WriteArray(bionWriter, init);
 			ResetStream();
 
-			var final = (DateTime[])bion.ReadArray(typeof(DateTime[]));
+			var final = (DateTime[])bion.ReadArray(bionReader, typeof(DateTime[]));
 
 			AssertionHelper.AssetArrayEqual<DateTime>(init, final);
 		}
@@ -213,10 +210,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new Color[] { SystemColors.Control, Color.DarkBlue };
-			bion.WriteArray(init);
+			bion.WriteArray(bionWriter, init);
 			ResetStream();
 
-			var final = (Color[])bion.ReadArray(typeof(Color[]));
+			var final = (Color[])bion.ReadArray(bionReader, typeof(Color[]));
 
 			AssertionHelper.AssetArrayEqual<Color>(init, final);
 		}
@@ -226,10 +223,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new Version[] { new Version(1, 2, 3, 4), new Version(0, 0, 0, 1), new Version(0, 0, 0, 0), };
-			bion.WriteArray(init);
+			bion.WriteArray(bionWriter, init);
 			ResetStream();
 
-			var final = (Version[])bion.ReadArray(typeof(Version[]));
+			var final = (Version[])bion.ReadArray(bionReader, typeof(Version[]));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -242,10 +239,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new ArrayList { new Version(1, 2, 3, 4), Color.DarkBlue, "test1", 99.200022 };
-			bion.WriteArray(init);
+			bion.WriteArray(bionWriter, init);
 			ResetStream();
 
-			var final = (ArrayList)bion.ReadArray(typeof(ArrayList));
+			var final = (ArrayList)bion.ReadArray(bionReader, typeof(ArrayList));
 
 			AssertionHelper.AssetArrayEqual(init, final);
 		}
@@ -261,10 +258,10 @@ namespace Salar.Bois.Tests
 					           {"", 0},
 					           {"Khalilzadeh", -100}
 				           };
-			bion.WriteStringDictionary(init);
+			bion.WriteStringDictionary(bionWriter, init);
 			ResetStream();
 
-			var final = (Dictionary<string, int>)bion.ReadStringDictionary(typeof(Dictionary<string, int>));
+			var final = (Dictionary<string, int>)bion.ReadStringDictionary(bionReader, typeof(Dictionary<string, int>));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -279,10 +276,10 @@ namespace Salar.Bois.Tests
 					           {"Salar", null},
 					           {"Khalilzadeh", -100}
 				           };
-			bion.WriteStringDictionary(init);
+			bion.WriteStringDictionary(bionWriter, init);
 			ResetStream();
 
-			var final = (Dictionary<string, int?>)bion.ReadStringDictionary(typeof(Dictionary<string, int?>));
+			var final = (Dictionary<string, int?>)bion.ReadStringDictionary(bionReader, typeof(Dictionary<string, int?>));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -292,10 +289,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new Dictionary<string, int?>();
-			bion.WriteStringDictionary(init);
+			bion.WriteStringDictionary(bionWriter, init);
 			ResetStream();
 
-			var final = (Dictionary<string, int?>)bion.ReadStringDictionary(typeof(Dictionary<string, int?>));
+			var final = (Dictionary<string, int?>)bion.ReadStringDictionary(bionReader, typeof(Dictionary<string, int?>));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -305,10 +302,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new List<string>() { "This test", "is", " for BOIS " };
-			bion.WriteGenericList(init);
+			bion.WriteGenericList(bionWriter, init);
 			ResetStream();
 
-			var final = (List<string>)bion.ReadGenericList(typeof(List<string>));
+			var final = (List<string>)bion.ReadGenericList(bionReader, typeof(List<string>));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -318,10 +315,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new List<string>() { "This test", null, " for BOIS " };
-			bion.WriteGenericList(init);
+			bion.WriteGenericList(bionWriter, init);
 			ResetStream();
 
-			var final = (List<string>)bion.ReadGenericList(typeof(List<string>));
+			var final = (List<string>)bion.ReadGenericList(bionReader, typeof(List<string>));
 
 			final.Should().Have.SameSequenceAs(init);
 		}
@@ -331,10 +328,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new List<float>() { 11, 23.0009f, 0.00f, -90.33033f, 22 };
-			bion.WriteGenericList(init);
+			bion.WriteGenericList(bionWriter, init);
 			ResetStream();
 
-			var final = (List<float>)bion.ReadGenericList(typeof(List<float>));
+			var final = (List<float>)bion.ReadGenericList(bionReader, typeof(List<float>));
 
 			final.Should().Have.SameSequenceAs(init);
 
@@ -346,10 +343,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new List<float?>() { 11, null, 23.0009f, 0.00f, -90.33033f, null, 22 };
-			bion.WriteGenericList(init);
+			bion.WriteGenericList(bionWriter, init);
 			ResetStream();
 
-			var final = (List<float?>)bion.ReadGenericList(typeof(List<float?>));
+			var final = (List<float?>)bion.ReadGenericList(bionReader, typeof(List<float?>));
 
 			final.Should().Have.SameSequenceAs(init);
 			EchoStreamSize();
@@ -360,10 +357,10 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new List<Version>() { new Version(1, 2, 3, 4), new Version(0, 0, 0, 1), new Version(0, 0, 0, 0), };
-			bion.WriteGenericList(init);
+			bion.WriteGenericList(bionWriter, init);
 			ResetStream();
 
-			var final = (List<Version>)bion.ReadGenericList(typeof(List<Version>));
+			var final = (List<Version>)bion.ReadGenericList(bionReader, typeof(List<Version>));
 
 			final.Should().Have.SameSequenceAs(init);
 		}

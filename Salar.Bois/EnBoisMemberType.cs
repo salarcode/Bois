@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Salar.Bois
 {
-	enum EnBoisMemberType : byte
+	enum EnBoisMemberType
 	{
 		Object,
 		Property,

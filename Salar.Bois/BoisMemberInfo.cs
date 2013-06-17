@@ -20,16 +20,19 @@ namespace Salar.Bois
 		/// </summary>
 		public bool IsContainerObject;
 
-		public EnBoisMemberType MemberType;
-		public EnBoisKnownType KnownType;
+		internal EnBoisMemberType MemberType;
+		internal EnBoisKnownType KnownType;
 		public MemberInfo Info;
 		public Type NullableUnderlyingType;
 
 		public Function<object, object, object> PropertySetter;
 		public BoisTypeCache.GenericGetter PropertyGetter;
+
+#if DEBUG
 		public override string ToString()
 		{
 			return string.Format("{0}: {1}: {2}", MemberType, KnownType, Info);
 		}
+#endif
 	}
 }

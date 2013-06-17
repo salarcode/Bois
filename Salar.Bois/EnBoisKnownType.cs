@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Salar.Bois
 {
-	enum EnBoisKnownType : byte
+	enum EnBoisKnownType
 	{
 		Unknown = 0,
 		Int16,

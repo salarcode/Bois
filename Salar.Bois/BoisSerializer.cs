@@ -551,16 +551,15 @@ namespace Salar.Bois
 		private void WriteDateTime(BinaryWriter writer, DateTime dateTime)
 		{
 			var dt = dateTime;
+			var kind = (byte) dt.Kind;
 			if (dt == DateTime.MinValue || dt == DateTime.MaxValue)
 			{
+				writer.Write(kind);
 				PrimitivesConvertion.WriteVarInt(writer, dt.Ticks);
 			}
 			else
 			{
-				if (dt.Kind != DateTimeKind.Utc)
-				{
-					dt = dt.ToUniversalTime();
-				}
+				writer.Write(kind);
 				//Int64
 				PrimitivesConvertion.WriteVarInt(writer, dt.Ticks);
 			}
@@ -1059,13 +1058,14 @@ namespace Salar.Bois
 
 		private object ReadDateTime(BinaryReader reader)
 		{
+			var kind = reader.ReadByte();
 			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
 			if (ticks == DateTime.MinValue.Ticks || ticks == DateTime.MaxValue.Ticks)
 			{
 				return new DateTime(ticks);
 			}
 
-			return new DateTime(ticks, DateTimeKind.Utc).ToLocalTime();
+			return new DateTime(ticks, (DateTimeKind) kind);
 		}
 
 		private object ReadBoolean(BinaryReader reader)

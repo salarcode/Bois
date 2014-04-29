@@ -114,6 +114,46 @@ namespace Salar.Bois.Tests
 		}
 
 		[TestMethod]
+		public void BasicTypesDateTimeTest_XmlSerializer()
+		{
+			var serial = new System.Xml.Serialization.XmlSerializer(typeof(BasicTypesDateTime));
+			var init = new BasicTypesDateTime();
+			init.Initialize();
+			BasicTypesDateTime final;
+
+			using (var mem = new MemoryStream())
+			using (var r = new StreamReader(mem))
+			{
+				serial.Serialize(mem, init);
+
+				mem.Seek(0, SeekOrigin.Begin);
+				var xml = r.ReadToEnd();
+
+				mem.Seek(0, SeekOrigin.Begin);
+				final = (BasicTypesDateTime)serial.Deserialize(mem);
+			}
+			AssertionHelper.AssertMembersAreEqual(init, final);
+		}
+
+		[TestMethod]
+		public void BasicTypesDateTimeTest()
+		{
+			var init = new BasicTypesDateTime();
+			init.Initialize();
+			BasicTypesDateTime final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<BasicTypesDateTime>(mem);
+			}
+			AssertionHelper.AssertMembersAreEqual(init, final);
+		}
+
+		
+
+		[TestMethod]
 		public void BasicTypes1NullableTest()
 		{
 			var init = new BasicTypes1Nullable();

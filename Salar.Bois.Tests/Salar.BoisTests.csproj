@@ -69,10 +69,12 @@
     <Compile Include="Classes\AssertionHelper.cs" />
     <Compile Include="CollectionsTest.cs" />
     <Compile Include="ObjectsTest.cs" />
-    <Compile Include="Objects\BasicTypesDateTime.cs" />
     <Compile Include="Objects\BasicTypes1.cs" />
     <Compile Include="Objects\BasicTypes1Nullable.cs" />
     <Compile Include="Objects\BasicTypes2Nullable.cs" />
+    <Compile Include="Objects\BasicTypesDateTime.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Objects\CollectionTypes1.cs" />
     <Compile Include="Objects\HierarchyObjects1.cs" />
     <Compile Include="Objects\HierarchyWithStruct.cs" />

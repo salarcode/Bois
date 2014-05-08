@@ -73,6 +73,7 @@
     <Compile Include="Objects\BasicTypes.cs" />
     <Compile Include="Objects\Collections.cs" />
     <Compile Include="Objects\HierarchyObject.cs" />
+    <Compile Include="Objects\CommonListChildObject.cs" />
     <Compile Include="Objects\SpecialCollections.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

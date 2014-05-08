@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using Polenter.Serialization;
 using ProtoBuf;
 using Salar.Bois;
+using Salar.Bois.Tests.Objects;
 using Salar.BoisBenchmark.Objects;
 using System;
 using System.Diagnostics;
@@ -55,6 +57,7 @@ namespace Salar.BoisBenchmark
 			ClearLog();
 			Initialize();
 
+			Log("");
 			Log("BasicTypes benchmark---------- repeat count: " + count);
 			var benchobj1 = BasicTypes.CreateObject();
 
@@ -73,6 +76,26 @@ namespace Salar.BoisBenchmark
 			JsonNetBenchmark(benchobj1, count);
 
 			ServiceStackBechmark(benchobj1, count);
+
+			Log("");
+			Log("Contained Collection benchmark---------- repeat count: " + count);
+			var inheritanceObj = CommonListChildObject.CreateObject();
+
+			BoisBenchmark(inheritanceObj, count, 2);
+
+			ProtoBufNetBenchmark(inheritanceObj, count);
+
+			NetSerializerBenchmark(inheritanceObj, count);
+
+			SharpSerializerBenchmark(inheritanceObj, count);
+
+			BinaryFormatterBenchmark(inheritanceObj, count);
+
+			BsonBenchmark(inheritanceObj, count);
+
+			JsonNetBenchmark(inheritanceObj, count);
+
+			ServiceStackBechmark(inheritanceObj, count);
 
 
 			Log("");
@@ -172,7 +195,6 @@ namespace Salar.BoisBenchmark
 		}
 
 
-
 		private void BoisBenchmark<T>(T obj, int count, int which)
 		{
 
@@ -184,6 +206,7 @@ namespace Salar.BoisBenchmark
 				var boisSerializer = new BoisSerializer();
 				boisSerializer.Initialize<BasicTypes>();
 				boisSerializer.Initialize<HierarchyObject>();
+				boisSerializer.Initialize<CommonListChildObject>();
 
 
 				var boisMem = new MemoryStream();

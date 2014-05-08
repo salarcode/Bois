@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Salar.Bois</id>
-		<version>1.6.0503.157</version>
+		<version>1.7.0.0</version>
 		<title>BOIS (Binary Object Indexed Serialization)</title>
 		<authors>Salar Khalilzadeh</authors>
 		<owners>Salar Khalilzadeh</owners>
@@ -15,9 +15,10 @@
 			More info: http://bois.codeplex.com
 		</description>
 		<releaseNotes>
-			+ BoisSerializer is thread-safe now.
+			+ Contained collection objects are supported.
+			- Fixed a bug in DateTime serialization.
 		</releaseNotes>
-		<copyright>Copyright 2013</copyright>
+		<copyright>Copyright 2014</copyright>
 		<tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>
 		<dependencies>
 		</dependencies>
@@ -25,7 +26,5 @@
 	<files>
 		<file src="Salar.Bois\Bin\Release\*.dll" target="lib\net20" />
 		<file src="Salar.Bois\Bin\Release\*.xml" target="lib\net20" />
-		<file src="Salar.Bois.SL\Bin\Release\*.dll" target="lib\sl4" />
-		<file src="Salar.Bois.SL\Bin\Release\*.xml" target="lib\sl4" />
 	</files>
 </package>

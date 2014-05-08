@@ -7,7 +7,7 @@ using System.Text;
 namespace Salar.Bois.Tests.Objects
 {
 	[BoisContract(true, true)]
-	class ObjectWithAttibute : IBaseType
+	class ObjectWithAttribute : IBaseType
 	{
 		[BoisMember(1, false)]
 		public string Text1 { get; set; }

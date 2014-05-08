@@ -40,9 +40,9 @@ namespace Salar.Bois.Tests
 		[TestMethod]
 		public void ObjectWithAttibute_Normal_Test()
 		{
-			var init = new ObjectWithAttibute();
+			var init = new ObjectWithAttribute();
 			init.Initialize();
-			ObjectWithAttibute final;
+			ObjectWithAttribute final;
 
 			using (var mem = new MemoryStream())
 			{
@@ -50,7 +50,7 @@ namespace Salar.Bois.Tests
 
 				mem.Seek(0, SeekOrigin.Begin);
 
-				final = _bois.Deserialize<ObjectWithAttibute>(mem);
+				final = _bois.Deserialize<ObjectWithAttribute>(mem);
 			}
 			init.AcceptChar.Should().Be(final.AcceptChar);
 

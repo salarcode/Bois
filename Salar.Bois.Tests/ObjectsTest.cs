@@ -151,7 +151,7 @@ namespace Salar.Bois.Tests
 			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
 
-		
+
 
 		[TestMethod]
 		public void BasicTypes1NullableTest()
@@ -359,6 +359,30 @@ namespace Salar.Bois.Tests
 					Thread.Sleep(10);
 				}
 			}
+		}
+
+
+		[TestMethod]
+		public void CommonListChildObject_BasicTest()
+		{
+			var init = new CommonListChildObject();
+			init.AddRange(new[] { "Item1", "Item2", "Item3" });
+			init.SyncDate = DateTime.Now;
+			init.ListName = "Test";
+			CommonListChildObject final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<CommonListChildObject>(mem);
+			}
+
+			// test for the list members
+			final.Should().Have.SameSequenceAs(init);
+
+			// WILL FAIL ANYWAY, properties for contained collections are not supported
+			//AssertionHelper.AssertMembersAreEqual(init, final);
 		}
 
 	}

@@ -1,13 +1,11 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ReflectionMagic;
+using SharpTestsEx;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Drawing;
 using System.IO;
-using ReflectionMagic;
-using Salar.Bois;
-using SharpTestsEx;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Salar.Bois.Tests
 {

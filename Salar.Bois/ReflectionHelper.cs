@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 /* 
@@ -14,6 +15,56 @@ namespace Salar.Bois
 
 	class ReflectionHelper
 	{
+		/// <summary>
+		/// Finds the underlying element type of a contained generic type
+		/// Less acurate but cpu cheaper
+		/// </summary>
+		public static Type FindUnderlyingGenericElementType(Type type)
+		{
+			if (type.BaseType == null)
+				return null;
+			foreach (var inter in type.GetInterfaces())
+			{
+				if (inter.IsGenericType)
+				{
+					// it should have only one argument
+					var args = inter.GetGenericArguments();
+					if (args.Length == 1)
+					{
+						return args[0];
+					}
+				}
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Finds the underlying element type of a contained generic type
+		/// CPU heavy but more accurate!
+		/// </summary>
+		public static Type FindUnderlyingIEnumerableElementType(Type type)
+		{
+			if (type.BaseType == null)
+				return null; 
+			var enumType = typeof(IEnumerable<>);
+			foreach (var inter in type.GetInterfaces())
+			{
+				if (inter.IsGenericType)
+				{
+					// it should have only one argument
+					var args = inter.GetGenericArguments();
+					if (args.Length == 1)
+					{
+						var enumGeneric = typeof(IEnumerable<>).MakeGenericType(args[0]);
+						if (enumGeneric.IsAssignableFrom(type))
+							return args[0];
+					}
+				}
+			}
+			return null;
+		}
+
+
 		public static bool CompareSubType(Type t1, Type t2)
 		{
 			if (t1 != t2)
@@ -53,7 +104,7 @@ namespace Salar.Bois
 			return false; // value-type
 		}
 
-		public static bool IsNullable(Type typeofResult,out Type underlyingType)
+		public static bool IsNullable(Type typeofResult, out Type underlyingType)
 		{
 			underlyingType = null;
 
@@ -66,7 +117,7 @@ namespace Salar.Bois
 
 			return false; // value-type
 		}
- 
+
 
 		public static bool IsNullable<T>()
 		{

@@ -551,7 +551,7 @@ namespace Salar.Bois
 		private void WriteDateTime(BinaryWriter writer, DateTime dateTime)
 		{
 			var dt = dateTime;
-			var kind = (byte) dt.Kind;
+			var kind = (byte)dt.Kind;
 			if (dt == DateTime.MinValue || dt == DateTime.MaxValue)
 			{
 				writer.Write(kind);
@@ -859,22 +859,44 @@ namespace Salar.Bois
 			return Enum.ToObject(type, val);
 		}
 
-		private Array ReadArray(BinaryReader reader, Type type)
+		private object ReadArray(BinaryReader reader, Type type)
 		{
 			var count = PrimitivesConvertion.ReadVarInt32(reader);
 
 			var itemType = type.GetElementType();
 			if (itemType == null)
-				throw new ArgumentException("Unknown 'Object' array type is not supported.\n" + type);
-
-			var arr = ReflectionHelper.CreateArray(itemType, count);
-			var lst = arr as IList;
-			for (int i = 0; i < count; i++)
 			{
-				var val = ReadMember(reader, itemType);
-				lst[i] = val;
+				itemType = ReflectionHelper.FindUnderlyingGenericElementType(type);
+
+				if (itemType == null)
+					throw new ArgumentException("Unknown 'Object' array type is not supported.\n" + type);
 			}
-			return arr;
+
+			IList lst;
+			if (type.IsArray)
+			{
+				var arr = ReflectionHelper.CreateArray(itemType, count);
+				lst = arr as IList;
+
+				for (int i = 0; i < count; i++)
+				{
+					var val = ReadMember(reader, itemType);
+					lst[i] = val;
+				}
+				return arr;
+			}
+			else
+			{
+				lst = _typeCache.CreateInstance(type) as IList;
+
+				for (int i = 0; i < count; i++)
+				{
+					var val = ReadMember(reader, itemType);
+					lst.Add(val);
+				}
+				return lst;
+			}
+
 		}
 
 		private IList ReadGenericList(BinaryReader reader, Type type)
@@ -1065,7 +1087,7 @@ namespace Salar.Bois
 				return new DateTime(ticks);
 			}
 
-			return new DateTime(ticks, (DateTimeKind) kind);
+			return new DateTime(ticks, (DateTimeKind)kind);
 		}
 
 		private object ReadBoolean(BinaryReader reader)

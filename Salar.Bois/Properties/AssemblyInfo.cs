@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Salar's Serializer for Binary Object Indexed Serialization")]
 [assembly: AssemblyCompany("Salar Khalilzadeh")]
 [assembly: AssemblyProduct("Salar's Binary Object Indexed Serialization")]
-[assembly: AssemblyCopyright("MPLv2 © Salar Khalilzadeh 2013")]
+[assembly: AssemblyCopyright("MPLv2 © Salar Khalilzadeh 2014")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 

@@ -284,7 +284,14 @@ namespace Salar.Bois
 					break;
 
 				case EnBoisKnownType.Double:
-					writer.Write((double)value);
+					if (value == null || boisMemInfo.IsNullable)
+					{
+						PrimitivesConvertion.WriteVarDecimal(writer, (double?)value);
+					}
+					else
+					{
+						PrimitivesConvertion.WriteVarDecimal(writer, (double)value);
+					}
 					break;
 
 				case EnBoisKnownType.Decimal:
@@ -296,7 +303,14 @@ namespace Salar.Bois
 					break;
 
 				case EnBoisKnownType.Single:
-					writer.Write((float)value);
+					if (value == null || boisMemInfo.IsNullable)
+					{
+						PrimitivesConvertion.WriteVarDecimal(writer, (float?)value);
+					}
+					else
+					{
+						PrimitivesConvertion.WriteVarDecimal(writer, (float)value);
+					}
 					break;
 
 				case EnBoisKnownType.Byte:
@@ -785,7 +799,11 @@ namespace Salar.Bois
 					return reader.ReadUInt64();
 
 				case EnBoisKnownType.Double:
-					return reader.ReadDouble();
+					if (memInfo.IsNullable)
+					{
+						return PrimitivesConvertion.ReadVarDoubleNullable(reader);
+					}
+					return PrimitivesConvertion.ReadVarDouble(reader);
 
 				case EnBoisKnownType.Decimal:
 #if SILVERLIGHT
@@ -795,7 +813,11 @@ namespace Salar.Bois
 #endif
 
 				case EnBoisKnownType.Single:
-					return reader.ReadSingle();
+					if (memInfo.IsNullable)
+					{
+						return PrimitivesConvertion.ReadVarSingleNullable(reader);
+					}
+					return PrimitivesConvertion.ReadVarSingle(reader);
 
 				case EnBoisKnownType.Byte:
 					return reader.ReadByte();

@@ -55,7 +55,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
-		public static short ReadVarInt16(BinaryReader reader)
+		internal static short ReadVarInt16(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
 			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
@@ -74,7 +74,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
-		public static short? ReadVarInt16Nullable(BinaryReader reader)
+		internal static short? ReadVarInt16Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
 			if (input == NullableFlagNullNum)
@@ -101,7 +101,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
-		public static int ReadVarInt32(BinaryReader reader)
+		internal static int ReadVarInt32(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
 			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
@@ -120,7 +120,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
-		public static int? ReadVarInt32Nullable(BinaryReader reader)
+		internal static int? ReadVarInt32Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
 			if (input == NullableFlagNullNum)
@@ -148,7 +148,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
-		public static long ReadVarInt64(BinaryReader reader)
+		internal static long ReadVarInt64(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
 			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
@@ -167,7 +167,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
-		public static long? ReadVarInt64Nullable(BinaryReader reader)
+		internal static long? ReadVarInt64Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
 			if (input == 0)
@@ -192,10 +192,92 @@ namespace Salar.Bois
 			}
 		}
 
+		internal static double? ReadVarDoubleNullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == 0)
+				return null;
+
+			var isnull = (input & NullableFlagNullNum) == NullableFlagNullNum;
+			if (isnull)
+				return null;
+
+
+			var insideNum = (byte)(input & NullableFlagInsideMask);
+			insideNum = (byte)(insideNum & NullableFlagNullMask);
+
+			var isItInside = (input & NullableFlagInsideNum) == NullableFlagInsideNum;
+			if (isItInside)
+			{
+				return ReadDouble(insideNum);
+			}
+			else
+			{
+				return ReadDouble(reader, insideNum);
+			}
+		}
+
+		internal static double ReadVarDouble(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
+
+			var insideNum = (byte)(input & ActualFlagInsideMask);
+			if (isItInside)
+			{
+				return ReadDouble(insideNum);
+			}
+			else
+			{
+				return ReadDouble(reader, insideNum);
+			}
+		}
+
+		internal static float? ReadVarSingleNullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == 0)
+				return null;
+
+			var isnull = (input & NullableFlagNullNum) == NullableFlagNullNum;
+			if (isnull)
+				return null;
+
+
+			var insideNum = (byte)(input & NullableFlagInsideMask);
+			insideNum = (byte)(insideNum & NullableFlagNullMask);
+
+			var isItInside = (input & NullableFlagInsideNum) == NullableFlagInsideNum;
+			if (isItInside)
+			{
+				return ReadFloat(insideNum);
+			}
+			else
+			{
+				return ReadFloat(reader, insideNum);
+			}
+		}
+
+		internal static float ReadVarSingle(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
+
+			var insideNum = (byte)(input & ActualFlagInsideMask);
+			if (isItInside)
+			{
+				return ReadFloat(insideNum);
+			}
+			else
+			{
+				return ReadFloat(reader, insideNum);
+			}
+		}
+
 		/// <summary>
 		/// 
 		/// </summary>
-		public static void WriteVarInt(BinaryWriter writer, short num)
+		internal static void WriteVarInt(BinaryWriter writer, short num)
 		{
 			// store more space
 			if (num > ActualMaxNumInByte || num < 0)
@@ -217,7 +299,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
-		public static void WriteVarInt(BinaryWriter writer, short? num)
+		internal static void WriteVarInt(BinaryWriter writer, short? num)
 		{
 			if (num == null)
 			{
@@ -244,7 +326,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
-		public static void WriteVarInt(BinaryWriter writer, int num)
+		internal static void WriteVarInt(BinaryWriter writer, int num)
 		{
 			// store more space
 			if (num > ActualMaxNumInByte || num < 0)
@@ -266,7 +348,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
-		public static void WriteVarInt(BinaryWriter writer, int? num)
+		internal static void WriteVarInt(BinaryWriter writer, int? num)
 		{
 			if (num == null)
 			{
@@ -294,7 +376,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
-		public static void WriteVarInt(BinaryWriter writer, long num)
+		internal static void WriteVarInt(BinaryWriter writer, long num)
 		{
 			// store more space
 			if (num > ActualMaxNumInByte || num < 0)
@@ -316,7 +398,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
-		public static void WriteVarInt(BinaryWriter writer, long? num)
+		internal static void WriteVarInt(BinaryWriter writer, long? num)
 		{
 			if (num == null)
 			{
@@ -338,6 +420,108 @@ namespace Salar.Bois
 				// set the flag of inside
 				numByte = (byte)(numByte | NullableFlagInsideNum);
 				writer.Write(numByte);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static void WriteVarDecimal(BinaryWriter writer, float? num)
+		{
+			if (num == null)
+			{
+				writer.Write(NullableFlagNullNum);
+				return;
+			}
+			byte length;
+			var buff = ConvertToVarBinary(num.Value, out length);
+
+			// if the value can be stored in one byte
+			if (length == 1 && buff[0] <= NullableMaxNumInByte)
+			{
+				byte numByte = buff[0];
+				// set the flag of inside
+				numByte = (byte)(numByte | NullableFlagInsideNum);
+				writer.Write(numByte);
+			}
+			else
+			{
+				// No Flag is required
+				WriteDecimal(writer, buff, length);
+			}
+		}
+
+		internal static void WriteVarDecimal(BinaryWriter writer, float num)
+		{
+			byte length;
+			var buff = ConvertToVarBinary(num, out length);
+
+			// store more space
+			// if the value can be stored in one byte
+			if (length == 1 && buff[0] <= ActualMaxNumInByte)
+			{
+				byte numByte = buff[0];
+
+				// set the flag of inside
+				numByte = (byte)(numByte | ActualFlagInsideNum);
+				writer.Write(numByte);
+			}
+			else
+			{
+				// No Flag is required
+				WriteDecimal(writer, buff, length);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static void WriteVarDecimal(BinaryWriter writer, double? num)
+		{
+			if (num == null)
+			{
+				writer.Write(NullableFlagNullNum);
+				return;
+			}
+			byte length;
+			var buff = ConvertToVarBinary(num.Value, out length);
+
+			// if the value can be stored in one byte
+			if (length == 1 && buff[0] <= NullableMaxNumInByte)
+			{
+				byte numByte = buff[0];
+				// set the flag of inside
+				numByte = (byte)(numByte | NullableFlagInsideNum);
+				writer.Write(numByte);
+			}
+			else
+			{
+				// No Flag is required
+				WriteDecimal(writer, buff, length);
+			}
+		}
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static void WriteVarDecimal(BinaryWriter writer, double num)
+		{
+			byte length;
+			var buff = ConvertToVarBinary(num, out length);
+
+			// store more space
+			// if the value can be stored in one byte
+			if (length == 1 && buff[0] <= ActualMaxNumInByte)
+			{
+				byte numByte = buff[0];
+
+				// set the flag of inside
+				numByte = (byte)(numByte | ActualFlagInsideNum);
+				writer.Write(numByte);
+			}
+			else
+			{
+				// No Flag is required
+				WriteDecimal(writer, buff, length);
 			}
 		}
 
@@ -376,6 +560,12 @@ namespace Salar.Bois
 		{
 			byte numLen;
 			var numBuff = ConvertToVarBinary(num, out numLen);
+			writer.Write(numLen);
+			writer.Write(numBuff, 0, numBuff.Length);
+		}
+
+		private static void WriteDecimal(BinaryWriter writer, byte[] numBuff, byte numLen)
+		{
 			writer.Write(numLen);
 			writer.Write(numBuff, 0, numBuff.Length);
 		}
@@ -439,7 +629,52 @@ namespace Salar.Bois
 		private static short ReadInt16(byte[] intBytes)
 		{
 			return (short)(intBytes[0] | (intBytes[1] << 8));
+		}
 
+		private static double ReadDouble(byte doubleByte)
+		{
+			var bytes = new byte[8];
+			bytes[7] = doubleByte;
+			return BitConverter.ToDouble(bytes, 0);
+		}
+
+		private static float ReadFloat(byte floatByte)
+		{
+			var bytes = new byte[4];
+			bytes[3] = floatByte;
+			return BitConverter.ToSingle(bytes, 0);
+		}
+
+		private static float ReadFloat(BinaryReader reader, int length)
+		{
+			var intBuff = reader.ReadBytes(length);
+			if (intBuff.Length == 4)
+			{
+				return BitConverter.ToSingle(intBuff, 0);
+			}
+			else
+			{
+				var intFinalBuff = new byte[4];
+
+				Array.Copy(intBuff, 0, intFinalBuff, 4 - intBuff.Length, intBuff.Length);
+				return BitConverter.ToSingle(intFinalBuff, 0);
+			}
+		}
+
+		private static double ReadDouble(BinaryReader reader, int length)
+		{
+			var intBuff = reader.ReadBytes(length);
+			if (intBuff.Length == 8)
+			{
+				return BitConverter.ToDouble(intBuff, 0);
+			}
+			else
+			{
+				var intFinalBuff = new byte[8];
+
+				Array.Copy(intBuff, 0, intFinalBuff, 8 - intBuff.Length, intBuff.Length);
+				return BitConverter.ToDouble(intFinalBuff, 0);
+			}
 		}
 
 		private static byte[] ConvertToVarBinary(int value, out byte length)
@@ -628,7 +863,7 @@ namespace Salar.Bois
 
 		private static byte[] ConvertToVarBinary(float value, out byte length)
 		{
-			// Float&double numeric format stores valuable bytes from right to left
+			// Float & double numeric formats stores valuable bytes from right to left
 
 			var valueBuff = BitConverter.GetBytes(value);
 			var num1 = valueBuff[0];
@@ -669,17 +904,17 @@ namespace Salar.Bois
 
 		private static byte[] ConvertToVarBinary(double value, out byte length)
 		{
-			// Float&double numeric format stores valuable bytes from right to left
+			// Float  &double numeric formats stores valuable bytes from right to left
 
 			var valueBuff = BitConverter.GetBytes(value);
 			var num1 = valueBuff[0];
 			var num2 = valueBuff[1];
 			var num3 = valueBuff[2];
 			var num4 = valueBuff[3];
-			var num5 = valueBuff[0];
-			var num6 = valueBuff[1];
-			var num7 = valueBuff[2];
-			var num8 = valueBuff[3];
+			var num5 = valueBuff[4];
+			var num6 = valueBuff[5];
+			var num7 = valueBuff[6];
+			var num8 = valueBuff[7];
 
 			// zero
 			if (num8 == 0 && num7 == 0 && num6 == 0 && num5 == 0 && num4 == 0 && num3 == 0 && num2 == 0 && num1 == 0)
@@ -735,6 +970,7 @@ namespace Salar.Bois
 
 			return valueBuff;
 		}
+
 
 	}
 }

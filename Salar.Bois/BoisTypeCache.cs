@@ -282,8 +282,9 @@ namespace Salar.Bois
 			}
 
 
-			if (memActualType == typeof(char) || memActualType == typeof(char?))
+			if (memActualType == typeof(char))
 			{
+				// is struct and uses Nullable<>
 				return new BoisMemberInfo
 				{
 					KnownType = EnBoisKnownType.Char,
@@ -291,8 +292,9 @@ namespace Salar.Bois
 					NullableUnderlyingType = underlyingTypeNullable,
 				};
 			}
-			if (memActualType == typeof(bool) || memActualType == typeof(bool?))
+			if (memActualType == typeof(bool))
 			{
+				// is struct and uses Nullable<>
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.Bool,
@@ -300,8 +302,9 @@ namespace Salar.Bois
 							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (memActualType == typeof(DateTime) || memActualType == typeof(DateTime?))
+			if (memActualType == typeof(DateTime))
 			{
+				// is struct and uses Nullable<>
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.DateTime,
@@ -375,8 +378,9 @@ namespace Salar.Bois
 							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-			if (memActualType == typeof(TimeSpan) || memActualType == typeof(TimeSpan?))
+			if (memActualType == typeof(TimeSpan))
 			{
+				// is struct and uses Nullable<>
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.TimeSpan,
@@ -394,8 +398,9 @@ namespace Salar.Bois
 						   };
 			}
 #if !SILVERLIGHT
-			if (memActualType == typeof(Color) || memActualType == typeof(Color?))
+			if (memActualType == typeof(Color))
 			{
+				// is struct and uses Nullable<>
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.Color,
@@ -453,8 +458,9 @@ namespace Salar.Bois
 				output.NullableUnderlyingType = underlyingTypeNullable;
 				return output;
 			}
-			if (memActualType == typeof(Guid) || memActualType == typeof(Guid?))
+			if (memActualType == typeof(Guid))
 			{
+				// is struct and uses Nullable<>
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.Guid,
@@ -549,6 +555,100 @@ namespace Salar.Bois
 		}
 
 		private bool TryReadNumber(Type memType, out BoisMemberInfo output)
+		{
+			if (memType.IsClass)
+			{
+				output = null;
+				return false;
+			}
+			if (memType == typeof(int))
+			{
+				output = new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.Int32,
+					IsSupportedPrimitive = true,
+				};
+			}
+			else if (memType == typeof(long))
+			{
+				output = new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.Int64,
+					IsSupportedPrimitive = true,
+				};
+			}
+			else if (memType == typeof(short))
+			{
+				output = new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.Int16,
+					IsSupportedPrimitive = true,
+				};
+			}
+			else if (memType == typeof(double))
+			{
+				output = new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.Double,
+				};
+			}
+			else if (memType == typeof(decimal))
+			{
+				output = new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.Decimal,
+				};
+			}
+			else if (memType == typeof(float))
+			{
+				output = new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.Single,
+				};
+			}
+			else if (memType == typeof(byte))
+			{
+				output = new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.Byte,
+				};
+			}
+			else if (memType == typeof(sbyte))
+			{
+				output = new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.SByte,
+				};
+			}
+			else if (memType == typeof(ushort))
+			{
+				output = new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.UInt16,
+				};
+			}
+			else if (memType == typeof(uint))
+			{
+				output = new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.UInt32,
+				};
+			}
+			else if (memType == typeof(ulong))
+			{
+				output = new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.UInt64,
+				};
+			}
+			else
+			{
+				output = null;
+				return false;
+			}
+			return true;
+		}
+		private bool TryReadNumber__Nullable(Type memType, out BoisMemberInfo output)
 		{
 			if (memType.IsClass)
 			{

@@ -364,6 +364,22 @@ namespace Salar.Bois
 			writer.Write(numBuff, 0, numBuff.Length);
 		}
 
+		private static void WriteDecimal(BinaryWriter writer, float num)
+		{
+			byte numLen;
+			var numBuff = ConvertToVarBinary(num, out numLen);
+			writer.Write(numLen);
+			writer.Write(numBuff, 0, numBuff.Length);
+		}
+
+		private static void WriteDecimal(BinaryWriter writer, double num)
+		{
+			byte numLen;
+			var numBuff = ConvertToVarBinary(num, out numLen);
+			writer.Write(numLen);
+			writer.Write(numBuff, 0, numBuff.Length);
+		}
+
 		private static long ReadInt64(BinaryReader reader, int length)
 		{
 			var intBuff = reader.ReadBytes(length);
@@ -608,6 +624,116 @@ namespace Salar.Bois
 				length = 2;
 				return buff;
 			}
+		}
+
+		private static byte[] ConvertToVarBinary(float value, out byte length)
+		{
+			// Float&double numeric format stores valuable bytes from right to left
+
+			var valueBuff = BitConverter.GetBytes(value);
+			var num1 = valueBuff[0];
+			var num2 = valueBuff[1];
+			var num3 = valueBuff[2];
+			var num4 = valueBuff[3];
+
+			// zero
+			if (num4 == 0 && num3 == 0 && num2 == 0 && num1 == 0)
+			{
+				length = 1;
+				return new byte[] { 0 };
+			}
+
+			if (num3 == 0 && num2 == 0 && num1 == 0)
+			{
+				length = 1;
+				return new byte[] { num4 };
+			}
+
+			if (num2 == 0 && num1 == 0)
+			{
+				length = 2;
+				return new byte[] { num3, num4 };
+			}
+
+			if (num1 == 0)
+			{
+				length = 3;
+				return new byte[] { num2, num3, num4 };
+			}
+
+			// no zeros
+			length = 4;
+
+			return valueBuff;
+		}
+
+		private static byte[] ConvertToVarBinary(double value, out byte length)
+		{
+			// Float&double numeric format stores valuable bytes from right to left
+
+			var valueBuff = BitConverter.GetBytes(value);
+			var num1 = valueBuff[0];
+			var num2 = valueBuff[1];
+			var num3 = valueBuff[2];
+			var num4 = valueBuff[3];
+			var num5 = valueBuff[0];
+			var num6 = valueBuff[1];
+			var num7 = valueBuff[2];
+			var num8 = valueBuff[3];
+
+			// zero
+			if (num8 == 0 && num7 == 0 && num6 == 0 && num5 == 0 && num4 == 0 && num3 == 0 && num2 == 0 && num1 == 0)
+			{
+				length = 1;
+				return new byte[] { 0 };
+			}
+
+			if (num7 == 0 && num6 == 0 && num5 == 0 && num4 == 0 && num3 == 0 && num2 == 0 && num1 == 0)
+			{
+				length = 1;
+				return new byte[] { num8 };
+			}
+
+			if (num6 == 0 && num5 == 0 && num4 == 0 && num3 == 0 && num2 == 0 && num1 == 0)
+			{
+				length = 2;
+				return new byte[] { num7, num8 };
+			}
+
+			if (num5 == 0 && num4 == 0 && num3 == 0 && num2 == 0 && num1 == 0)
+			{
+				length = 3;
+				return new byte[] { num6, num7, num8 };
+			}
+
+			if (num4 == 0 && num3 == 0 && num2 == 0 && num1 == 0)
+			{
+				length = 4;
+				return new byte[] { num5, num6, num7, num8 };
+			}
+
+			if (num3 == 0 && num2 == 0 && num1 == 0)
+			{
+				length = 5;
+				return new byte[] { num4, num5, num6, num7, num8 };
+			}
+
+			if (num2 == 0 && num1 == 0)
+			{
+				length = 6;
+				return new byte[] { num3, num4, num5, num6, num7, num8 };
+			}
+
+			if (num1 == 0)
+			{
+				length = 7;
+				return new byte[] { num2, num3, num4, num5, num6, num7, num8 };
+			}
+
+			// no zeros
+			length = 8;
+
+			return valueBuff;
 		}
 
 	}

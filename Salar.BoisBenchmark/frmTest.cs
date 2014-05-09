@@ -137,7 +137,7 @@ namespace Salar.BoisBenchmark
 			JsonNetBenchmark(benchobj3, count);
 
 			ServiceStackBechmark(benchobj3, count);
-			
+
 			Log("");
 			Log("SpecialCollections benchmark---------- repeat count: " + count);
 
@@ -180,9 +180,10 @@ namespace Salar.BoisBenchmark
 					NetSerializer.Serializer.Initialize(
 						new Type[]
 							{
+								typeof (CommonListChildObject),
 								typeof (BasicTypes),
 								typeof (HierarchyObject),
-								typeof (SpecialCollections),
+								//typeof (SpecialCollections),
 								typeof (Collections),
 							});
 					_netSerializer = true;

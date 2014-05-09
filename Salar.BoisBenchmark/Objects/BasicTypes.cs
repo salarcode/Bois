@@ -28,6 +28,12 @@ namespace Salar.BoisBenchmark.Objects
 		[ProtoMember(7)]
 		public Guid guid { get; set; }
 
+		[ProtoMember(8)]
+		public double PriceAmount { get; set; }
+
+		[ProtoMember(9)]
+		public float RetailPrice { get; set; }
+
 		public static BasicTypes CreateObject()
 		{
 			var obj = new BasicTypes()
@@ -37,7 +43,9 @@ namespace Salar.BoisBenchmark.Objects
 				Text = "DateTime ticks: " + DateTime.Now.Ticks.ToString(),
 				Data = new byte[] { 66, 20, 30, 50, 90, 122, 50, 22, 0, 0, 0, 16, 19, 177 },
 				StrArray = new string[] { "This is ", "Salar", "BOIS", "Test" },
-				guid = Guid.NewGuid()
+				guid = Guid.NewGuid(),
+				PriceAmount = 13.5,
+				RetailPrice = 15
 			};
 			return obj;
 		}

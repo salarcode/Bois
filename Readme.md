@@ -65,8 +65,8 @@ Json.NET 	|216| 	48 ms| 	5 ms |	JSON
 Serializer | 	Serialized Data Size (byte)  | Serialize Time (ms) | Deserialize Time (ms) | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
 Salar.Bois |	326 |	26 ms |	29 ms |	Binary 	 
-protobuf-net 	341 |	10 ms |	19 ms |	Binary 	 
-NetSerialize 	356 |	27 ms |	22 ms |	Binary 	 
+protobuf-net |	341 |	10 ms |	19 ms |	Binary 	 
+NetSerialize |	356 |	27 ms |	22 ms |	Binary 	 
 SharpSerializer |	844 |	208 ms |	225 ms |	Binary |	SizeOptimized option used
 BinaryFormatter |	1657 |	283 ms |	315 ms |	Binary 	 
 BSON by Json.NET |	652 |	106 ms |	140 ms |	Binary 	 

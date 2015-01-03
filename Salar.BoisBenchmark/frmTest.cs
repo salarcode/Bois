@@ -77,6 +77,8 @@ namespace Salar.BoisBenchmark
 
 			ServiceStackBechmark(benchobj1, count);
 
+			MessagePackBenchmark(benchobj1, count);
+
 			Log("");
 			Log("Contained Collection benchmark---------- repeat count: " + count);
 			var inheritanceObj = CommonListChildObject.CreateObject();
@@ -97,6 +99,7 @@ namespace Salar.BoisBenchmark
 
 			ServiceStackBechmark(inheritanceObj, count);
 
+			MessagePackBenchmark(inheritanceObj, count);
 
 			Log("");
 			Log("HierarchyObject benchmark---------- repeat count: " + count);
@@ -118,6 +121,8 @@ namespace Salar.BoisBenchmark
 
 			ServiceStackBechmark(benchobj2, count);
 
+			MessagePackBenchmark(benchobj2, count);
+
 			Log("");
 			Log("Collections benchmark---------- repeat count: " + count);
 
@@ -138,6 +143,8 @@ namespace Salar.BoisBenchmark
 
 			ServiceStackBechmark(benchobj3, count);
 
+			MessagePackBenchmark(benchobj3, count);
+
 			Log("");
 			Log("SpecialCollections benchmark---------- repeat count: " + count);
 
@@ -157,6 +164,8 @@ namespace Salar.BoisBenchmark
 			JsonNetBenchmark(benchobj4, count);
 
 			ServiceStackBechmark(benchobj4, count);
+
+			MessagePackBenchmark(benchobj4, count);
 		}
 
 
@@ -555,6 +564,51 @@ namespace Salar.BoisBenchmark
 				Log("ServiceStackText failed, " + ex.Message);
 			}
 		}
+
+		private void MessagePackBenchmark<T>(T obj, int count)
+		{
+			try
+			{
+				long initlength = 0;
+				Stopwatch sw;
+				//-----------------------------------
+				var msgPack = MsgPack.Serialization.MessagePackSerializer.Create<T>();
+
+				var mem = new MemoryStream();
+				msgPack.Pack(mem, obj);
+				initlength = mem.Length;
+
+				mem.Seek(0, SeekOrigin.Begin);
+				msgPack.Unpack(mem);
+
+
+				using (var sharperMem = new MemoryStream())
+				{
+					sw = Stopwatch.StartNew();
+					for (int i = 0; i < count; i++)
+					{
+						msgPack.Pack(sharperMem, obj);
+					}
+				}
+				sw.Stop();
+				Log("MessagePack Serialize		took: " + ToString(sw.Elapsed) + "  data-size: " + initlength);
+
+
+				sw = Stopwatch.StartNew();
+				for (int i = 0; i < count; i++)
+				{
+					mem.Seek(0, SeekOrigin.Begin);
+					msgPack.Unpack(mem);
+				}
+				sw.Stop();
+				Log("MessagePack Deserialize		took: " + ToString(sw.Elapsed));
+			}
+			catch (Exception ex)
+			{
+				Log("MessagePack failed, " + ex.Message);
+			}
+		}
+
 
 	}
 }

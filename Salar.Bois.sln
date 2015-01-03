@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{EB3DE067-FDF5-4AF2-B6C6-07C8686B0E30}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,8 +14,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois", "Salar.Bois\Salar.Bois.csproj", "{26FC10C3-638F-4747-9D7B-9C1715EC3C6E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.BoisTests", "Salar.Bois.Tests\Salar.BoisTests.csproj", "{3AFF0FB0-780D-4A2A-B4F2-0F826AE14072}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AD67729A-5E8C-4E99-A581-CD8C52896FC4} = {AD67729A-5E8C-4E99-A581-CD8C52896FC4}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.SL", "Salar.Bois.SL\Salar.Bois.SL.csproj", "{AD67729A-5E8C-4E99-A581-CD8C52896FC4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{26FC10C3-638F-4747-9D7B-9C1715EC3C6E} = {26FC10C3-638F-4747-9D7B-9C1715EC3C6E}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.BoisBenchmark", "Salar.BoisBenchmark\Salar.BoisBenchmark.csproj", "{EA3B61B3-E69E-4D08-948A-DA414BE5EAC9}"
 EndProject

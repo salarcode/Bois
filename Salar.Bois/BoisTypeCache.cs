@@ -92,8 +92,17 @@ namespace Salar.Bois
 
 		internal object CreateInstance(Type t)
 		{
+#if SILVERLIGHT
+			// Falling back to default parameterless constructor.
+			return Activator.CreateInstance(t, null);
+#else
 			// Read from cache
+#if SILVERLIGHT
+			GenericConstructor info = null;
+			_constructorCache.TryGetValue(t, out info);
+#else
 			var info = _constructorCache[t] as GenericConstructor;
+#endif
 			if (info == null)
 			{
 				ConstructorInfo ctor = t.GetConstructor(Type.EmptyTypes);
@@ -103,7 +112,12 @@ namespace Salar.Bois
 					return Activator.CreateInstance(t, null);
 				}
 
+#if SILVERLIGHT
+				var dynamicCtor = new DynamicMethod("_", t, Type.EmptyTypes);
+#else
 				var dynamicCtor = new DynamicMethod("_", t, Type.EmptyTypes, t, true);
+#endif
+
 				var il = dynamicCtor.GetILGenerator();
 
 				il.Emit(OpCodes.Newobj, ctor);
@@ -116,6 +130,7 @@ namespace Salar.Bois
 			if (info == null)
 				throw new MissingMethodException(string.Format("No parameterless constructor defined for '{0}'.", t));
 			return info.Invoke();
+#endif
 		}
 
 		internal BoisMemberInfo GetTypeInfo(Type type, bool generate)
@@ -765,9 +780,18 @@ namespace Salar.Bois
 			var arguments = new Type[2];
 			arguments[0] = arguments[1] = typeof(object);
 
+
+#if SILVERLIGHT
+			var setter = new DynamicMethod(
+			  String.Concat("_Set", propertyInfo.Name, "_"),
+			  typeof(void), arguments);
+#else
 			var setter = new DynamicMethod(
 			  String.Concat("_Set", propertyInfo.Name, "_"),
 			  typeof(void), arguments, propertyInfo.DeclaringType);
+#endif
+
+
 			ILGenerator generator = setter.GetILGenerator();
 			generator.Emit(OpCodes.Ldarg_0);
 			generator.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
@@ -809,9 +833,16 @@ namespace Salar.Bois
 			var arguments = new Type[1];
 			arguments[0] = typeof(object);
 
+#if SILVERLIGHT
+			var getter = new DynamicMethod(
+			  String.Concat("_Get", propertyInfo.Name, "_"),
+			  typeof(object), arguments);
+#else
 			var getter = new DynamicMethod(
 			  String.Concat("_Get", propertyInfo.Name, "_"),
 			  typeof(object), arguments, propertyInfo.DeclaringType);
+#endif
+
 			ILGenerator generator = getter.GetILGenerator();
 			generator.DeclareLocal(typeof(object));
 			generator.Emit(OpCodes.Ldarg_0);
@@ -843,7 +874,15 @@ namespace Salar.Bois
 
 		private GenericGetter GetPropertyGetter(Type objType, PropertyInfo propertyInfo)
 		{
-			if (objType.IsValueType &&
+#if SILVERLIGHT
+			// this is a fallback to slower method.
+			var method = propertyInfo.GetGetMethod();
+
+			// generating the caller.
+			return new GenericGetter(target => method.Invoke(target, null));
+#else
+			if (
+				objType.IsValueType &&
 				!objType.IsPrimitive &&
 				!objType.IsArray &&
 				objType != typeof(string))
@@ -860,10 +899,18 @@ namespace Salar.Bois
 				var method = propertyInfo.GetGetMethod();
 				return GetFastGetterFunc(propertyInfo, method);
 			}
+#endif
 		}
 
 		private Function<object, object, object> GetPropertySetter(Type objType, PropertyInfo propertyInfo)
 		{
+#if SILVERLIGHT
+			// this is a fallback to slower method.
+			var method = propertyInfo.GetSetMethod();
+
+			// generating the caller.
+			return new Function<object, object, object>((target, value) => method.Invoke(target, new object[] { value }));
+#else
 			if (objType.IsValueType &&
 				!objType.IsPrimitive &&
 				!objType.IsArray &&
@@ -881,6 +928,7 @@ namespace Salar.Bois
 				var method = propertyInfo.GetSetMethod();
 				return GetFastSetterFunc(propertyInfo, method);
 			}
+#endif
 
 			////var method = objType.GetMethod("set_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
 			//var method = propertyInfo.GetSetMethod();
@@ -893,7 +941,11 @@ namespace Salar.Bois
 		/// <returns></returns>
 		private GenericGetter GetFastGetterFunc(PropertyInfo p, MethodInfo getter) // untyped cast from Func<T> to Func<object> 
 		{
+#if SILVERLIGHT
+			var g = new DynamicMethod("_", p.DeclaringType, new[] { typeof(object) });
+#else
 			var g = new DynamicMethod("_", typeof(object), new[] { typeof(object) }, p.DeclaringType, true);
+#endif
 			var il = g.GetILGenerator();
 
 			il.Emit(OpCodes.Ldarg_0);//load the delegate from function parameter
@@ -916,7 +968,11 @@ namespace Salar.Bois
 		/// </summary>
 		private Function<object, object, object> GetFastSetterFunc(PropertyInfo p, MethodInfo setter)
 		{
+#if SILVERLIGHT
+			var s = new DynamicMethod("_", p.DeclaringType, new[] { typeof(object), typeof(object) });
+#else
 			var s = new DynamicMethod("_", typeof(object), new[] { typeof(object), typeof(object) }, p.DeclaringType, true);
+#endif
 			var il = s.GetILGenerator();
 
 			il.Emit(OpCodes.Ldarg_0);

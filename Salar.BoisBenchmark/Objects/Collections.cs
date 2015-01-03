@@ -23,19 +23,19 @@ namespace Salar.BoisBenchmark.Objects
 								             {2, "2"},
 								             {3, "3"}
 							             },
-						//SortedDictionary = new SortedDictionary<int, string>()
-						//					   {
-						//						   {10, "ten"},
-						//						   {20, "20"},
-						//						   {4, "four"}
-						//					   },
-						//SortedList = new SortedList<int, string>()
-						//				 {
-						//					 {10, "ten"},
-						//					 {20, "20"},
-						//					 {4, "four"},
-						//					 {0, "zero"}
-						//				 },
+						SortedDictionary = new SortedDictionary<int, string>()
+											   {
+												   {10, "ten"},
+												   {20, "20"},
+												   {4, "four"}
+											   },
+						SortedList = new SortedList<int, string>()
+										 {
+											 {10, "ten"},
+											 {20, "20"},
+											 {4, "four"},
+											 {0, "zero"}
+										 },
 						Ages = new int[] { 30, 27, 17, 70 },
 						Names = new string[] { "Salar", "BOIS", "Codeplex" },
 						StringDictionary = new Dictionary<string, int?>()
@@ -63,11 +63,11 @@ namespace Salar.BoisBenchmark.Objects
 		[ProtoMember(5)]
 		public Dictionary<int, string> Dictionary { get; set; }
 
-		//[ProtoMember(6)]
-		//public SortedDictionary<int, string> SortedDictionary { get; set; }
+		[ProtoMember(6)]
+		public SortedDictionary<int, string> SortedDictionary { get; set; }
 
-		//[ProtoMember(7)]
-		//public SortedList<int, string> SortedList { get; set; }
+		[ProtoMember(7)]
+		public SortedList<int, string> SortedList { get; set; }
 
 	}
 }

@@ -90,11 +90,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Salar.Bois\Salar.Bois.csproj">
-      <Project>{26FC10C3-638F-4747-9D7B-9C1715EC3C6E}</Project>
+      <Project>{26fc10c3-638f-4747-9d7b-9c1715ec3c6e}</Project>
       <Name>Salar.Bois</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

@@ -7,8 +7,8 @@
     <ProjectGuid>{8084F534-3AD0-4F02-9680-76D44492D4CC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Salar.Bois.Net2</RootNamespace>
-    <AssemblyName>Salar.Bois.Net2</AssemblyName>
+    <RootNamespace>Salar.Bois</RootNamespace>
+    <AssemblyName>Salar.Bois</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

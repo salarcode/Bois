@@ -7,8 +7,8 @@
     <ProjectGuid>{103F2ABB-949D-469F-9CEC-3066B9005285}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Salar.Bois.Net4</RootNamespace>
-    <AssemblyName>Salar.Bois.Net4</AssemblyName>
+    <RootNamespace>Salar.Bois</RootNamespace>
+    <AssemblyName>Salar.Bois</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

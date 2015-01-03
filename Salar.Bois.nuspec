@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Salar.Bois</id>
-		<version>1.7.0.0</version>
+		<version>1.8.0.0</version>
 		<title>BOIS (Binary Object Indexed Serialization)</title>
 		<authors>Salar Khalilzadeh</authors>
 		<owners>Salar Khalilzadeh</owners>
@@ -15,16 +15,23 @@
 			More info: http://bois.codeplex.com
 		</description>
 		<releaseNotes>
-			+ Contained collection objects are supported.
-			- Fixed a bug in DateTime serialization.
+			+ Portable supported version is added. Adding support for Windows 8, Windows Phone 8.1, Xamarin.Android and Xamarin.iOS.
+			+ .Net 4 specific version is added.
+			+ Silvelight version bugs are fixed.
 		</releaseNotes>
-		<copyright>Copyright 2014</copyright>
+		<copyright>Copyright 2015</copyright>
 		<tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>
 		<dependencies>
 		</dependencies>
 	</metadata>
 	<files>
-		<file src="Salar.Bois\Bin\Release\*.dll" target="lib\net20" />
-		<file src="Salar.Bois\Bin\Release\*.xml" target="lib\net20" />
+		<file src="Salar.Bois.SL\Bin\Release\*.dll" target="lib\sl5" />
+		<file src="Salar.Bois.SL\Bin\Release\*.xml" target="lib\sl5" />
+		<file src="Salar.Bois\Bin\Release\*.dll" target="lib\portable-sl4+wp71+windows8" />
+		<file src="Salar.Bois\Bin\Release\*.xml" target="lib\portable-sl4+wp71+windows8" />
+		<file src="Salar.Bois.Net2\Bin\Release\*.dll" target="lib\net20" />
+		<file src="Salar.Bois.Net2\Bin\Release\*.xml" target="lib\net20" />
+		<file src="Salar.Bois.Net4\Bin\Release\*.dll" target="lib\net40" />
+		<file src="Salar.Bois.Net4\Bin\Release\*.xml" target="lib\net40" />
 	</files>
 </package>

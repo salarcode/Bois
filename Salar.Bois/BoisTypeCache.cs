@@ -2,8 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+#if DotNet || SILVERLIGHT
 using System.Reflection.Emit;
-#if !SILVERLIGHT
+#endif
+
+#if !SILVERLIGHT && DotNet
 using System.Collections.Specialized;
 using System.Data;
 using System.Drawing;
@@ -28,7 +31,7 @@ namespace Salar.Bois
 		internal delegate object GenericConstructor();
 
 
-#if SILVERLIGHT
+#if SILVERLIGHT || !DotNet
 		private readonly Dictionary<Type, GenericConstructor> _constructorCache;
 		private readonly Dictionary<Type, BoisMemberInfo> _cache;
 		public BoisTypeCache()
@@ -92,12 +95,12 @@ namespace Salar.Bois
 
 		internal object CreateInstance(Type t)
 		{
-#if SILVERLIGHT
+#if SILVERLIGHT || !DotNet
 			// Falling back to default parameterless constructor.
 			return Activator.CreateInstance(t, null);
 #else
 			// Read from cache
-#if SILVERLIGHT
+#if SILVERLIGHT || !DotNet
 			GenericConstructor info = null;
 			_constructorCache.TryGetValue(t, out info);
 #else
@@ -112,7 +115,7 @@ namespace Salar.Bois
 					return Activator.CreateInstance(t, null);
 				}
 
-#if SILVERLIGHT
+#if SILVERLIGHT|| !DotNet
 				var dynamicCtor = new DynamicMethod("_", t, Type.EmptyTypes);
 #else
 				var dynamicCtor = new DynamicMethod("_", t, Type.EmptyTypes, t, true);
@@ -369,7 +372,7 @@ namespace Salar.Bois
 								   IsGeneric = true,
 								   NullableUnderlyingType = underlyingTypeNullable,
 							   };
-#if DotNet4
+#if DotNet4_NotYET
 				if (ReflectionHelper.CompareInterface(memType, typeof(ISet)))
 					return new BoisMemberInfo
 						       {
@@ -412,7 +415,7 @@ namespace Salar.Bois
 							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
-#if !SILVERLIGHT
+#if !SILVERLIGHT && DotNet
 			if (memActualType == typeof(Color))
 			{
 				// is struct and uses Nullable<>
@@ -483,6 +486,7 @@ namespace Salar.Bois
 							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
+#if DotNet
 			if (memActualType == typeof(DBNull))
 			{
 				// ignore!
@@ -493,6 +497,7 @@ namespace Salar.Bois
 							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
 			}
+#endif
 
 			var objectMemInfo = ReadObject(memType);
 			objectMemInfo.NullableUnderlyingType = underlyingTypeNullable;
@@ -765,6 +770,7 @@ namespace Salar.Bois
 		/// Gerhard Stephan 
 		/// http://jachman.wordpress.com/2006/08/22/2000-faster-using-dynamic-method-calls/
 		/// </author>
+#if DotNet
 		private GenericSetter CreateSetMethod(PropertyInfo propertyInfo)
 		{
 			/*
@@ -781,7 +787,7 @@ namespace Salar.Bois
 			arguments[0] = arguments[1] = typeof(object);
 
 
-#if SILVERLIGHT
+#if SILVERLIGHT || !DotNet
 			var setter = new DynamicMethod(
 			  String.Concat("_Set", propertyInfo.Name, "_"),
 			  typeof(void), arguments);
@@ -810,6 +816,7 @@ namespace Salar.Bois
 			*/
 			return (GenericSetter)setter.CreateDelegate(typeof(GenericSetter));
 		}
+#endif
 
 		/// <summary>
 		/// Creates a dynamic getter for the property
@@ -818,6 +825,7 @@ namespace Salar.Bois
 		/// Gerhard Stephan 
 		/// http://jachman.wordpress.com/2006/08/22/2000-faster-using-dynamic-method-calls/
 		/// </author>
+#if DotNet
 		private GenericGetter CreateGetMethod(PropertyInfo propertyInfo)
 		{
 			/*
@@ -859,6 +867,7 @@ namespace Salar.Bois
 			*/
 			return (GenericGetter)getter.CreateDelegate(typeof(GenericGetter));
 		}
+#endif
 
 		//private Func<T, object> MakeDelegate_2<T, U>(MethodInfo @get)
 		//{
@@ -874,7 +883,7 @@ namespace Salar.Bois
 
 		private GenericGetter GetPropertyGetter(Type objType, PropertyInfo propertyInfo)
 		{
-#if SILVERLIGHT
+#if SILVERLIGHT || !DotNet
 			// this is a fallback to slower method.
 			var method = propertyInfo.GetGetMethod();
 
@@ -904,7 +913,7 @@ namespace Salar.Bois
 
 		private Function<object, object, object> GetPropertySetter(Type objType, PropertyInfo propertyInfo)
 		{
-#if SILVERLIGHT
+#if SILVERLIGHT || !DotNet
 			// this is a fallback to slower method.
 			var method = propertyInfo.GetSetMethod();
 
@@ -939,6 +948,7 @@ namespace Salar.Bois
 		/// http://social.msdn.microsoft.com/Forums/en-US/netfxbcl/thread/8754500e-4426-400f-9210-554f9f2ad58b/
 		/// </summary>
 		/// <returns></returns>
+#if SILVERLIGHT || DotNet
 		private GenericGetter GetFastGetterFunc(PropertyInfo p, MethodInfo getter) // untyped cast from Func<T> to Func<object> 
 		{
 #if SILVERLIGHT
@@ -962,10 +972,12 @@ namespace Salar.Bois
 			var _func = (GenericGetter)g.CreateDelegate(typeof(GenericGetter));
 			return _func;
 		}
+#endif
 
 		/// <summary>
 		/// http://social.msdn.microsoft.com/Forums/en-US/netfxbcl/thread/8754500e-4426-400f-9210-554f9f2ad58b/
 		/// </summary>
+#if SILVERLIGHT || DotNet
 		private Function<object, object, object> GetFastSetterFunc(PropertyInfo p, MethodInfo setter)
 		{
 #if SILVERLIGHT
@@ -999,6 +1011,7 @@ namespace Salar.Bois
 			var _func = (Function<object, object, object>)s.CreateDelegate(typeof(Function<object, object, object>));
 			return _func;
 		}
+#endif
 
 		private GenericGetter GetPropertyGetter_(Type objType, PropertyInfo propertyInfo)
 		{

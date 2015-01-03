@@ -3,7 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Text;
-#if !SILVERLIGHT
+#if !SILVERLIGHT && DotNet
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
@@ -295,7 +295,7 @@ namespace Salar.Bois
 					break;
 
 				case EnBoisKnownType.Decimal:
-#if SILVERLIGHT
+#if SILVERLIGHT || !DotNet
 					WriteDecimal(writer, (decimal)value);
 #else
 					writer.Write((decimal)value);
@@ -353,7 +353,7 @@ namespace Salar.Bois
 					WriteTimeSpan(writer, (TimeSpan)value);
 					break;
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && DotNet
 				case EnBoisKnownType.DataSet:
 					WriteDataset(writer, value as DataSet);
 					break;
@@ -384,7 +384,7 @@ namespace Salar.Bois
 		}
 
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && DotNet
 		private void WriteCollectionNameValue(BinaryWriter writer, NameValueCollection nameValue)
 		{
 			// Int32
@@ -806,7 +806,7 @@ namespace Salar.Bois
 					return PrimitivesConvertion.ReadVarDouble(reader);
 
 				case EnBoisKnownType.Decimal:
-#if SILVERLIGHT
+#if SILVERLIGHT || !DotNet
 					return ReadDecimal(reader);
 #else
 					return reader.ReadDecimal();
@@ -849,7 +849,7 @@ namespace Salar.Bois
 				case EnBoisKnownType.TimeSpan:
 					return ReadTimeSpan(reader);
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && DotNet
 				case EnBoisKnownType.DataSet:
 					return ReadDataset(reader, actualMemberType);
 
@@ -865,9 +865,10 @@ namespace Salar.Bois
 
 				case EnBoisKnownType.Version:
 					return ReadVersion(reader);
-
+#if DotNet
 				case EnBoisKnownType.DbNull:
 					return DBNull.Value;
+#endif
 
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -961,7 +962,7 @@ namespace Salar.Bois
 			return reader.ReadBytes(length);
 		}
 
-#if SILVERLIGHT
+#if SILVERLIGHT || !DotNet
 		private decimal ReadDecimal(BinaryReader reader)
 		{
 			var bits = new int[4];

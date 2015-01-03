@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{103F2ABB-949D-469F-9CEC-3066B9005285}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Salar.Bois.Net4</RootNamespace>
+    <AssemblyName>Salar.Bois.Net4</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;DotNet DotNet4</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;DotNet DotNet4</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Salar.Bois\BoisContractAttribute.cs">
+      <Link>BoisContractAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Salar.Bois\BoisMemberAttribute.cs">
+      <Link>BoisMemberAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Salar.Bois\BoisMemberInfo.cs">
+      <Link>BoisMemberInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Salar.Bois\BoisSerializer.cs">
+      <Link>BoisSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\Salar.Bois\BoisTypeCache.cs">
+      <Link>BoisTypeCache.cs</Link>
+    </Compile>
+    <Compile Include="..\Salar.Bois\BoisTypeInfo.cs">
+      <Link>BoisTypeInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Salar.Bois\EnBoisKnownType.cs">
+      <Link>EnBoisKnownType.cs</Link>
+    </Compile>
+    <Compile Include="..\Salar.Bois\EnBoisMemberType.cs">
+      <Link>EnBoisMemberType.cs</Link>
+    </Compile>
+    <Compile Include="..\Salar.Bois\PrimitivesConvertion.cs">
+      <Link>PrimitivesConvertion.cs</Link>
+    </Compile>
+    <Compile Include="..\Salar.Bois\ReflectionHelper.cs">
+      <Link>ReflectionHelper.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

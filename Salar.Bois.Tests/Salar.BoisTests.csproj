@@ -89,13 +89,13 @@
     <Compile Include="PrimitivesTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Salar.Bois\Salar.Bois.csproj">
-      <Project>{26fc10c3-638f-4747-9d7b-9c1715ec3c6e}</Project>
-      <Name>Salar.Bois</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\Salar.Bois.Net2\Salar.Bois.Net2.csproj">
+      <Project>{8084f534-3ad0-4f02-9680-76d44492d4cc}</Project>
+      <Name>Salar.Bois.Net2</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

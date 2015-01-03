@@ -115,7 +115,7 @@ namespace Salar.Bois
 					return Activator.CreateInstance(t, null);
 				}
 
-#if SILVERLIGHT|| !DotNet
+#if SILVERLIGHT || !DotNet
 				var dynamicCtor = new DynamicMethod("_", t, Type.EmptyTypes);
 #else
 				var dynamicCtor = new DynamicMethod("_", t, Type.EmptyTypes, t, true);
@@ -138,7 +138,7 @@ namespace Salar.Bois
 
 		internal BoisMemberInfo GetTypeInfo(Type type, bool generate)
 		{
-#if SILVERLIGHT
+#if SILVERLIGHT || !DotNet
 			BoisMemberInfo memInfo;
 			if (_cache.TryGetValue(type, out memInfo))
 			{
@@ -146,12 +146,12 @@ namespace Salar.Bois
 			}
 #else
 			var memInfo = _cache[type] as BoisMemberInfo;
-#endif
-
 			if (memInfo != null)
 			{
 				return memInfo;
 			}
+#endif
+
 			if (generate)
 			{
 				memInfo = ReadMemberInfo(type);

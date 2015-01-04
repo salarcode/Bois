@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Salar.Bois</id>
-		<version>1.8.0.0</version>
+		<version>1.8.1.0</version>
 		<title>BOIS (Binary Object Indexed Serialization)</title>
 		<authors>Salar Khalilzadeh</authors>
 		<owners>Salar Khalilzadeh</owners>
@@ -15,6 +15,7 @@
 			More info: https://github.com/salarcode/Bois
 		</description>
 		<releaseNotes>
+			* Bug#1 fixed, serialization of special integer numbers may fail silently.
 			+ Portable supported version is added. Adding support for Windows 8, Windows Phone 8.1, Xamarin.Android and Xamarin.iOS.
 			+ .Net 4 specific version is added.
 			+ Silvelight version bugs are fixed.

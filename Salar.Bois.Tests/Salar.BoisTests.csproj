@@ -69,6 +69,7 @@
     <Compile Include="Classes\AssertionHelper.cs" />
     <Compile Include="CollectionsTest.cs" />
     <Compile Include="ObjectsTest.cs" />
+    <Compile Include="Objects\ArraySingleType1.cs" />
     <Compile Include="Objects\BasicTypes1.cs" />
     <Compile Include="Objects\BasicTypes1Nullable.cs" />
     <Compile Include="Objects\BasicTypes2Nullable.cs" />

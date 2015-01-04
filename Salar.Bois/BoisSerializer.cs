@@ -666,6 +666,8 @@ namespace Salar.Bois
 
 			var members = bionType.Members;
 			var resultObj = _typeCache.CreateInstance(type);
+
+			// Read the members
 			ReadMembers(reader, resultObj, members, binaryMemberCount.Value);
 			return resultObj;
 		}

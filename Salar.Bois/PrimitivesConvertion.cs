@@ -701,8 +701,10 @@ namespace Salar.Bois
 				buff[0] = num1;
 
 				if (num2 > 0)
+				{
 					buff[1] = num2;
-				else
+				}
+				else if (num3 == 0 && num4 == 0)
 				{
 					Array.Resize(ref buff, 1);
 					length = 1;
@@ -710,8 +712,10 @@ namespace Salar.Bois
 				}
 
 				if (num3 > 0)
+				{
 					buff[2] = num3;
-				else
+				}
+				else if (num4 == 0)
 				{
 					Array.Resize(ref buff, 2);
 					length = 2;
@@ -763,8 +767,10 @@ namespace Salar.Bois
 				buff[0] = num1;
 
 				if (num2 > 0)
+				{
 					buff[1] = num2;
-				else
+				}
+				else if (num3 == 0 && num4 == 0 && num5 == 0 && num6 == 0 && num7 == 0 && num8 == 0)
 				{
 					Array.Resize(ref buff, 1);
 					length = 1;
@@ -773,7 +779,7 @@ namespace Salar.Bois
 
 				if (num3 > 0)
 					buff[2] = num3;
-				else
+				else if (num4 == 0 && num5 == 0 && num6 == 0 && num7 == 0 && num8 == 0)
 				{
 					Array.Resize(ref buff, 2);
 					length = 2;
@@ -782,7 +788,7 @@ namespace Salar.Bois
 
 				if (num4 > 0)
 					buff[3] = num4;
-				else
+				else if (num5 == 0 && num6 == 0 && num7 == 0 && num8 == 0)
 				{
 					Array.Resize(ref buff, 3);
 					length = 3;
@@ -791,7 +797,7 @@ namespace Salar.Bois
 
 				if (num5 > 0)
 					buff[4] = num5;
-				else
+				else if (num6 == 0 && num7 == 0 && num8 == 0)
 				{
 					Array.Resize(ref buff, 4);
 					length = 4;
@@ -800,7 +806,7 @@ namespace Salar.Bois
 
 				if (num6 > 0)
 					buff[5] = num6;
-				else
+				else if (num7 == 0 && num8 == 0)
 				{
 					Array.Resize(ref buff, 5);
 					length = 5;
@@ -809,7 +815,7 @@ namespace Salar.Bois
 
 				if (num7 > 0)
 					buff[6] = num7;
-				else
+				else if (num8 == 0)
 				{
 					Array.Resize(ref buff, 6);
 					length = 6;
@@ -818,7 +824,7 @@ namespace Salar.Bois
 
 				if (num8 > 0)
 					buff[7] = num8;
-				else
+				else if (num8 == 0)
 				{
 					Array.Resize(ref buff, 7);
 					length = 7;

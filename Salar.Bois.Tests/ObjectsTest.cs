@@ -315,6 +315,7 @@ namespace Salar.Bois.Tests
 		}
 
 
+
 		[TestMethod]
 		public void ThreadSafe_NormalTest()
 		{
@@ -383,6 +384,23 @@ namespace Salar.Bois.Tests
 
 			// WILL FAIL ANYWAY, properties for contained collections are not supported
 			//AssertionHelper.AssertMembersAreEqual(init, final);
+		}
+
+
+		[TestMethod]
+		public void ArraySingleType1_NormalTest()
+		{
+			var init = new ArraySingleType1();
+			init.Initialize();
+			ArraySingleType1 final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<ArraySingleType1>(mem);
+			}
+			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
 
 	}

@@ -824,7 +824,7 @@ namespace Salar.Bois
 
 				if (num8 > 0)
 					buff[7] = num8;
-				else if (num8 == 0)
+				else
 				{
 					Array.Resize(ref buff, 7);
 					length = 7;

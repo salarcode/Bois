@@ -10,7 +10,7 @@ namespace Salar.SerializersStudy.Objects
 	[DataContract]
 	[Serializable]
 	[ProtoContract]
-	class TestParentClassFull
+	public class TestParentClassFull
 	{
 		public static TestParentClassFull Create()
 		{

@@ -13,6 +13,7 @@ namespace Salar.SerializersStudy
 		public static List<string> RunBenchmark()
 		{
 			var result = new List<string>();
+			var counter = 0;
 
 			//-------------------------------
 			object nullTest = null;
@@ -44,6 +45,26 @@ namespace Salar.SerializersStudy
 			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(stringArray));
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(stringArray));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(stringArray));
+
+			//-------------------------------
+			var stringGeneric = new List<string> { "Salar", "Khalilzadeh", "Salar.Bois" };
+			result.AddResult("------String Generic List: ", stringGeneric.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(stringGeneric));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(stringGeneric));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(stringGeneric));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(stringGeneric));
+			//-------------------------------
+			var stringDictionary = new Dictionary<string, string>
+			{
+				{"Name:", "Salar"},
+				{"Family", "Khalilzadeh"},
+				{"Product", "Salar.Bois"}
+			};
+			result.AddResult("------String Generic Dictionary: ", stringDictionary.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(stringDictionary));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(stringDictionary));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(stringDictionary));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(stringDictionary));
 
 			//-------------------------------
 			var byeArray = new byte[] { byte.MaxValue, byte.MinValue, byte.MaxValue / 2, 1, 0, 0, 0, 0, 0, byte.MaxValue };
@@ -112,6 +133,55 @@ namespace Salar.SerializersStudy
 			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(testParentClassFull));
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(testParentClassFull));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(testParentClassFull));
+
+			//-------------------------------
+			var listOfTestOneMemberClassTest = new List<TestOneMemberClass>();
+			for (var i = 0; i < 10; i++)
+			{
+				listOfTestOneMemberClassTest.Add(new TestOneMemberClass());
+			}
+			result.AddResult("------List of TestOneMemberClass: ", listOfTestOneMemberClassTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(listOfTestOneMemberClassTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(listOfTestOneMemberClassTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(listOfTestOneMemberClassTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(listOfTestOneMemberClassTest));
+
+			//-------------------------------
+			var listOfTestTwoMemberClassTest = new List<TestTwoMemberClass>();
+			for (var i = 0; i < 10; i++)
+			{
+				listOfTestTwoMemberClassTest.Add(new TestTwoMemberClass());
+			}
+			result.AddResult("------List of TestTwoMemberClass: ", listOfTestTwoMemberClassTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(listOfTestTwoMemberClassTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(listOfTestTwoMemberClassTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(listOfTestTwoMemberClassTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(listOfTestTwoMemberClassTest));
+
+			//-------------------------------
+			var dictionaryOfTestOneMemberClassTest = new Dictionary<int, TestOneMemberClass>();
+			for (var i = 0; i < 10; i++)
+			{
+				dictionaryOfTestOneMemberClassTest.Add(i + (int.MaxValue / 2), new TestOneMemberClass());
+			}
+			result.AddResult("------Dictionary of TestOneMemberClass: ", dictionaryOfTestOneMemberClassTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(dictionaryOfTestOneMemberClassTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(dictionaryOfTestOneMemberClassTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(dictionaryOfTestOneMemberClassTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(dictionaryOfTestOneMemberClassTest));
+
+			//-------------------------------
+			var dictionaryOfTestTwoMemberClassTest = new Dictionary<int, TestTwoMemberClass>();
+			for (var i = 0; i < 10; i++)
+			{
+				dictionaryOfTestTwoMemberClassTest.Add(i + (int.MaxValue / 2), new TestTwoMemberClass());
+			}
+			result.AddResult("------Dictionary of TestTwoMemberClass: ", dictionaryOfTestTwoMemberClassTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(dictionaryOfTestTwoMemberClassTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(dictionaryOfTestTwoMemberClassTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(dictionaryOfTestTwoMemberClassTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(dictionaryOfTestTwoMemberClassTest));
+
 			//-------------------------------
 			var dateTimeTest = DateTime.Now;
 			result.AddResult("------DateTime: ", dateTimeTest.ToString(), "-------");
@@ -119,6 +189,14 @@ namespace Salar.SerializersStudy
 			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(dateTimeTest));
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(dateTimeTest));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(dateTimeTest));
+
+			//-------------------------------
+			var dateTimeOffsetTest = DateTimeOffset.Now;
+			result.AddResult("------DateTimeOffset: ", dateTimeOffsetTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(dateTimeOffsetTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(dateTimeOffsetTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(dateTimeOffsetTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(dateTimeOffsetTest));
 
 			//-------------------------------
 			var guidTest = Guid.NewGuid();

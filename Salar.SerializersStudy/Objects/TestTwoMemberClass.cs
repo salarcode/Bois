@@ -10,7 +10,7 @@ namespace Salar.SerializersStudy.Objects
 	[DataContract]
 	[Serializable]
 	[ProtoContract]
-	class TestTwoMemberClass
+	public class TestTwoMemberClass
 	{
 		[ProtoMember(1)]
 		[DataMember]

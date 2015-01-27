@@ -10,7 +10,7 @@ namespace Salar.SerializersStudy.Objects
 	[DataContract]
 	[Serializable]
 	[ProtoContract]
-	struct TestEmptyStruct
+	public struct TestEmptyStruct
 	{
 	}
 }

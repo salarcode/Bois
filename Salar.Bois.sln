@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.Net2", "Salar.Bo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.Net4", "Salar.Bois.Net4\Salar.Bois.Net4.csproj", "{103F2ABB-949D-469F-9CEC-3066B9005285}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.SerializersStudy", "Salar.SerializersStudy\Salar.SerializersStudy.csproj", "{E771C343-1FB7-491C-9253-B935BBC8AD58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,16 @@ Global
 		{103F2ABB-949D-469F-9CEC-3066B9005285}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{103F2ABB-949D-469F-9CEC-3066B9005285}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{103F2ABB-949D-469F-9CEC-3066B9005285}.Release|x86.ActiveCfg = Release|Any CPU
+		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

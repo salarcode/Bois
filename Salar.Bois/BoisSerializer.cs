@@ -688,24 +688,17 @@ namespace Salar.Bois
 
 		private object ReadObject(BinaryReader reader, Type type)
 		{
-			////Int32
-			//var binaryMemberCount = PrimitivesConvertion.ReadVarInt32Nullable(reader);
-			//if (binaryMemberCount == null)
-			//{
-			//	return null;
-			//}
-
 			var bionType = _typeCache.GetTypeInfo(type, true) as BoisTypeInfo;
 
 			var members = bionType.Members;
 			var resultObj = _typeCache.CreateInstance(type);
 
 			// Read the members
-			ReadMembers(reader, resultObj, members, members.Length);
+			ReadMembers(reader, resultObj, members);
 			return resultObj;
 		}
 
-		private void ReadMembers(BinaryReader reader, object obj, BoisMemberInfo[] memberList, int binaryMemberCount)
+		private void ReadMembers(BinaryReader reader, object obj, BoisMemberInfo[] memberList)
 		{
 			var objectMemberCount = memberList.Length;
 			var memberProcessed = 0;
@@ -715,8 +708,7 @@ namespace Salar.Bois
 			//var objType = obj.GetType();
 
 			// while all members are processed
-			while (memberProcessed < binaryMemberCount &&
-				   memberProcessed < objectMemberCount &&
+			while (memberProcessed < objectMemberCount &&
 				   data.Position < dataLeng)
 			{
 				// the member from member list according to the index

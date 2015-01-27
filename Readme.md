@@ -38,9 +38,9 @@ return boisSerializer.Deserialize<SampleObject>(dataStream);
 
 Some features are in progress and will be available as soon as they're completed:
 
-~~* Use compacted serialize method for more primitive types.~~
+* ~~Use compacted serialize method for more primitive types.~~
 * An option to control depth of object serialization.
-~~* Embed cache object inside the serializer.~~
+* ~~Embed cache object inside the serializer.~~
 * Support ISet<> for .Net4
 
 ##Benchmarks

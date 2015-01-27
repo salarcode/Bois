@@ -134,10 +134,6 @@ namespace Salar.Bois
 
 			var boisType = _typeCache.GetTypeInfo(type, true) as BoisTypeInfo;
 
-			// number of writable members count
-			// Int32? nullable
-			//PrimitivesConvertion.WriteVarInt(writer, (int?)boisType.Members.Length);
-
 			if (boisMemInfo != null)
 			{
 				if (boisMemInfo.IsContainerObject && boisMemInfo.IsStruct && boisMemInfo.IsNullable)
@@ -289,6 +285,17 @@ namespace Salar.Bois
 					}
 					break;
 
+				case EnBoisKnownType.UInt64:
+					if (value == null || boisMemInfo.IsNullable)
+					{
+						PrimitivesConvertion.WriteVarInt(writer, (ulong?)value);
+					}
+					else
+					{
+						PrimitivesConvertion.WriteVarInt(writer, (ulong)value);
+					}
+					break;
+
 				case EnBoisKnownType.UInt16:
 					writer.Write((ushort)value);
 					break;
@@ -302,10 +309,6 @@ namespace Salar.Bois
 					{
 						PrimitivesConvertion.WriteVarInt(writer, (uint)value);
 					}
-					break;
-
-				case EnBoisKnownType.UInt64:
-					writer.Write((ulong)value);
 					break;
 
 				case EnBoisKnownType.Double:
@@ -821,6 +824,13 @@ namespace Salar.Bois
 					}
 					return PrimitivesConvertion.ReadVarInt64(reader);
 
+				case EnBoisKnownType.UInt64:
+					if (memInfo.IsNullable)
+					{
+						return PrimitivesConvertion.ReadVarUInt64Nullable(reader);
+					}
+					return PrimitivesConvertion.ReadVarUInt64(reader);
+
 				case EnBoisKnownType.UInt16:
 					return reader.ReadUInt16();
 
@@ -830,10 +840,6 @@ namespace Salar.Bois
 						return PrimitivesConvertion.ReadVarUInt32Nullable(reader);
 					}
 					return PrimitivesConvertion.ReadVarUInt32(reader);
-
-				case EnBoisKnownType.UInt64:
-					return reader.ReadUInt64();
-
 				case EnBoisKnownType.Double:
 					if (memInfo.IsNullable)
 					{

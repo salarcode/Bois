@@ -282,6 +282,52 @@ namespace Salar.Bois
 				return ReadInt64(reader, insideNum);
 			}
 		}
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static ulong ReadVarUInt64(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
+
+			var insideNum = (byte)(input & ActualFlagInsideMask);
+			if (isItInside)
+			{
+				return insideNum;
+			}
+			else
+			{
+				return ReadUInt64(reader, insideNum);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static ulong? ReadVarUInt64Nullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == 0)
+				return null;
+
+			var isnull = (input & NullableFlagNullNum) == NullableFlagNullNum;
+			if (isnull)
+				return null;
+
+
+			var insideNum = (byte)(input & NullableFlagInsideMask);
+			insideNum = (byte)(insideNum & NullableFlagNullMask);
+
+			var isItInside = (input & NullableFlagInsideNum) == NullableFlagInsideNum;
+			if (isItInside)
+			{
+				return insideNum;
+			}
+			else
+			{
+				return ReadUInt64(reader, insideNum);
+			}
+		}
 
 		internal static double? ReadVarDoubleNullable(BinaryReader reader)
 		{
@@ -562,7 +608,52 @@ namespace Salar.Bois
 				writer.Write(numByte);
 			}
 		}
+		internal static void WriteVarInt(BinaryWriter writer, ulong num)
+		{
+			// store more space
+			if (num > ActualMaxNumInByte)
+			{
+				// No Flag is required
+				// length of the integer bytes
+				WriteInt(writer, num);
+			}
+			else
+			{
+				byte numByte = (byte)num;
 
+				// set the flag of inside
+				numByte = (byte)(numByte | ActualFlagInsideNum);
+				writer.Write(numByte);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static void WriteVarInt(BinaryWriter writer, ulong? num)
+		{
+			if (num == null)
+			{
+				writer.Write(NullableFlagNullNum);
+				return;
+			}
+
+			// store more space
+			if (num > NullableMaxNumInByte)
+			{
+				// No Flag is required
+				// length of the integer bytes
+				WriteInt(writer, num.Value);
+			}
+			else
+			{
+				byte numByte = (byte)num.Value;
+
+				// set the flag of inside
+				numByte = (byte)(numByte | NullableFlagInsideNum);
+				writer.Write(numByte);
+			}
+		}
 		/// <summary>
 		/// 
 		/// </summary>
@@ -734,6 +825,13 @@ namespace Salar.Bois
 			writer.Write(numLen);
 			writer.Write(numBuff, 0, numBuff.Length);
 		}
+		private static void WriteInt(BinaryWriter writer, ulong num)
+		{
+			byte numLen;
+			var numBuff = ConvertToVarBinary(num, out numLen);
+			writer.Write(numLen);
+			writer.Write(numBuff, 0, numBuff.Length);
+		}
 		private static void WriteInt(BinaryWriter writer, int num)
 		{
 			byte numLen;
@@ -791,6 +889,21 @@ namespace Salar.Bois
 
 				Array.Copy(intBuff, intFinalBuff, intBuff.Length);
 				return ReadInt64(intFinalBuff);
+			}
+		}
+		private static ulong ReadUInt64(BinaryReader reader, int length)
+		{
+			var intBuff = reader.ReadBytes(length);
+			if (intBuff.Length == 8)
+			{
+				return ReadUInt64(intBuff);
+			}
+			else
+			{
+				var intFinalBuff = new byte[8];
+
+				Array.Copy(intBuff, intFinalBuff, intBuff.Length);
+				return ReadUInt64(intFinalBuff);
 			}
 		}
 		private static int ReadInt32(BinaryReader reader, int length)
@@ -859,6 +972,12 @@ namespace Salar.Bois
 			uint num = (uint)(((intBytes[0] | (intBytes[1] << 8)) | (intBytes[2] << 16)) | (intBytes[3] << 24));
 			uint num2 = (uint)(((intBytes[4] | (intBytes[5] << 8)) | (intBytes[6] << 16)) | (intBytes[7] << 24));
 			return (long)((((ulong)num2) << 32) | ((ulong)num));
+		}
+		private static ulong ReadUInt64(byte[] intBytes)
+		{
+			uint num = (uint)(((intBytes[0] | (intBytes[1] << 8)) | (intBytes[2] << 16)) | (intBytes[3] << 24));
+			uint num2 = (uint)(((intBytes[4] | (intBytes[5] << 8)) | (intBytes[6] << 16)) | (intBytes[7] << 24));
+			return (ulong)((((ulong)num2) << 32) | ((ulong)num));
 		}
 		private static uint ReadUInt32(byte[] intBytes)
 		{
@@ -1052,6 +1171,33 @@ namespace Salar.Bois
 		}
 
 		private static byte[] ConvertToVarBinary(long value, out byte length)
+		{
+			var buff = new byte[8];
+			buff[0] = (byte)value;
+			buff[1] = (byte)(value >> 8);
+			buff[2] = (byte)(value >> 16);
+			buff[3] = (byte)(value >> 24);
+			buff[4] = (byte)(value >> 32);
+			buff[5] = (byte)(value >> 40);
+			buff[6] = (byte)(value >> 48);
+			buff[7] = (byte)(value >> 56);
+
+			for (int i = 8 - 1; i >= 0; i--)
+			{
+				if (buff[i] > 0)
+				{
+					length = (byte)(i + 1);
+					if (length != 8)
+						Array.Resize(ref buff, length);
+					return buff;
+				}
+			}
+
+			length = 1;
+			return new byte[] { 0 };
+		}
+
+		private static byte[] ConvertToVarBinary(ulong value, out byte length)
 		{
 			var buff = new byte[8];
 			buff[0] = (byte)value;

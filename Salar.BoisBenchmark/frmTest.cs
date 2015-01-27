@@ -9,6 +9,7 @@ using Salar.BoisBenchmark.Objects;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
@@ -52,6 +53,135 @@ namespace Salar.BoisBenchmark
 		}
 
 
+		[ProtoContract]
+		[DataContract]
+		[Serializable]
+		public class PrimitiveDictionary1K
+		{
+			public Dictionary<int, PrimitiveType> Dict { get; set; }
+		}
+
+		[ProtoContract]
+		[Serializable]
+		[DataContract]
+		public class PrimitiveType
+		{
+			[DataMember]
+			[ProtoMember(1)]
+			public bool BoolVar { get; set; }
+
+			[ProtoMember(2)]
+			[DataMember]
+			public byte ByteVar { get; set; }
+
+			[DataMember]
+			[ProtoMember(3)]
+			public short ShortVart { get; set; }
+
+			[DataMember]
+			[ProtoMember(3)]
+			public int IntVar { get; set; }
+
+			[DataMember]
+			[ProtoMember(4)]
+			public long LongVar { get; set; }
+
+			[DataMember]
+			[ProtoMember(5)]
+			public char CharVar { get; set; }
+
+			[DataMember]
+			[ProtoMember(6)]
+			public float FloatVar { get; set; }
+
+			[DataMember]
+			[ProtoMember(7)]
+			public double DoubleVar { get; set; }
+		}
+
+		public static PrimitiveDictionary1K CreatePrimitiveDictionary1K()
+		{
+			Random rnd = new Random(100);
+			PrimitiveDictionary1K dict = new PrimitiveDictionary1K() { Dict = new Dictionary<int, PrimitiveType>() };
+
+			for (int i = 0; i < 1024; i++)
+			{
+				int key;
+
+				do
+				{
+					key = rnd.Next();
+				} while (dict.Dict.ContainsKey(key));
+
+				dict.Dict.Add(key, new PrimitiveType()
+				{
+					BoolVar = rnd.Next() % 2 == 0,
+					ByteVar = (byte)(rnd.Next() % 256),
+					CharVar = (char)(rnd.Next() % 65536),
+					DoubleVar = rnd.NextDouble(),
+					FloatVar = (float)rnd.NextDouble(),
+					IntVar = rnd.Next(),
+					LongVar = (long)rnd.Next() * (long)rnd.Next(),
+					ShortVart = (short)(rnd.Next() % 65536)
+				});
+			}
+			return dict;
+		}
+		public static List<PrimitiveType> CreatePrimitiveDictionary2K()
+		{
+			Random rnd = new Random(100);
+
+			var list = new List<PrimitiveType>();
+			for (int i = 0; i < 1024; i++)
+			{
+
+				list.Add(new PrimitiveType()
+				{
+					BoolVar = rnd.Next() % 2 == 0,
+					ByteVar = (byte)(rnd.Next() % 256),
+					CharVar = (char)(rnd.Next() % 65536),
+					DoubleVar = rnd.NextDouble(),
+					FloatVar = (float)rnd.NextDouble(),
+					IntVar = rnd.Next(),
+					LongVar = (long)rnd.Next() * (long)rnd.Next(),
+					ShortVart = (short)(rnd.Next() % 65536)
+				});
+			}
+			return list;
+		}
+
+		public static PrimitiveType CreatePrimitiveDictionary3K()
+		{
+			Random rnd = new Random(100);
+
+			return (new PrimitiveType()
+			{
+				BoolVar = rnd.Next() % 2 == 0,
+				ByteVar = (byte)(rnd.Next() % 256),
+				CharVar = (char)(rnd.Next() % 65536),
+				DoubleVar = rnd.NextDouble(),
+				FloatVar = (float)rnd.NextDouble(),
+				IntVar = rnd.Next(),
+				LongVar = (long)rnd.Next() * (long)rnd.Next(),
+				ShortVart = (short)(rnd.Next() % 65536)
+			});
+		}
+
+		//[TestMethod]
+		//public void PrimitiveDictionary1KTest()
+		//{
+		//	var init = CreatePrimitiveDictionary1K();
+		//	PrimitiveDictionary1K final;
+
+		//	using (var mem = new MemoryStream())
+		//	{
+		//		_bois.Serialize(init, mem);
+		//		mem.Seek(0, SeekOrigin.Begin);
+		//		final = _bois.Deserialize<PrimitiveDictionary1K>(mem);
+		//	}
+		//	AssertionHelper.AssertMembersAreEqual(init, final);
+		//}
+
 		void RunTheTests(int count)
 		{
 			ClearLog();
@@ -77,7 +207,10 @@ namespace Salar.BoisBenchmark
 
 			ServiceStackBechmark(benchobj1, count);
 
+			MsAvroPackBenchmark(benchobj1, count);
+
 			MessagePackBenchmark(benchobj1, count);
+
 
 			Log("");
 			Log("Contained Collection benchmark---------- repeat count: " + count);
@@ -98,6 +231,8 @@ namespace Salar.BoisBenchmark
 			JsonNetBenchmark(inheritanceObj, count);
 
 			ServiceStackBechmark(inheritanceObj, count);
+
+			MsAvroPackBenchmark(inheritanceObj, count);
 
 			MessagePackBenchmark(inheritanceObj, count);
 
@@ -121,6 +256,8 @@ namespace Salar.BoisBenchmark
 
 			ServiceStackBechmark(benchobj2, count);
 
+			MsAvroPackBenchmark(benchobj2, count);
+
 			MessagePackBenchmark(benchobj2, count);
 
 			Log("");
@@ -142,6 +279,8 @@ namespace Salar.BoisBenchmark
 			JsonNetBenchmark(benchobj3, count);
 
 			ServiceStackBechmark(benchobj3, count);
+
+			MsAvroPackBenchmark(benchobj3, count);
 
 			//MessagePackBenchmark(benchobj3, count);
 
@@ -165,8 +304,36 @@ namespace Salar.BoisBenchmark
 
 			ServiceStackBechmark(benchobj4, count);
 
+			MsAvroPackBenchmark(benchobj4, count);
+
 			MessagePackBenchmark(benchobj4, count);
+
+
+			Log("");
+			Log("CreatePrimitiveDictionary2K benchmark---------- repeat count: " + count);
+
+			var benchobj5 = CreatePrimitiveDictionary2K();
+			BoisBenchmark(benchobj5, count, 2);
+
+			ProtoBufNetBenchmark(benchobj5, count);
+
+			NetSerializerBenchmark(benchobj5, count);
+
+			SharpSerializerBenchmark(benchobj5, count);
+
+			BinaryFormatterBenchmark(benchobj5, count);
+
+			BsonBenchmark(benchobj5, count);
+
+			JsonNetBenchmark(benchobj5, count);
+
+			ServiceStackBechmark(benchobj5, count);
+
+			MsAvroPackBenchmark(benchobj5, count);
+
+			MessagePackBenchmark(benchobj5, count);
 		}
+
 
 
 		private void Log(string text)
@@ -562,6 +729,51 @@ namespace Salar.BoisBenchmark
 			catch (Exception ex)
 			{
 				Log("ServiceStackText failed, " + ex.Message);
+			}
+		}
+
+
+		private void MsAvroPackBenchmark<T>(T obj, int count)
+		{
+			try
+			{
+				long initlength = 0;
+				Stopwatch sw;
+				//-----------------------------------
+				var avro = Microsoft.Hadoop.Avro.AvroSerializer.Create<T>();
+
+				var mem = new MemoryStream();
+				avro.Serialize(mem, obj);
+				initlength = mem.Length;
+
+				mem.Seek(0, SeekOrigin.Begin);
+				avro.Deserialize(mem);
+
+
+				using (var sharperMem = new MemoryStream())
+				{
+					sw = Stopwatch.StartNew();
+					for (int i = 0; i < count; i++)
+					{
+						avro.Serialize(sharperMem, obj);
+					}
+				}
+				sw.Stop();
+				Log("Microsoft.Avro Serialize		took: " + ToString(sw.Elapsed) + "  data-size: " + initlength);
+
+
+				sw = Stopwatch.StartNew();
+				for (int i = 0; i < count; i++)
+				{
+					mem.Seek(0, SeekOrigin.Begin);
+					avro.Deserialize(mem);
+				}
+				sw.Stop();
+				Log("Microsoft.Avro Deserialize		took: " + ToString(sw.Elapsed));
+			}
+			catch (Exception ex)
+			{
+				Log("Microsoft.Avro failed, " + ex.Message);
 			}
 		}
 

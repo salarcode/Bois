@@ -20,6 +20,11 @@ namespace Salar.Bois
 		/// </summary>
 		public bool IsContainerObject;
 
+		/// <summary>
+		/// IsValueType
+		/// </summary>
+		public bool IsStruct;
+
 		internal EnBoisMemberType MemberType;
 		internal EnBoisKnownType KnownType;
 		public MemberInfo Info;

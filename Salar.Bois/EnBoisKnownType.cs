@@ -25,6 +25,7 @@ namespace Salar.Bois
 		Bool,
 		Enum,
 		DateTime,
+		DateTimeOffset,
 		TimeSpan,
 		DataSet,
 		DataTable,

@@ -101,6 +101,51 @@ namespace Salar.Bois
 		/// <summary>
 		/// 
 		/// </summary>
+		internal static decimal ReadVarDecimal(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
+
+			var insideNum = (byte)(input & ActualFlagInsideMask);
+			if (isItInside)
+			{
+				return ReadDecimal(insideNum);
+			}
+			else
+			{
+				return ReadDecimal(reader, insideNum);
+			}
+		}
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static decimal? ReadVarDecimalNullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == NullableFlagNullNum)
+				return null;
+
+			var isnull = (input & NullableFlagNullNum) == NullableFlagNullNum;
+			if (isnull)
+				return null;
+
+
+			var insideNum = (byte)(input & NullableFlagInsideMask);
+			insideNum = (byte)(insideNum & NullableFlagNullMask);
+
+			var isItInside = (input & NullableFlagInsideNum) == NullableFlagInsideNum;
+			if (isItInside)
+			{
+				return ReadDecimal(insideNum);
+			}
+			else
+			{
+				return ReadDecimal(reader, insideNum);
+			}
+		}
+		/// <summary>
+		/// 
+		/// </summary>
 		internal static int ReadVarInt32(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
@@ -524,7 +569,68 @@ namespace Salar.Bois
 				WriteDecimal(writer, buff, length);
 			}
 		}
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static void WriteVarDecimal(BinaryWriter writer, decimal? num)
+		{
+			if (num == null)
+			{
+				writer.Write(NullableFlagNullNum);
+				return;
+			}
+			byte length;
+			var buff = ConvertToVarBinary(num.Value, out length);
 
+
+			if (length == 0)
+			{
+				// no number is there, just the flag
+				writer.Write(ActualFlagInsideNum);
+			}
+			else if (length == 1 && buff[0] <= NullableMaxNumInByte)
+			{
+				// if the value can be stored in one byte
+
+				byte numByte = buff[0];
+
+				// set the flag of inside
+				numByte = (byte)(numByte | NullableFlagInsideNum);
+				writer.Write(numByte);
+			}
+			else
+			{
+				// No Flag is required
+				WriteDecimal(writer, buff, length);
+			}
+		}
+		internal static void WriteVarDecimal(BinaryWriter writer, decimal num)
+		{
+			byte length;
+			var buff = ConvertToVarBinary(num, out length);
+
+			// store more space
+			if (length == 0)
+			{
+				// no number is there, just the flag
+				writer.Write(ActualFlagInsideNum);
+			}
+			else if (length == 1 && buff[0] <= ActualMaxNumInByte)
+			{
+				// if the value can be stored in one byte
+
+				byte numByte = buff[0];
+
+				// set the flag of inside
+				numByte = (byte)(numByte | ActualFlagInsideNum);
+				writer.Write(numByte);
+			}
+			else
+			{
+				// No Flag is required
+				WriteDecimal(writer, buff, length);
+			}
+		}
 
 		private static void WriteInt(BinaryWriter writer, long num)
 		{
@@ -615,6 +721,21 @@ namespace Salar.Bois
 				return ReadInt16(intFinalBuff);
 			}
 		}
+		private static decimal ReadDecimal(BinaryReader reader, int length)
+		{
+			var intBuff = reader.ReadBytes(length);
+			if (intBuff.Length == 16)
+			{
+				return ReadDecimal(intBuff);
+			}
+			else
+			{
+				var intFinalBuff = new byte[16];
+
+				Array.Copy(intBuff, intFinalBuff, intBuff.Length);
+				return ReadDecimal(intFinalBuff);
+			}
+		}
 
 		private static long ReadInt64(byte[] intBytes)
 		{
@@ -626,9 +747,33 @@ namespace Salar.Bois
 		{
 			return ((intBytes[0] | (intBytes[1] << 8)) | (intBytes[2] << 16)) | (intBytes[3] << 24);
 		}
+		private static int ReadInt32(byte[] intBytes, int startIndex)
+		{
+			return ((intBytes[startIndex + 0] | (intBytes[startIndex + 1] << 8)) | (intBytes[startIndex + 2] << 16)) | (intBytes[startIndex + 3] << 24);
+		}
 		private static short ReadInt16(byte[] intBytes)
 		{
 			return (short)(intBytes[0] | (intBytes[1] << 8));
+		}
+
+		private static decimal ReadDecimal(byte[] decimalBytes)
+		{
+			var decimalBits = new int[4];
+			decimalBits[0] = ReadInt32(decimalBytes, 4 * 0);
+			decimalBits[1] = ReadInt32(decimalBytes, 4 * 1);
+			decimalBits[2] = ReadInt32(decimalBytes, 4 * 2);
+			decimalBits[3] = ReadInt32(decimalBytes, 4 * 3);
+
+			return new decimal(decimalBits);
+		}
+		private static decimal ReadDecimal(byte decimalBytes)
+		{
+			if (decimalBytes == 0)
+				return 0m;
+
+			var decimalBits = new int[4];
+			decimalBits[0] = decimalBytes;
+			return new decimal(decimalBits);
 		}
 
 		private static double ReadDouble(byte doubleByte)
@@ -977,6 +1122,31 @@ namespace Salar.Bois
 			return valueBuff;
 		}
 
+		private static byte[] ConvertToVarBinary(decimal value, out byte length)
+		{
+			var bits = decimal.GetBits(value);
+			var bitsArray = new byte[16];
 
+			for (byte i = 0; i < bits.Length; i++)
+			{
+				var bytes = BitConverter.GetBytes(bits[i]);
+				Array.Copy(bytes, 0, bitsArray, i * 4, 4);
+			}
+
+			// finding the empty characters
+			for (int i = bitsArray.Length - 1; i >= 0; i--)
+			{
+				if (bitsArray[i] > 0)
+				{
+					length = (Byte)(i + 1);
+					if (length != 16)
+						Array.Resize(ref bitsArray, length);
+
+					return bitsArray;
+				}
+			}
+			length = 0;
+			return new byte[0];
+		}
 	}
 }

@@ -194,12 +194,13 @@ namespace Salar.Bois
 				}
 			}
 			var typeInfo = new BoisTypeInfo
-							   {
-								   MemberType = EnBoisMemberType.Object,
-								   KnownType = EnBoisKnownType.Unknown,
-								   IsNullable = true,
-								   IsContainerObject = true
-							   };
+			{
+				MemberType = EnBoisMemberType.Object,
+				KnownType = EnBoisKnownType.Unknown,
+				IsContainerObject = true,
+				IsStruct = type.IsValueType
+			};
+
 			var members = new List<BoisMemberInfo>();
 
 			if (readProps)
@@ -326,6 +327,16 @@ namespace Salar.Bois
 				return new BoisMemberInfo
 						   {
 							   KnownType = EnBoisKnownType.DateTime,
+							   IsNullable = isNullable,
+							   NullableUnderlyingType = underlyingTypeNullable,
+						   };
+			}
+			if (memActualType == typeof(DateTimeOffset))
+			{
+				// is struct and uses Nullable<>
+				return new BoisMemberInfo
+						   {
+							   KnownType = EnBoisKnownType.DateTimeOffset,
 							   IsNullable = isNullable,
 							   NullableUnderlyingType = underlyingTypeNullable,
 						   };
@@ -501,6 +512,8 @@ namespace Salar.Bois
 
 			var objectMemInfo = ReadObject(memType);
 			objectMemInfo.NullableUnderlyingType = underlyingTypeNullable;
+			objectMemInfo.IsNullable = isNullable;
+
 			return objectMemInfo;
 		}
 

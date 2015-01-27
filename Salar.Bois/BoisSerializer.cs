@@ -119,13 +119,13 @@ namespace Salar.Bois
 
 		#region Serialization methods
 
-		private void WriteObject(BinaryWriter writer, object obj)
+		private void WriteObject(BinaryWriter writer, BoisMemberInfo boisMemInfo, object obj)
 		{
 			if (obj == null)
 			{
 				// number of writable members count is null means the value is null too
-				// Int32? nullable
-				PrimitivesConvertion.WriteVarInt(writer, (int?)null);
+				// this is null
+				WriteValue(writer, true);
 				return;
 			}
 
@@ -136,7 +136,25 @@ namespace Salar.Bois
 
 			// number of writable members count
 			// Int32? nullable
-			PrimitivesConvertion.WriteVarInt(writer, (int?)boisType.Members.Length);
+			//PrimitivesConvertion.WriteVarInt(writer, (int?)boisType.Members.Length);
+
+			if (boisMemInfo != null)
+			{
+				if (boisMemInfo.IsContainerObject && boisMemInfo.IsStruct && boisMemInfo.IsNullable)
+				{
+					//This is a nullable struct and is not null
+					WriteValue(writer, false);
+				}
+			}
+			else
+			{
+				if (boisType.IsContainerObject && boisType.IsStruct && boisType.IsNullable)
+				{
+					//This is a nullable struct and is not null
+					WriteValue(writer, false);
+				}
+			}
+
 
 			// writing the members
 			for (int i = 0; i < boisType.Members.Length; i++)
@@ -214,7 +232,7 @@ namespace Salar.Bois
 
 					if (boisMemInfo.IsContainerObject)
 					{
-						WriteObject(writer, value);
+						WriteObject(writer, boisMemInfo, value);
 					}
 					else if (boisMemInfo.IsStringDictionary)
 					{
@@ -295,11 +313,14 @@ namespace Salar.Bois
 					break;
 
 				case EnBoisKnownType.Decimal:
-#if SILVERLIGHT || !DotNet
-					WriteDecimal(writer, (decimal)value);
-#else
-					writer.Write((decimal)value);
-#endif
+					if (value == null || boisMemInfo.IsNullable)
+					{
+						PrimitivesConvertion.WriteVarDecimal(writer, (decimal?)value);
+					}
+					else
+					{
+						PrimitivesConvertion.WriteVarDecimal(writer, (decimal)value);
+					}
 					break;
 
 				case EnBoisKnownType.Single:
@@ -347,6 +368,9 @@ namespace Salar.Bois
 
 				case EnBoisKnownType.DateTime:
 					WriteDateTime(writer, (DateTime)value);
+					break;
+				case EnBoisKnownType.DateTimeOffset:
+					WriteDateTimeOffset(writer, (DateTimeOffset)value);
 					break;
 
 				case EnBoisKnownType.TimeSpan:
@@ -578,6 +602,15 @@ namespace Salar.Bois
 				PrimitivesConvertion.WriteVarInt(writer, dt.Ticks);
 			}
 		}
+		private void WriteDateTimeOffset(BinaryWriter writer, DateTimeOffset dateTimeOffset)
+		{
+			var dt = dateTimeOffset;
+			var offset = dateTimeOffset.Offset;
+
+			WriteTimeSpan(writer, offset);
+			// int64
+			PrimitivesConvertion.WriteVarInt(writer, dt.Ticks);
+		}
 
 		private void WriteTimeSpan(BinaryWriter writer, TimeSpan timeSpan)
 		{
@@ -655,12 +688,12 @@ namespace Salar.Bois
 
 		private object ReadObject(BinaryReader reader, Type type)
 		{
-			//Int32
-			var binaryMemberCount = PrimitivesConvertion.ReadVarInt32Nullable(reader);
-			if (binaryMemberCount == null)
-			{
-				return null;
-			}
+			////Int32
+			//var binaryMemberCount = PrimitivesConvertion.ReadVarInt32Nullable(reader);
+			//if (binaryMemberCount == null)
+			//{
+			//	return null;
+			//}
 
 			var bionType = _typeCache.GetTypeInfo(type, true) as BoisTypeInfo;
 
@@ -668,7 +701,7 @@ namespace Salar.Bois
 			var resultObj = _typeCache.CreateInstance(type);
 
 			// Read the members
-			ReadMembers(reader, resultObj, members, binaryMemberCount.Value);
+			ReadMembers(reader, resultObj, members, members.Length);
 			return resultObj;
 		}
 
@@ -724,7 +757,7 @@ namespace Salar.Bois
 		{
 			if (memInfo.IsNullable &&
 				!memInfo.IsSupportedPrimitive &&
-				!memInfo.IsContainerObject)
+				(!memInfo.IsContainerObject || memInfo.IsStruct))
 			{
 				bool isNull = reader.ReadByte() != 0;
 
@@ -808,11 +841,11 @@ namespace Salar.Bois
 					return PrimitivesConvertion.ReadVarDouble(reader);
 
 				case EnBoisKnownType.Decimal:
-#if SILVERLIGHT || !DotNet
-					return ReadDecimal(reader);
-#else
-					return reader.ReadDecimal();
-#endif
+					if (memInfo.IsNullable)
+					{
+						return PrimitivesConvertion.ReadVarDecimalNullable(reader);
+					}
+					return PrimitivesConvertion.ReadVarDecimal(reader);
 
 				case EnBoisKnownType.Single:
 					if (memInfo.IsNullable)
@@ -848,6 +881,9 @@ namespace Salar.Bois
 
 				case EnBoisKnownType.DateTime:
 					return ReadDateTime(reader);
+
+				case EnBoisKnownType.DateTimeOffset:
+					return ReadDateTimeOffset(reader);
 
 				case EnBoisKnownType.TimeSpan:
 					return ReadTimeSpan(reader);
@@ -1114,6 +1150,13 @@ namespace Salar.Bois
 			}
 
 			return new DateTime(ticks, (DateTimeKind)kind);
+		}
+
+		private object ReadDateTimeOffset(BinaryReader reader)
+		{
+			var offset = ReadTimeSpan(reader);
+			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
+			return new DateTimeOffset(ticks, offset);
 		}
 
 		private object ReadBoolean(BinaryReader reader)

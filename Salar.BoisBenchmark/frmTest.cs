@@ -143,7 +143,7 @@ namespace Salar.BoisBenchmark
 
 			ServiceStackBechmark(benchobj3, count);
 
-			MessagePackBenchmark(benchobj3, count);
+			//MessagePackBenchmark(benchobj3, count);
 
 			Log("");
 			Log("SpecialCollections benchmark---------- repeat count: " + count);

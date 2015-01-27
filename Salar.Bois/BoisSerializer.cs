@@ -330,7 +330,7 @@ namespace Salar.Bois
 					break;
 
 				case EnBoisKnownType.Char:
-					writer.Write((char)value);
+					writer.Write((ushort)((char)value));
 					break;
 
 				case EnBoisKnownType.Guid:
@@ -834,7 +834,8 @@ namespace Salar.Bois
 					return ReadString(reader);
 
 				case EnBoisKnownType.Char:
-					return reader.ReadChar();
+					var charByte = reader.ReadUInt16();
+					return (char)charByte;
 
 				case EnBoisKnownType.Guid:
 					return ReadGuid(reader);

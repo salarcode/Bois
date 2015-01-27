@@ -467,5 +467,19 @@ namespace Salar.Bois.Tests
 
 			final.Should().Be.EqualTo(init);
 		}
+
+		[TestMethod]
+		public void DateTimeOffset_Normal()
+		{
+			ResetStream();
+			DateTimeOffset init = DateTimeOffset.Now;
+			bion.WriteValue(bionWriter, init);
+			ResetStream();
+
+			var final = (DateTimeOffset)bion.ReadMember(bionReader, typeof(DateTimeOffset));
+
+			final.Should().Be.EqualTo(init);
+			
+		}
 	}
 }

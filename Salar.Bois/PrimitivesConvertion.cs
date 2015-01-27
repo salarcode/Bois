@@ -97,6 +97,51 @@ namespace Salar.Bois
 				return ReadInt16(reader, insideNum);
 			}
 		}
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static ushort ReadVarUInt16(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
+
+			var insideNum = (ushort)(input & ActualFlagInsideMask);
+			if (isItInside)
+			{
+				return insideNum;
+			}
+			else
+			{
+				return ReadUInt16(reader, insideNum);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static ushort? ReadVarUInt16Nullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == NullableFlagNullNum)
+				return null;
+
+			var isnull = (input & NullableFlagNullNum) == NullableFlagNullNum;
+			if (isnull)
+				return null;
+
+			var insideNum = (byte)(input & NullableFlagInsideMask);
+			insideNum = (byte)(insideNum & NullableFlagNullMask);
+
+			var isItInside = (input & NullableFlagInsideNum) == NullableFlagInsideNum;
+			if (isItInside)
+			{
+				return insideNum;
+			}
+			else
+			{
+				return ReadUInt16(reader, insideNum);
+			}
+		}
 
 		/// <summary>
 		/// 
@@ -445,6 +490,55 @@ namespace Salar.Bois
 			}
 			// store more space
 			if (num > NullableMaxNumInByte || num < 0)
+			{
+				// No Flag is required
+				// length of the integer bytes
+				WriteInt(writer, num.Value);
+			}
+			else
+			{
+				byte numByte = (byte)num;
+
+				// set the flag of inside
+				numByte = (byte)(numByte | NullableFlagInsideNum);
+				writer.Write(numByte);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static void WriteVarInt(BinaryWriter writer, ushort num)
+		{
+			// store more space
+			if (num > ActualMaxNumInByte)
+			{
+				// No Flag is required
+				// length of the integer bytes
+				WriteInt(writer, num);
+			}
+			else
+			{
+				byte numByte = (byte)num;
+
+				// set the flag of inside
+				numByte = (byte)(numByte | ActualFlagInsideNum);
+				writer.Write(numByte);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static void WriteVarInt(BinaryWriter writer, ushort? num)
+		{
+			if (num == null)
+			{
+				writer.Write(NullableFlagNullNum);
+				return;
+			}
+			// store more space
+			if (num > NullableMaxNumInByte)
 			{
 				// No Flag is required
 				// length of the integer bytes
@@ -853,6 +947,13 @@ namespace Salar.Bois
 			writer.Write(numLen);
 			writer.Write(numBuff, 0, numBuff.Length);
 		}
+		private static void WriteInt(BinaryWriter writer, ushort num)
+		{
+			byte numLen;
+			var numBuff = ConvertToVarBinary(num, out numLen);
+			writer.Write(numLen);
+			writer.Write(numBuff, 0, numBuff.Length);
+		}
 
 		private static void WriteDecimal(BinaryWriter writer, float num)
 		{
@@ -951,6 +1052,21 @@ namespace Salar.Bois
 				return ReadInt16(intFinalBuff);
 			}
 		}
+		private static ushort ReadUInt16(BinaryReader reader, ushort length)
+		{
+			var intBuff = reader.ReadBytes(length);
+			if (intBuff.Length == 2)
+			{
+				return ReadUInt16(intBuff);
+			}
+			else
+			{
+				var intFinalBuff = new byte[2];
+
+				Array.Copy(intBuff, intFinalBuff, intBuff.Length);
+				return ReadUInt16(intFinalBuff);
+			}
+		}
 		private static decimal ReadDecimal(BinaryReader reader, int length)
 		{
 			var intBuff = reader.ReadBytes(length);
@@ -994,6 +1110,10 @@ namespace Salar.Bois
 		private static short ReadInt16(byte[] intBytes)
 		{
 			return (short)(intBytes[0] | (intBytes[1] << 8));
+		}
+		private static ushort ReadUInt16(byte[] intBytes)
+		{
+			return (ushort)(intBytes[0] | (intBytes[1] << 8));
 		}
 
 		private static decimal ReadDecimal(byte[] decimalBytes)
@@ -1255,6 +1375,27 @@ namespace Salar.Bois
 				return buff;
 			}
 		}
+		private static byte[] ConvertToVarBinary(UInt16 value, out byte length)
+		{
+			var buff = new byte[2];
+			var num1 = (byte)value;
+			var num2 = (byte)(value >> 8);
+
+			buff[0] = num1;
+
+			if (num2 > 0)
+				buff[1] = num2;
+			else
+			{
+				Array.Resize(ref buff, 1);
+				length = 1;
+				return buff;
+			}
+
+			length = 2;
+			return buff;
+		}
+
 
 		private static byte[] ConvertToVarBinary(float value, out byte length)
 		{

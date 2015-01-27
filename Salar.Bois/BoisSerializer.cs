@@ -262,6 +262,17 @@ namespace Salar.Bois
 					}
 					break;
 
+				case EnBoisKnownType.UInt16:
+					if (value == null || boisMemInfo.IsNullable)
+					{
+						PrimitivesConvertion.WriteVarInt(writer, (ushort?)value);
+					}
+					else
+					{
+						PrimitivesConvertion.WriteVarInt(writer, (ushort)value);
+					}
+					break;
+
 				case EnBoisKnownType.Int32:
 					if (value == null || boisMemInfo.IsNullable)
 					{
@@ -294,10 +305,6 @@ namespace Salar.Bois
 					{
 						PrimitivesConvertion.WriteVarInt(writer, (ulong)value);
 					}
-					break;
-
-				case EnBoisKnownType.UInt16:
-					writer.Write((ushort)value);
 					break;
 
 				case EnBoisKnownType.UInt32:
@@ -651,33 +658,6 @@ namespace Salar.Bois
 			}
 		}
 
-		[Obsolete]
-		private void WriteString_OLD(BinaryWriter writer, string str)
-		{
-			WriteBytes(writer, Encoding.GetBytes(str));
-		}
-		[Obsolete]
-		private void WriteString_OLD(BinaryWriter writer, string str, bool checkNull)
-		{
-			if (checkNull)
-			{
-				if (str == null)
-					WriteNullableType(writer, true);
-				else
-					WriteNullableType(writer, false);
-			}
-			if (str == null)
-			{
-				// length of the string array
-				// Int32
-				PrimitivesConvertion.WriteVarInt(writer, (int)0);
-			}
-			else
-			{
-				WriteBytes(writer, Encoding.GetBytes(str));
-			}
-		}
-
 		private void WriteGuid(BinaryWriter writer, Guid g)
 		{
 			if (g == Guid.Empty)
@@ -810,6 +790,13 @@ namespace Salar.Bois
 					}
 					return PrimitivesConvertion.ReadVarInt16(reader);
 
+				case EnBoisKnownType.UInt16:
+					if (memInfo.IsNullable)
+					{
+						return PrimitivesConvertion.ReadVarUInt16Nullable(reader);
+					}
+					return PrimitivesConvertion.ReadVarUInt16(reader);
+
 				case EnBoisKnownType.Int32:
 					if (memInfo.IsNullable)
 					{
@@ -830,9 +817,6 @@ namespace Salar.Bois
 						return PrimitivesConvertion.ReadVarUInt64Nullable(reader);
 					}
 					return PrimitivesConvertion.ReadVarUInt64(reader);
-
-				case EnBoisKnownType.UInt16:
-					return reader.ReadUInt16();
 
 				case EnBoisKnownType.UInt32:
 					if (memInfo.IsNullable)

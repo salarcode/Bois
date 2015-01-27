@@ -255,6 +255,23 @@ namespace Salar.Bois.Tests
 			Assert.IsNotNull(final);
 			AssertionHelper.AssertMembersAreEqual(init.Value, final.Value);
 		}
+		[TestMethod]
+		public void StructContainerNullable_Normal()
+		{
+			var init = new StructContainerNullable();
+			init.Initialize();
+			StructContainerNullable final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<StructContainerNullable>(mem);
+			}
+
+			Assert.IsNotNull(final);
+			AssertionHelper.AssertMembersAreEqual(init, final);
+		}
 
 		[TestMethod]
 		public void HierarchyWithStruct_NormalTest()

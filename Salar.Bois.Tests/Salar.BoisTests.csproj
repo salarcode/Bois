@@ -85,6 +85,7 @@
     <Compile Include="Objects\PrimitiveTypes1.cs" />
     <Compile Include="Objects\PrimitiveTypes1Nullable.cs" />
     <Compile Include="Objects\IBaseType.cs" />
+    <Compile Include="Objects\StructContainerNullable.cs" />
     <Compile Include="Objects\StructType1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PrimitivesTest.cs" />
@@ -93,9 +94,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Salar.Bois.Net2\Salar.Bois.Net2.csproj">
-      <Project>{8084f534-3ad0-4f02-9680-76d44492d4cc}</Project>
-      <Name>Salar.Bois.Net2</Name>
+    <ProjectReference Include="..\Salar.Bois.Net4\Salar.Bois.Net4.csproj">
+      <Project>{103f2abb-949d-469f-9cec-3066b9005285}</Project>
+      <Name>Salar.Bois.Net4</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

@@ -16,6 +16,9 @@
 		public uint Item12 { get; set; }
 		public string Text { get; set; }
 		public ulong Item13 { get; set; }
+		public decimal Item14 { get; set; }
+		public decimal Item15 { get; set; }
+		public decimal Item16 { get; set; }
 		public void Initialize()
 		{
 			Item1 = 10;
@@ -31,6 +34,9 @@
 			Item11 = 2011;
 			Item12 = 2012;
 			Item13 = 2013;
+			Item14 = 0;
+			Item15 = 1;
+			Item16 = 1.1m;
 			Text = "Well hello !";
 		}
 	}

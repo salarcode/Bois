@@ -294,7 +294,14 @@ namespace Salar.Bois
 					break;
 
 				case EnBoisKnownType.UInt32:
-					writer.Write((uint)value);
+					if (value == null || boisMemInfo.IsNullable)
+					{
+						PrimitivesConvertion.WriteVarInt(writer, (uint?)value);
+					}
+					else
+					{
+						PrimitivesConvertion.WriteVarInt(writer, (uint)value);
+					}
 					break;
 
 				case EnBoisKnownType.UInt64:
@@ -705,8 +712,6 @@ namespace Salar.Bois
 			var dataLeng = reader.BaseStream.Length;
 			var data = reader.BaseStream;
 
-			//var objType = obj.GetType();
-
 			// while all members are processed
 			while (memberProcessed < objectMemberCount &&
 				   data.Position < dataLeng)
@@ -820,7 +825,11 @@ namespace Salar.Bois
 					return reader.ReadUInt16();
 
 				case EnBoisKnownType.UInt32:
-					return reader.ReadUInt32();
+					if (memInfo.IsNullable)
+					{
+						return PrimitivesConvertion.ReadVarUInt32Nullable(reader);
+					}
+					return PrimitivesConvertion.ReadVarUInt32(reader);
 
 				case EnBoisKnownType.UInt64:
 					return reader.ReadUInt64();

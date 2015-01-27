@@ -19,6 +19,7 @@
 		public decimal Item14 { get; set; }
 		public decimal Item15 { get; set; }
 		public decimal Item16 { get; set; }
+		public decimal Item17 { get; set; }
 		public void Initialize()
 		{
 			Item1 = 10;
@@ -36,7 +37,8 @@
 			Item13 = 2013;
 			Item14 = 0;
 			Item15 = 1;
-			Item16 = 1.1m;
+			Item16 = decimal.MaxValue - 1;
+			Item17 = 1.1m;
 			Text = "Well hello !";
 		}
 	}

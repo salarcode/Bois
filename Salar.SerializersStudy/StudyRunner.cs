@@ -207,6 +207,14 @@ namespace Salar.SerializersStudy
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(guidTest));
 
 			//-------------------------------
+			var guidEmptyTest = Guid.Empty;
+			result.AddResult("------Guid: ", guidEmptyTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(guidEmptyTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(guidEmptyTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(guidEmptyTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(guidEmptyTest));
+
+			//-------------------------------
 			var enumTest = TestEnum.Javascript;
 			result.AddResult("------Enum: ", enumTest.ToString(), "-------");
 			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(enumTest));
@@ -221,6 +229,13 @@ namespace Salar.SerializersStudy
 			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(int16Test));
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int16Test));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int16Test));
+			//-------------------------------
+			var int16ZeroTest = (short)(0);
+			result.AddResult("------Int16: ", int16ZeroTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(int16ZeroTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(int16ZeroTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int16ZeroTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int16ZeroTest));
 			//-------------------------------
 			var uint16Test = (ushort)(ushort.MaxValue - 1);
 			result.AddResult("------UInt16: ", uint16Test.ToString(), "-------");

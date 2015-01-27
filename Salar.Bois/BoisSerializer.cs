@@ -1180,11 +1180,6 @@ namespace Salar.Bois
 				return Guid.Empty;
 			return new Guid(gbuff);
 		}
-
-		private object ReadChar(BinaryReader reader)
-		{
-			return reader.ReadChar();
-		}
 		#endregion
 
 	}

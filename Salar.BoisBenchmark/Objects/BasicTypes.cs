@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using ProtoBuf;
 
@@ -8,30 +9,39 @@ namespace Salar.BoisBenchmark.Objects
 {
 	[ProtoContract]
 	[Serializable]
+	[DataContract]
 	public class BasicTypes
 	{
 		[ProtoMember(1)]
+		[DataMember]
 		public string Text { get; set; }
 
 		[ProtoMember(2)]
+		[DataMember]
 		public DateTime Date { get; set; }
 
 		[ProtoMember(3)]
+		[DataMember]
 		public byte[] Data { get; set; }
 
 		[ProtoMember(4)]
+		[DataMember]
 		public Language Lng { get; set; }
 
 		[ProtoMember(5)]
+		[DataMember]
 		public string[] StrArray { get; set; }
 
 		[ProtoMember(7)]
+		[DataMember]
 		public Guid guid { get; set; }
 
 		[ProtoMember(8)]
+		[DataMember]
 		public double PriceAmount { get; set; }
 
 		[ProtoMember(9)]
+		[DataMember]
 		public float RetailPrice { get; set; }
 
 		public static BasicTypes CreateObject()

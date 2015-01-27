@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using ProtoBuf;
 
@@ -10,6 +11,7 @@ namespace Salar.BoisBenchmark.Objects
 {
 	[Serializable]
 	[ProtoContract]
+	[DataContract]
 	public class SpecialCollections
 	{
 		public static SpecialCollections CreateObject()

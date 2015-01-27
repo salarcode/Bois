@@ -14,6 +14,20 @@ namespace Salar.SerializersStudy
 		{
 			var result = new List<string>();
 
+			//-------------------------------
+			object nullTest = null;
+			result.AddResult("------Null: ", "null", "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(nullTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(nullTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(nullTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(nullTest));
+			//-------------------------------
+			var boolTest = true;
+			result.AddResult("------Bool: ", boolTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(boolTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(boolTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(boolTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(boolTest));
 
 			//-------------------------------
 			var stringTest = new string(new char[] { (char)(ushort.MaxValue - 10), (char)(ushort.MaxValue / 2), (char)(ushort.MaxValue - 100), (char)(ushort.MaxValue - 100), (char)(ushort.MaxValue - 100), (char)(ushort.MaxValue - 200), (char)(ushort.MaxValue - 50), });
@@ -84,6 +98,20 @@ namespace Salar.SerializersStudy
 			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(twoMemberStructTest));
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(twoMemberStructTest));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(twoMemberStructTest));
+			//-------------------------------
+			var parentClassNullTest = new TestParentClassNull();
+			result.AddResult("------TestParentClassNull: ", parentClassNullTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(parentClassNullTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(parentClassNullTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(parentClassNullTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(parentClassNullTest));
+			//-------------------------------
+			var testParentClassFull = TestParentClassFull.Create();
+			result.AddResult("------TestParentClassFull: ", testParentClassFull.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(testParentClassFull));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(testParentClassFull));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(testParentClassFull));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(testParentClassFull));
 			//-------------------------------
 			var dateTimeTest = DateTime.Now;
 			result.AddResult("------DateTime: ", dateTimeTest.ToString(), "-------");
@@ -268,7 +296,7 @@ namespace Salar.SerializersStudy
 	{
 		public static void AddResult(this List<string> list, string key, object value)
 		{
-			if (value == (object) (-1))
+			if (value == (object)(-1))
 				list.Add(string.Format("{0}\t\t: {1}", key, "Failed"));
 			else
 				list.Add(string.Format("{0}\t\t: {1}", key, value));

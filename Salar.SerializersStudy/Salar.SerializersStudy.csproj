@@ -66,6 +66,8 @@
     <Compile Include="Objects\TestEmptyClass.cs" />
     <Compile Include="Objects\TestEmptyStruct.cs" />
     <Compile Include="Objects\TestEnum.cs" />
+    <Compile Include="Objects\TestParentClassFull.cs" />
+    <Compile Include="Objects\TestParentClassNull.cs" />
     <Compile Include="Objects\TestTwoMemberStruct.cs" />
     <Compile Include="Objects\TestTwoMemberClass.cs" />
     <Compile Include="Objects\TestOneMemberStruct.cs" />

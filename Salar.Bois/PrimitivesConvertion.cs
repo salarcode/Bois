@@ -1053,105 +1053,31 @@ namespace Salar.Bois
 
 		private static byte[] ConvertToVarBinary(long value, out byte length)
 		{
-			if (value < 0)
+			var buff = new byte[8];
+			buff[0] = (byte)value;
+			buff[1] = (byte)(value >> 8);
+			buff[2] = (byte)(value >> 16);
+			buff[3] = (byte)(value >> 24);
+			buff[4] = (byte)(value >> 32);
+			buff[5] = (byte)(value >> 40);
+			buff[6] = (byte)(value >> 48);
+			buff[7] = (byte)(value >> 56);
+
+			for (int i = 8 - 1; i >= 0; i--)
 			{
-				length = 8;
-				var buff = new byte[8];
-				buff[0] = (byte)value;
-				buff[1] = (byte)(value >> 8);
-				buff[2] = (byte)(value >> 16);
-				buff[3] = (byte)(value >> 24);
-				buff[4] = (byte)(value >> 32);
-				buff[5] = (byte)(value >> 40);
-				buff[6] = (byte)(value >> 48);
-				buff[7] = (byte)(value >> 56);
-
-				return buff;
+				if (buff[i] > 0)
+				{
+					length = (byte)(i + 1);
+					if (length != 8)
+						Array.Resize(ref buff, length);
+					return buff;
+				}
 			}
-			else
-			{
-				var buff = new byte[8];
-				var num1 = (byte)value;
-				var num2 = (byte)(value >> 8);
-				var num3 = (byte)(value >> 16);
-				var num4 = (byte)(value >> 24);
-				var num5 = (byte)(value >> 32);
-				var num6 = (byte)(value >> 40);
-				var num7 = (byte)(value >> 48);
-				var num8 = (byte)(value >> 56);
 
-
-				buff[0] = num1;
-
-				if (num2 > 0)
-				{
-					buff[1] = num2;
-				}
-				else if (num3 == 0 && num4 == 0 && num5 == 0 && num6 == 0 && num7 == 0 && num8 == 0)
-				{
-					Array.Resize(ref buff, 1);
-					length = 1;
-					return buff;
-				}
-
-				if (num3 > 0)
-					buff[2] = num3;
-				else if (num4 == 0 && num5 == 0 && num6 == 0 && num7 == 0 && num8 == 0)
-				{
-					Array.Resize(ref buff, 2);
-					length = 2;
-					return buff;
-				}
-
-				if (num4 > 0)
-					buff[3] = num4;
-				else if (num5 == 0 && num6 == 0 && num7 == 0 && num8 == 0)
-				{
-					Array.Resize(ref buff, 3);
-					length = 3;
-					return buff;
-				}
-
-				if (num5 > 0)
-					buff[4] = num5;
-				else if (num6 == 0 && num7 == 0 && num8 == 0)
-				{
-					Array.Resize(ref buff, 4);
-					length = 4;
-					return buff;
-				}
-
-				if (num6 > 0)
-					buff[5] = num6;
-				else if (num7 == 0 && num8 == 0)
-				{
-					Array.Resize(ref buff, 5);
-					length = 5;
-					return buff;
-				}
-
-				if (num7 > 0)
-					buff[6] = num7;
-				else if (num8 == 0)
-				{
-					Array.Resize(ref buff, 6);
-					length = 6;
-					return buff;
-				}
-
-				if (num8 > 0)
-					buff[7] = num8;
-				else
-				{
-					Array.Resize(ref buff, 7);
-					length = 7;
-					return buff;
-				}
-
-				length = 8;
-				return buff;
-			}
+			length = 1;
+			return new byte[] { 0 };
 		}
+
 		private static byte[] ConvertToVarBinary(Int16 value, out byte length)
 		{
 			if (value < 0)

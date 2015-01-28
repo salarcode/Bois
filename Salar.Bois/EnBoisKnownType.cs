@@ -33,5 +33,6 @@ namespace Salar.Bois
 		Color,
 		Version,
 		DbNull,
+		Uri,
 	}
 }

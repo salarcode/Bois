@@ -123,8 +123,7 @@ namespace Salar.Bois
 		{
 			if (obj == null)
 			{
-				// number of writable members count is null means the value is null too
-				// this is null
+				// null indicator
 				WriteValue(writer, true);
 				return;
 			}
@@ -134,6 +133,8 @@ namespace Salar.Bois
 
 			var boisType = _typeCache.GetTypeInfo(type, true) as BoisTypeInfo;
 
+			// Use this member info if avaiable. it is more accurate because it came from the object holder,
+			// not the object itseld.
 			if (boisMemInfo != null)
 			{
 				if (boisMemInfo.IsContainerObject && boisMemInfo.IsStruct && boisMemInfo.IsNullable)
@@ -371,10 +372,6 @@ namespace Salar.Bois
 					writer.Write((ushort)((char)value));
 					break;
 
-				case EnBoisKnownType.Guid:
-					WriteGuid(writer, (Guid)value);
-					break;
-
 				case EnBoisKnownType.Bool:
 					writer.Write((byte)(((bool)value) ? 1 : 0));
 					break;
@@ -417,6 +414,14 @@ namespace Salar.Bois
 
 				case EnBoisKnownType.DbNull:
 					// Do not write anything, it is already written as Nullable object. //WriteNullableType(true);
+					break;
+
+				case EnBoisKnownType.Guid:
+					WriteGuid(writer, (Guid)value);
+					break;
+
+				case EnBoisKnownType.Uri:
+					WriteUri(writer, value as Uri);
 					break;
 
 				default:
@@ -672,6 +677,10 @@ namespace Salar.Bois
 			PrimitivesConvertion.WriteVarInt(writer, data.Length);
 			writer.Write(data);
 		}
+		private void WriteUri(BinaryWriter writer, Uri uri)
+		{
+			WriteString(writer, uri.OriginalString);
+		}
 		#endregion
 
 		#region Deserialization methods
@@ -861,9 +870,6 @@ namespace Salar.Bois
 					var charByte = reader.ReadUInt16();
 					return (char)charByte;
 
-				case EnBoisKnownType.Guid:
-					return ReadGuid(reader);
-
 				case EnBoisKnownType.Bool:
 					return ReadBoolean(reader);
 
@@ -899,6 +905,12 @@ namespace Salar.Bois
 				case EnBoisKnownType.DbNull:
 					return DBNull.Value;
 #endif
+
+				case EnBoisKnownType.Guid:
+					return ReadGuid(reader);
+
+				case EnBoisKnownType.Uri:
+					return ReadUri(reader);
 
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -1179,6 +1191,11 @@ namespace Salar.Bois
 			if (gbuff.Length == 0)
 				return Guid.Empty;
 			return new Guid(gbuff);
+		}
+		private object ReadUri(BinaryReader reader)
+		{
+			var uri = ReadString(reader);
+			return new Uri(uri);
 		}
 		#endregion
 

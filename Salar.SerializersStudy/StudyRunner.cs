@@ -230,12 +230,33 @@ namespace Salar.SerializersStudy
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int16Test));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int16Test));
 			//-------------------------------
+			var int16NullTest = (short?)(short.MaxValue - 1);
+			result.AddResult("------Int16 Null: ", int16NullTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(int16NullTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(int16NullTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int16NullTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int16NullTest));
+			//-------------------------------
 			var int16ZeroTest = (short)(0);
 			result.AddResult("------Int16: ", int16ZeroTest.ToString(), "-------");
 			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(int16ZeroTest));
 			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(int16ZeroTest));
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int16ZeroTest));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int16ZeroTest));
+			//-------------------------------
+			var int16BridgeTest = (short)(127);
+			result.AddResult("------Int16: ", int16BridgeTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(int16BridgeTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(int16BridgeTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int16BridgeTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int16BridgeTest));
+			//-------------------------------
+			var int16OutBridgeTest = (short)(129);
+			result.AddResult("------Int16: ", int16OutBridgeTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(int16OutBridgeTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(int16OutBridgeTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int16OutBridgeTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int16OutBridgeTest));
 			//-------------------------------
 			var uint16Test = (ushort)(ushort.MaxValue - 1);
 			result.AddResult("------UInt16: ", uint16Test.ToString(), "-------");
@@ -251,6 +272,13 @@ namespace Salar.SerializersStudy
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int32Test));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int32Test));
 			//-------------------------------
+			var int32NullTest = (int?)(int.MaxValue - 1);
+			result.AddResult("------Int32 Null: ", int32NullTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(int32NullTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(int32NullTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int32NullTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int32NullTest));
+			//-------------------------------
 			var int32ZeroTest = (int)(0);
 			result.AddResult("------Int32: ", int32ZeroTest.ToString(), "-------");
 			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(int32ZeroTest));
@@ -265,12 +293,33 @@ namespace Salar.SerializersStudy
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int32SubZeroTest));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int32SubZeroTest));
 			//-------------------------------
+			var int32BridgeTest = (127);
+			result.AddResult("------Int32: ", int32BridgeTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(int32BridgeTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(int32BridgeTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int32BridgeTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int32BridgeTest));
+			//-------------------------------
+			var int32OutBridgeTest = (128);
+			result.AddResult("------Int32: ", int32OutBridgeTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(int32OutBridgeTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(int32OutBridgeTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int32OutBridgeTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int32OutBridgeTest));
+			//-------------------------------
 			var uint32Test = (uint.MaxValue - 1);
 			result.AddResult("------UInt32: ", uint32Test.ToString(), "-------");
 			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(uint32Test));
 			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(uint32Test));
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(uint32Test));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(uint32Test));
+			//-------------------------------
+			var uint32NullTest = (uint?)(uint.MaxValue - 1);
+			result.AddResult("------UInt32 Null: ", uint32NullTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(uint32NullTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(uint32NullTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(uint32NullTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(uint32NullTest));
 			//-------------------------------
 			var uint32ZeroTest = (uint)(0);
 			result.AddResult("------UInt32: ", uint32ZeroTest.ToString(), "-------");
@@ -285,6 +334,13 @@ namespace Salar.SerializersStudy
 			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(int64Test));
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int64Test));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int64Test));
+			//-------------------------------
+			var int64NullTest = (long?)(long.MaxValue - 1);
+			result.AddResult("------Int64 Null: ", int64NullTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(int64NullTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(int64NullTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(int64NullTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(int64NullTest));
 			//-------------------------------
 			var int64ZeroTest = (long)0;
 			result.AddResult("------Int64: ", int64ZeroTest.ToString(), "-------");
@@ -307,6 +363,13 @@ namespace Salar.SerializersStudy
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(uint64Test));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(uint64Test));
 			//-------------------------------
+			var uint64NullTest = (ulong?)(ulong.MaxValue - 1);
+			result.AddResult("------UInt64 Null: ", uint64NullTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(uint64NullTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(uint64NullTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(uint64NullTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(uint64NullTest));
+			//-------------------------------
 			var uint64ZeroTest = (ulong)0;
 			result.AddResult("------UInt64: ", uint64ZeroTest.ToString(), "-------");
 			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(uint64ZeroTest));
@@ -321,6 +384,13 @@ namespace Salar.SerializersStudy
 			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(floatTest));
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(floatTest));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(floatTest));
+			//-------------------------------
+			var floatNullTest = (float?)(float.MaxValue - 1);
+			result.AddResult("------Float Null: ", floatNullTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(floatNullTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(floatNullTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(floatNullTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(floatNullTest));
 			//-------------------------------
 			var floatZeroTest = (float)0;
 			result.AddResult("------Float: ", floatZeroTest.ToString(), "-------");
@@ -344,6 +414,13 @@ namespace Salar.SerializersStudy
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(decimalTest));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(decimalTest));
 			//-------------------------------
+			var decimalNullTest = (decimal?)(decimal.MaxValue - 1);
+			result.AddResult("------Decimal Null: ", decimalNullTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(decimalNullTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(decimalNullTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(decimalNullTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(decimalNullTest));
+			//-------------------------------
 			var decimalZeroTest = (decimal)0;
 			result.AddResult("------Decimal: ", decimalZeroTest.ToString(), "-------");
 			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(decimalZeroTest));
@@ -365,6 +442,13 @@ namespace Salar.SerializersStudy
 			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(doubleTest));
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(doubleTest));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(doubleTest));
+			//-------------------------------
+			var doubleNullTest = (double?)(double.MaxValue - 1);
+			result.AddResult("------Double Null: ", doubleNullTest.ToString(), "-------");
+			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(doubleNullTest));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(doubleNullTest));
+			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(doubleNullTest));
+			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(doubleNullTest));
 			//-------------------------------
 			var doubleZeroTest = (double)0;
 			result.AddResult("------Double: ", doubleZeroTest.ToString(), "-------");

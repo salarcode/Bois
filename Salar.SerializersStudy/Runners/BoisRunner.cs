@@ -18,6 +18,15 @@ namespace Salar.SerializersStudy.Runners
 				using (var mem = new MemoryStream())
 				{
 					msgPack.Serialize(obj, mem);
+					mem.Seek(0, SeekOrigin.Begin);
+
+					var newObj = msgPack.Deserialize<T>(mem);
+
+					if (typeof(T).IsValueType)
+						if (!newObj.Equals(obj))
+						{
+							return -2;
+						}
 					return mem.Length;
 				}
 			}

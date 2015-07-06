@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
 #if !SILVERLIGHT && DotNet
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Drawing;
@@ -968,9 +968,17 @@ namespace Salar.Bois
 		{
 			var count = PrimitivesConvertion.ReadVarInt32(reader);
 
-			var listObj = (IList)_typeCache.CreateInstance(type);
-
+			var typeToCreate = type;
 			var itemType = type.GetGenericArguments()[0];
+
+			var ilistBase = typeof(IList<>);
+			if (ilistBase == type.GetGenericTypeDefinition())
+			{
+				typeToCreate = typeof(List<>).MakeGenericType(itemType);
+			}
+
+			var listObj = (IList)_typeCache.CreateInstanceDirect(typeToCreate);
+
 			for (int i = 0; i < count; i++)
 			{
 				var val = ReadMember(reader, itemType);
@@ -1004,26 +1012,7 @@ namespace Salar.Bois
 			return reader.ReadBytes(length);
 		}
 
-#if SILVERLIGHT || !DotNet
-		private decimal ReadDecimal(BinaryReader reader)
-		{
-			var bits = new int[4];
-			bits[0] = reader.ReadInt32();
-			bits[1] = reader.ReadInt32();
-			bits[2] = reader.ReadInt32();
-			bits[3] = reader.ReadInt32();
-			return new decimal(bits);
-		}
-
-		private void WriteDecimal(BinaryWriter writer, decimal val)
-		{
-			var bits = decimal.GetBits(val);
-			writer.Write(bits[0]);
-			writer.Write(bits[1]);
-			writer.Write(bits[2]);
-			writer.Write(bits[3]);
-		}
-#else
+#if !SILVERLIGHT && DotNet
 		private object ReadColor(BinaryReader reader)
 		{
 			return Color.FromArgb(PrimitivesConvertion.ReadVarInt32(reader));

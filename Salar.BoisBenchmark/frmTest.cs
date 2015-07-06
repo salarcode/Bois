@@ -12,6 +12,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
+using HelloWorldApp.BusinessObjects;
 
 namespace Salar.BoisBenchmark
 {
@@ -81,6 +82,30 @@ namespace Salar.BoisBenchmark
 			MsAvroPackBenchmark(benchobj1, count);
 
 			MessagePackBenchmark(benchobj1, count);
+
+			Log("");
+			Log("RootContainer benchmark---------- repeat count: " + count);
+			var rootContainer = RootContainer.CreateContainerArray(100);
+
+			BoisBenchmark(rootContainer, count, 2);
+
+			ProtoBufNetBenchmark(rootContainer, count);
+
+			NetSerializerBenchmark(rootContainer, count);
+
+			SharpSerializerBenchmark(rootContainer, count);
+
+			BinaryFormatterBenchmark(rootContainer, count);
+
+			BsonBenchmark(rootContainer, count);
+
+			JsonNetBenchmark(rootContainer, count);
+
+			ServiceStackBechmark(rootContainer, count);
+
+			MsAvroPackBenchmark(rootContainer, count);
+
+			MessagePackBenchmark(rootContainer, count);
 
 
 			Log("");
@@ -220,13 +245,12 @@ namespace Salar.BoisBenchmark
 
 		private void BoisBenchmark<T>(T obj, int count, int which)
 		{
-
-
 			try
 			{
 				Stopwatch sw;
 				//-----------------------------------
 				var boisSerializer = new BoisSerializer();
+				boisSerializer.Initialize<RootContainer>();
 				boisSerializer.Initialize<BasicTypes>();
 				boisSerializer.Initialize<HierarchyObject>();
 				boisSerializer.Initialize<CommonListChildObject>();

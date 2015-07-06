@@ -309,6 +309,23 @@ namespace Salar.Bois.Tests
 		}
 
 		[TestMethod]
+		public void GenericInterfaceList_StringNormal()
+		{
+			ResetStream();
+			IList<string> init = new List<string>() { "This test", "is", " for BOIS " };
+			bion.WriteGenericList(bionWriter, init);
+			ResetStream();
+
+			var result = bion.ReadGenericList(bionReader, typeof(IList<string>));
+
+			// Testing Bug Fix: This is Reflection Magic's that cannot cast to the interface
+			// var final = (IList<string>) result;
+			var final = (List<string>)result;
+
+			final.Should().Have.SameSequenceAs(init);
+		}
+
+		[TestMethod]
 		public void GenericList_StringNull()
 		{
 			ResetStream();

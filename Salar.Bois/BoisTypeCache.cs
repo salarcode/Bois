@@ -135,6 +135,11 @@ namespace Salar.Bois
 			return info.Invoke();
 #endif
 		}
+		internal object CreateInstanceDirect(Type t)
+		{
+			// Falling back to default parameterless constructor.
+			return Activator.CreateInstance(t, null);
+		}
 
 		internal BoisMemberInfo GetTypeInfo(Type type, bool generate)
 		{

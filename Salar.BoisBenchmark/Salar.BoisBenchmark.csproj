@@ -88,6 +88,10 @@
     <Compile Include="Objects\CommonListChildObject.cs" />
     <Compile Include="Objects\SpecialCollections.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SharpSerializerTests\AdvancedStruct.cs" />
+    <Compile Include="SharpSerializerTests\ComplexObject.cs" />
+    <Compile Include="SharpSerializerTests\GenericObject.cs" />
+    <Compile Include="SharpSerializerTests\RootContainer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

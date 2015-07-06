@@ -39,8 +39,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="ReflectionMagic">
-      <HintPath>..\packages\ReflectionMagic.1.1\lib\net40\ReflectionMagic.dll</HintPath>
+    <Reference Include="ReflectionMagic, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ReflectionMagic.2.1.0\lib\net40\ReflectionMagic.dll</HintPath>
     </Reference>
     <Reference Include="SharpTestsEx">
       <HintPath>..\packages\SharpTestsEx.1.1.1\lib\SharpTestsEx.dll</HintPath>

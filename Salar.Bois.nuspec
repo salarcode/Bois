@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Salar.Bois</id>
-		<version>1.8.2.0</version>
+		<version>2.0.0.0</version>
 		<title>BOIS (Binary Object Indexed Serialization)</title>
 		<authors>Salar Khalilzadeh</authors>
 		<owners>Salar Khalilzadeh</owners>
@@ -15,10 +15,10 @@
 			More info: https://github.com/salarcode/Bois
 		</description>
 		<releaseNotes>
-			+ Portable supported version is added. Adding support for Windows 8, Windows Phone 8.1, Xamarin.Android and Xamarin.iOS.
-			+ .Net 4 specific version is added.
-			+ Silvelight version bugs are fixed.
-			* Bug #1 and #2 are fixed.
+			+ Compact serialization of more primitive types are supported. UInt64, UInt32, UInt16 and Decimal.
+			+ More basic classes support are supported. Uri and DateTimeOffset.
+			+ Interfaces serialization are supported now.
+			+ New Serialize/Deserialize methods.
 		</releaseNotes>
 		<copyright>Copyright 2015</copyright>
 		<tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>

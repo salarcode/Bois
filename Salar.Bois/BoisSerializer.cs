@@ -62,6 +62,22 @@ namespace Salar.Bois
 		}
 
 		/// <summary>
+		/// Serializing an object to binary bois format.
+		/// </summary>
+		/// <param name="obj">The object to be serialized.</param>
+		/// <param name="type">The objects' type.</param>
+		/// <param name="output">The output of the serialization in binary.</param>
+		public void Serialize(object obj, Type type, Stream output)
+		{
+			if (obj == null)
+				throw new ArgumentNullException("obj", "Object cannot be null.");
+			_serializeDepth = 0;
+			var writer = new BinaryWriter(output, Encoding);
+
+			WriteValue(writer, obj, type);
+		}
+
+		/// <summary>
 		/// Deserilizing binary data to a new instance.
 		/// </summary>
 		/// <param name="objectData">The binary data.</param>
@@ -89,25 +105,25 @@ namespace Salar.Bois
 				return (T)ReadMember(reader, typeof(T));
 			}
 		}
-		
-		
+
+
 		/// <summary>
 		/// Deserilizing binary data to a new instance.
 		/// </summary>
 		/// <param name="objectBuffer">The binary data.</param>
-                /// <typeparam name="t">The object type.</typeparam>
+		/// <param name="type">The objects' type.</param>
 		/// <param name="index">The index in buffer at which the stream begins.</param>
 		/// <param name="count">The length of the stream in bytes.</param>
 		/// <returns>New instance of the deserialized data.</returns>
-        public object Deserialize(byte[] objectBuffer, Type t, int index, int count)
-        {
-            using (var mem = new MemoryStream(objectBuffer, index, count, false))
-            {
-                var reader = new BinaryReader(mem, Encoding);
-                return ReadMember(reader, t);
-            }
-        }
-		
+		public object Deserialize(byte[] objectBuffer, Type type, int index, int count)
+		{
+			using (var mem = new MemoryStream(objectBuffer, index, count, false))
+			{
+				var reader = new BinaryReader(mem, Encoding);
+				return ReadMember(reader, type);
+			}
+		}
+
 
 		/// <summary>
 		/// Removes all cached information about types.

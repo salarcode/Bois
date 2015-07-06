@@ -89,6 +89,25 @@ namespace Salar.Bois
 				return (T)ReadMember(reader, typeof(T));
 			}
 		}
+		
+		
+		/// <summary>
+		/// Deserilizing binary data to a new instance.
+		/// </summary>
+		/// <param name="objectBuffer">The binary data.</param>
+                /// <typeparam name="t">The object type.</typeparam>
+		/// <param name="index">The index in buffer at which the stream begins.</param>
+		/// <param name="count">The length of the stream in bytes.</param>
+		/// <returns>New instance of the deserialized data.</returns>
+        public object Deserialize(byte[] objectBuffer, Type t, int index, int count)
+        {
+            using (var mem = new MemoryStream(objectBuffer, index, count, false))
+            {
+                var reader = new BinaryReader(mem, Encoding);
+                return ReadMember(reader, t);
+            }
+        }
+		
 
 		/// <summary>
 		/// Removes all cached information about types.

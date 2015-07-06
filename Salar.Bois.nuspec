@@ -15,9 +15,9 @@
 			More info: https://github.com/salarcode/Bois
 		</description>
 		<releaseNotes>
-			+ Compact serialization of more primitive types are supported. UInt64, UInt32, UInt16 and Decimal.
-			+ More basic classes support are supported. Uri and DateTimeOffset.
-			+ Interfaces serialization are supported now.
+			+ Compact serialization of more primitive types is supported. UInt64, UInt32, UInt16 and Decimal.
+			+ More basic classes are supported. Uri and DateTimeOffset.
+			+ Interface serialization is supported now.
 			+ New Serialize/Deserialize methods.
 		</releaseNotes>
 		<copyright>Copyright 2015</copyright>

@@ -663,8 +663,14 @@ namespace Salar.Bois
 		{
 			var dt = dateTimeOffset;
 			var offset = dateTimeOffset.Offset;
+			short offsetMinutes;
+			unchecked
+			{
+				offsetMinutes = (short) ((offset.Hours*60) + offset.Minutes);
+			}
+			// int16
+			PrimitivesConvertion.WriteVarInt(writer, offsetMinutes);
 
-			WriteTimeSpan(writer, offset);
 			// int64
 			PrimitivesConvertion.WriteVarInt(writer, dt.Ticks);
 		}
@@ -1181,9 +1187,11 @@ namespace Salar.Bois
 
 		private object ReadDateTimeOffset(BinaryReader reader)
 		{
-			var offset = ReadTimeSpan(reader);
+			var offsetMinutes = PrimitivesConvertion.ReadVarInt16(reader);
+			
 			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
-			return new DateTimeOffset(ticks, offset);
+
+			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes));
 		}
 
 		private object ReadBoolean(BinaryReader reader)

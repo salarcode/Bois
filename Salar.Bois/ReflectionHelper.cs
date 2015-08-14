@@ -13,7 +13,7 @@ namespace Salar.Bois
 {
 	internal delegate TResult Function<in T1, in T2, out TResult>(T1 arg1, T2 arg2);
 
-	class ReflectionHelper
+	static class ReflectionHelper
 	{
 		/// <summary>
 		/// Finds the underlying element type of a contained generic type
@@ -37,6 +37,26 @@ namespace Salar.Bois
 			}
 			return null;
 		}
+
+		public static Type[] FindUnderlyingGenericDictionaryElementType(Type type)
+		{
+			if (type.BaseType == null)
+				return null;
+			foreach (var inter in type.GetInterfaces())
+			{
+				if (inter.IsGenericType)
+				{
+					// it should have only one argument
+					var args = inter.GetGenericArguments();
+					if (args.Length == 2)
+					{
+						return args;
+					}
+				}
+			}
+			return null;
+		}
+
 
 		/// <summary>
 		/// Finds the underlying element type of a contained generic type
@@ -63,7 +83,43 @@ namespace Salar.Bois
 			}
 			return null;
 		}
+		/// <summary>
+		/// Check to see if the type implements an specific generic interface type
+		/// </summary>
+		public static bool CompareInterfaceGenericTypeDefinition(Type type, Type genericType)
+		{
+			foreach (var @interface in type.GetInterfaces())
+			{
+				if (@interface.IsGenericType)
+				{
+					if (@interface.GetGenericTypeDefinition() == genericType)
+					{
+						// if needed, you can also return the type used as generic argument
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 
+		/// <summary>
+		/// Check to see if the type implements an specific generic interface type
+		/// </summary>
+		public static bool CompareInterfaceGenericTypeDefinition(Type[] typeInterfaces, Type genericType)
+		{
+			foreach (var @interface in typeInterfaces)
+			{
+				if (@interface.IsGenericType)
+				{
+					if (@interface.GetGenericTypeDefinition() == genericType)
+					{
+						// if needed, you can also return the type used as generic argument
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 
 		public static bool CompareSubType(Type t1, Type t2)
 		{

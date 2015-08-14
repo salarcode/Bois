@@ -320,169 +320,211 @@ namespace Salar.Bois
 			{
 				// is struct and uses Nullable<>
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.Bool,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.Bool,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
 			if (memActualType == typeof(DateTime))
 			{
 				// is struct and uses Nullable<>
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.DateTime,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.DateTime,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
 			if (memActualType == typeof(DateTimeOffset))
 			{
 				// is struct and uses Nullable<>
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.DateTimeOffset,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.DateTimeOffset,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
 			if (memActualType == typeof(byte[]))
 			{
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.ByteArray,
-							   IsNullable = isNullable,
-							   IsArray = true,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.ByteArray,
+					IsNullable = isNullable,
+					IsArray = true,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
 			if (ReflectionHelper.CompareSubType(memActualType, typeof(Enum)))
 			{
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.Enum,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.Enum,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
 			if (ReflectionHelper.CompareSubType(memActualType, typeof(Array)))
 			{
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.Unknown,
-							   IsNullable = isNullable,
-							   IsArray = true,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.Unknown,
+					IsNullable = isNullable,
+					IsArray = true,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
-			if (memActualType.IsGenericType)
+
+			var isGenericType = memActualType.IsGenericType;
+			Type[] interfaces = null;
+			if (isGenericType)
 			{
-				if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)) &&
-					memActualType.GetGenericArguments()[0] == typeof(string))
+				//// no more checking for a dictionary with its first argumnet as String
+				//if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)) &&
+				//	memActualType.GetGenericArguments()[0] == typeof(string))
+				//	return new BoisMemberInfo
+				//	{
+				//		KnownType = EnBoisKnownType.Unknown,
+				//		IsNullable = isNullable,
+				//		IsDictionary = true,
+				//		IsStringDictionary = true,
+				//		IsGeneric = true,
+				//		NullableUnderlyingType = underlyingTypeNullable,
+				//	};
+
+				interfaces = memActualType.GetInterfaces();
+
+				if (ReflectionHelper.CompareInterfaceGenericTypeDefinition(interfaces, typeof(IDictionary<,>)) ||
+					memActualType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+					return new BoisMemberInfo
+					{
+						KnownType = EnBoisKnownType.Unknown,
+						IsNullable = isNullable,
+						IsDictionary = true,
+						IsGeneric = true,
+						NullableUnderlyingType = underlyingTypeNullable,
+					};
+
+#if DotNet4_NotYET
+				if (ReflectionHelper.CompareInterface(memType, typeof(ISet<>)))
 					return new BoisMemberInfo
 							   {
 								   KnownType = EnBoisKnownType.Unknown,
 								   IsNullable = isNullable,
-								   IsDictionary = true,
-								   IsStringDictionary = true,
 								   IsGeneric = true,
-								   NullableUnderlyingType = underlyingTypeNullable,
-							   };
-#if DotNet4_NotYET
-				if (ReflectionHelper.CompareInterface(memType, typeof(ISet)))
-					return new BoisMemberInfo
-						       {
-							       KnownType = EnBoisKnownType.Unknown,
-							       IsNullable = isNullable,
-							       IsGeneric = true,
-							       IsSet = true,
+								   IsSet = true,
 					NullableUnderlyingType = underlyingTypeNullable,
-						       };
+							   };
 #endif
 			}
+
 
 			if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)))
 			{
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.Unknown,
-							   IsNullable = isNullable,
-							   IsDictionary = true,
-							   IsGeneric = true,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.Unknown,
+					IsNullable = isNullable,
+					IsDictionary = true,
+					IsGeneric = true,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
-			if (memActualType == typeof(TimeSpan))
+			// the IDictionary should be checked before IList<>
+			if (isGenericType)
 			{
-				// is struct and uses Nullable<>
-				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.TimeSpan,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				if (ReflectionHelper.CompareInterfaceGenericTypeDefinition(interfaces, typeof(IList<>)) ||
+					ReflectionHelper.CompareInterfaceGenericTypeDefinition(interfaces, typeof(ICollection<>)))
+					return new BoisMemberInfo
+					{
+						KnownType = EnBoisKnownType.Unknown,
+						IsNullable = isNullable,
+						IsGeneric = true,
+						IsCollection = true,
+						IsArray = true,
+						NullableUnderlyingType = underlyingTypeNullable,
+					};
 			}
-			if (memActualType == typeof(Version))
+
+#if !SILVERLIGHT && DotNet
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(NameValueCollection)))
 			{
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.Version,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.NameValueColl,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
+#endif
+			// checking for IList and ICollection should be after NameValueCollection
+			if (ReflectionHelper.CompareInterface(memActualType, typeof(IList)) ||
+				ReflectionHelper.CompareInterface(memActualType, typeof(ICollection)))
+			{
+				return new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.Unknown,
+					IsNullable = isNullable,
+					IsGeneric = memActualType.IsGenericType,
+					IsCollection = true,
+					IsArray = true,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
+			}
+
+
 #if !SILVERLIGHT && DotNet
 			if (memActualType == typeof(Color))
 			{
 				// is struct and uses Nullable<>
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.Color,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.Color,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
 			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataSet)))
 			{
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.DataSet,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.DataSet,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
 			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataTable)))
 			{
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.DataTable,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.DataTable,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(NameValueCollection)))
-			{
-				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.NameValueColl,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
-			}
+
 #endif
 
-			if (ReflectionHelper.CompareInterface(memActualType, typeof(IList)) ||
-				   ReflectionHelper.CompareInterface(memActualType, typeof(ICollection)))
+			if (memActualType == typeof(TimeSpan))
+			{
+				// is struct and uses Nullable<>
+				return new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.TimeSpan,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
+			}
+
+			if (memActualType == typeof(Version))
 			{
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.Unknown,
-							   IsNullable = isNullable,
-							   IsGeneric = memActualType.IsGenericType,
-							   IsCollection = true,
-							   IsArray = true,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.Version,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
 
 			BoisMemberInfo output;
@@ -496,22 +538,22 @@ namespace Salar.Bois
 			{
 				// is struct and uses Nullable<>
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.Guid,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.Guid,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
 #if DotNet
 			if (memActualType == typeof(DBNull))
 			{
 				// ignore!
 				return new BoisMemberInfo
-						   {
-							   KnownType = EnBoisKnownType.DbNull,
-							   IsNullable = isNullable,
-							   NullableUnderlyingType = underlyingTypeNullable,
-						   };
+				{
+					KnownType = EnBoisKnownType.DbNull,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
 			}
 #endif
 
@@ -908,8 +950,11 @@ namespace Salar.Bois
 			// generating the caller.
 			return new GenericGetter(target => method.Invoke(target, null));
 #else
-			if (
-				objType.IsValueType &&
+			if (objType.IsInterface)
+			{
+				throw new Exception("Type is an interface or abstract class and cannot be instantiated.");
+			}
+			if (objType.IsValueType &&
 				!objType.IsPrimitive &&
 				!objType.IsArray &&
 				objType != typeof(string))

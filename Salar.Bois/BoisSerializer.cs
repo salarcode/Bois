@@ -166,7 +166,8 @@ namespace Salar.Bois
 			_serializeDepth++;
 			var type = obj.GetType();
 
-			var boisType = _typeCache.GetTypeInfo(type, true) as BoisTypeInfo;
+			var boisType = _typeCache.GetTypeInfo(type, true);
+			var boisTypeInfo = boisType as BoisTypeInfo;
 
 			// Use this member info if avaiable. it is more accurate because it came from the object holder,
 			// not the object itseld.
@@ -187,23 +188,26 @@ namespace Salar.Bois
 				}
 			}
 
-
-			// writing the members
-			for (int i = 0; i < boisType.Members.Length; i++)
+			if (boisTypeInfo != null)
 			{
-				var mem = boisType.Members[i];
-				if (mem.MemberType == EnBoisMemberType.Property)
+				// writing the members
+				for (int i = 0; i < boisTypeInfo.Members.Length; i++)
 				{
-					var value = mem.PropertyGetter(obj);
-					WriteValue(writer, mem, value);
-				}
-				else if (mem.MemberType == EnBoisMemberType.Field)
-				{
-					var finfo = (FieldInfo)mem.Info;
-					var value = finfo.GetValue(obj);
-					WriteValue(writer, mem, value);
+					var mem = boisTypeInfo.Members[i];
+					if (mem.MemberType == EnBoisMemberType.Property)
+					{
+						var value = mem.PropertyGetter(obj);
+						WriteValue(writer, mem, value);
+					}
+					else if (mem.MemberType == EnBoisMemberType.Field)
+					{
+						var finfo = (FieldInfo)mem.Info;
+						var value = finfo.GetValue(obj);
+						WriteValue(writer, mem, value);
+					}
 				}
 			}
+
 			_serializeDepth--;
 		}
 
@@ -602,9 +606,17 @@ namespace Salar.Bois
 			// Int32
 			PrimitivesConvertion.WriteVarInt(writer, dic.Count);
 
-			var genericType = dic.GetType().GetGenericArguments();
-			var keyType = genericType[0];
-			var valType = genericType[1];
+			var theType = dic.GetType();
+			var genericTypes = ReflectionHelper.FindUnderlyingGenericDictionaryElementType(theType);
+
+			if (genericTypes == null)
+			{
+				var dictionaryType = ReflectionHelper.FindUnderlyingGenericElementType(theType);
+				genericTypes = dictionaryType.GetGenericArguments();
+			}
+
+			var keyType = genericTypes[0];
+			var valType = genericTypes[1];
 
 			foreach (DictionaryEntry entry in dic)
 			{
@@ -666,7 +678,7 @@ namespace Salar.Bois
 			short offsetMinutes;
 			unchecked
 			{
-				offsetMinutes = (short) ((offset.Hours*60) + offset.Minutes);
+				offsetMinutes = (short)((offset.Hours * 60) + offset.Minutes);
 			}
 			// int16
 			PrimitivesConvertion.WriteVarInt(writer, offsetMinutes);
@@ -1130,11 +1142,20 @@ namespace Salar.Bois
 		private object ReadDictionary(BinaryReader reader, Type memType)
 		{
 			var count = PrimitivesConvertion.ReadVarInt32(reader);
-			var dic = _typeCache.CreateInstance(memType) as IDictionary;
 
-			var genericType = memType.GetGenericArguments();
-			var keyType = genericType[0];
-			var valType = genericType[1];
+			var typeToCreate = memType;
+			var genericArgs = memType.GetGenericArguments();
+
+			var genericBase = typeof(IDictionary<,>);
+			if (genericBase == memType.GetGenericTypeDefinition())
+			{
+				typeToCreate = typeof(Dictionary<,>).MakeGenericType(genericArgs);
+			}
+
+			var dic = _typeCache.CreateInstanceDirect(typeToCreate) as IDictionary;
+
+			var keyType = genericArgs[0];
+			var valType = genericArgs[1];
 
 			for (int i = 0; i < count; i++)
 			{
@@ -1188,7 +1209,7 @@ namespace Salar.Bois
 		private object ReadDateTimeOffset(BinaryReader reader)
 		{
 			var offsetMinutes = PrimitivesConvertion.ReadVarInt16(reader);
-			
+
 			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
 
 			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes));

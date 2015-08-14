@@ -82,6 +82,9 @@
     <Compile Include="Objects\HierarchyWithStruct.cs" />
     <Compile Include="Objects\HierarchyWithStruct2.cs" />
     <Compile Include="Objects\CommonListChildObject.cs" />
+    <Compile Include="Objects\InterfaceDictAsProperty1.cs" />
+    <Compile Include="Objects\InterfaceListAsProperty1.cs" />
+    <Compile Include="Objects\ObjectCollection.cs" />
     <Compile Include="Objects\ObjectWithAttribute.cs" />
     <Compile Include="Objects\PrimitiveTypes1.cs" />
     <Compile Include="Objects\PrimitiveTypes1Nullable.cs" />

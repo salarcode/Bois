@@ -13,13 +13,13 @@ namespace HelloWorldApp.BusinessObjects
 	public class ComplexObject : IComplexObject { public int SimpleInt { get; set; } }
 
 	[Serializable,DataContract]
-	public class ComplexObjectPolymorphicCollection : Collection<IComplexObject>{}
+	public class ComplexObjectPolymorphicCollection : Collection<ComplexObject> {}
 
 	[Serializable, DataContract]
 	public class ComplexObjectCollection : Collection<ComplexObject> { }
 
 	[Serializable, DataContract]
-	public class ComplexObjectPolymorphicDictionary : Dictionary<int, IComplexObject>
+	public class ComplexObjectPolymorphicDictionary : Dictionary<int, ComplexObject>
 	{
 		public ComplexObjectPolymorphicDictionary()
 		{
@@ -37,11 +37,11 @@ namespace HelloWorldApp.BusinessObjects
 		{
 		}
 
-		public ComplexObjectPolymorphicDictionary(IDictionary<int, IComplexObject> dictionary) : base(dictionary)
+		public ComplexObjectPolymorphicDictionary(IDictionary<int, ComplexObject> dictionary) : base(dictionary)
 		{
 		}
 
-		public ComplexObjectPolymorphicDictionary(IDictionary<int, IComplexObject> dictionary, IEqualityComparer<int> comparer) : base(dictionary, comparer)
+		public ComplexObjectPolymorphicDictionary(IDictionary<int, ComplexObject> dictionary, IEqualityComparer<int> comparer) : base(dictionary, comparer)
 		{
 		}
 

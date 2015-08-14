@@ -48,9 +48,9 @@ namespace Salar.Bois.Tests.Objects
 
 		public List<string> Addresses { get; set; }
 
-		public Dictionary<string, int?> StringDictionary { get; set; }
+		public IDictionary<string, int?> StringDictionary { get; set; }
 
-		public Dictionary<int, string> Dictionary { get; set; }
+		public IDictionary<int, string> Dictionary { get; set; }
 
 		public SortedDictionary<int, string> SortedDictionary { get; set; }
 

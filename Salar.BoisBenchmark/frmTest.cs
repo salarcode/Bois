@@ -250,10 +250,10 @@ namespace Salar.BoisBenchmark
 				Stopwatch sw;
 				//-----------------------------------
 				var boisSerializer = new BoisSerializer();
-				boisSerializer.Initialize<RootContainer>();
 				boisSerializer.Initialize<BasicTypes>();
 				boisSerializer.Initialize<HierarchyObject>();
 				boisSerializer.Initialize<CommonListChildObject>();
+				//boisSerializer.Initialize<RootContainer>();
 
 
 				var boisMem = new MemoryStream();
@@ -563,6 +563,7 @@ namespace Salar.BoisBenchmark
 
 		private void ServiceStackBechmark<T>(T obj, int count)
 		{
+			return;
 			try
 			{
 				long initlength = 0;

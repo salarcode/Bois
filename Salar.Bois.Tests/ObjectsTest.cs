@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Salar.Bois;
@@ -328,7 +329,13 @@ namespace Salar.Bois.Tests
 				mem.Seek(0, SeekOrigin.Begin);
 				final = _bois.Deserialize<CollectionTypes1>(mem);
 			}
-			AssertionHelper.AssertMembersAreEqual(init, final);
+			final.Addresses.Should().Have.SameSequenceAs(init.Addresses);
+			final.Ages.Should().Have.SameSequenceAs(init.Ages);
+			final.Dictionary.Should().Have.SameSequenceAs(init.Dictionary);
+			final.Names.Should().Have.SameSequenceAs(init.Names);
+			final.SortedDictionary.Should().Have.SameSequenceAs(init.SortedDictionary);
+			final.SortedList.Should().Have.SameSequenceAs(init.SortedList);
+			final.StringDictionary.Should().Have.SameSequenceAs(init.StringDictionary);
 		}
 
 
@@ -419,6 +426,63 @@ namespace Salar.Bois.Tests
 			}
 			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
+
+		[TestMethod]
+		public void InterfaceAsProperty1_Normal()
+		{
+			var init = new InterfaceListAsProperty1();
+			init.Initialize();
+			InterfaceListAsProperty1 final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<InterfaceListAsProperty1>(mem);
+			}
+
+			final.GenericList.Should().Have.SameSequenceAs(init.GenericList);
+			final.Name.Should().Be.EqualTo(init.Name);
+		}
+
+
+		[TestMethod]
+		public void InterfaceDictAsProperty1_Normal()
+		{
+			var init = new InterfaceDictAsProperty1();
+			init.Initialize();
+			InterfaceDictAsProperty1 final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<InterfaceDictAsProperty1>(mem);
+			}
+
+			final.GenericDictionaryInt.Should().Have.SameSequenceAs(init.GenericDictionaryInt);
+			final.GenericDictionaryStr.Should().Have.SameSequenceAs(init.GenericDictionaryStr);
+			final.Name.Should().Be.EqualTo(init.Name);
+		}
+
+
+		[TestMethod]
+		public void ObjectCollectionContainer_Normal()
+		{
+			var init = new ObjectCollectionContainer();
+			init.Initialize();
+			ObjectCollectionContainer final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<ObjectCollectionContainer>(mem);
+			}
+			AssertionHelper.AssertMembersAreEqual(init, final);
+		}
+
+
 
 	}
 }

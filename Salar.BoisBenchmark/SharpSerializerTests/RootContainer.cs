@@ -39,11 +39,11 @@ namespace HelloWorldApp.BusinessObjects
 		[DataMember, ProtoMember(5)]
 		public DateTime SimpleDateTime { get; set; }
 
-		/// <summary>
-		/// TimeSpan is simple type
-		/// </summary>
-		[DataMember, ProtoMember(6)]
-		public TimeSpan SimpleTimeSpan { get; set; }
+		///// <summary>
+		///// TimeSpan is simple type
+		///// </summary>
+		//[DataMember, ProtoMember(6)]
+		//public TimeSpan SimpleTimeSpan { get; set; }
 
 		/// <summary>
 		/// Every enumeration is simple type
@@ -104,7 +104,7 @@ namespace HelloWorldApp.BusinessObjects
 		/// This is polymorphic collection - Items derive from the interface
 		/// </summary>
 		[DataMember, ProtoMember(15)]
-		public IComplexObject[] PolymorphicSingleArray { get; set; }
+		public ComplexObject[] PolymorphicSingleArray { get; set; }
 
 		/// <summary>
 		/// Generic list is serialized as a collection.
@@ -124,14 +124,14 @@ namespace HelloWorldApp.BusinessObjects
 		/// Generic dictionary where values are inherited from the value type
 		/// </summary>
 		[DataMember, ProtoMember(18)]
-		public IDictionary<int, IComplexObject> GenericDictionaryOfPolymorphicValues { get; set; }
+		public IDictionary<int, ComplexObject> GenericDictionaryOfPolymorphicValues { get; set; }
 
 		/// <summary>
 		/// Polymorphic property. Object instance derives from the property type
 		/// Is serialized as ComplexProperty
 		/// </summary>
 		[DataMember, ProtoMember(19)]
-		public IComplexObject ComplexObject { get; set; }
+		public ComplexObject ComplexObject { get; set; }
 
 		/// <summary>
 		/// Collection where item values are 
@@ -152,20 +152,20 @@ namespace HelloWorldApp.BusinessObjects
 		/// This is polymorphic attribute.
 		/// </summary>
 		[DataMember, ProtoMember(22)]
-		public IList<IComplexObject> GenericListOfComplexObjects { get; set; }
+		public IList<ComplexObject> GenericListOfComplexObjects { get; set; }
 
 		/// <summary>
 		/// Generic object with polymorphic attribute.
 		/// It is serialized as ComplexProperty
 		/// </summary>
 		[DataMember, ProtoMember(23)]
-		public GenericObject<IComplexObject> GenericObjectOfComplexObject { get; set; }
+		public GenericObject<ComplexObject> GenericObjectOfComplexObject { get; set; }
 
 		/// <summary>
 		/// Multidimensional array of generic object with polymorphic attribute
 		/// </summary>
 		[DataMember, ProtoMember(24)]
-		public GenericObject<IComplexObject>[,] MultiArrayOfGenericObjectWithPolymorphicArgument { get; set; }
+		public GenericObject<ComplexObject>[,] MultiArrayOfGenericObjectWithPolymorphicArgument { get; set; }
 
 		/// <summary>
 		/// Array of objects where every item can be of other type
@@ -194,7 +194,7 @@ namespace HelloWorldApp.BusinessObjects
 			root.SimpleSingle = -352;
 			root.SimpleDouble = 42.42;
 			root.SimpleDateTime = new DateTime(2004, 5, 5);
-			root.SimpleTimeSpan = new TimeSpan(5, 4, 3);
+			//root.SimpleTimeSpan = new TimeSpan(5, 4, 3);
 			root.SimpleEnum = SimpleEnum.Three;
 			root.FlagsEnum = FlagEnum.Alfa | FlagEnum.Beta;
 			root.SimpleDecimal = Convert.ToDecimal(17.123);
@@ -205,7 +205,7 @@ namespace HelloWorldApp.BusinessObjects
 			root.SingleArray = new[] { "ala", "ma", null, "kota" };
 			root.DoubleArray = new[,] { { "k1", "k2" }, { "b1", "b2" }, { "z1", "z2" } };
 
-			root.PolymorphicSingleArray = new IComplexObject[] { new ComplexObject() { SimpleInt = 999 } };
+			root.PolymorphicSingleArray = new ComplexObject[] { new ComplexObject() { SimpleInt = 999 } };
 
 			root.GenericList = new List<string> { "item1", "item2", "item3" };
 			root.GenericDictionary = new Dictionary<int, string>();
@@ -213,7 +213,7 @@ namespace HelloWorldApp.BusinessObjects
 			root.GenericDictionary.Add(10, "ten");
 			root.GenericDictionary.Add(20, "twenty");
 
-			root.GenericDictionaryOfPolymorphicValues = new Dictionary<int, IComplexObject>();
+			root.GenericDictionaryOfPolymorphicValues = new Dictionary<int, ComplexObject>();
 			root.GenericDictionaryOfPolymorphicValues.Add(2012, new ComplexObject() { SimpleInt = 2012000 });
 
 			root.ComplexObject = new ComplexObject { SimpleInt = 33 };
@@ -223,11 +223,11 @@ namespace HelloWorldApp.BusinessObjects
 			root.ComplexObjectDictionary.Add(200, new ComplexObject { SimpleInt = 202 });
 			root.ComplexObjectDictionary.Add(300, null);
 
-			root.GenericListOfComplexObjects = new List<IComplexObject> { new ComplexObject { SimpleInt = 303 } };
-			root.GenericObjectOfComplexObject = new GenericObject<IComplexObject>(new ComplexObject { SimpleInt = 12345 });
+			root.GenericListOfComplexObjects = new List<ComplexObject> { new ComplexObject { SimpleInt = 303 } };
+			root.GenericObjectOfComplexObject = new GenericObject<ComplexObject>(new ComplexObject { SimpleInt = 12345 });
 
-			root.MultiArrayOfGenericObjectWithPolymorphicArgument = new GenericObject<IComplexObject>[1, 1];
-			root.MultiArrayOfGenericObjectWithPolymorphicArgument[0, 0] = new GenericObject<IComplexObject>() { Data = new ComplexObject() { SimpleInt = 1357 } };
+			root.MultiArrayOfGenericObjectWithPolymorphicArgument = new GenericObject<ComplexObject>[1, 1];
+			root.MultiArrayOfGenericObjectWithPolymorphicArgument[0, 0] = new GenericObject<ComplexObject>() { Data = new ComplexObject() { SimpleInt = 1357 } };
 
 			// it contains objects of different types and a nested array
 			root.SingleArrayOfObjects = new object[] { 42, "nothing to say", false, BusinessObjects.SimpleEnum.Three, null, new object[] { 42, "nothing to say", false, BusinessObjects.SimpleEnum.Three, null } };

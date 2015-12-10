@@ -5,12 +5,12 @@ using System.Runtime.Serialization;
 using System.Text;
 using ProtoBuf;
 
-namespace Salar.Bois.Tests.Objects
+namespace Salar.BoisBenchmark.TestObjects
 {
 	[Serializable()]
 	[ProtoContract]
 	[DataContract]
-	public class CommonListChildObject : CommonListParentObject<int>, ICommonListGeneralInterface<float>
+	public class ContainedListChild : ContainedListParent<int>, IContainedListInterface<float>
 	{
 		[ProtoMember(1)]
 		[DataMember]
@@ -20,9 +20,9 @@ namespace Salar.Bois.Tests.Objects
 		[DataMember]
 		public DateTime SyncDate { get; set; }
 
-		public static CommonListChildObject CreateObject()
+		public static ContainedListChild CreateSimple()
 		{
-			var r = new CommonListChildObject()
+			var r = new ContainedListChild()
 			{
 				"Item1","Item3","Item2","Item4",
 			};
@@ -42,7 +42,7 @@ namespace Salar.Bois.Tests.Objects
 	[Serializable()]
 	[ProtoContract]
 	[DataContract]
-	public class CommonListParentObject<T> : List<string>
+	public class ContainedListParent<T> : List<string>
 	{
 		[ProtoMember(3)]
 		[DataMember]
@@ -56,7 +56,7 @@ namespace Salar.Bois.Tests.Objects
 		 
 	}
 
-	public interface ICommonListGeneralInterface<T>
+	public interface IContainedListInterface<T>
 	{
 		T Age { get; set; }
 	}

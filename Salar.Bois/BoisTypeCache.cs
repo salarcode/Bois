@@ -1099,5 +1099,18 @@ namespace Salar.Bois
 			return (GenericSetter)dlg;
 		}
 
+
+		//ParameterExpression arg = Expression.Parameter(typeof(Person));
+		//Expression expr = Expression.Property(arg, propertyName);
+		//Expression<Func<Person, string>> get = Expression.Lambda<Func<Person, string>>(expr, arg);
+		//Getter = get.Compile();
+
+
+		//var member = get.Body;
+		//		var param = Expression.Parameter(typeof(string), "value");
+		//		Setter =
+		//Expression.Lambda<Action<Person, string>>(Expression.Assign(member, param), get.Parameters[0], param)
+		//.Compile();
+
 	}
 }

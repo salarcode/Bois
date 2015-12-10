@@ -19,6 +19,7 @@ namespace Salar.Bois
 		/// In which order should this member be serialized.
 		/// </summary>
 		public int Index { get; private set; }
+
 		/// <summary>
 		/// Specifies that should this member be included in serialization.
 		/// </summary>

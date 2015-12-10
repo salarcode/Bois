@@ -9,5 +9,5 @@ BOIS can serialize almost anything as long as they satisfy these conditions.
 
 Some classes have special support, which are listed below:
 
-* NameValueCollection
+* NameValueCollection, ObservableCollection<>
 * Version, Color and Guid

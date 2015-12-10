@@ -47,7 +47,7 @@ namespace Salar.BoisBenchmark.TestObjects
 			var obj=
 				new ArrayTypes
 				{
-					Prices1 = new float[] { float.MaxValue, 27, 17, float.MaxValue },
+					Prices1 = new float[] { float.MaxValue-1, 27, 17, float.MaxValue-1 },
 					Prices2 = new double[] { 30, 27, 17, 70 },
 					Ages = new int[] { 30, 27, 17, 70 },
 					Names = new string[] { "Salar", "BOIS", "Codeplex" },

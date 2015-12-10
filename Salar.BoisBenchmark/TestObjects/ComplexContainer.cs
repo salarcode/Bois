@@ -134,11 +134,11 @@ namespace Salar.BoisBenchmark.TestObjects
 		[DataMember, ProtoMember(5)]
 		public DateTime SimpleDateTime { get; set; }
 
-		///// <summary>
-		///// TimeSpan is simple type
-		///// </summary>
-		//[DataMember, ProtoMember(6)]
-		//public TimeSpan SimpleTimeSpan { get; set; }
+		/// <summary>
+		/// TimeSpan is simple type
+		/// </summary>
+		[DataMember, ProtoMember(6)]
+		public TimeSpan SimpleTimeSpan { get; set; }
 
 		/// <summary>
 		/// Every enumeration is simple type
@@ -173,12 +173,12 @@ namespace Salar.BoisBenchmark.TestObjects
 		[DataMember, ProtoMember(11)]
 		public string EmptyString { get; set; }
 
-		///// <summary>
-		///// Structures are handled as objects during serialization
-		///// They are serialized as ComplexProperty
-		///// </summary>
-		//[DataMember, ProtoMember(12)]
-		//public AdvancedStruct AdvancedStruct { get; set; }
+		/// <summary>
+		/// Structures are handled as objects during serialization
+		/// They are serialized as ComplexProperty
+		/// </summary>
+		[DataMember, ProtoMember(12)]
+		public AdvancedStruct AdvancedStruct1 { get; set; }
 
 		///// <summary>
 		///// One dimensional array of simple type.
@@ -290,13 +290,13 @@ namespace Salar.BoisBenchmark.TestObjects
 			root.SimpleSingle = -352;
 			root.SimpleDouble = 42.42;
 			root.SimpleDateTime = new DateTime(2004, 5, 5);
-			//root.SimpleTimeSpan = new TimeSpan(5, 4, 3);
+			root.SimpleTimeSpan = new TimeSpan(5, 4, 3);
 			root.SimpleEnum = EnSimpleEnum.Three;
 			root.FlagsEnum = FlagEnum.Alfa | FlagEnum.Beta;
 			root.SimpleDecimal = Convert.ToDecimal(17.123);
 			root.SimpleString = "sth";
 			root.EmptyString = string.Empty;
-			//root.AdvancedStruct = new AdvancedStruct() { DateTime = new DateTime(2010, 4, 10), SimpleText = "nix" };
+			root.AdvancedStruct1 = new AdvancedStruct() { DateTime = new DateTime(2010, 4, 10), SimpleText = "nix" };
 
 			//root.SingleArray = new[] { "ala", "ma", null, "kota" };
 			//root.DoubleArray = new[,] { { "k1", "k2" }, { "b1", "b2" }, { "z1", "z2" } };

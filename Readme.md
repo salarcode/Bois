@@ -38,10 +38,11 @@ return boisSerializer.Deserialize<SampleObject>(dataStream);
 
 Some features are in progress and will be available as soon as they're completed:
 
-* ~~Use compacted serialize method for more primitive types.~~
+* Support multidimensional array of simple type
+* Support Multidimensional array of generic object with polymorphic attribute
 * An option to control depth of object serialization.
+* ~~Use compacted serialize method for all the primitive types.~~
 * ~~Embed cache object inside the serializer.~~
-* Support ISet<> for .Net4
 
 ##Benchmarks
 

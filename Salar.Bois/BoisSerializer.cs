@@ -670,20 +670,26 @@ namespace Salar.Bois
 
 		private void WriteDateTime(BinaryWriter writer, DateTime dateTime)
 		{
+			var dt = dateTime;
+			var kind = (byte)dt.Kind;
+
 			if (dateTime == DateTime.MinValue)
 			{
+				writer.Write(kind);
 				// min datetime indicator
 				PrimitivesConvertion.WriteVarInt(writer, 0L);
 			}
 			else if (dateTime == DateTime.MaxValue)
 			{
+				writer.Write(kind);
 				// max datetime indicator
 				PrimitivesConvertion.WriteVarInt(writer, 1L);
 			}
 			else
 			{
-				var epochTime = ConvertDateTimeToEpochTime(dateTime);
-				PrimitivesConvertion.WriteVarInt(writer, epochTime);
+				writer.Write(kind);
+				//Int64
+				PrimitivesConvertion.WriteVarInt(writer, dt.Ticks);
 			}
 		}
 		private void WriteDateTimeOffset(BinaryWriter writer, DateTimeOffset dateTimeOffset)
@@ -1211,16 +1217,18 @@ namespace Salar.Bois
 
 		private DateTime ReadDateTime(BinaryReader reader)
 		{
-			var epochTime = PrimitivesConvertion.ReadVarInt64(reader);
-			if (epochTime == 0L)
+			var kind = reader.ReadByte();
+			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
+			if (ticks == 0L)
 			{
 				return DateTime.MinValue;
 			}
-			if (epochTime == 1L)
+			if (ticks == 1L)
 			{
 				return DateTime.MaxValue;
 			}
-			return ConvertToDateTimeFromEpoch(epochTime);
+			
+			return new DateTime(ticks, (DateTimeKind)kind);
 		}
 
 		private DateTimeOffset ReadDateTimeOffset(BinaryReader reader)

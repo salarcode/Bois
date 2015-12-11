@@ -152,7 +152,7 @@ namespace Salar.Bois
 		}
 
 
-		private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
+		private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 		public static long ConvertDateTimeToEpochTime(DateTime value)
 		{
 			DateTime d = new DateTime(value.Ticks - value.Ticks % 10000000L);

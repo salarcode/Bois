@@ -52,7 +52,7 @@ The benchmarks sourcecode is available. Every elapsed time is calculated for 500
 
 Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**74** |	4 ms |	7 ms |	Binary 	 
+Salar.Bois |	**74** |	4 ms |	6 ms |	Binary 	 
 Microsoft.Avro |	77 |	2 ms |	3 ms |	Binary 	 
 MessagePack |	90 |	8 ms |	14 ms |	Binary 	 
 protobuf-net| 	91 |	4 ms |	12 ms |	Binary 	 
@@ -76,7 +76,7 @@ NetSerialize |	95 |	4 ms |	6 ms |	Binary
 
 Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**58** |	17 ms |	16 ms |	Binary 	 
+Salar.Bois |	**58** |	14 ms |	16 ms |	Binary 	 
 Microsoft.Avro |	81 |	4 ms |	6 ms |	Binary 	 
 MessagePack |	85 |	4 ms |	12 ms |	Binary 	 
 protobuf-net| 	87 |	4 ms |	15 ms |	Binary 	 
@@ -88,7 +88,7 @@ NetSerialize |	89 |	4 ms |	6 ms |	Binary
 
 Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**129948** |	643 ms |	476 ms |	Binary 	 
+Salar.Bois |	**129948** |	464 ms |	476 ms |	Binary 	 
 Microsoft.Avro |	131135 |	126  ms |	146 ms |	Binary 	 
 MessagePack |	163902 |	109 ms |	202 ms |	Binary 	 
 protobuf-net| 	163902 |	72 ms |	72 ms |	Binary 	 
@@ -112,9 +112,9 @@ NetSerialize |	- |	- |	- |	Binary |    Failed
 
 Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**41543** |	474 ms |	305 ms |	Binary 	 
+Salar.Bois |	**41543** |	353 ms |	305 ms |	Binary 	 
 Microsoft.Avro |	**41543** |	80 ms |	97 ms |	Binary 	 
-MessagePack |	42380 |	52 ms |	199 ms |	Binary 	 
+MessagePack |	42380 |	51 ms |	200 ms |	Binary 	 
 protobuf-net| 	77585 |	86 ms |	133 ms |	Binary 	 
 BinaryFormatter |	159756 |	196 ms| 	205 ms |	Binary 	 
 NetSerialize |	- |	- |	- |	Binary |    Failed
@@ -124,7 +124,7 @@ NetSerialize |	- |	- |	- |	Binary |    Failed
 
 Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**93** |	51 ms |	94 ms |	Binary 	 
+Salar.Bois |	**93** |	46 ms |	94 ms |	Binary 	 
 Microsoft.Avro | - |	- |	- |	Binary |    Failed
 MessagePack |	- |	- |	- |	Binary |    Failed
 protobuf-net| 	150 |	16 ms |	38 ms |	Binary 	 
@@ -136,7 +136,7 @@ NetSerialize | - |	- |	- |	Binary |    Failed
 
 Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**29** |	17 ms |	16 ms |	Binary 	 
+Salar.Bois |	**29** |	13 ms |	36 ms |	Binary 	 
 Microsoft.Avro | - |	- |	- |	Binary | Failed with invalid result
 MessagePack |	- |	- |	- |	Binary |    Failed
 protobuf-net| - |	- |	- |	Binary |    Failed

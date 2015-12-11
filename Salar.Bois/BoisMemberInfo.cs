@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
+/* 
+ * Salar BOIS (Binary Object Indexed Serialization)
+ * by Salar Khalilzadeh
+ * 
+ * https://github.com/salarcode/Bois
+ * Mozilla Public License v2
+ */
 namespace Salar.Bois
 {
 	class BoisMemberInfo

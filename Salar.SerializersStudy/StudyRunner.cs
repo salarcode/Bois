@@ -223,11 +223,11 @@ namespace Salar.SerializersStudy
 			result.AddResult("------Int32: ", int32OutBridgeTest.ToString(), "-------");
 			CallRunners(result, int32OutBridgeTest);
 			//-------------------------------
-			var uint32Test = (uint.MaxValue - 1);
+			var uint32Test = (uint.MaxValue - 10);
 			result.AddResult("------UInt32: ", uint32Test.ToString(), "-------");
 			CallRunners(result, uint32Test);
 			//-------------------------------
-			var uint32NullTest = (uint?)(uint.MaxValue - 1);
+			var uint32NullTest = (uint?)(uint.MaxValue - 10);
 			result.AddResult("------UInt32 Null: ", uint32NullTest.ToString(), "-------");
 			CallRunners(result, uint32NullTest);
 			//-------------------------------
@@ -235,11 +235,11 @@ namespace Salar.SerializersStudy
 			result.AddResult("------UInt32: ", uint32ZeroTest.ToString(), "-------");
 			CallRunners(result, uint32ZeroTest);
 			//-------------------------------
-			var int64Test = (long.MaxValue - 1);
+			var int64Test = (long.MaxValue - 10);
 			result.AddResult("------Int64: ", int64Test.ToString(), "-------");
 			CallRunners(result, int64Test);
 			//-------------------------------
-			var int64NullTest = (long?)(long.MaxValue - 1);
+			var int64NullTest = (long?)(long.MaxValue - 10);
 			result.AddResult("------Int64 Null: ", int64NullTest.ToString(), "-------");
 			CallRunners(result, int64NullTest);
 			//-------------------------------
@@ -328,8 +328,8 @@ namespace Salar.SerializersStudy
 		private static void CallRunners<T>(List<string> result, T testValue)
 		{
 			result.AddResult("Salar.Bois  ", BoisRunner.GetPackedSize(testValue));
-			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(testValue));
 			result.AddResult("MicrosoftAvro", MsAvroRunner.GetPackedSize(testValue));
+			result.AddResult("MessagePack", MessagePackRunner.GetPackedSize(testValue));
 			result.AddResult("ProtocolBuff", ProtocolBuffRunner.GetPackedSize(testValue));
 		}
 	}

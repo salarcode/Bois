@@ -6,7 +6,7 @@ using System.Reflection;
  * Salar BOIS (Binary Object Indexed Serialization)
  * by Salar Khalilzadeh
  * 
- * https://bois.codeplex.com/
+ * https://github.com/salarcode/Bois
  * Mozilla Public License v2
  */
 namespace Salar.Bois

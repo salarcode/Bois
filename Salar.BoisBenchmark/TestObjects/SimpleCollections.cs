@@ -48,6 +48,12 @@ namespace Salar.BoisBenchmark.TestObjects
 				new SimpleCollections
 				{
 					Addresses = new List<string>() {"Addr1", "", "Addr3"},
+					Dictionary1 = new Dictionary<string, int>()
+					{
+						{"NULL", 0},
+						{"one", 1},
+						{"40", 40}
+					},
 					Dictionary2 = new Dictionary<int, string>()
 					{
 						{1, "1"},
@@ -69,12 +75,6 @@ namespace Salar.BoisBenchmark.TestObjects
 					//					 },
 					Ages = new int[] {30, 27, 17, 70},
 					Names = new string[] {"Salar", "BOIS", "Codeplex"},
-					Dictionary1 = new Dictionary<string, int>()
-					{
-						{"NULL", 0},
-						{"one", 1},
-						{"40", 40}
-					},
 				};
 			return obj;
 		}
@@ -85,6 +85,12 @@ namespace Salar.BoisBenchmark.TestObjects
 				new SimpleCollections
 				{
 					Addresses = new List<string>() {"Addr1", "", "Addr3"},
+					Dictionary1 = new Dictionary<string, int>()
+					{
+						{"NULL", 0},
+						{"one", 1},
+						{"40", 40}
+					},
 					Dictionary2 = new Dictionary<int, string>()
 					{
 						{1, "1"},
@@ -106,12 +112,6 @@ namespace Salar.BoisBenchmark.TestObjects
 					//					 },
 					Ages = new int[] {30, 27, 17, 70},
 					Names = new string[] {"Salar", "BOIS", "Codeplex"},
-					Dictionary1 = new Dictionary<string, int>()
-					{
-						{"NULL", 0},
-						{"one", 1},
-						{"40", 40}
-					},
 				};
 			obj.Ages = new int[short.MaxValue];
 			for (int i = 0; i < byte.MaxValue; i++)

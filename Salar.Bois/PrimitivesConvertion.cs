@@ -13,6 +13,11 @@ namespace Salar.Bois
 	internal static class PrimitivesConvertion
 	{
 		/// <summary>
+		/// 0000 0000
+		/// </summary>
+		private const byte NoflagNoNumInByte = 0;
+
+		/// <summary>
 		/// 0011 1111
 		/// </summary>
 		private const byte NullableMaxNumInByte = 63;
@@ -51,6 +56,30 @@ namespace Salar.Bois
 		/// 1000 0000
 		/// </summary>
 		private const byte ActualFlagInsideNum = 128;
+
+
+		private static uint ZigZagInt32(int num)
+		{
+			//return (uint)(num << 1) ^ (uint)(num >> 31);
+			uint abs = (uint)num << 1;
+
+			if (num < 0)
+				return ~abs;
+			else
+				return abs;
+		}
+		private static int UnZigZagInt32(uint num)
+		{
+			return (int)(num >> 1) ^ (int)(-(num & 1));
+		}
+		private static ulong ZigZagInt64(long num)
+		{
+			return (ulong)(num << 1) ^ (ulong)(num >> 63);
+		}
+		private static long UZigZagInt64(ulong num)
+		{
+			return (long)(num >> 1) ^ (-(long)(num & 1));
+		}
 
 		/// <summary>
 		/// 
@@ -193,18 +222,8 @@ namespace Salar.Bois
 		/// </summary>
 		internal static int ReadVarInt32(BinaryReader reader)
 		{
-			var input = reader.ReadByte();
-			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
-
-			var insideNum = (input & ActualFlagInsideMask);
-			if (isItInside)
-			{
-				return insideNum;
-			}
-			else
-			{
-				return ReadInt32(reader, insideNum);
-			}
+			// read using zigzag
+			return ReadInt32Zigzag(reader);
 		}
 
 		/// <summary>
@@ -220,7 +239,6 @@ namespace Salar.Bois
 			if (isnull)
 				return null;
 
-
 			var insideNum = (byte)(input & NullableFlagInsideMask);
 			insideNum = (byte)(insideNum & NullableFlagNullMask);
 
@@ -231,7 +249,7 @@ namespace Salar.Bois
 			}
 			else
 			{
-				return ReadInt32(reader, insideNum);
+				return ReadInt32Zigzag(reader);
 			}
 		}
 		/// <summary>
@@ -555,25 +573,11 @@ namespace Salar.Bois
 		}
 
 		/// <summary>
-		/// 
+		/// Use zigzag encoding 
 		/// </summary>
 		internal static void WriteVarInt(BinaryWriter writer, int num)
 		{
-			// store more space
-			if (num > ActualMaxNumInByte || num < 0)
-			{
-				// No Flag is required
-				// length of the integer bytes
-				WriteInt(writer, num);
-			}
-			else
-			{
-				byte numByte = (byte)num;
-
-				// set the flag of inside
-				numByte = (byte)(numByte | ActualFlagInsideNum);
-				writer.Write(numByte);
-			}
+			WriteIntZigzag(writer, num);
 		}
 
 		/// <summary>
@@ -583,6 +587,7 @@ namespace Salar.Bois
 		{
 			if (num == null)
 			{
+				// null flag
 				writer.Write(NullableFlagNullNum);
 				return;
 			}
@@ -590,9 +595,11 @@ namespace Salar.Bois
 			// store more space
 			if (num > NullableMaxNumInByte || num < 0)
 			{
-				// No Flag is required
-				// length of the integer bytes
-				WriteInt(writer, num.Value);
+				// null flag
+				writer.Write(NoflagNoNumInByte);
+
+				// zigzag int
+				WriteIntZigzag(writer, num.Value);
 			}
 			else
 			{
@@ -603,6 +610,7 @@ namespace Salar.Bois
 				writer.Write(numByte);
 			}
 		}
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -926,13 +934,25 @@ namespace Salar.Bois
 			writer.Write(numLen);
 			writer.Write(numBuff, 0, numBuff.Length);
 		}
-		private static void WriteInt(BinaryWriter writer, int num)
+		[Obsolete]
+		private static void WriteIntFlagged(BinaryWriter writer, int num)
 		{
 			byte numLen;
 			var numBuff = ConvertToVarBinary(num, out numLen);
 			writer.Write(numLen);
 			writer.Write(numBuff, 0, numBuff.Length);
 		}
+		private static void WriteIntZigzag(BinaryWriter writer, int num)
+		{
+			var zigZagEncoded = unchecked((uint)((num << 1) ^ (num >> 31)));
+			while ((zigZagEncoded & ~0x7F) != 0)
+			{
+				writer.Write((byte)((zigZagEncoded | 0x80) & 0xFF));
+				zigZagEncoded >>= 7;
+			}
+			writer.Write((byte)zigZagEncoded);
+		}
+		
 		private static void WriteInt(BinaryWriter writer, uint num)
 		{
 			byte numLen;
@@ -1007,7 +1027,8 @@ namespace Salar.Bois
 				return ReadUInt64(intFinalBuff);
 			}
 		}
-		private static int ReadInt32(BinaryReader reader, int length)
+		[Obsolete]
+		private static int ReadInt32Flagged(BinaryReader reader, int length)
 		{
 			var intBuff = reader.ReadBytes(length);
 			if (intBuff.Length == 4)
@@ -1022,6 +1043,30 @@ namespace Salar.Bois
 				return ReadInt32(intFinalBuff);
 			}
 		}
+
+		/// <summary>
+		/// Read using zig zag
+		/// </summary>
+		private static int ReadInt32Zigzag(BinaryReader reader)
+		{
+			var currentByte = (uint)reader.ReadByte();
+			byte read = 1;
+			uint result = currentByte & 0x7FU;
+			int shift = 7;
+			while ((currentByte & 0x80) != 0)
+			{
+				currentByte = (uint)reader.ReadByte();
+				read++;
+				result |= (currentByte & 0x7FU) << shift;
+				shift += 7;
+				if (read > 5)
+				{
+					throw new Exception("Invalid integer value in the input stream.");
+				}
+			}
+			return (int)((-(result & 1)) ^ ((result >> 1) & 0x7FFFFFFFU));
+		}
+
 		private static uint ReadUInt32(BinaryReader reader, int length)
 		{
 			var intBuff = reader.ReadBytes(length);

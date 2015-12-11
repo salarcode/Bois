@@ -153,15 +153,20 @@ namespace Salar.Bois
 
 
 		private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-		public static long ConvertDateTimeToEpochTime(DateTime value)
+		private static long ConvertDateTimeToEpochTime(DateTime value)
 		{
 			DateTime d = new DateTime(value.Ticks - value.Ticks % 10000000L);
 			return (long)(d - UnixEpoch).TotalSeconds;
 		}
 
-		public static DateTime ConvertToDateTimeFromEpoch(long seconds)
+		private static DateTime ConvertToDateTimeFromEpoch(long seconds)
 		{
 			return UnixEpoch.AddSeconds((double)seconds);
+		}
+
+		private BoisMemberInfo GetBoisMemberInfo(Type objType)
+		{
+			return _typeCache.GetTypeInfo(objType, true);
 		}
 
 
@@ -246,6 +251,19 @@ namespace Salar.Bois
 			WriteValue(writer, bionType, value);
 		}
 
+		void WriteValue(BinaryWriter writer, object value, BoisMemberInfo bionType)
+		{
+ 			if (!bionType.IsSupportedPrimitive)
+			{
+				if (value == null)
+				{
+					WriteNullableType(writer, true);
+					return;
+				}
+			}
+			WriteValue(writer, bionType, value);
+		}
+
 		void WriteValue(BinaryWriter writer, object value)
 		{
 			if (value == null)
@@ -299,7 +317,7 @@ namespace Salar.Bois
 						}
 						else
 						{
-							WriteArray(writer, value as IEnumerable);
+							WriteArray(writer, value);
 						}
 					}
 					break;
@@ -579,7 +597,7 @@ namespace Salar.Bois
 				foreach (object obj in array)
 					count++;
 			}
-			var itemType = array.GetType().GetGenericArguments()[0];
+			var itemType = GetBoisMemberInfo(array.GetType().GetGenericArguments()[0]);
 			// Int32
 			PrimitivesConvertion.WriteVarInt(writer, count);
 			foreach (object obj in array)
@@ -587,26 +605,46 @@ namespace Salar.Bois
 				WriteValue(writer, obj, itemType);
 			}
 		}
-		private void WriteArray(BinaryWriter writer, IEnumerable array)
+		private void WriteArray(BinaryWriter writer, object array)
 		{
-			int count = 0;
-			var col = array as ICollection;
-			if (col != null)
-				count = (int)col.Count;
+			var arr = array as Array;
+			if (arr == null)
+			{
+				var enumurable = (IEnumerable)array;
+
+				int count = 0;
+				var col = array as ICollection;
+				if (col != null)
+				{
+					count = (int)col.Count;
+				}
+				else
+				{
+					foreach (object obj in enumurable)
+						count++;
+				}
+
+				// Int32
+				PrimitivesConvertion.WriteVarInt(writer, count);
+				foreach (object obj in enumurable)
+				{
+					WriteValue(writer, obj);
+				}
+			}
 			else
 			{
-				foreach (object obj in array)
-					count++;
-			}
+				// Int32
+				PrimitivesConvertion.WriteVarInt(writer, arr.Length);
 
-			// Int32
-			PrimitivesConvertion.WriteVarInt(writer, count);
-			foreach (object obj in array)
-			{
-				WriteValue(writer, obj);
+				var type = ReflectionHelper.FindUnderlyingArrayElementType(arr.GetType());
+				var bionType = _typeCache.GetTypeInfo(type, true);
+				for (int i = 0; i < arr.Length; i++)
+				{
+					WriteValue(writer, arr.GetValue(i), bionType);
+				}
 			}
 		}
-
+		
 		private void WriteBytes(BinaryWriter writer, byte[] bytes)
 		{
 			// Int32
@@ -628,8 +666,8 @@ namespace Salar.Bois
 				genericTypes = dictionaryType.GetGenericArguments();
 			}
 
-			var keyType = genericTypes[0];
-			var valType = genericTypes[1];
+			var keyType = GetBoisMemberInfo(genericTypes[0]);
+			var valType = GetBoisMemberInfo(genericTypes[1]);
 
 			foreach (DictionaryEntry entry in dic)
 			{
@@ -644,8 +682,8 @@ namespace Salar.Bois
 			PrimitivesConvertion.WriteVarInt(writer, dic.Count);
 
 			var genericType = dic.GetType().GetGenericArguments();
-			var keyType = typeof(string);
-			var valType = genericType[1];
+			var keyType = GetBoisMemberInfo(typeof(string));
+			var valType = GetBoisMemberInfo(genericType[1]);
 
 			foreach (DictionaryEntry entry in dic)
 			{
@@ -1227,7 +1265,7 @@ namespace Salar.Bois
 			{
 				return DateTime.MaxValue;
 			}
-			
+
 			return new DateTime(ticks, (DateTimeKind)kind);
 		}
 

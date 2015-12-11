@@ -15,6 +15,11 @@ namespace Salar.Bois
 
 	static class ReflectionHelper
 	{
+		public static Type FindUnderlyingArrayElementType(Type arrayType)
+		{
+			return arrayType.GetElementType();
+		}
+
 		/// <summary>
 		/// Finds the underlying element type of a contained generic type
 		/// Less acurate but cpu cheaper
@@ -200,5 +205,7 @@ namespace Salar.Bois
 
 			return false; // value-type
 		}
+
+		
 	}
 }

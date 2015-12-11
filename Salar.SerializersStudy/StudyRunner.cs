@@ -25,6 +25,16 @@ namespace Salar.SerializersStudy
 			CallRunners(result, boolTest);
 
 			//-------------------------------
+			var ditionaryIntBig = new Dictionary<int, int>();
+			for (var i = 0; i < 500; i++)
+			{
+				ditionaryIntBig.Add(i, i + 1);
+			}
+			result.AddResult("------BIG Dictionary of int: ", ditionaryIntBig.ToString(), "-------");
+			CallRunners(result, ditionaryIntBig);
+
+
+			//-------------------------------
 			var stringTest = new string(new char[] { (char)(ushort.MaxValue - 10), (char)(ushort.MaxValue / 2), (char)(ushort.MaxValue - 100), (char)(ushort.MaxValue - 100), (char)(ushort.MaxValue - 100), (char)(ushort.MaxValue - 200), (char)(ushort.MaxValue - 50), });
 			result.AddResult("------String: ", stringTest.ToString(), "-------");
 			CallRunners(result, stringTest);
@@ -51,6 +61,16 @@ namespace Salar.SerializersStudy
 			};
 			result.AddResult("------String Generic Dictionary: ", stringDictionary.ToString(), "-------");
 			CallRunners(result, stringDictionary);
+
+			//-------------------------------
+			var intArray = new int[] { int.MaxValue, int.MinValue, int.MaxValue, int.MinValue, int.MaxValue, int.MinValue, };
+			result.AddResult("------Int Big data Array: ", intArray.ToString(), "-------");
+			CallRunners(result, intArray);
+
+			//-------------------------------
+			var int2Array = new int[] { 3, 5, 6, 5, 1, 9, };
+			result.AddResult("------Int Small data Array: ", intArray.ToString(), "-------");
+			CallRunners(result, int2Array);
 
 			//-------------------------------
 			var byeArray = new byte[] { byte.MaxValue, byte.MinValue, byte.MaxValue / 2, 1, 0, 0, 0, 0, 0, byte.MaxValue };
@@ -110,6 +130,7 @@ namespace Salar.SerializersStudy
 			}
 			result.AddResult("------List of TestTwoMemberClass: ", listOfTestTwoMemberClassTest.ToString(), "-------");
 			CallRunners(result, listOfTestTwoMemberClassTest);
+
 
 			//-------------------------------
 			var dictionaryOfTestOneMemberClassTest = new Dictionary<int, TestOneMemberClass>();
@@ -292,6 +313,14 @@ namespace Salar.SerializersStudy
 			var doubleSubZeroTest = (double.MinValue + 1);
 			result.AddResult("------Double: ", doubleSubZeroTest.ToString(), "-------");
 			CallRunners(result, doubleSubZeroTest);
+
+
+			//-------------------------------
+			for (int num = 65530; num < 65540; num += 2)
+			{
+				result.AddResult("------Int32: ", num.ToString(), "-------");
+				CallRunners(result, num);
+			}
 
 			return result;
 		}

@@ -152,6 +152,19 @@ namespace Salar.Bois
 		}
 
 
+		private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
+		public static long ConvertDateTimeToEpochTime(DateTime value)
+		{
+			DateTime d = new DateTime(value.Ticks - value.Ticks % 10000000L);
+			return (long)(d - UnixEpoch).TotalSeconds;
+		}
+
+		public static DateTime ConvertToDateTimeFromEpoch(long seconds)
+		{
+			return UnixEpoch.AddSeconds((double)seconds);
+		}
+
+
 		#region Serialization methods
 
 		private void WriteObject(BinaryWriter writer, BoisMemberInfo boisMemInfo, object obj)
@@ -657,18 +670,20 @@ namespace Salar.Bois
 
 		private void WriteDateTime(BinaryWriter writer, DateTime dateTime)
 		{
-			var dt = dateTime;
-			var kind = (byte)dt.Kind;
-			if (dt == DateTime.MinValue || dt == DateTime.MaxValue)
+			if (dateTime == DateTime.MinValue)
 			{
-				writer.Write(kind);
-				PrimitivesConvertion.WriteVarInt(writer, dt.Ticks);
+				// min datetime indicator
+				PrimitivesConvertion.WriteVarInt(writer, 0L);
+			}
+			else if (dateTime == DateTime.MaxValue)
+			{
+				// max datetime indicator
+				PrimitivesConvertion.WriteVarInt(writer, 1L);
 			}
 			else
 			{
-				writer.Write(kind);
-				//Int64
-				PrimitivesConvertion.WriteVarInt(writer, dt.Ticks);
+				var epochTime = ConvertDateTimeToEpochTime(dateTime);
+				PrimitivesConvertion.WriteVarInt(writer, epochTime);
 			}
 		}
 		private void WriteDateTimeOffset(BinaryWriter writer, DateTimeOffset dateTimeOffset)
@@ -1194,19 +1209,21 @@ namespace Salar.Bois
 			return new Version(ReadString(reader));
 		}
 
-		private object ReadDateTime(BinaryReader reader)
+		private DateTime ReadDateTime(BinaryReader reader)
 		{
-			var kind = reader.ReadByte();
-			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
-			if (ticks == DateTime.MinValue.Ticks || ticks == DateTime.MaxValue.Ticks)
+			var epochTime = PrimitivesConvertion.ReadVarInt64(reader);
+			if (epochTime == 0L)
 			{
-				return new DateTime(ticks);
+				return DateTime.MinValue;
 			}
-
-			return new DateTime(ticks, (DateTimeKind)kind);
+			if (epochTime == 1L)
+			{
+				return DateTime.MaxValue;
+			}
+			return ConvertToDateTimeFromEpoch(epochTime);
 		}
 
-		private object ReadDateTimeOffset(BinaryReader reader)
+		private DateTimeOffset ReadDateTimeOffset(BinaryReader reader)
 		{
 			var offsetMinutes = PrimitivesConvertion.ReadVarInt16(reader);
 
@@ -1215,7 +1232,7 @@ namespace Salar.Bois
 			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes));
 		}
 
-		private object ReadBoolean(BinaryReader reader)
+		private bool ReadBoolean(BinaryReader reader)
 		{
 			return reader.ReadByte() != 0;
 		}

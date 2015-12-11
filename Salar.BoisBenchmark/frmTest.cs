@@ -45,7 +45,7 @@ namespace Salar.BoisBenchmark
 		}
 		private void btnBenchmark_Click(object sender, EventArgs e)
 		{
-			RunTheTests(9000);
+			RunTheTests(5000);
 		}
 
 

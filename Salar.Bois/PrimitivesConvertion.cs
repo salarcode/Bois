@@ -257,18 +257,8 @@ namespace Salar.Bois
 		/// </summary>
 		internal static uint ReadVarUInt32(BinaryReader reader)
 		{
-			var input = reader.ReadByte();
-			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
-
-			var insideNum = (byte)(input & ActualFlagInsideMask);
-			if (isItInside)
-			{
-				return insideNum;
-			}
-			else
-			{
-				return ReadUInt32(reader, insideNum);
-			}
+			// read using zigzag
+			return ReadUInt32Stepped(reader);
 		}
 
 		/// <summary>
@@ -284,7 +274,6 @@ namespace Salar.Bois
 			if (isnull)
 				return null;
 
-
 			var insideNum = (byte)(input & NullableFlagInsideMask);
 			insideNum = (byte)(insideNum & NullableFlagNullMask);
 
@@ -295,7 +284,7 @@ namespace Salar.Bois
 			}
 			else
 			{
-				return ReadUInt32(reader, insideNum);
+				return ReadUInt32Stepped(reader);
 			}
 		}
 
@@ -304,18 +293,8 @@ namespace Salar.Bois
 		/// </summary>
 		internal static long ReadVarInt64(BinaryReader reader)
 		{
-			var input = reader.ReadByte();
-			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
-
-			var insideNum = (input & ActualFlagInsideMask);
-			if (isItInside)
-			{
-				return insideNum;
-			}
-			else
-			{
-				return ReadInt64(reader, insideNum);
-			}
+			// read using zigzag
+			return ReadInt64Zigzag(reader);
 		}
 
 		/// <summary>
@@ -324,13 +303,12 @@ namespace Salar.Bois
 		internal static long? ReadVarInt64Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == 0)
+			if (input == NullableFlagNullNum)
 				return null;
 
 			var isnull = (input & NullableFlagNullNum) == NullableFlagNullNum;
 			if (isnull)
 				return null;
-
 
 			var insideNum = (byte)(input & NullableFlagInsideMask);
 			insideNum = (byte)(insideNum & NullableFlagNullMask);
@@ -342,7 +320,7 @@ namespace Salar.Bois
 			}
 			else
 			{
-				return ReadInt64(reader, insideNum);
+				return ReadInt64Zigzag(reader);
 			}
 		}
 		/// <summary>
@@ -350,18 +328,8 @@ namespace Salar.Bois
 		/// </summary>
 		internal static ulong ReadVarUInt64(BinaryReader reader)
 		{
-			var input = reader.ReadByte();
-			var isItInside = (input & ActualFlagInsideNum) == ActualFlagInsideNum;
-
-			var insideNum = (byte)(input & ActualFlagInsideMask);
-			if (isItInside)
-			{
-				return insideNum;
-			}
-			else
-			{
-				return ReadUInt64(reader, insideNum);
-			}
+			// read using zigzag
+			return ReadUInt64Stepped(reader);
 		}
 
 		/// <summary>
@@ -370,13 +338,12 @@ namespace Salar.Bois
 		internal static ulong? ReadVarUInt64Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == 0)
+			if (input == NullableFlagNullNum)
 				return null;
 
 			var isnull = (input & NullableFlagNullNum) == NullableFlagNullNum;
 			if (isnull)
 				return null;
-
 
 			var insideNum = (byte)(input & NullableFlagInsideMask);
 			insideNum = (byte)(insideNum & NullableFlagNullMask);
@@ -388,7 +355,7 @@ namespace Salar.Bois
 			}
 			else
 			{
-				return ReadUInt64(reader, insideNum);
+				return ReadUInt64Stepped(reader);
 			}
 		}
 
@@ -616,21 +583,7 @@ namespace Salar.Bois
 		/// </summary>
 		internal static void WriteVarInt(BinaryWriter writer, uint num)
 		{
-			// store more space
-			if (num > ActualMaxNumInByte)
-			{
-				// No Flag is required
-				// length of the integer bytes
-				WriteInt(writer, num);
-			}
-			else
-			{
-				byte numByte = (byte)num;
-
-				// set the flag of inside
-				numByte = (byte)(numByte | ActualFlagInsideNum);
-				writer.Write(numByte);
-			}
+			WriteUIntStepped(writer, num);
 		}
 
 		/// <summary>
@@ -640,16 +593,19 @@ namespace Salar.Bois
 		{
 			if (num == null)
 			{
+				// null flag
 				writer.Write(NullableFlagNullNum);
 				return;
 			}
 
 			// store more space
-			if (num > NullableMaxNumInByte)
+			if (num > NullableMaxNumInByte || num < 0)
 			{
-				// No Flag is required
-				// length of the integer bytes
-				WriteInt(writer, num.Value);
+				// null flag
+				writer.Write(NoflagNoNumInByte);
+
+				// stepped int
+				WriteUIntStepped(writer, num.Value);
 			}
 			else
 			{
@@ -666,21 +622,7 @@ namespace Salar.Bois
 		/// </summary>
 		internal static void WriteVarInt(BinaryWriter writer, long num)
 		{
-			// store more space
-			if (num > ActualMaxNumInByte || num < 0)
-			{
-				// No Flag is required
-				// length of the integer bytes
-				WriteInt(writer, num);
-			}
-			else
-			{
-				byte numByte = (byte)num;
-
-				// set the flag of inside
-				numByte = (byte)(numByte | ActualFlagInsideNum);
-				writer.Write(numByte);
-			}
+			WriteIntZigzag(writer, num);
 		}
 
 		/// <summary>
@@ -690,6 +632,7 @@ namespace Salar.Bois
 		{
 			if (num == null)
 			{
+				// null flag
 				writer.Write(NullableFlagNullNum);
 				return;
 			}
@@ -697,9 +640,11 @@ namespace Salar.Bois
 			// store more space
 			if (num > NullableMaxNumInByte || num < 0)
 			{
-				// No Flag is required
-				// length of the integer bytes
-				WriteInt(writer, num.Value);
+				// no data flag
+				writer.Write(NoflagNoNumInByte);
+
+				// zigzag int
+				WriteIntZigzag(writer, num.Value);
 			}
 			else
 			{
@@ -712,21 +657,7 @@ namespace Salar.Bois
 		}
 		internal static void WriteVarInt(BinaryWriter writer, ulong num)
 		{
-			// store more space
-			if (num > ActualMaxNumInByte)
-			{
-				// No Flag is required
-				// length of the integer bytes
-				WriteInt(writer, num);
-			}
-			else
-			{
-				byte numByte = (byte)num;
-
-				// set the flag of inside
-				numByte = (byte)(numByte | ActualFlagInsideNum);
-				writer.Write(numByte);
-			}
+			WriteUIntStepped(writer, num);
 		}
 
 		/// <summary>
@@ -736,16 +667,19 @@ namespace Salar.Bois
 		{
 			if (num == null)
 			{
+				// null flag
 				writer.Write(NullableFlagNullNum);
 				return;
 			}
 
 			// store more space
-			if (num > NullableMaxNumInByte)
+			if (num > NullableMaxNumInByte || num < 0)
 			{
-				// No Flag is required
-				// length of the integer bytes
-				WriteInt(writer, num.Value);
+				// null flag
+				writer.Write(NoflagNoNumInByte);
+
+				// stepped int
+				WriteUIntStepped(writer, num.Value);
 			}
 			else
 			{
@@ -920,12 +854,22 @@ namespace Salar.Bois
 			}
 		}
 
-		private static void WriteInt(BinaryWriter writer, long num)
+		private static void WriteIntFlagged(BinaryWriter writer, long num)
 		{
 			byte numLen;
 			var numBuff = ConvertToVarBinary(num, out numLen);
 			writer.Write(numLen);
 			writer.Write(numBuff, 0, numBuff.Length);
+		}
+		private static void WriteIntZigzag(BinaryWriter writer, long num)
+		{
+			var zigZagEncoded = unchecked((ulong)((num << 1) ^ (num >> 63)));
+			while ((zigZagEncoded & ~0x7FUL) != 0)
+			{
+				writer.Write((byte)((zigZagEncoded | 0x80) & 0xFF));
+				zigZagEncoded >>= 7;
+			}
+			writer.Write((byte)zigZagEncoded);
 		}
 		private static void WriteInt(BinaryWriter writer, ulong num)
 		{
@@ -933,6 +877,18 @@ namespace Salar.Bois
 			var numBuff = ConvertToVarBinary(num, out numLen);
 			writer.Write(numLen);
 			writer.Write(numBuff, 0, numBuff.Length);
+		}
+		/// <summary>
+		/// 1000 0000 -> 1000 0000 -> 0000 0000 | stop
+		/// </summary>
+		private static void WriteUIntStepped(BinaryWriter writer, ulong num)
+		{
+ 			while ((num & ~0x7FUL) != 0)
+			{
+				writer.Write((byte)((num | 0x80) & 0xFF));
+				num >>= 7;
+			}
+			writer.Write((byte)num);
 		}
 		[Obsolete]
 		private static void WriteIntFlagged(BinaryWriter writer, int num)
@@ -952,7 +908,20 @@ namespace Salar.Bois
 			}
 			writer.Write((byte)zigZagEncoded);
 		}
-		
+
+		/// <summary>
+		/// 1000 0000 -> 1000 0000 -> 0000 0000 | stop
+		/// </summary>
+		private static void WriteUIntStepped(BinaryWriter writer, uint num)
+		{
+ 			while ((num & ~0x7F) != 0)
+			{
+				writer.Write((byte)((num | 0x80) & 0xFF));
+				num >>= 7;
+			}
+			writer.Write((byte)num);
+		}
+
 		private static void WriteInt(BinaryWriter writer, uint num)
 		{
 			byte numLen;
@@ -996,8 +965,8 @@ namespace Salar.Bois
 			writer.Write(numLen);
 			writer.Write(numBuff, 0, numBuff.Length);
 		}
-
-		private static long ReadInt64(BinaryReader reader, int length)
+		[Obsolete]
+		private static long ReadInt64Flagged(BinaryReader reader, int length)
 		{
 			var intBuff = reader.ReadBytes(length);
 			if (intBuff.Length == 8)
@@ -1012,7 +981,28 @@ namespace Salar.Bois
 				return ReadInt64(intFinalBuff);
 			}
 		}
-		private static ulong ReadUInt64(BinaryReader reader, int length)
+		private static long ReadInt64Zigzag(BinaryReader reader)
+		{
+			var value = (uint)reader.ReadByte();
+			byte read = 1;
+			ulong result = value & 0x7FUL;
+			int shift = 7;
+			while ((value & 0x80) != 0)
+			{
+				value = (uint)reader.ReadByte();
+				read++;
+				result |= (value & 0x7FUL) << shift;
+				shift += 7;
+				if (read > 10)
+				{
+					throw new Exception("Invalid integer long in the input stream.");
+				}
+			}
+			var tmp = unchecked((long)result);
+			return (-(tmp & 0x1L)) ^ ((tmp >> 1) & 0x7FFFFFFFFFFFFFFFL);
+		}
+		[Obsolete]
+		private static ulong ReadUInt64Flagged(BinaryReader reader, int length)
 		{
 			var intBuff = reader.ReadBytes(length);
 			if (intBuff.Length == 8)
@@ -1026,6 +1016,25 @@ namespace Salar.Bois
 				Array.Copy(intBuff, intFinalBuff, intBuff.Length);
 				return ReadUInt64(intFinalBuff);
 			}
+		}
+		private static ulong ReadUInt64Stepped(BinaryReader reader)
+		{
+			var value = (uint)reader.ReadByte();
+			byte read = 1;
+			ulong result = value & 0x7FUL;
+			int shift = 7;
+			while ((value & 0x80) != 0)
+			{
+				value = (uint)reader.ReadByte();
+				read++;
+				result |= (value & 0x7FUL) << shift;
+				shift += 7;
+				if (read > 10)
+				{
+					throw new Exception("Invalid integer long in the input stream.");
+				}
+			}
+			return result;
 		}
 		[Obsolete]
 		private static int ReadInt32Flagged(BinaryReader reader, int length)
@@ -1066,8 +1075,8 @@ namespace Salar.Bois
 			}
 			return (int)((-(result & 1)) ^ ((result >> 1) & 0x7FFFFFFFU));
 		}
-
-		private static uint ReadUInt32(BinaryReader reader, int length)
+		[Obsolete]
+		private static uint ReadUInt32Flagged(BinaryReader reader, int length)
 		{
 			var intBuff = reader.ReadBytes(length);
 			if (intBuff.Length == 4)
@@ -1082,6 +1091,29 @@ namespace Salar.Bois
 				return ReadUInt32(intFinalBuff);
 			}
 		}
+		/// <summary>
+		/// Read stepped uint
+		/// </summary>
+		private static uint ReadUInt32Stepped(BinaryReader reader)
+		{
+			var currentByte = (uint)reader.ReadByte();
+			byte read = 1;
+			uint result = currentByte & 0x7FU;
+			int shift = 7;
+			while ((currentByte & 0x80) != 0)
+			{
+				currentByte = (uint)reader.ReadByte();
+				read++;
+				result |= (currentByte & 0x7FU) << shift;
+				shift += 7;
+				if (read > 5)
+				{
+					throw new Exception("Invalid integer value in the input stream.");
+				}
+			}
+			return result;
+		}
+
 		private static short ReadInt16(BinaryReader reader, short length)
 		{
 			var intBuff = reader.ReadBytes(length);

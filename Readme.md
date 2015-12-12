@@ -52,7 +52,7 @@ The benchmarks sourcecode is available. Every elapsed time is calculated for 500
 
 Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**74** |	4 ms |	6 ms |	Binary 	 
+Salar.Bois |	**73** |	4 ms |	6 ms |	Binary 	 
 Microsoft.Avro |	77 |	2 ms |	3 ms |	Binary 	 
 MessagePack |	90 |	8 ms |	14 ms |	Binary 	 
 protobuf-net| 	91 |	4 ms |	12 ms |	Binary 	 

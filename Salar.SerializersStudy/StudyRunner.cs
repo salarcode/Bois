@@ -24,6 +24,8 @@ namespace Salar.SerializersStudy
 			result.AddResult("------Bool: ", boolTest.ToString(), "-------");
 			CallRunners(result, boolTest);
 
+
+
 			//-------------------------------
 			var ditionaryIntBig = new Dictionary<int, int>();
 			for (var i = 0; i < 500; i++)
@@ -33,6 +35,31 @@ namespace Salar.SerializersStudy
 			result.AddResult("------BIG Dictionary of int: ", ditionaryIntBig.ToString(), "-------");
 			CallRunners(result, ditionaryIntBig);
 
+			//-------------------------------
+			var ditionaryUIntBig = new Dictionary<uint, uint>();
+			for (uint i = 0; i < 500; i++)
+			{
+				ditionaryUIntBig.Add(i, i + 1);
+			}
+			result.AddResult("------BIG Dictionary of uint: ", ditionaryUIntBig.ToString(), "-------");
+			CallRunners(result, ditionaryUIntBig);
+
+			//-------------------------------
+			var ditionaryLongBig = new Dictionary<long, long>();
+			for (var i = 0; i < 500; i++)
+			{
+				ditionaryLongBig.Add(i, i + 1);
+			}
+			result.AddResult("------BIG Dictionary of int64: ", ditionaryLongBig.ToString(), "-------");
+			CallRunners(result, ditionaryLongBig);
+			//-------------------------------
+			var ditionaryULongBig = new Dictionary<ulong, ulong>();
+			for (ulong i = 0; i < 500; i++)
+			{
+				ditionaryULongBig.Add(i, i + 1);
+			}
+			result.AddResult("------BIG Dictionary of uint64: ", ditionaryULongBig.ToString(), "-------");
+			CallRunners(result, ditionaryLongBig);
 
 			//-------------------------------
 			var stringTest = new string(new char[] { (char)(ushort.MaxValue - 10), (char)(ushort.MaxValue / 2), (char)(ushort.MaxValue - 100), (char)(ushort.MaxValue - 100), (char)(ushort.MaxValue - 100), (char)(ushort.MaxValue - 200), (char)(ushort.MaxValue - 50), });

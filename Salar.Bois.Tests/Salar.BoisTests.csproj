@@ -86,6 +86,7 @@
     <Compile Include="Objects\InterfaceListAsProperty1.cs" />
     <Compile Include="Objects\ObjectCollection.cs" />
     <Compile Include="Objects\ObjectWithAttribute.cs" />
+    <Compile Include="Objects\ObjectWithPrivateSetter.cs" />
     <Compile Include="Objects\PrimitiveTypes1.cs" />
     <Compile Include="Objects\PrimitiveTypes1Nullable.cs" />
     <Compile Include="Objects\IBaseType.cs" />

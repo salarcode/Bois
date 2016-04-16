@@ -27,6 +27,15 @@ namespace Salar.SerializersStudy
 
 
 			//-------------------------------
+			var bigByteArrray = new byte[short.MaxValue];
+			for (short i = 0; i < 500; i++)
+			{
+				bigByteArrray[i]=100;
+			}
+			result.AddResult("------BIG Byte array : ", bigByteArrray.ToString(), "-------");
+			CallRunners(result, bigByteArrray);
+
+			//-------------------------------
 			var ditionaryIntBig = new Dictionary<int, int>();
 			for (var i = 0; i < 500; i++)
 			{

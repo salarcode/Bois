@@ -482,7 +482,22 @@ namespace Salar.Bois.Tests
 			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
 
+		[TestMethod]
+		public void ObjectWithPrivateSetter_Normal()
+		{
+			var init = new ObjectWithPrivateSetter();
+			init.Initialize();
+			ObjectWithPrivateSetter final;
 
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<ObjectWithPrivateSetter>(mem);
+			}
+			AssertionHelper.AssertMembersAreEqual(init, final);
+		}
+ 
 
 	}
 }

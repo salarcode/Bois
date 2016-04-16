@@ -26,6 +26,21 @@ namespace Salar.BoisBenchmark
 				bigCount = 1;
 
 			Log("");
+			Log("BigByte array benchmark---------- repeat count: " + count);
+			var bigByteArrray = new byte[short.MaxValue];
+			for (short i = 0; i < 500; i++)
+			{
+				bigByteArrray[i] = 100;
+			}
+ 
+			RunBenchmarkBois(bigByteArrray, count);
+			RunBenchmarkMsAvroPack(bigByteArrray, count);
+			RunBenchmarkMessagePack(bigByteArrray, count);
+			RunBenchmarkProtoBufNet(bigByteArrray, count);
+			RunBenchmarkBinaryFormatter(bigByteArrray, count);
+			RunBenchmarkNetSerializer(bigByteArrray, count);
+
+			Log("");
 			Log("ComplexContainer benchmark---------- repeat count: " + count);
 			var objComplexContainer = ComplexContainer.CreateContainerArray(10);
 

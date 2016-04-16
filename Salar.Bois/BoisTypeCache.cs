@@ -989,7 +989,7 @@ namespace Salar.Bois
 				objType != typeof(string))
 			{
 				// this is a fallback to slower method.
-				var method = propertyInfo.GetSetMethod();
+				var method = propertyInfo.GetSetMethod(true);
 
 				// generating the caller.
 				return new Function<object, object, object>((target, value) => method.Invoke(target, new object[] { value }));
@@ -997,7 +997,7 @@ namespace Salar.Bois
 			else
 			{
 				//var method = objType.GetMethod("set_" + propertyInfo.Name, BindingFlags.Instance | BindingFlags.Public);
-				var method = propertyInfo.GetSetMethod();
+				var method = propertyInfo.GetSetMethod(true);
 				return GetFastSetterFunc(propertyInfo, method);
 			}
 #endif

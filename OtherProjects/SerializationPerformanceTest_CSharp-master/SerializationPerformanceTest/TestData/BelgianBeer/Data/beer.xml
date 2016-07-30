@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<Beer xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Brand>3 Schtֳ©ng</Brand>
+  <Sort>
+    <string>high fermentation</string>
+  </Sort>
+  <Alcohol>6</Alcohol>
+  <Brewery>Brasserie Grain d'Orge</Brewery>
+</Beer>

@@ -1,0 +1,455 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Salar.Bois</name>
+    </assembly>
+    <members>
+        <member name="T:Salar.Bois.BoisContractAttribute">
+            <summary>
+            Can be used for classes and structs to specify that the serializer should serialize fields and properties or not.
+            </summary>
+        </member>
+        <member name="P:Salar.Bois.BoisContractAttribute.Fields">
+            <summary>
+            Specifies that fields should be serialized or not.
+            </summary>
+        </member>
+        <member name="P:Salar.Bois.BoisContractAttribute.Properties">
+            <summary>
+            Specifies that properties should be serialized or not.
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.BoisContractAttribute.#ctor(System.Boolean,System.Boolean)">
+            <summary>
+            Can be used for classes and structs to specify that the serializer should serialize fields or properties.
+            </summary>
+            <param name="fields">Specifies that fields should be serialized or not.</param>
+            <param name="properties">Specifies that properties should be serialized or not.</param>
+        </member>
+        <member name="M:Salar.Bois.BoisContractAttribute.#ctor">
+            <summary>
+            Can be used for classes and structs to specify that the serializer should serialize fields or properties.
+            </summary>
+        </member>
+        <member name="T:Salar.Bois.BoisMemberAttribute">
+            <summary>
+            Specifies a field or peroperty settings for serialization.
+            </summary>
+        </member>
+        <member name="P:Salar.Bois.BoisMemberAttribute.Index">
+            <summary>
+            In which order should this member be serialized.
+            </summary>
+        </member>
+        <member name="P:Salar.Bois.BoisMemberAttribute.Included">
+            <summary>
+            Specifies that should this member be included in serialization.
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.BoisMemberAttribute.#ctor(System.Int32,System.Boolean)">
+            <summary>
+            Specifies a field or peroperty settings for serialization.
+            </summary>
+            <param name="index">In which order should this member be serialized.</param>
+            <param name="included">Specifies that should this member be included in serialization.</param>
+        </member>
+        <member name="M:Salar.Bois.BoisMemberAttribute.#ctor">
+            <summary>
+            Specifies a field or peroperty settings for serialization.
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.BoisMemberAttribute.#ctor(System.Int32)">
+            <summary>
+            Specifies a field or peroperty settings for serialization.
+            </summary>
+            <param name="index">In which order should this member be serialized.</param>
+        </member>
+        <member name="M:Salar.Bois.BoisMemberAttribute.#ctor(System.Boolean)">
+            <summary>
+            Specifies a field or peroperty settings for serialization.
+            </summary>
+            <param name="included">Specifies that should this member be included in serialization.</param>
+        </member>
+        <member name="F:Salar.Bois.BoisMemberInfo.IsContainerObject">
+            <summary>
+            Has Fields or Properties
+            </summary>
+        </member>
+        <member name="F:Salar.Bois.BoisMemberInfo.IsStruct">
+            <summary>
+            IsValueType
+            </summary>
+        </member>
+        <member name="T:Salar.Bois.BoisSerializer">
+            <summary>
+            Salar.Bois serializer.
+            Which provides binary serialization and deserialzation for .NET objects.
+            BOIS stands for 'Binary Object Indexed Serialization'.
+            </summary>
+            <Author>
+            Salar Khalilzadeh
+            </Author>
+        </member>
+        <member name="P:Salar.Bois.BoisSerializer.Encoding">
+            <summary>
+            Character encoding for strings.
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.BoisSerializer.#ctor">
+            <summary>
+            Initializing a new instance of Bois serializar.
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.BoisSerializer.Serialize``1(``0,System.IO.Stream)">
+            <summary>
+            Serializing an object to binary bois format.
+            </summary>
+            <param name="obj">The object to be serialized.</param>
+            <param name="output">The output of the serialization in binary.</param>
+            <typeparam name="T">The object type.</typeparam>
+        </member>
+        <member name="M:Salar.Bois.BoisSerializer.Serialize(System.Object,System.Type,System.IO.Stream)">
+            <summary>
+            Serializing an object to binary bois format.
+            </summary>
+            <param name="obj">The object to be serialized.</param>
+            <param name="type">The objects' type.</param>
+            <param name="output">The output of the serialization in binary.</param>
+        </member>
+        <member name="M:Salar.Bois.BoisSerializer.Deserialize``1(System.IO.Stream)">
+            <summary>
+            Deserilizing binary data to a new instance.
+            </summary>
+            <param name="objectData">The binary data.</param>
+            <typeparam name="T">The object type.</typeparam>
+            <returns>New instance of the deserialized data.</returns>
+        </member>
+        <member name="M:Salar.Bois.BoisSerializer.Deserialize``1(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Deserilizing binary data to a new instance.
+            </summary>
+            <param name="objectBuffer">The binary data.</param>
+            <param name="index">The index in buffer at which the stream begins.</param>
+            <param name="count">The length of the stream in bytes.</param>
+            <typeparam name="T">The object type.</typeparam>
+            <returns>New instance of the deserialized data.</returns>
+        </member>
+        <member name="M:Salar.Bois.BoisSerializer.Deserialize(System.Byte[],System.Type,System.Int32,System.Int32)">
+            <summary>
+            Deserilizing binary data to a new instance.
+            </summary>
+            <param name="objectBuffer">The binary data.</param>
+            <param name="type">The objects' type.</param>
+            <param name="index">The index in buffer at which the stream begins.</param>
+            <param name="count">The length of the stream in bytes.</param>
+            <returns>New instance of the deserialized data.</returns>
+        </member>
+        <member name="M:Salar.Bois.BoisSerializer.ClearCache">
+            <summary>
+            Removes all cached information about types.
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.BoisSerializer.Initialize``1">
+            <summary>
+            Reads type information and caches it.
+            </summary>
+            <typeparam name="T">The object type.</typeparam>
+        </member>
+        <member name="M:Salar.Bois.BoisSerializer.Initialize(System.Type[])">
+            <summary>
+            Reads type information and caches it.
+            </summary>
+            <param name="types">The objects types.</param>
+        </member>
+        <member name="M:Salar.Bois.BoisSerializer.WriteValue(System.IO.BinaryWriter,System.Object,System.Type)">
+            <summary>
+            Also called by root
+            </summary>
+        </member>
+        <member name="T:Salar.Bois.BoisTypeCache">
+            <summary>
+            Cached information about types, for internal use.
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.BoisTypeCache.ClearCache">
+            <summary>
+            Removes all cached information about types.
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.BoisTypeCache.RemoveEntry(System.Type)">
+            <summary>
+            Removes a cached entry.
+            </summary>
+            <param name="type">The object type.</param>
+        </member>
+        <member name="M:Salar.Bois.BoisTypeCache.Initialize``1">
+            <summary>
+            Reads type information and caches it.
+            </summary>
+            <typeparam name="T">The object type.</typeparam>
+        </member>
+        <member name="M:Salar.Bois.BoisTypeCache.Initialize(System.Type[])">
+            <summary>
+            Reads type information and caches it.
+            </summary>
+            <param name="types">The objects types.</param>
+        </member>
+        <member name="M:Salar.Bois.BoisTypeCache.IsNumber(System.Type,Salar.Bois.BoisMemberInfo@)">
+            <summary>
+            Slower convertion
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.BoisTypeCache.MakeDelegate(System.Reflection.MethodInfo)">
+            <summary>
+            Creates a dynamic getter for the property
+            </summary>
+            <author>
+            Gerhard Stephan 
+            http://jachman.wordpress.com/2006/08/22/2000-faster-using-dynamic-method-calls/
+            </author>
+        </member>
+        <member name="M:Salar.Bois.BoisTypeCache.GetFastGetterFunc(System.Reflection.PropertyInfo,System.Reflection.MethodInfo)">
+            <summary>
+            http://social.msdn.microsoft.com/Forums/en-US/netfxbcl/thread/8754500e-4426-400f-9210-554f9f2ad58b/
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Salar.Bois.BoisTypeCache.GetFastSetterFunc(System.Reflection.PropertyInfo,System.Reflection.MethodInfo)">
+            <summary>
+            http://social.msdn.microsoft.com/Forums/en-US/netfxbcl/thread/8754500e-4426-400f-9210-554f9f2ad58b/
+            </summary>
+        </member>
+        <member name="F:Salar.Bois.PrimitivesConvertion.NoflagNoNumInByte">
+            <summary>
+            0000 0000
+            </summary>
+        </member>
+        <member name="F:Salar.Bois.PrimitivesConvertion.NullableMaxNumInByte">
+            <summary>
+            0011 1111
+            </summary>
+        </member>
+        <member name="F:Salar.Bois.PrimitivesConvertion.NullableFlagNullMask">
+            <summary>
+            0111 1111
+            </summary>
+        </member>
+        <member name="F:Salar.Bois.PrimitivesConvertion.NullableFlagNullNum">
+            <summary>
+            1000 0000
+            </summary>
+        </member>
+        <member name="F:Salar.Bois.PrimitivesConvertion.NullableFlagInsideMask">
+            <summary>
+            1011 1111
+            </summary>
+        </member>
+        <member name="F:Salar.Bois.PrimitivesConvertion.NullableFlagInsideNum">
+            <summary>
+            0100 0000
+            </summary>
+        </member>
+        <member name="F:Salar.Bois.PrimitivesConvertion.ActualMaxNumInByte">
+            <summary>
+            0111 1111
+            </summary>
+        </member>
+        <member name="F:Salar.Bois.PrimitivesConvertion.ActualFlagInsideMask">
+            <summary>
+            0111 1111
+            </summary>
+        </member>
+        <member name="F:Salar.Bois.PrimitivesConvertion.ActualFlagInsideNum">
+            <summary>
+            1000 0000
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarInt16(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarInt16Nullable(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarUInt16(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarUInt16Nullable(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarDecimal(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarDecimalNullable(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarInt32(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarInt32Nullable(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarUInt32(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarUInt32Nullable(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarInt64(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarInt64Nullable(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarUInt64(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadVarUInt64Nullable(System.IO.BinaryReader)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarInt(System.IO.BinaryWriter,System.Int16)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarInt(System.IO.BinaryWriter,System.Nullable{System.Int16})">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarInt(System.IO.BinaryWriter,System.UInt16)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarInt(System.IO.BinaryWriter,System.Nullable{System.UInt16})">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarInt(System.IO.BinaryWriter,System.Int32)">
+            <summary>
+            Use zigzag encoding 
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarInt(System.IO.BinaryWriter,System.Nullable{System.Int32})">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarInt(System.IO.BinaryWriter,System.UInt32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarInt(System.IO.BinaryWriter,System.Nullable{System.UInt32})">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarInt(System.IO.BinaryWriter,System.Int64)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarInt(System.IO.BinaryWriter,System.Nullable{System.Int64})">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarInt(System.IO.BinaryWriter,System.Nullable{System.UInt64})">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarDecimal(System.IO.BinaryWriter,System.Nullable{System.Single})">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarDecimal(System.IO.BinaryWriter,System.Nullable{System.Double})">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarDecimal(System.IO.BinaryWriter,System.Double)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteVarDecimal(System.IO.BinaryWriter,System.Nullable{System.Decimal})">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteUIntStepped(System.IO.BinaryWriter,System.UInt64)">
+            <summary>
+            1000 0000 -> 1000 0000 -> 0000 0000 | stop
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.WriteUIntStepped(System.IO.BinaryWriter,System.UInt32)">
+            <summary>
+            1000 0000 -> 1000 0000 -> 0000 0000 | stop
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadInt32Zigzag(System.IO.BinaryReader)">
+            <summary>
+            Read using zig zag
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.PrimitivesConvertion.ReadUInt32Stepped(System.IO.BinaryReader)">
+            <summary>
+            Read stepped uint
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.ReflectionHelper.FindUnderlyingGenericElementType(System.Type)">
+            <summary>
+            Finds the underlying element type of a contained generic type
+            Less acurate but cpu cheaper
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.ReflectionHelper.FindUnderlyingIEnumerableElementType(System.Type)">
+            <summary>
+            Finds the underlying element type of a contained generic type
+            CPU heavy but more accurate!
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.ReflectionHelper.CompareInterfaceGenericTypeDefinition(System.Type,System.Type)">
+            <summary>
+            Check to see if the type implements an specific generic interface type
+            </summary>
+        </member>
+        <member name="M:Salar.Bois.ReflectionHelper.CompareInterfaceGenericTypeDefinition(System.Type[],System.Type)">
+            <summary>
+            Check to see if the type implements an specific generic interface type
+            </summary>
+        </member>
+    </members>
+</doc>

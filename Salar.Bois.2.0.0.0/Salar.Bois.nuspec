@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Salar.Bois</id>
+    <version>2.0.0.0</version>
+    <title>BOIS (Binary Object Indexed Serialization)</title>
+    <authors>Salar Khalilzadeh</authors>
+    <owners>Salar Khalilzadeh</owners>
+    <licenseUrl>https://github.com/salarcode/Bois/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/salarcode/Bois</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Salar.Bois is a compact, light and powerful binary serializer for .NET Framework, which produces very small binaries (even smaller than ProtocolBuffer).
+			With Bois you can serialize your existing objects with almost no change.
+			More info: https://github.com/salarcode/Bois</description>
+    <releaseNotes>+ Compact serialization of more primitive types are supported. UInt64, UInt32, UInt16 and Decimal.
+			+ More basic classes support are supported. Uri and DateTimeOffset.
+			+ Interfaces serialization are supported now.
+			+ New Serialize/Deserialize methods.</releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>
+  </metadata>
+</package>

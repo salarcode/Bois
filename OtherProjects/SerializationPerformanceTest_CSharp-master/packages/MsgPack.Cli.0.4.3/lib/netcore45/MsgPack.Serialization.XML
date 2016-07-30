@@ -1,0 +1,1689 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MsgPack.Serialization</name>
+    </assembly>
+    <members>
+        <member name="T:MsgPack.PackerUnpackerExtensions">
+            <summary>
+            	Defines extension method to pack or unpack various objects.
+            </summary>
+        </member>
+        <member name="M:MsgPack.PackerUnpackerExtensions.Pack``1(MsgPack.Packer,``0)">
+            <summary>
+            	Packs specified value with the default context.
+            </summary>
+            <typeparam name="T">The type of the value.</typeparam>
+            <param name="source">The <see cref="T:MsgPack.Packer"/>.</param>
+            <param name="value">The value to be serialized.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="source"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Cannot serialize <paramref name="value"/>.
+            </exception>
+        </member>
+        <member name="M:MsgPack.PackerUnpackerExtensions.Pack``1(MsgPack.Packer,``0,MsgPack.Serialization.SerializationContext)">
+            <summary>
+            	Packs specified value with the specified context.
+            </summary>
+            <typeparam name="T">The type of the value.</typeparam>
+            <param name="source">The <see cref="T:MsgPack.Packer"/>.</param>
+            <param name="value">The value to be serialized.</param>
+            <param name="context">The <see cref="T:MsgPack.Serialization.SerializationContext"/> holds shared serializers.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="source"/> is <c>null</c>.
+            	Or <paramref name="context"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Cannot serialize <paramref name="value"/>.
+            </exception>
+        </member>
+        <member name="M:MsgPack.PackerUnpackerExtensions.PackObject(MsgPack.Packer,System.Object)">
+            <summary>
+            	Packs specified value with the default context.
+            </summary>
+            <param name="source">The <see cref="T:MsgPack.Packer"/>.</param>
+            <param name="value">The value to be serialized.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="source"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Cannot serialize <paramref name="value"/>.
+            </exception>
+        </member>
+        <member name="M:MsgPack.PackerUnpackerExtensions.PackObject(MsgPack.Packer,System.Object,MsgPack.Serialization.SerializationContext)">
+            <summary>
+            	Packs specified value with the specified context.
+            </summary>
+            <param name="source">The <see cref="T:MsgPack.Packer"/>.</param>
+            <param name="value">The value to be serialized.</param>
+            <param name="context">The <see cref="T:MsgPack.Serialization.SerializationContext"/> holds shared serializers.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="source"/> is <c>null</c>.
+            	Or <paramref name="context"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Cannot serialize <paramref name="value"/>.
+            </exception>
+        </member>
+        <member name="M:MsgPack.PackerUnpackerExtensions.Unpack``1(MsgPack.Unpacker)">
+            <summary>
+            	Unpacks specified type value with the default context.
+            </summary>
+            <typeparam name="T">The type of the value.</typeparam>
+            <param name="source">The <see cref="T:MsgPack.Unpacker"/>.</param>
+            <returns>The deserialized value.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="source"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Cannot deserialize <typeparamref name="T"/> value.
+            </exception>
+        </member>
+        <member name="M:MsgPack.PackerUnpackerExtensions.Unpack``1(MsgPack.Unpacker,MsgPack.Serialization.SerializationContext)">
+            <summary>
+            	Unpacks specified type value with the specified context.
+            </summary>
+            <typeparam name="T">The type of the value.</typeparam>
+            <param name="source">The <see cref="T:MsgPack.Unpacker"/>.</param>
+            <param name="context">The <see cref="T:MsgPack.Serialization.SerializationContext"/> holds shared serializers.</param>
+            <returns>The deserialized value.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="source"/> is <c>null</c>.
+            	Or <paramref name="context"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Cannot deserialize <typeparamref name="T"/> value.
+            </exception>
+        </member>
+        <member name="T:MsgPack.Serialization.AutoMessagePackSerializer`1">
+            <summary>
+            	<see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> based on reflection, opt-out based.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:MsgPack.Serialization.MessagePackSerializer`1">
+            <summary>
+            	Defines base contract for object serialization.
+            </summary>
+            <typeparam name="T">Target type.</typeparam>
+            <remarks>
+            	<para>
+            		This class implements strongly typed serialization and deserialization.
+            	</para>
+            	<para>
+            		When the underlying stream does not contain strongly typed or contains dynamically typed objects,
+            		you should use <see cref="T:MsgPack.Unpacker"/> directly and take advantage of <see cref="T:MsgPack.MessagePackObject"/>.
+            	</para>
+            </remarks>
+            <seealso cref="T:MsgPack.Unpacker"/>
+            <seealso cref="T:MsgPack.Unpacking"/>
+        </member>
+        <member name="T:MsgPack.Serialization.IMessagePackSerializer">
+            <summary>
+            	Defines non-generic message pack serializer interface.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.IMessagePackSerializer.PackTo(MsgPack.Packer,System.Object)">
+            <summary>
+            	Serialize specified object with specified <see cref="T:MsgPack.Packer"/>.
+            </summary>
+            <param name="packer"><see cref="T:MsgPack.Packer"/> which packs values in <paramref name="objectTree"/>.</param>
+            <param name="objectTree">Object to be serialized.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="packer"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            	<paramref name="objectTree"/> is not compatible for this serializer.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	The type of <paramref name="objectTree"/> is not serializable etc.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.IMessagePackSerializer.UnpackFrom(MsgPack.Unpacker)">
+            <summary>
+            	Deserialize object with specified <see cref="T:MsgPack.Unpacker"/>.
+            </summary>
+            <param name="unpacker"><see cref="T:MsgPack.Unpacker"/> which unpacks values of resulting object tree.</param>
+            <returns>Deserialized object.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="unpacker"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.MessageTypeException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.InvalidMessagePackStreamException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            	Deserializing type is abstract type.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.IMessagePackSerializer.UnpackTo(MsgPack.Unpacker,System.Object)">
+            <summary>
+            	Deserialize collection items with specified <see cref="T:MsgPack.Unpacker"/> and stores them to <paramref name="collection"/>.
+            </summary>
+            <param name="unpacker"><see cref="T:MsgPack.Unpacker"/> which unpacks values of resulting object tree.</param>
+            <param name="collection">Collection that the items to be stored.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="unpacker"/> is <c>null</c>.
+            	Or <paramref name="collection"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            	<paramref name="collection"/> is not compatible for this serializer.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.MessageTypeException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.InvalidMessagePackStreamException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            	The type of <paramref name="collection"/> is not serializable etc.
+            </exception>
+        </member>
+        <member name="T:MsgPack.Serialization.IMessagePackSingleObjectSerializer">
+            <summary>
+            	Defines non-generic message pack serializer interface for byte array which contains a single object.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.IMessagePackSingleObjectSerializer.PackSingleObject(System.Object)">
+            <summary>
+            	Serialize specified object to the array of <see cref="T:System.Byte"/>.
+            </summary>
+            <param name="objectTree">Object to be serialized.</param>
+            <returns>An array of <see cref="T:System.Byte"/> which stores serialized value.</returns>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	<paramref name="objectTree"/> is not serializable etc.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.IMessagePackSingleObjectSerializer.UnpackSingleObject(System.Byte[])">
+            <summary>
+            	Deserialize a single object from the array of <see cref="T:System.Byte"/> which contains a serialized object.
+            </summary>
+            <param name="buffer">An array of <see cref="T:System.Byte"/> serialized value to be stored.</param>
+            <returns>A bytes of serialized binary.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="buffer"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.MessageTypeException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.InvalidMessagePackStreamException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <remarks>
+            	<para>
+            		This method assumes that <paramref name="buffer"/> contains single serialized object dedicatedly,
+            		so this method does not return any information related to actual consumed bytes.
+            	</para>
+            	<para>
+            		This method is a counter part of <see cref="M:MsgPack.Serialization.IMessagePackSingleObjectSerializer.PackSingleObject(System.Object)"/>.
+            	</para>
+            </remarks>	
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.#ctor">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> class with <see cref="F:MsgPack.PackerCompatibilityOptions.Classic"/>.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.#ctor(MsgPack.PackerCompatibilityOptions)">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> class.
+            </summary>
+            <param name="packerCompatibilityOptions">The <see cref="T:MsgPack.PackerCompatibilityOptions"/> for new packer creation.</param>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.Pack(System.IO.Stream,`0)">
+            <summary>
+            	Serialize specified object to the <see cref="T:System.IO.Stream"/>.
+            </summary>
+            <param name="stream">Destination <see cref="T:System.IO.Stream"/>.</param>
+            <param name="objectTree">Object to be serialized.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="stream"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	<typeparamref name="T"/> is not serializable etc.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.Unpack(System.IO.Stream)">
+            <summary>
+            	Deserialize object from the <see cref="T:System.IO.Stream"/>.
+            </summary>
+            <param name="stream">Source <see cref="T:System.IO.Stream"/>.</param>
+            <returns>Deserialized object.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="stream"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	<typeparamref name="T"/> is not serializable etc.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.PackTo(MsgPack.Packer,`0)">
+            <summary>
+            	Serialize specified object with specified <see cref="T:MsgPack.Packer"/>.
+            </summary>
+            <param name="packer"><see cref="T:MsgPack.Packer"/> which packs values in <paramref name="objectTree"/>.</param>
+            <param name="objectTree">Object to be serialized.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="packer"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	<typeparamref name="T"/> is not serializable etc.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.PackToCore(MsgPack.Packer,`0)">
+            <summary>
+            	Serialize specified object with specified <see cref="T:MsgPack.Packer"/>.
+            </summary>
+            <param name="packer"><see cref="T:MsgPack.Packer"/> which packs values in <paramref name="objectTree"/>. This value will not be <c>null</c>.</param>
+            <param name="objectTree">Object to be serialized.</param>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	<typeparamref name="T"/> is not serializable etc.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.UnpackFrom(MsgPack.Unpacker)">
+            <summary>
+            	Deserialize object with specified <see cref="T:MsgPack.Unpacker"/>.
+            </summary>
+            <param name="unpacker"><see cref="T:MsgPack.Unpacker"/> which unpacks values of resulting object tree.</param>
+            <returns>Deserialized object.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="unpacker"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.MessageTypeException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.InvalidMessagePackStreamException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            	<typeparamref name="T"/> is abstract type.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.UnpackFromCore(MsgPack.Unpacker)">
+            <summary>
+            	Deserialize object with specified <see cref="T:MsgPack.Unpacker"/>.
+            </summary>
+            <param name="unpacker"><see cref="T:MsgPack.Unpacker"/> which unpacks values of resulting object tree. This value will not be <c>null</c>.</param>
+            <returns>Deserialized object.</returns>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.MessageTypeException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.InvalidMessagePackStreamException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            	<typeparamref name="T"/> is abstract type.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.UnpackTo(MsgPack.Unpacker,`0)">
+            <summary>
+            	Deserialize collection items with specified <see cref="T:MsgPack.Unpacker"/> and stores them to <paramref name="collection"/>.
+            </summary>
+            <param name="unpacker"><see cref="T:MsgPack.Unpacker"/> which unpacks values of resulting object tree.</param>
+            <param name="collection">Collection that the items to be stored.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="unpacker"/> is <c>null</c>.
+            	Or <paramref name="collection"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.MessageTypeException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.InvalidMessagePackStreamException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            	<typeparamref name="T"/> is not collection.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.UnpackToCore(MsgPack.Unpacker,`0)">
+            <summary>
+            	Deserialize collection items with specified <see cref="T:MsgPack.Unpacker"/> and stores them to <paramref name="collection"/>.
+            </summary>
+            <param name="unpacker"><see cref="T:MsgPack.Unpacker"/> which unpacks values of resulting object tree. This value will not be <c>null</c>.</param>
+            <param name="collection">Collection that the items to be stored. This value will not be <c>null</c>.</param>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            	<typeparamref name="T"/> is not collection.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.PackSingleObject(`0)">
+            <summary>
+            	Serialize specified object to the array of <see cref="T:System.Byte"/>.
+            </summary>
+            <param name="objectTree">Object to be serialized.</param>
+            <returns>An array of <see cref="T:System.Byte"/> which stores serialized value.</returns>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	<typeparamref name="T"/> is not serializable etc.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer`1.UnpackSingleObject(System.Byte[])">
+            <summary>
+            	Deserialize a single object from the array of <see cref="T:System.Byte"/> which contains a serialized object.
+            </summary>
+            <param name="buffer">An array of <see cref="T:System.Byte"/> serialized value to be stored.</param>
+            <returns>A bytes of serialized binary.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="buffer"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.MessageTypeException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:MsgPack.InvalidMessagePackStreamException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <remarks>
+            	<para>
+            		This method assumes that <paramref name="buffer"/> contains single serialized object dedicatedly,
+            		so this method does not return any information related to actual consumed bytes.
+            	</para>
+            	<para>
+            		This method is a counter part of <see cref="M:MsgPack.Serialization.MessagePackSerializer`1.PackSingleObject(`0)"/>.
+            	</para>
+            </remarks>
+        </member>
+        <member name="M:MsgPack.Serialization.AutoMessagePackSerializer`1.#ctor(MsgPack.Serialization.SerializationContext,System.Func{MsgPack.Serialization.SerializationContext,MsgPack.Serialization.SerializerBuilder{`0}})">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.AutoMessagePackSerializer`1"/> class.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.AutoMessagePackSerializer`1.PackToCore(MsgPack.Packer,`0)">
+            <summary>
+            	Serialize specified object with specified <see cref="T:MsgPack.Packer"/>.
+            </summary>
+            <param name="packer"><see cref="T:MsgPack.Packer"/> which packs values in <paramref name="objectTree"/>. This value will not be <c>null</c>.</param>
+            <param name="objectTree">Object to be serialized.</param>
+        </member>
+        <member name="M:MsgPack.Serialization.AutoMessagePackSerializer`1.UnpackFromCore(MsgPack.Unpacker)">
+            <summary>
+            	Deserialize object with specified <see cref="T:MsgPack.Unpacker"/>.
+            </summary>
+            <param name="unpacker"><see cref="T:MsgPack.Unpacker"/> which unpacks values of resulting object tree. This value will not be <c>null</c>.</param>
+            <returns>Deserialized object.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.AutoMessagePackSerializer`1.UnpackToCore(MsgPack.Unpacker,`0)">
+            <summary>
+            	Deserialize collection items with specified <see cref="T:MsgPack.Unpacker"/> and stores them to <paramref name="collection"/>.
+            </summary>
+            <param name="unpacker"><see cref="T:MsgPack.Unpacker"/> which unpacks values of resulting object tree. This value will not be <c>null</c>.</param>
+            <param name="collection">Collection that the items to be stored. This value will not be <c>null</c>.</param>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialize object due to invalid unpacker state, stream content, or so.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            	<typeparamref name="T"/> is not collection.
+            </exception>
+        </member>
+        <member name="T:MsgPack.Serialization.CallbackMessagePackSerializer`1">
+            <summary>
+            	Callback based <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> to implement context-based serialization.
+            </summary>
+            <typeparam name="T">The type of target type.</typeparam>
+        </member>
+        <member name="T:MsgPack.Serialization.DataMemberContract">
+            <summary>
+            	Represents member's data contract.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.DataMemberContract.#ctor(System.Reflection.MemberInfo)">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.DataMemberContract"/> struct.
+            </summary>
+            <param name="member">The target member.</param>
+        </member>
+        <member name="M:MsgPack.Serialization.DataMemberContract.#ctor(System.Reflection.MemberInfo,System.Runtime.Serialization.DataMemberAttribute)">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.DataMemberContract"/> struct from <see cref="T:System.Runtime.Serialization.DataMemberAttribute"/>.
+            </summary>
+            <param name="member">The target member.</param>
+            <param name="attribute">The data contract member attribute. This value can be <c>null</c>.</param>
+        </member>
+        <member name="M:MsgPack.Serialization.DataMemberContract.#ctor(System.Reflection.MemberInfo,MsgPack.Serialization.MessagePackMemberAttribute)">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.DataMemberContract"/> struct from <see cref="T:MsgPack.Serialization.MessagePackMemberAttribute"/>.
+            </summary>
+            <param name="member">The target member.</param>
+            <param name="attribute">The MessagePack member attribute. This value can be <c>null</c>.</param>
+        </member>
+        <member name="P:MsgPack.Serialization.DataMemberContract.Name">
+            <summary>
+            	Gets the name of the member.
+            </summary>
+            <value>
+            	The name of the member.
+            </value>
+            <seealso cref="T:System.Runtime.Serialization.DataMemberAttribute"/>
+        </member>
+        <member name="P:MsgPack.Serialization.DataMemberContract.Id">
+            <summary>
+            	Gets the ID of the member.
+            </summary>
+            <value>
+            	The ID of the member. Default is <c>-1</c>.
+            </value>
+        </member>
+        <member name="P:MsgPack.Serialization.DataMemberContract.NilImplication">
+            <summary>
+            	Gets the nil implication.
+            </summary>
+            <value>
+            	The nil implication.
+            </value>
+        </member>
+        <member name="T:MsgPack.Serialization.DefaultConcreteTypeRepository">
+            <summary>
+            	Repository of known concrete collection type for abstract collection type.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.DefaultConcreteTypeRepository.Get(System.Type)">
+            <summary>
+            	Gets the default type for the collection.
+            </summary>
+            <param name="abstractCollectionType">Type of the abstract collection.</param>
+            <returns>
+            	Type of default concrete collection.
+            	If concrete collection type of <paramref name="abstractCollectionType"/>, then returns <c>null</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="abstractCollectionType"/> is <c>null</c>.
+            </exception>
+            <remarks>
+            	By default, following types are registered:
+            	<list type="table">
+            		<listheader>
+            			<term>Abstract Collection Type</term>
+            			<description>Concrete Default Collection Type</description>
+            		</listheader>
+            		<item>
+            			<term><see cref="T:System.Collections.Generic.IEnumerable`1"/></term>
+            			<description><see cref="T:System.Collections.Generic.List`1"/></description>
+            		</item>
+            		<item>
+            			<term><see cref="T:System.Collections.Generic.ICollection`1"/></term>
+            			<description><see cref="T:System.Collections.Generic.List`1"/></description>
+            		</item>
+            		<item>
+            			<term><see cref="T:System.Collections.Generic.ISet`1"/> (.NET 4 or lator)</term>
+            			<description><see cref="T:System.Collections.Generic.HashSet`1"/></description>
+            		</item>
+            		<item>
+            			<term><see cref="T:System.Collections.Generic.IList`1"/></term>
+            			<description><see cref="T:System.Collections.Generic.List`1"/></description>
+            		</item>
+            		<item>
+            			<term><see cref="T:System.Collections.Generic.IDictionary`2"/></term>
+            			<description><see cref="T:System.Collections.Generic.Dictionary`2"/></description>
+            		</item>
+            		<item>
+            			<term><see cref="T:System.Collections.IEnumerable"/></term>
+            			<description><see cref="T:System.Collections.Generic.List`1"/> of <see cref="T:MsgPack.MessagePackObject"/>.</description>
+            		</item>
+            		<item>
+            			<term><see cref="T:System.Collections.ICollection"/></term>
+            			<description><see cref="T:System.Collections.Generic.List`1"/> of <see cref="T:MsgPack.MessagePackObject"/>.</description>
+            		</item>
+            		<item>
+            			<term><see cref="T:System.Collections.IList"/></term>
+            			<description><see cref="T:System.Collections.Generic.List`1"/> of <see cref="T:MsgPack.MessagePackObject"/>.</description>
+            		</item>
+            		<item>
+            			<term><see cref="T:System.Collections.IDictionary"/></term>
+            			<description><see cref="T:MsgPack.MessagePackObjectDictionary"/></description>
+            		</item>
+            	</list>
+            </remarks>
+        </member>
+        <member name="M:MsgPack.Serialization.DefaultConcreteTypeRepository.Register(System.Type,System.Type)">
+            <summary>
+            	Registers the default type of the collection.
+            </summary>
+            <param name="abstractCollectionType">Type of the abstract collection.</param>
+            <param name="defaultCollectionType">Default concrete type of the <paramref name="abstractCollectionType"/>.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="abstractCollectionType"/> is <c>null</c>.
+            	Or <paramref name="defaultCollectionType"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            	<paramref name="abstractCollectionType"/> is not collection type.
+            	Or <paramref name="defaultCollectionType"/> is abstract class or interface.
+            	Or <paramref name="defaultCollectionType"/> is open generic type but <paramref name="abstractCollectionType"/> is closed generic type.
+            	Or <paramref name="defaultCollectionType"/> is closed generic type but <paramref name="abstractCollectionType"/> is open generic type.
+            	Or <paramref name="defaultCollectionType"/> does not have same arity for <paramref name="abstractCollectionType"/>.
+            	Or <paramref name="defaultCollectionType"/> is not assignable to <paramref name="abstractCollectionType"/>
+            	or the constructed type from <paramref name="defaultCollectionType"/> will not be assignable to the constructed type from <paramref name="abstractCollectionType"/>.
+            </exception>
+            <remarks>
+            	If you want to overwrite default type for collection interfaces, you can use this method.
+            	Note that this method only supports collection interface, that is subtype of the <see cref="T:System.Collections.IEnumerable"/> interface.
+            	<note>
+            		If you register invalid type for <paramref name="defaultCollectionType"/>, then runtime exception will be occurred.
+            		For example, you register <see cref="T:System.Collections.Generic.IEnumerable`1"/> of <see cref="T:System.Char"/> and <see cref="T:System.String"/> pair, but it will cause runtime error.
+            	</note>
+            </remarks>
+            <seealso cref="M:MsgPack.Serialization.DefaultConcreteTypeRepository.Get(System.Type)"/>
+        </member>
+        <member name="M:MsgPack.Serialization.DefaultConcreteTypeRepository.Unregister(System.Type)">
+            <summary>
+            	Unregisters the default type of the collection.
+            </summary>
+            <param name="abstractCollectionType">Type of the abstract collection.</param>
+            <returns>
+            	<c>true</c> if default collection type is removed successfully;
+            	otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:MsgPack.Serialization.DefaultSerializers.MessagePackObjectExtensions.DeserializeAsString(MsgPack.MessagePackObject)">
+            <summary>
+            	Invokes <see cref="M:MsgPack.MessagePackObject.AsString"/> in deserializaton manner.
+            </summary>
+            <param name="source"><see cref="T:MsgPack.MessagePackObject"/>.</param>
+            <returns>A deserialized value.</returns>
+            <exception cref="T:System.Runtime.Serialization.SerializationException"><paramref name="source"/> is not expected type.</exception>
+        </member>
+        <member name="T:MsgPack.Serialization.EmitterFlavor">
+            <summary>
+            	Determines emitter strategy.
+            </summary>
+        </member>
+        <member name="F:MsgPack.Serialization.EmitterFlavor.ContextBased">
+            <summary>
+            	Uses <see cref="T:MsgPack.Serialization.SerializationContext"/> in each case of the members (de)serialization.
+            	It may cause more contentions but is available in WP7.
+            </summary>
+        </member>
+        <member name="F:MsgPack.Serialization.EmitterFlavor.FieldBased">
+            <summary>
+            	Caches serializers for the members (de)serialization.
+            	It is default.
+            </summary>
+        </member>
+        <member name="F:MsgPack.Serialization.EmitterFlavor.ExpressionBased">
+            <summary>
+            	Uses expression tree to (de)serialization.
+            	It may have more overhead but is available in WinRT.
+            </summary>
+        </member>
+        <member name="T:MsgPack.Serialization.ExpressionSerializers.ArrayFormatObjectExpressionMessagePackSerializer`1">
+            <summary>
+            	<see cref="T:MsgPack.Serialization.ExpressionSerializers.ObjectExpressionMessagePackSerializer`1"/> for array format stream.
+            </summary>
+            <typeparam name="T">The type of target type.</typeparam>
+        </member>
+        <member name="T:MsgPack.Serialization.ExpressionSerializers.ObjectExpressionMessagePackSerializer`1">
+            <summary>
+            	Implements expression tree based serializer for general object.
+            </summary>
+            <typeparam name="T">The type of target object.</typeparam>
+        </member>
+        <member name="T:MsgPack.Serialization.ExpressionSerializers.ArrayExpressionMessagePackSerializer`1">
+            <summary>
+            	<see cref="T:MsgPack.Serialization.ExpressionSerializers.SequenceExpressionMessagePackSerializer`1"/> for an array.
+            </summary>
+            <typeparam name="T">The type of element.</typeparam>
+        </member>
+        <member name="T:MsgPack.Serialization.ExpressionSerializers.SequenceExpressionMessagePackSerializer`1">
+            <summary>
+            	<see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> for a sequential collection using expression tree.
+            </summary>
+            <typeparam name="T">The type of element.</typeparam>
+        </member>
+        <member name="T:MsgPack.Serialization.ExpressionSerializers.ExpressionDumper">
+            <summary>
+            	Takes text dump for expression tree supporting block expression etc.
+            </summary>
+        </member>
+        <member name="T:MsgPack.Serialization.ExpressionSerializers.ExpressionSerializerBuilder`1">
+            <summary>
+            	Implements common features expression tree based serializer builders.
+            </summary>
+            <typeparam name="TObject">The type of the serialization target.</typeparam>
+        </member>
+        <member name="T:MsgPack.Serialization.SerializerBuilder`1">
+            <summary>
+            	Build serializer for <typeparamref name="TObject"/>.
+            </summary>
+            <typeparam name="TObject">Object to be serialized/deserialized.</typeparam>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerBuilder`1.#ctor(MsgPack.Serialization.SerializationContext)">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.SerializerBuilder`1"/> class.
+            </summary>
+            <param name="context">The <see cref="T:MsgPack.Serialization.SerializationContext"/>.</param>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerBuilder`1.CreateSerializer">
+            <summary>
+            	Creates serializer for <typeparamref name="TObject"/>.
+            </summary>
+            <returns>
+            	<see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/>. This value will not be <c>null</c>.
+            </returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerBuilder`1.CreateSerializer(MsgPack.Serialization.SerializingMember[])">
+            <summary>
+            	Creates serializer for <typeparamref name="TObject"/>.
+            </summary>
+            <param name="entries">Serialization target members. This will not be <c>null</c> nor empty.</param>
+            <returns>
+            	<see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/>. This value will not be <c>null</c>.
+            </returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerBuilder`1.CreateArraySerializer">
+            <summary>
+            	Creates serializer as <typeparamref name="TObject"/> is array type.
+            </summary>
+            <returns>
+            	<see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/>. 
+            	This value will not be <c>null</c>.
+            </returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerBuilder`1.CreateMapSerializer">
+            <summary>
+            	Creates serializer as <typeparamref name="TObject"/> is map type.
+            </summary>
+            <returns>
+            	<see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/>. 
+            	This value will not be <c>null</c>.
+            </returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerBuilder`1.CreateTupleSerializer">
+            <summary>
+            	Creates serializer as <typeparamref name="TObject"/> is tuple type.
+            </summary>
+            <returns>
+            	<see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/>. 
+            	This value will not be <c>null</c>.
+            </returns>
+        </member>
+        <member name="P:MsgPack.Serialization.SerializerBuilder`1.Context">
+            <summary>
+            	Gets the <see cref="T:MsgPack.Serialization.SerializationContext"/>.
+            </summary>
+            <value>
+            	The <see cref="T:MsgPack.Serialization.SerializationContext"/>.
+            </value>
+        </member>
+        <member name="M:MsgPack.Serialization.ExpressionSerializers.ExpressionSerializerLogics.CreateGetCount``1(MsgPack.Serialization.CollectionTraits)">
+            <summary>
+            	Creates a delegate which returns collection count.
+            </summary>
+            <typeparam name="T">The type of collection element.</typeparam>
+            <param name="traits">The traits of the collection.</param>
+            <returns>A delegate which returns collection count.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.ExpressionSerializers.ExpressionSerializerLogics.CreateGetCountExpression``1(MsgPack.Serialization.CollectionTraits,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            	Creates an <see cref="T:System.Linq.Expressions.Expression"/> which returns collection count.
+            </summary>
+            <typeparam name="T">The type of collection element.</typeparam>
+            <param name="traits">The traits of the collection.</param>
+            <param name="targetParameter">The parameter <see cref="T:System.Linq.Expressions.Expression"/> which represents the target collection.</param>
+            <returns>An <see cref="T:System.Linq.Expressions.Expression"/> which returns collection count.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.ExpressionSerializers.ExpressionSerializerLogics.Using(System.Type,System.Type,System.Linq.Expressions.Expression,System.Func{System.Linq.Expressions.Expression,System.Linq.Expressions.Expression})">
+            <summary>
+            	Creates an <see cref="T:System.Linq.Expressions.Expression"/> which represents using statement block.
+            </summary>
+            <param name="variableType">The type of variable. It must be assignable to <see cref="T:System.IDisposable"/>.</param>
+            <param name="expressionType">The type of entire expression. This can be <c>null</c>.</param>
+            <param name="right">The right of using declaration .</param>
+            <param name="bodyCreator">The body creator. The argument is left of using declaration.</param>
+            <returns>An <see cref="T:System.Linq.Expressions.Expression"/> which represents using statement block.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.ExpressionSerializers.ExpressionSerializerLogics.For(System.Linq.Expressions.Expression,System.Func{System.Linq.Expressions.Expression,System.Linq.Expressions.Expression})">
+            <summary>
+            	Creates an <see cref="T:System.Linq.Expressions.Expression"/> which represents index based for block.
+            </summary>
+            <param name="count">The count which limits iteration.</param>
+            <param name="bodyCreator">The body creator. The argument is <c>i</c> index variable of for loop.</param>
+            <returns>An <see cref="T:System.Linq.Expressions.Expression"/> which represents index based for block.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.ExpressionSerializers.ExpressionSerializerLogics.ForEach(System.Linq.Expressions.Expression,MsgPack.Serialization.CollectionTraits,System.Func{System.Linq.Expressions.Expression,System.Linq.Expressions.Expression})">
+            <summary>
+            	Creates an <see cref="T:System.Linq.Expressions.Expression"/> which represents foreach block.
+            </summary>
+            <param name="collection">The collection to be enumerated.</param>
+            <param name="traits">The traits of the collection.</param>
+            <param name="bodyCreator">The body creator. The argument is <c>Current</c> property of the enumerator.</param>
+            <returns>An <see cref="T:System.Linq.Expressions.Expression"/> which represents foreach block.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.ExpressionSerializers.ExpressionSerializerLogics.GetCollectionConstructor(MsgPack.Serialization.SerializationContext,System.Type)">
+            <summary>
+            	Returns an appropriate <see cref="T:System.Reflection.ConstructorInfo"/> of collection.
+            </summary>
+            <param name="context">The serialization context which holds default collection type.</param>
+            <param name="type">The type of the collection.</param>
+            <returns>An appropriate <see cref="T:System.Reflection.ConstructorInfo"/> of collection.</returns>
+            <remarks>
+            	If the collection has <c>.ctor(int capacity)</c>, then it will be returned.
+            	Otherwise, default constructor will be returned.
+            	Note that this method cannot determine whether a single <see cref="T:System.Int32"/> parameter truely represents 'capacity' or not.
+            </remarks>
+        </member>
+        <member name="M:MsgPack.Serialization.ExpressionSerializers.ExpressionSerializerLogics.CreateUnpackItem(System.Linq.Expressions.Expression,System.Reflection.MethodInfo,System.Linq.Expressions.Expression,System.Type)">
+            <summary>
+            	Creates an <see cref="T:System.Linq.Expressions.Expression"/> which unpack an item.
+            </summary>
+            <param name="unpackerParameter">The parameter <see cref="T:System.Linq.Expressions.Expression"/> which holds the unpacker.</param>
+            <param name="unpackFrom">The target <c>UnpackFrom</c> method of the serializer for item type.</param>
+            <param name="serializerParameter">The parameter <see cref="T:System.Linq.Expressions.Expression"/> which has <c>UnpackFrom </c>will be invoked.</param>
+            <param name="serializerType">The type of the item serializer.</param>
+            <returns>An <see cref="T:System.Linq.Expressions.Expression"/> which unpack an item.</returns>
+        </member>
+        <member name="T:MsgPack.Serialization.ExpressionSerializers.ListExpressionMessagePackSerializer`1">
+            <summary>
+            	<see cref="T:MsgPack.Serialization.ExpressionSerializers.SequenceExpressionMessagePackSerializer`1"/> for a collection which has <c>Add</c> method.
+            </summary>
+            <typeparam name="T">The type of element.</typeparam>
+        </member>
+        <member name="T:MsgPack.Serialization.ExpressionSerializers.MapExpressionMessagePackSerializer`1">
+            <summary>
+            	<see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> for a map collection using expression tree.
+            </summary>
+            <typeparam name="T">The type of element.</typeparam>
+        </member>
+        <member name="T:MsgPack.Serialization.ExpressionSerializers.MapFormatObjectExpressionMessagePackSerializer`1">
+            <summary>
+            	<see cref="T:MsgPack.Serialization.ExpressionSerializers.ObjectExpressionMessagePackSerializer`1"/> for map format stream.
+            </summary>
+            <typeparam name="T">The type of target type.</typeparam>
+        </member>
+        <member name="T:MsgPack.Serialization.IdentifierUtility">
+            <summary>
+            	Utilities related to member/type ID.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.IdentifierUtility.BuildMethodName(System.String,System.Type,System.String)">
+            <summary>
+            	Builds the name of the generating method.
+            </summary>
+            <param name="operation">The operation.</param>
+            <param name="targetType">Type of the target.</param>
+            <param name="targetMemberName">Name of the target member.</param>
+            <returns>Name of the method.</returns>
+        </member>
+        <member name="T:MsgPack.Serialization.LazyDelegatingMessagePackSerializer`1">
+            <summary>
+            	Lazy initialized serializer which delegates actual work for the other serializer implementation.
+            </summary>
+            <typeparam name="T">
+            	The type of target type.
+            </typeparam>
+            <remarks>
+            	This serializer is intended to support self-composit structure like directories or XML nodes.
+            </remarks>
+        </member>
+        <member name="M:MsgPack.Serialization.LazyDelegatingMessagePackSerializer`1.#ctor(MsgPack.Serialization.SerializationContext)">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.LazyDelegatingMessagePackSerializer`1"/> class.
+            </summary>
+            <param name="context">
+            	The serialization context to support lazy retrieval.
+            </param>
+        </member>
+        <member name="T:MsgPack.Serialization.MessagePackMemberAttribute">
+            <summary>
+            	Marks a field or a property to be serialized with MessagePack Serializer and defines some required informations to serialize.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackMemberAttribute.#ctor(System.Int32)">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.MessagePackMemberAttribute"/> class.
+            </summary>
+            <param name="id">
+            	The ID of the member. This value cannot be negative and must be unique in the type.
+            </param>
+        </member>
+        <member name="P:MsgPack.Serialization.MessagePackMemberAttribute.Id">
+            <summary>
+            	Gets the ID of the member.
+            </summary>
+            <value>
+            	The ID of the member.
+            </value>
+        </member>
+        <member name="P:MsgPack.Serialization.MessagePackMemberAttribute.NilImplication">
+            <summary>
+            	Gets or sets the implication of the nil value.
+            </summary>
+            <value>
+            	The implication of the nil value.
+            	Default value is <see cref="F:NilImplication.MemberDefault"/>.
+            </value>
+        </member>
+        <member name="T:MsgPack.Serialization.MessagePackSerializer">
+            <summary>
+            	Defines entry points for <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> usage.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer.Create``1">
+            <summary>
+            	Creates new <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> instance with <see cref="P:MsgPack.Serialization.SerializationContext.Default"/>.
+            </summary>
+            <typeparam name="T">Target type.</typeparam>
+            <returns>
+            	New <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> instance to serialize/deserialize the object tree which the top is <typeparamref name="T"/>.
+            </returns>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer.Create``1(MsgPack.Serialization.SerializationContext)">
+            <summary>
+            	Creates new <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> instance with specified <see cref="T:MsgPack.Serialization.SerializationContext"/>.
+            </summary>
+            <typeparam name="T">Target type.</typeparam>
+            <param name="context">
+            	<see cref="T:MsgPack.Serialization.SerializationContext"/> to store known/created serializers.
+            </param>
+            <returns>
+            	New <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> instance to serialize/deserialize the object tree which the top is <typeparamref name="T"/>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="context"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer.Create(System.Type)">
+            <summary>
+            	Creates new <see cref="T:MsgPack.Serialization.IMessagePackSerializer"/> instance with <see cref="P:MsgPack.Serialization.SerializationContext.Default"/>.
+            </summary>
+            <param name="targetType">Target type.</param>
+            <returns>
+            	New <see cref="T:MsgPack.Serialization.IMessagePackSingleObjectSerializer"/> instance to serialize/deserialize the object tree which the top is <paramref name="targetType"/>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="targetType"/> is <c>null</c>.
+            </exception>
+            <remarks>
+            	To avoid boxing and strongly typed API is prefered, use <see cref="M:MsgPack.Serialization.MessagePackSerializer.Create``1"/> instead when possible.
+            </remarks>
+        </member>
+        <member name="M:MsgPack.Serialization.MessagePackSerializer.Create(System.Type,MsgPack.Serialization.SerializationContext)">
+            <summary>
+            	Creates new <see cref="T:MsgPack.Serialization.IMessagePackSerializer"/> instance with specified <see cref="T:MsgPack.Serialization.SerializationContext"/>.
+            </summary>
+            <param name="targetType">Target type.</param>
+            <param name="context">
+            	<see cref="T:MsgPack.Serialization.SerializationContext"/> to store known/created serializers.
+            </param>
+            <returns>
+            	New <see cref="T:MsgPack.Serialization.IMessagePackSingleObjectSerializer"/> instance to serialize/deserialize the object tree which the top is <paramref name="targetType"/>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="targetType"/> is <c>null</c>.
+            	Or, <paramref name="context"/> is <c>null</c>.
+            </exception>
+            <remarks>
+            	To avoid boxing and strongly typed API is prefered, use <see cref="M:MsgPack.Serialization.MessagePackSerializer.Create``1(MsgPack.Serialization.SerializationContext)"/> instead when possible.
+            </remarks>
+        </member>
+        <member name="T:MsgPack.Serialization.NilImplication">
+            <summary>
+            	Specifies nil implication in serialization/deserialization.
+            </summary>
+        </member>
+        <member name="F:MsgPack.Serialization.NilImplication.MemberDefault">
+            <summary>
+            	A nil is interpreted as default value of the member.
+            </summary>
+            <remarks>
+            	<para>
+            		This value affects only deserialization.
+            	</para>
+            	<para>
+            		If the unpacking value is nil, the serializer will not set any value to the member.
+            	</para>
+            	<para>
+            		This value corresponds to <c>optional</c> on the IDL.
+            	</para>
+            	<note>
+            		This is default option because the most safe option.
+            	</note>
+            </remarks>
+        </member>
+        <member name="F:MsgPack.Serialization.NilImplication.Null">
+            <summary>
+            	A nil is interpreted as <c>null</c>.
+            </summary>
+            <remarks>
+            	<para>
+            		This value affects only deserialization.
+            	</para>
+            	<para>
+            		If the unpacking value is nil, the serializer will set <c>null</c> to the member.
+            		If the member is non-nullable value type and the packed value is nil, then <see cref="T:System.Runtime.Serialization.SerializationException"/> will be thrown.
+            	</para>
+            	<para>
+            		This value corresponds to <c>nullable required</c> on the IDL.
+            	</para>
+            	<note>
+            		If the destination end point sends nil for the value type member like <see cref="T:System.Int32"/> type,
+            		you can avoid the exception with change the type of the member to nullable value type.
+            	</note>
+            </remarks>
+        </member>
+        <member name="F:MsgPack.Serialization.NilImplication.Prohibit">
+            <summary>
+            	A nil is prohibitted.
+            </summary>
+            <remarks>
+            	<para>
+            		This value affects both of serialization and deserialization.
+            	</para>
+            	<para>
+            		If the packing value is <c>null</c> or the unpacking value is nil,
+            		the serializer will throw exception.
+            	</para>
+            	<para>
+            		This value corresponds to <c>required</c> on the IDL.
+            	</para>
+            	<note>
+            		When you specify this value to newly added member,
+            		it means that you BREAK backword compatibility.
+            	</note>
+            </remarks>
+        </member>
+        <member name="T:MsgPack.Serialization.Reflection.GenericTypeExtensions">
+            <summary>
+            	Define utility extension method for generic type.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.Reflection.GenericTypeExtensions.Implements(System.Type,System.Type)">
+            <summary>
+            	Determine whether the source type implements specified generic type or its built type.
+            </summary>
+            <param name="source">Target type.</param>
+            <param name="genericType">Generic interface type.</param>
+            <returns>
+            	<c>true</c> if <paramref name="source"/> implements <paramref name="genericType"/>,
+            	or built closed generic interface type;
+            	otherwise <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:MsgPack.Serialization.Reflection.GenericTypeExtensions.GetName(System.Type)">
+            <summary>
+            	Get name of type without namespace and assembly name of itself and its generic arguments.
+            </summary>
+            <param name="source">Target type.</param>
+            <returns>Simple name of type.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.Reflection.GenericTypeExtensions.GetFullName(System.Type)">
+            <summary>
+            	Get full name of type including namespace and excluding assembly name of itself and its generic arguments.
+            </summary>
+            <param name="source">Target type.</param>
+            <returns>Full name of type.</returns>
+        </member>
+        <member name="T:MsgPack.Serialization.Reflection.ReflectionExtensions">
+            <summary>
+            	Defines utility extension method for reflection API.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.Reflection.ReflectionExtensions.IsAssignableTo(System.Type,System.Type)">
+            <summary>
+            	Determines whether specified <see cref="T:System.Type"/> can be assigned to source <see cref="T:System.Type"/>.
+            </summary>
+            <param name="source">The source type.</param>
+            <param name="target">The type to compare with the source type.</param>
+            <returns>
+              <c>true</c> if <paramref name="source"/> and <paramref name="target"/> represent the same type, 
+              or if <paramref name="target"/> is in the inheritance hierarchy of <paramref name="source"/>, 
+              or if <paramref name="target"/> is an interface that <paramref name="source"/> implements, 
+              or if <paramref name="source"/> is a generic type parameter and <paramref name="target"/> represents one of the constraints of <paramref name="source"/>. 
+              <c>false</c> if none of these conditions are <c>true</c>, or if <paramref name="target"/> is <c>false</c>. 
+            </returns>
+        </member>
+        <member name="T:MsgPack.Serialization.SerializationCompatibilityOptions">
+            <summary>
+            	Represents compatibility options of serialization runtime.
+            </summary>
+        </member>
+        <member name="P:MsgPack.Serialization.SerializationCompatibilityOptions.OneBoundDataMemberOrder">
+            <summary>
+            	Gets or sets a value indicating whether <see cref="P:System.Runtime.Serialization.DataMemberAttribute.Order"/> should be started with 1 instead of 0.
+            </summary>
+            <value>
+            	<c>true</c> if <see cref="P:System.Runtime.Serialization.DataMemberAttribute.Order"/> should be started with 1 instead of 0; otherwise, <c>false</c>.
+            	Default is <c>false</c>.
+            </value>
+            <remarks>
+            	Using this value, you can switch between MessagePack for CLI and ProtoBuf.NET seamlessly.
+            </remarks>
+        </member>
+        <member name="P:MsgPack.Serialization.SerializationCompatibilityOptions.PackerCompatibilityOptions">
+            <summary>
+            	Gets or sets the <see cref="P:MsgPack.Serialization.SerializationCompatibilityOptions.PackerCompatibilityOptions"/>.
+            </summary>
+            <value>
+            	The <see cref="P:MsgPack.Serialization.SerializationCompatibilityOptions.PackerCompatibilityOptions"/>. The default is <see cref="F:PackerCompatibilityOptions.Classic"/>.
+            </value>
+        </member>
+        <member name="T:MsgPack.Serialization.SerializationContext">
+            <summary>
+            	<strong>This is intened to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Represents serialization context information for internal serialization logic.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationContext.#ctor">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.SerializationContext"/> class with copy of <see cref="P:MsgPack.Serialization.SerializerRepository.Default"/>.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationContext.#ctor(MsgPack.PackerCompatibilityOptions)">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.SerializationContext"/> class with copy of <see cref="M:MsgPack.Serialization.SerializerRepository.GetDefault(MsgPack.PackerCompatibilityOptions)"/> for specified <see cref="T:MsgPack.PackerCompatibilityOptions"/>.
+            </summary>
+            <param name="packerCompatibilityOptions"><see cref="T:MsgPack.PackerCompatibilityOptions"/> which will be used on built-in serializers.</param>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationContext.GetSerializer``1">
+            <summary>
+            	Gets the <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> with this instance.
+            </summary>
+            <typeparam name="T">Type of serialization/deserialization target.</typeparam>
+            <returns>
+            	<see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/>.
+            	If there is exiting one, returns it.
+            	Else the new instance will be created.
+            </returns>
+            <remarks>
+            	This method automatically register new instance via <see cref="M:MsgPack.Serialization.SerializerRepository.Register``1(MsgPack.Serialization.MessagePackSerializer{``0})"/>.
+            </remarks>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationContext.GetSerializer(System.Type)">
+            <summary>
+            	Gets the serializer for the specified <see cref="T:System.Type"/>.
+            </summary>
+            <param name="targetType">Type of the serialization target.</param>
+            <returns>
+            	<see cref="T:MsgPack.Serialization.IMessagePackSingleObjectSerializer"/>.
+            	If there is exiting one, returns it.
+            	Else the new instance will be created.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="targetType"/> is <c>null</c>.
+            </exception>
+            <remarks>
+            	Although <see cref="M:MsgPack.Serialization.SerializationContext.GetSerializer``1"/> is preferred,
+            	this method can be used from non-generic type or methods.
+            </remarks>
+        </member>
+        <member name="P:MsgPack.Serialization.SerializationContext.Default">
+            <summary>
+            	Gets or sets the default instance.
+            </summary>
+            <value>
+            	The default <see cref="T:MsgPack.Serialization.SerializationContext"/> instance.
+            </value>
+            <exception cref="T:System.ArgumentNullException">The setting value is <c>null</c>.</exception>
+        </member>
+        <member name="P:MsgPack.Serialization.SerializationContext.Serializers">
+            <summary>
+            	Gets the current <see cref="T:MsgPack.Serialization.SerializerRepository"/>.
+            </summary>
+            <value>
+            	The  current <see cref="T:MsgPack.Serialization.SerializerRepository"/>.
+            </value>
+        </member>
+        <member name="P:MsgPack.Serialization.SerializationContext.EmitterFlavor">
+            <summary>
+            	Gets or sets the <see cref="P:MsgPack.Serialization.SerializationContext.EmitterFlavor"/>.
+            </summary>
+            <value>
+            	The <see cref="P:MsgPack.Serialization.SerializationContext.EmitterFlavor"/>
+            </value>
+            <remarks>
+            	For testing purposes.
+            </remarks>
+        </member>
+        <member name="P:MsgPack.Serialization.SerializationContext.CompatibilityOptions">
+            <summary>
+            	Gets the compatibility options.
+            </summary>
+            <value>
+            	The <see cref="T:MsgPack.Serialization.SerializationCompatibilityOptions"/> which stores compatibility options. This value will not be <c>null</c>.
+            </value>
+        </member>
+        <member name="P:MsgPack.Serialization.SerializationContext.SerializationMethod">
+            <summary>
+            	Gets or sets the <see cref="P:MsgPack.Serialization.SerializationContext.SerializationMethod"/> to determine serialization strategy.
+            </summary>
+            <value>
+            	The <see cref="P:MsgPack.Serialization.SerializationContext.SerializationMethod"/> to determine serialization strategy.
+            </value>
+        </member>
+        <member name="P:MsgPack.Serialization.SerializationContext.GeneratorOption">
+            <summary>
+            	Gets or sets the <see cref="T:MsgPack.Serialization.SerializationMethodGeneratorOption"/> to control code generation.
+            </summary>
+            <value>
+            	The <see cref="T:MsgPack.Serialization.SerializationMethodGeneratorOption"/>.
+            </value>
+        </member>
+        <member name="P:MsgPack.Serialization.SerializationContext.DefaultCollectionTypes">
+            <summary>
+            	Gets the default collection types.
+            </summary>
+            <value>
+            	The default collection types. This value will not be <c>null</c>.
+            </value>
+        </member>
+        <member name="T:MsgPack.Serialization.SerializationExceptions">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Defines common exception factory methods.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewValueTypeCannotBeNull(System.String,System.Type,System.Type)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that value type cannot be <c>null</c> on deserialization.
+            </summary>
+            <param name="name">The name of the member.</param>
+            <param name="memberType">The type of the member.</param>
+            <param name="declaringType">The type that declares the member.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewValueTypeCannotBeNull(System.Type)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that value type cannot be <c>null</c> on deserialization.
+            </summary>
+            <param name="type">The target type.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationExceptions.NewTypeCannotSerializeMethod">
+            <summary>
+            	<see cref="T:System.Reflection.MethodInfo"/> of <see cref="M:MsgPack.Serialization.SerializationExceptions.NewTypeCannotSerialize(System.Type)"/> method.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewTypeCannotSerialize(System.Type)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that value type cannot serialize.
+            </summary>
+            <param name="type">The target type.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationExceptions.NewTypeCannotDeserializeMethod">
+            <summary>
+            	<see cref="T:System.Reflection.MethodInfo"/> of <see cref="M:MsgPack.Serialization.SerializationExceptions.NewTypeCannotDeserialize(System.Type)"/> method.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewTypeCannotDeserialize(System.Type)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that value type cannot deserialize.
+            </summary>
+            <param name="type">The target type.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationExceptions.NewTypeCannotDeserialize3Method">
+            <summary>
+            	<see cref="T:System.Reflection.MethodInfo"/> of <see cref="M:MsgPack.Serialization.SerializationExceptions.NewTypeCannotDeserialize(System.Type,System.String,System.Exception)"/> method.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewTypeCannotDeserialize(System.Type,System.String,System.Exception)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that value type cannot deserialize.
+            </summary>
+            <param name="type">The target type.</param>
+            <param name="memberName">The name of deserializing member.</param>
+            <param name="inner">The inner exception.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationExceptions.NewMissingItemMethod">
+            <summary>
+            	<see cref="T:System.Reflection.MethodInfo"/> of <see cref="M:MsgPack.Serialization.SerializationExceptions.NewMissingItem(System.Int32)"/> method.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewMissingItem(System.Int32)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that item is not found on the unpacking stream.
+            </summary>
+            <param name="index">The index to be unpacking.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewTargetDoesNotHavePublicDefaultConstructor(System.Type)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that target type is not serializable because it does not have public default constructor.
+            </summary>
+            <param name="type">The target type.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewTargetDoesNotHavePublicDefaultConstructorNorInitialCapacity(System.Type)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that target type is not serializable because it does not have both of public default constructor and public constructor with an Int32 parameter.
+            </summary>
+            <param name="type">The target type.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewNoSerializableFieldsException(System.Type)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that there are no serializable fields and properties on the target type.
+            </summary>
+            <param name="type">The target type.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationExceptions.NewMissingPropertyMethod">
+            <summary>
+            	<see cref="T:System.Reflection.MethodInfo"/> of <see cref="M:MsgPack.Serialization.SerializationExceptions.NewMissingProperty(System.String)"/> method.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewMissingProperty(System.String)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that required field is not found on the unpacking stream.
+            </summary>
+            <param name="name">The name of the property.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationExceptions.NewUnexpectedEndOfStreamMethod">
+            <summary>
+            	<see cref="T:System.Reflection.MethodInfo"/> of <see cref="M:MsgPack.Serialization.SerializationExceptions.NewUnexpectedEndOfStream"/> method.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewUnexpectedEndOfStream">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that unpacking stream ends on unexpectedly position.
+            </summary>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationExceptions.NewMissingAddMethodMethod">
+            <summary>
+            	<see cref="T:System.Reflection.MethodInfo"/> of <see cref="M:MsgPack.Serialization.SerializationExceptions.NewMissingAddMethod(System.Type)"/> method.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewMissingAddMethod(System.Type)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that target collection type does not declare appropriate Add(T) method.
+            </summary>
+            <param name="type">The target type.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewIsNotArrayHeader">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that unpacker is not in the array header, that is the state is invalid.
+            </summary>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewIsNotMapHeader">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that unpacker is not in the array header, that is the state is invalid.
+            </summary>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewNotSupportedBecauseCannotInstanciateAbstractType(System.Type)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that operation is not supported because <paramref name="type"/> cannot be instanciated.
+            </summary>
+            <param name="type">Type.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewTupleCardinarityIsNotMatch(System.Int32,System.Int32)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that the array length does not match to expected tuple cardinality.
+            </summary>
+            <param name="expectedTupleCardinality">The expected cardinality of the tuple.</param>
+            <param name="actualArrayLength">The actual serialized array length.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewIsIncorrectStream(System.Exception)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that the underlying stream is not correct semantically because failed to unpack items count of array/map.
+            </summary>
+            <param name="innerException">The inner exception for the debug. The value is implementation specific.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewIsTooLargeCollection">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that the unpacking collection is too large to represents in the current runtime environment.
+            </summary>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewEmptyOrUnstartedUnpacker">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that the the unpacker does not contain any data because the underlying stream is empty or unpacker has not been started.
+            </summary>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewNullIsProhibited(System.String)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that the member cannot be <c>null</c> or the unpacking value cannot be nil because nil value is explicitly prohibitted.
+            </summary>
+            <param name="memberName">The name of the member.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewReadOnlyMemberItemsMustNotBeNull(System.String)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that the unpacking value cannot be nil because the target member is read only and its type is collection.
+            </summary>
+            <param name="memberName">The name of the member.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewStreamDoesNotContainCollectionForMember(System.String)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that the unpacking collection value is not a collection.
+            </summary>
+            <param name="memberName">The name of the member.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewUnexpectedArrayLength(System.Int32,System.Int32)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that the unpacking array size is not expected length.
+            </summary>
+            <param name="expectedLength">Expected, required for deserialization array length.</param>
+            <param name="actualLength">Actual array length.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationExceptions.NewFailedToDeserializeMemberMethod">
+            <summary>
+            	<see cref="T:System.Reflection.MethodInfo"/> of <see cref="M:MsgPack.Serialization.SerializationExceptions.NewFailedToDeserializeMember(System.Type,System.String,System.Exception)"/> method.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializationExceptions.NewFailedToDeserializeMember(System.Type,System.String,System.Exception)">
+            <summary>
+            	<strong>This is intended to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Returns new exception to notify that it is failed to deserialize member.
+            </summary>
+            <param name="targetType">Deserializing type.</param>
+            <param name="memberName">The name of the deserializing member.</param>
+            <param name="inner">The exception which caused current error.</param>
+            <returns><see cref="T:System.Exception"/> instance. It will not be <c>null</c>.</returns>
+        </member>
+        <member name="T:MsgPack.Serialization.SerializationMethod">
+            <summary>
+            	Represents serialization method for complex types.
+            </summary>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationMethod.Array">
+            <summary>
+            	The object will be serialized as array which is ordered by member ID.
+            	This is default and more interoperable option.
+            </summary>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationMethod.Map">
+            <summary>
+            	The object will be serialized as map which is ordered by member ID.
+            	This is a bit slower than array, but more stable for forward/backward compatibility.
+            </summary>
+        </member>
+        <member name="T:MsgPack.Serialization.SerializationMethodGeneratorOption">
+            <summary>
+            	Define options of serializer generation.
+            </summary>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationMethodGeneratorOption.CanDump">
+            <summary>
+            	The generated method IL can be dumped to the current directory.
+            	It is intended for the runtime, you cannot use this option.
+            </summary>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationMethodGeneratorOption.CanCollect">
+            <summary>
+            	The entire generated method can be collected by GC when it is no longer used.
+            </summary>
+        </member>
+        <member name="F:MsgPack.Serialization.SerializationMethodGeneratorOption.Fast">
+            <summary>
+            	Prefer performance. This options is default.
+            </summary>
+        </member>
+        <member name="T:MsgPack.Serialization.SerializerRepository">
+            <summary>
+            	Repository of known <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/>s.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerRepository.#ctor">
+            <summary>
+            Initializes a new empty instance of the <see cref="T:MsgPack.Serialization.SerializerRepository"/> class.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerRepository.#ctor(MsgPack.Serialization.SerializerRepository)">
+            <summary>
+            	Initializes a new instance of the <see cref="T:MsgPack.Serialization.SerializerRepository"/> class  which has copied serializers.
+            </summary>
+            <param name="copiedFrom">The repository which will be copied its contents.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="copiedFrom"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerRepository.Dispose">
+            <summary>
+            	Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerRepository.Get``1(MsgPack.Serialization.SerializationContext)">
+            <summary>
+            	Gets the registered <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> from this repository.
+            </summary>
+            <typeparam name="T">Type of the object to be marshaled/unmarshaled.</typeparam>
+            <returns>
+            	<see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/>. If no appropriate mashalers has benn registered, then <c>null</c>.
+            </returns>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerRepository.Register``1(MsgPack.Serialization.MessagePackSerializer{``0})">
+            <summary>
+            	Registers a <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/>.
+            </summary>
+            <typeparam name="T">The type of serialization target.</typeparam>
+            <param name="serializer"><see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> instance.</param>
+            <returns>
+            	<c>true</c> if success to register; otherwise, <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="serializer"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerRepository.RegisterOverride``1(MsgPack.Serialization.MessagePackSerializer{``0})">
+            <summary>
+            	Registers a <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> forcibley.
+            </summary>
+            <typeparam name="T">The type of serialization target.</typeparam>
+            <param name="serializer"><see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/> instance.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<paramref name="serializer"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.SerializerRepository.GetDefault(MsgPack.PackerCompatibilityOptions)">
+            <summary>
+            	Gets the system default repository.
+            </summary>
+            <param name="packerCompatibilityOptions"><see cref="T:MsgPack.PackerCompatibilityOptions"/> for default serializers must use.</param>
+            <returns>
+            	The system default repository.
+            	This value will not be <c>null</c>.
+            	Note that the repository is frozen.
+            </returns>
+        </member>
+        <member name="P:MsgPack.Serialization.SerializerRepository.Default">
+            <summary>
+            	Gets the system default repository.
+            </summary>
+            <value>
+            	The system default repository.
+            	This value will not be <c>null</c>.
+            	Note that the repository is frozen.
+            </value>
+        </member>
+        <member name="T:MsgPack.Serialization.SerializerTypeKeyRepository">
+            <summary>
+            	Specialized <see cref="T:MsgPack.Serialization.TypeKeyRepository"/> for serializers.
+            </summary>
+        </member>
+        <member name="T:MsgPack.Serialization.TypeKeyRepository">
+            <summary>
+            	Repository for key type with RWlock scheme.
+            </summary>
+        </member>
+        <member name="T:MsgPack.Serialization.SerializingMember">
+            <summary>
+            	Represents serializing member information.
+            </summary>
+        </member>
+        <member name="T:MsgPack.Serialization.UnpackHelpers">
+            <summary>
+            	<strong>This is intened to MsgPack for CLI internal use. Do not use this type from application directly.</strong>
+            	Defines serialization helper APIs.
+            </summary>
+        </member>
+        <member name="M:MsgPack.Serialization.UnpackHelpers.UnpackArrayTo``1(MsgPack.Unpacker,MsgPack.Serialization.MessagePackSerializer{``0},``0[])">
+            <summary>
+            	Unpacks the array to the specified array.
+            </summary>
+            <typeparam name="T">The type of the array element.</typeparam>
+            <param name="unpacker">The unpacker to unpack the underlying stream.</param>
+            <param name="serializer">The serializer to deserialize array.</param>
+            <param name="array">The array instance to be filled.</param>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialization.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.UnpackHelpers.UnpackCollectionTo(MsgPack.Unpacker,System.Collections.IEnumerable,System.Action{System.Object})">
+            <summary>
+            	Unpacks the collection with the specified method as colletion of <see cref="T:MsgPack.MessagePackObject"/>.
+            </summary>
+            <param name="unpacker">The unpacker to unpack the underlying stream.</param>
+            <param name="collection">The non-generic collection instance to be added unpacked elements.</param>
+            <param name="addition">The delegate which contains the instance method of the <paramref name="collection"/>. The parameter is unpacked object.</param>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialization.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.UnpackHelpers.UnpackCollectionTo``1(MsgPack.Unpacker,MsgPack.Serialization.MessagePackSerializer{``0},System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            	Unpacks the dictionary with the specified method as colletion of <see cref="T:MsgPack.MessagePackObject"/>.
+            </summary>
+            <typeparam name="T">The type of elements.</typeparam>
+            <param name="unpacker">The unpacker to unpack the underlying stream.</param>
+            <param name="serializer">The serializer to deserialize elements.</param>
+            <param name="collection">The generic collection instance to be added unpacked elements.</param>
+            <param name="addition">The delegate which contains the instance method of the <paramref name="collection"/>. The parameter is unpacked object.</param>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialization.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.UnpackHelpers.UnpackCollectionTo``1(MsgPack.Unpacker,System.Collections.IEnumerable,System.Func{System.Object,``0})">
+            <summary>
+            	Unpacks the collection with the specified method as colletion of <see cref="T:MsgPack.MessagePackObject"/>.
+            </summary>
+            <typeparam name="TDiscarded">The return type of Add method.</typeparam>
+            <param name="unpacker">The unpacker to unpack the underlying stream.</param>
+            <param name="collection">The non-generic collection instance to be added unpacked elements.</param>
+            <param name="addition">The delegate which contains the instance method of the <paramref name="collection"/>. The parameter is unpacked object.</param>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialization.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.UnpackHelpers.UnpackCollectionTo``2(MsgPack.Unpacker,MsgPack.Serialization.MessagePackSerializer{``0},System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            	Unpacks the dictionary with the specified method as colletion of <see cref="T:MsgPack.MessagePackObject"/>.
+            </summary>
+            <typeparam name="T">The type of elements.</typeparam>
+            <typeparam name="TDiscarded">The return type of Add method.</typeparam>
+            <param name="unpacker">The unpacker to unpack the underlying stream.</param>
+            <param name="serializer">The serializer to deserialize elements.</param>
+            <param name="collection">The generic collection instance to be added unpacked elements.</param>
+            <param name="addition">The delegate which contains the instance method of the <paramref name="collection"/>. The parameter is unpacked object.</param>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialization.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.UnpackHelpers.UnpackMapTo``2(MsgPack.Unpacker,MsgPack.Serialization.MessagePackSerializer{``0},MsgPack.Serialization.MessagePackSerializer{``1},System.Collections.Generic.IDictionary{``0,``1})">
+            <summary>
+            	Unpacks the dictionary with the specified method as colletion of <see cref="T:MsgPack.MessagePackObject"/>.
+            </summary>
+            <typeparam name="TKey">The type of keys.</typeparam>
+            <typeparam name="TValue">The type of values.</typeparam>
+            <param name="unpacker">The unpacker to unpack the underlying stream.</param>
+            <param name="keySerializer">The serializer to deserialize key elements.</param>
+            <param name="valueSerializer">The serializer to deserialize value elements.</param>
+            <param name="dictionary">The generic dictionary instance to be added unpacked elements.</param>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialization.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.UnpackHelpers.UnpackMapTo(MsgPack.Unpacker,System.Collections.IDictionary)">
+            <summary>
+            	Unpacks the dictionary with the specified method as colletion of <see cref="T:MsgPack.MessagePackObject"/>.
+            </summary>
+            <param name="unpacker">The unpacker to unpack the underlying stream.</param>
+            <param name="dictionary">The non-generic dictionary instance to be added unpacked elements.</param>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">
+            	Failed to deserialization.
+            </exception>
+        </member>
+        <member name="M:MsgPack.Serialization.UnpackHelpers.ConvertWithEnsuringNotNull``1(System.Object,System.String,System.Type)">
+            <summary>
+            	Ensures the boxed type is not null thus it cannot be unboxing.
+            </summary>
+            <typeparam name="T">The type of the member.</typeparam>
+            <param name="boxed">The boxed deserializing value.</param>
+            <param name="name">The name of the member.</param>
+            <param name="targetType">The type of the target.</param>
+            <returns>The unboxed value.</returns>
+        </member>
+        <member name="M:MsgPack.Serialization.UnpackHelpers.InvokeUnpackFrom``1(MsgPack.Serialization.MessagePackSerializer{``0},MsgPack.Unpacker)">
+            <summary>
+            	Invokes <see cref="M:MsgPack.Serialization.MessagePackSerializer`1.UnpackFromCore(MsgPack.Unpacker)"/> FAMANDASM method directly.
+            </summary>
+            <typeparam name="T">The type of deserializing object.</typeparam>
+            <param name="serializer">The invocation target <see cref="T:MsgPack.Serialization.MessagePackSerializer`1"/>.</param>
+            <param name="unpacker">The unpacker to be passed to the method.</param>
+            <returns>A deserialized value.</returns>
+        </member>
+        <member name="T:MsgPack.TupleItems">
+            <summary>
+            	Defines helper method for items of tuple type.
+            </summary>
+        </member>
+        <member name="M:MsgPack.TupleItems.CreateTupleTypeList(System.Collections.Generic.IList{System.Type})">
+            <summary>
+            	Creates type list for nested tuples.
+            </summary>
+            <param name="itemTypes">The type list of tuple items, in order.</param>
+            <returns>
+            	The type list for nested tuples.
+            	The order is from outer to inner.
+            </returns>
+        </member>
+    </members>
+</doc>

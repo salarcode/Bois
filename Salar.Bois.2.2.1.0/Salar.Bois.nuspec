@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Salar.Bois</id>
+    <version>2.2.1.0</version>
+    <title>BOIS (Binary Object Indexed Serialization)</title>
+    <authors>Salar Khalilzadeh</authors>
+    <owners>Salar Khalilzadeh</owners>
+    <licenseUrl>https://github.com/salarcode/Bois/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/salarcode/Bois</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Salar.Bois is a compact, light and powerful binary serializer for .NET Framework, which produces very small binaries.
+			With Bois you can serialize your existing objects with almost no change.
+			More info: https://github.com/salarcode/Bois</description>
+    <releaseNotes>+ Bug#5 fixed: wont serialize private setter/getter properties.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>
+  </metadata>
+</package>

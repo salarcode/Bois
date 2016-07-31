@@ -28,3 +28,15 @@ _ReSharper*/
 *.vssscc
 $tf*/
 /packages
+/SalarCompactSerializer.Tests
+/SalarCompactSerializer.DemoApp
+/Salar.Bois.Demo
+/Salar.Bois.MonoTest
+/OtherProjects
+/Salar.BoisBenchmark/Salar.BoisBenchmark-BeforePackageUpdates.7z
+/Salar.BoisDirtyTests
+/SalarCompactSerializer
+/Salar.Bois.2.2.1.0.nupkg
+/Salar.Bois-Before-REVERT.7z
+/CreateNuget-Push.cmd
+/CreateNuget-Pack.cmd

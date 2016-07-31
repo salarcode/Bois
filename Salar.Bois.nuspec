@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Salar.Bois</id>
-		<version>2.2.0.0</version>
+		<version>2.2.1.0</version>
 		<title>BOIS (Binary Object Indexed Serialization)</title>
 		<authors>Salar Khalilzadeh</authors>
 		<owners>Salar Khalilzadeh</owners>
@@ -15,14 +15,9 @@
 			More info: https://github.com/salarcode/Bois
 		</description>
 		<releaseNotes>
-			+ Serialization of Int32, Int32?, UInt32, UInt32?, Int64, Int64?, UInt64, UInt64? are improved to be more compact
-			+ DataTimeOffset serialization is improved to be more compact
-			+ Supporting IDictionary and IList as property or field
-			+ Small boost in Array/Dictionary/List serialization performance
-			+ DateTime encoding method enhancement for DateTime.MaxValue
-			+ Minor bugs fixed
+			+ Bug#5 fixed: wont serialize private setter/getter properties.
 		</releaseNotes>
-		<copyright>Copyright 2015</copyright>
+		<copyright>Copyright 2016</copyright>
 		<tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>
 		<dependencies></dependencies>
 	</metadata>

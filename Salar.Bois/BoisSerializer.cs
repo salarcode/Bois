@@ -191,7 +191,7 @@ namespace Salar.Bois
 			// not the object itseld.
 			if (boisMemInfo != null)
 			{
-				if (boisMemInfo.IsContainerObject && boisMemInfo.IsStruct && boisMemInfo.IsNullable)
+				if (boisMemInfo.IsContainerObject  && boisMemInfo.IsNullable)
 				{
 					//This is a nullable struct and is not null
 					WriteValue(writer, false);
@@ -199,7 +199,7 @@ namespace Salar.Bois
 			}
 			else
 			{
-				if (boisType.IsContainerObject && boisType.IsStruct && boisType.IsNullable)
+				if (boisType.IsContainerObject   && boisType.IsNullable)
 				{
 					//This is a nullable struct and is not null
 					WriteValue(writer, false);
@@ -253,7 +253,7 @@ namespace Salar.Bois
 
 		void WriteValue(BinaryWriter writer, object value, BoisMemberInfo bionType)
 		{
- 			if (!bionType.IsSupportedPrimitive)
+			if (!bionType.IsSupportedPrimitive)
 			{
 				if (value == null)
 				{
@@ -644,7 +644,7 @@ namespace Salar.Bois
 				}
 			}
 		}
-		
+
 		private void WriteBytes(BinaryWriter writer, byte[] bytes)
 		{
 			// Int32
@@ -801,6 +801,7 @@ namespace Salar.Bois
 		{
 			var bionType = _typeCache.GetTypeInfo(type, true) as BoisTypeInfo;
 
+
 			var members = bionType.Members;
 			var resultObj = _typeCache.CreateInstance(type);
 
@@ -856,9 +857,8 @@ namespace Salar.Bois
 
 		private object ReadMember(BinaryReader reader, BoisMemberInfo memInfo, Type memType)
 		{
-			if (memInfo.IsNullable &&
-				!memInfo.IsSupportedPrimitive &&
-				(!memInfo.IsContainerObject || memInfo.IsStruct))
+			if ((memInfo.IsNullable && memInfo.IsContainerObject) ||
+				(memInfo.IsNullable && !memInfo.IsSupportedPrimitive && (!memInfo.IsContainerObject || memInfo.IsStruct)))
 			{
 				bool isNull = reader.ReadByte() != 0;
 

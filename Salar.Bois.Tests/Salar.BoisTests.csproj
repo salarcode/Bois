@@ -79,6 +79,7 @@
     </Compile>
     <Compile Include="Objects\CollectionTypes1.cs" />
     <Compile Include="Objects\HierarchyObjects1.cs" />
+    <Compile Include="Objects\HierarchyObjects2.cs" />
     <Compile Include="Objects\HierarchyWithStruct.cs" />
     <Compile Include="Objects\HierarchyWithStruct2.cs" />
     <Compile Include="Objects\CommonListChildObject.cs" />

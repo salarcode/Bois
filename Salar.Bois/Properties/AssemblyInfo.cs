@@ -9,8 +9,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Salar's Serializer for Binary Object Indexed Serialization")]
 [assembly: AssemblyCompany("Salar Khalilzadeh")]
 [assembly: AssemblyProduct("Salar's Binary Object Indexed Serialization")]
-[assembly: AssemblyCopyright("MPLv2 © Salar Khalilzadeh 2015")]
+[assembly: AssemblyCopyright("MPLv2 © Salar Khalilzadeh 2016")]
 [assembly: AssemblyTrademark("")]
 
-[assembly: AssemblyVersion("2.2.0.0")]
-[assembly: AssemblyFileVersion("2.2.0.0")]
+[assembly: AssemblyVersion("2.2.1.0")]
+[assembly: AssemblyFileVersion("2.2.1.0")]

@@ -225,6 +225,43 @@ namespace Salar.Bois.Tests
 		}
 
 		[TestMethod]
+		public void HierarchyObjects2Test()
+		{
+			var init = new HierarchyObjects2();
+			init.Initialize();
+			HierarchyObjects2 final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<HierarchyObjects2>(mem);
+			}
+
+			AssertionHelper.AssertMembersAreEqual(init.KidNull, final.KidNull);
+			AssertionHelper.AssertMembersAreEqual(init.KidValue, final.KidValue);
+			init.KidNull.Should().Be.EqualTo(final.KidNull);
+			init.KidValue.Should().Be.EqualTo(final.KidValue);
+		}
+
+		[TestMethod]
+		public void HierarchyObjects2_ChildTest()
+		{
+			var init = new HierarchyObjects2.KidClass();
+			init.Initialize();
+			HierarchyObjects2.KidClass final;
+
+			using (var mem = new MemoryStream())
+			{
+				_bois.Serialize(init, mem);
+				mem.Seek(0, SeekOrigin.Begin);
+				final = _bois.Deserialize<HierarchyObjects2.KidClass>(mem);
+			}
+
+			AssertionHelper.AssertMembersAreEqual(init, final);
+		}
+
+		[TestMethod]
 		public void StructType1_NormalTest()
 		{
 			var init = StructType1.InitializeThis();
@@ -497,7 +534,7 @@ namespace Salar.Bois.Tests
 			}
 			AssertionHelper.AssertMembersAreEqual(init, final);
 		}
- 
+
 
 	}
 }

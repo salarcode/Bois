@@ -40,7 +40,7 @@ namespace Salar.Bois
 		/// Specifies a field or peroperty settings for serialization.
 		/// </summary>
 		public BoisMemberAttribute()
-			: this(-1, true) 
+			: this(-1, true)
 		{ }
 
 		/// <summary>
@@ -48,7 +48,7 @@ namespace Salar.Bois
 		/// </summary>
 		/// <param name="index">In which order should this member be serialized.</param>
 		public BoisMemberAttribute(int index)
-			: this(index, true) 
+			: this(index, true)
 		{ }
 
 		/// <summary>
@@ -56,7 +56,7 @@ namespace Salar.Bois
 		/// </summary>
 		/// <param name="included">Specifies that should this member be included in serialization.</param>
 		public BoisMemberAttribute(bool included)
-			: this(-1, included) 
+			: this(-1, included)
 		{ }
 	}
 }

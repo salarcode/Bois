@@ -176,9 +176,9 @@ namespace Salar.Bois
 		{
 			if (obj == null)
 			{
-                // null indicator
-                WriteNullableType(writer, true);
-                return;
+				// null indicator
+				WriteNullableType(writer, true);
+				return;
 			}
 
 			var type = obj.GetType();
@@ -187,15 +187,15 @@ namespace Salar.Bois
 			var boisTypeInfo = boisType as BoisTypeInfo;
 
 			_serializeDepth++;
-            // Use this member info if avaiable. it is more accurate because it came from the object holder,
-            // not the object itseld.
-            if (boisMemInfo.IsContainerObject && boisMemInfo.IsNullable)
-            {
-                //This is a nullable struct and is not null
-                WriteNullableType(writer, false);
-            }
+			// Use this member info if avaiable. it is more accurate because it came from the object holder,
+			// not the object itseld.
+			if (boisMemInfo.IsContainerObject && boisMemInfo.IsNullable)
+			{
+				//This is a nullable struct and is not null
+				WriteNullableType(writer, false);
+			}
 
-            if (boisTypeInfo != null)
+			if (boisTypeInfo != null)
 			{
 				// writing the members
 				for (int i = 0; i < boisTypeInfo.Members.Length; i++)
@@ -846,10 +846,10 @@ namespace Salar.Bois
 
 		private object ReadMember(BinaryReader reader, BoisMemberInfo memInfo, Type memType)
 		{
-            if ((memInfo.IsNullable && memInfo.IsContainerObject) ||
-                (memInfo.IsNullable && !memInfo.IsSupportedPrimitive && (!memInfo.IsContainerObject || memInfo.IsStruct)))
-            {
-                bool isNull = reader.ReadByte() != 0;
+			if ((memInfo.IsNullable && memInfo.IsContainerObject) ||
+				(memInfo.IsNullable && !memInfo.IsSupportedPrimitive && (!memInfo.IsContainerObject || memInfo.IsStruct)))
+			{
+				bool isNull = reader.ReadByte() != 0;
 
 				if (isNull)
 				{

@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Salar.Bois</id>
-		<version>2.2.1.0</version>
+		<version>2.2.2.0</version>
 		<title>BOIS (Binary Object Indexed Serialization)</title>
 		<authors>Salar Khalilzadeh</authors>
 		<owners>Salar Khalilzadeh</owners>
@@ -15,7 +15,8 @@
 			More info: https://github.com/salarcode/Bois
 		</description>
 		<releaseNotes>
-			+ Bug#5 fixed: wont serialize private setter/getter properties.
+			+ Bug#8 fixed: Deseriealize problem when child object is null.
+			* Due to bugfix #8, this version is not compatible with previous versions.
 		</releaseNotes>
 		<copyright>Copyright 2016</copyright>
 		<tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>

@@ -19,7 +19,7 @@ namespace Salar.Bois
 		/// Specifies that fields should be serialized or not.
 		/// </summary>
 		public bool Fields { get; set; }
-		
+
 		/// <summary>
 		/// Specifies that properties should be serialized or not.
 		/// </summary>

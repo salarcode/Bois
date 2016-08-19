@@ -70,7 +70,7 @@ namespace Salar.Bois
 		public static Type FindUnderlyingIEnumerableElementType(Type type)
 		{
 			if (type.BaseType == null)
-				return null; 
+				return null;
 			var enumType = typeof(IEnumerable<>);
 			foreach (var inter in type.GetInterfaces())
 			{
@@ -206,6 +206,6 @@ namespace Salar.Bois
 			return false; // value-type
 		}
 
-		
+
 	}
 }

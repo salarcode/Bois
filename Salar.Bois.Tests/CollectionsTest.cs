@@ -53,7 +53,7 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new byte[] { 10, 50, 0, 250, 98 };
-			bion.WriteBytes(bionWriter,init);
+			bion.WriteBytes(bionWriter, init);
 			ResetStream();
 
 			var final = (byte[])bion.ReadBytes(bionReader);
@@ -80,14 +80,14 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new Dictionary<string, string>()
-				           {
-					           {"man", "down"},
-					           {"Random chars", "~!@# $ %^& * ()"}
-				           };
+						   {
+							   {"man", "down"},
+							   {"Random chars", "~!@# $ %^& * ()"}
+						   };
 			bion.WriteDictionary(bionWriter, init);
 			ResetStream();
 
-			var final = (Dictionary<string, string>)bion.ReadDictionary(bionReader,typeof(Dictionary<string, string>));
+			var final = (Dictionary<string, string>)bion.ReadDictionary(bionReader, typeof(Dictionary<string, string>));
 			final.Should().Have.SameSequenceAs(init);
 		}
 
@@ -109,11 +109,11 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new Dictionary<int, long>()
-				           {
-					           {50, 177},
-					           {10, 42677},
-					           {25000000, 90L},
-				           };
+						   {
+							   {50, 177},
+							   {10, 42677},
+							   {25000000, 90L},
+						   };
 			bion.WriteDictionary(bionWriter, init);
 			ResetStream();
 
@@ -125,11 +125,11 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new Dictionary<int?, long?>()
-				           {
-					           {50, null},
-					           {10, null},
-					           {25000000, 90L},
-				           };
+						   {
+							   {50, null},
+							   {10, null},
+							   {25000000, 90L},
+						   };
 			bion.WriteDictionary(bionWriter, init);
 			ResetStream();
 
@@ -250,12 +250,12 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new Dictionary<string, int>()
-				           {
-					           {"Bion", 100},
-					           {"Salar", 20},
-					           {"", 0},
-					           {"Khalilzadeh", -100}
-				           };
+						   {
+							   {"Bion", 100},
+							   {"Salar", 20},
+							   {"", 0},
+							   {"Khalilzadeh", -100}
+						   };
 			bion.WriteStringDictionary(bionWriter, init);
 			ResetStream();
 
@@ -269,11 +269,11 @@ namespace Salar.Bois.Tests
 		{
 			ResetStream();
 			var init = new Dictionary<string, int?>()
-				           {
-					           {"Bion", null},
-					           {"Salar", null},
-					           {"Khalilzadeh", -100}
-				           };
+						   {
+							   {"Bion", null},
+							   {"Salar", null},
+							   {"Khalilzadeh", -100}
+						   };
 			bion.WriteStringDictionary(bionWriter, init);
 			ResetStream();
 

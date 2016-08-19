@@ -40,3 +40,4 @@ $tf*/
 /Salar.Bois-Before-REVERT.7z
 /CreateNuget-Push.cmd
 /CreateNuget-Pack.cmd
+*.nupkg

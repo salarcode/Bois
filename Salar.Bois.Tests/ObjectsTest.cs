@@ -241,7 +241,6 @@ namespace Salar.Bois.Tests
 			AssertionHelper.AssertMembersAreEqual(init.KidNull, final.KidNull);
 			AssertionHelper.AssertMembersAreEqual(init.KidValue, final.KidValue);
 			init.KidNull.Should().Be.EqualTo(final.KidNull);
-			init.KidValue.Should().Be.EqualTo(final.KidValue);
 		}
 
 		[TestMethod]

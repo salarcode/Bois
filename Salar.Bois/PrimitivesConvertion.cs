@@ -43,6 +43,11 @@ namespace Salar.Bois
 		private const byte NullableFlagInsideNum = 64;
 
 		/// <summary>
+		/// 1111 1111
+		/// </summary>
+		private const byte NullableObjectIndicator = 255;
+
+		/// <summary>
 		/// 0111 1111
 		/// </summary>
 		private const byte ActualMaxNumInByte = 127;
@@ -440,6 +445,27 @@ namespace Salar.Bois
 				return ReadFloat(reader, insideNum);
 			}
 		}
+
+		internal static bool ReadNullableObjectIndicator(BinaryReader reader, bool resetAfterRead = true)
+		{
+			if (!reader.BaseStream.CanSeek)
+			{
+				throw new Exception("Readers' base stream doesn't support seeking back/forward.");
+			}
+
+			var byteValue = reader.ReadByte();
+
+			var isNull = byteValue == NullableObjectIndicator;
+
+			if (!isNull && resetAfterRead)
+			{
+				// return the position one step back
+				reader.BaseStream.Seek(-1, SeekOrigin.Current);
+			}
+			return isNull;
+		}
+
+
 
 		/// <summary>
 		/// 
@@ -854,6 +880,11 @@ namespace Salar.Bois
 			}
 		}
 
+		internal static void WriteNullableObjectIndicator(BinaryWriter writer)
+		{
+			writer.Write(NullableObjectIndicator);
+		}
+
 		private static void WriteIntFlagged(BinaryWriter writer, long num)
 		{
 			byte numLen;
@@ -883,7 +914,7 @@ namespace Salar.Bois
 		/// </summary>
 		private static void WriteUIntStepped(BinaryWriter writer, ulong num)
 		{
- 			while ((num & ~0x7FUL) != 0)
+			while ((num & ~0x7FUL) != 0)
 			{
 				writer.Write((byte)((num | 0x80) & 0xFF));
 				num >>= 7;
@@ -914,7 +945,7 @@ namespace Salar.Bois
 		/// </summary>
 		private static void WriteUIntStepped(BinaryWriter writer, uint num)
 		{
- 			while ((num & ~0x7F) != 0)
+			while ((num & ~0x7F) != 0)
 			{
 				writer.Write((byte)((num | 0x80) & 0xFF));
 				num >>= 7;
@@ -965,6 +996,7 @@ namespace Salar.Bois
 			writer.Write(numLen);
 			writer.Write(numBuff, 0, numBuff.Length);
 		}
+
 		[Obsolete]
 		private static long ReadInt64Flagged(BinaryReader reader, int length)
 		{

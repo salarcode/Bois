@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;DotNetStandard NETSTANDARD2_0;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Salar.Bois\BoisContractAttribute.cs" Link="BoisContractAttribute.cs" />
+    <Compile Include="..\Salar.Bois\BoisMemberAttribute.cs" Link="BoisMemberAttribute.cs" />
+    <Compile Include="..\Salar.Bois\BoisMemberInfo.cs" Link="BoisMemberInfo.cs" />
+    <Compile Include="..\Salar.Bois\BoisSerializer.cs" Link="BoisSerializer.cs" />
+    <Compile Include="..\Salar.Bois\BoisTypeCache.cs" Link="BoisTypeCache.cs" />
+    <Compile Include="..\Salar.Bois\BoisTypeInfo.cs" Link="BoisTypeInfo.cs" />
+    <Compile Include="..\Salar.Bois\EnBoisKnownType.cs" Link="EnBoisKnownType.cs" />
+    <Compile Include="..\Salar.Bois\EnBoisMemberType.cs" Link="EnBoisMemberType.cs" />
+    <Compile Include="..\Salar.Bois\PrimitivesConvertion.cs" Link="PrimitivesConvertion.cs" />
+    <Compile Include="..\Salar.Bois\ReflectionHelper.cs" Link="ReflectionHelper.cs" />
+  </ItemGroup>
+
+</Project>

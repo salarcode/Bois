@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 #endif
 #if DotNet || DotNetCore || DotNetStandard
+using System.Reflection.Emit;
 using System.Collections.Specialized;
 using System.Drawing;
 #endif
@@ -32,7 +33,7 @@ namespace Salar.Bois
 		internal delegate object GenericConstructor();
 
 
-#if SILVERLIGHT || !DotNet
+#if SILVERLIGHT || (!DotNet && !DotNetStandard)
 		private readonly Dictionary<Type, GenericConstructor> _constructorCache;
 		private readonly Dictionary<Type, BoisMemberInfo> _cache;
 		public BoisTypeCache()
@@ -96,12 +97,12 @@ namespace Salar.Bois
 
 		internal object CreateInstance(Type t)
 		{
-#if SILVERLIGHT || !DotNet
+#if SILVERLIGHT || (!DotNet && !DotNetStandard)
 			// Falling back to default parameterless constructor.
 			return Activator.CreateInstance(t, null);
 #else
 			// Read from cache
-#if SILVERLIGHT || !DotNet
+#if SILVERLIGHT || (!DotNet && !DotNetStandard)
 			GenericConstructor info = null;
 			_constructorCache.TryGetValue(t, out info);
 #else
@@ -116,7 +117,7 @@ namespace Salar.Bois
 					return Activator.CreateInstance(t, null);
 				}
 
-#if SILVERLIGHT || !DotNet
+#if SILVERLIGHT || (!DotNet && !DotNetStandard)
 				var dynamicCtor = new DynamicMethod("_", t, Type.EmptyTypes);
 #else
 				var dynamicCtor = new DynamicMethod("_", t, Type.EmptyTypes, t, true);
@@ -144,7 +145,7 @@ namespace Salar.Bois
 
 		internal BoisMemberInfo GetTypeInfo(Type type, bool generate)
 		{
-#if SILVERLIGHT || !DotNet
+#if SILVERLIGHT || (!DotNet && !DotNetStandard)
 			BoisMemberInfo memInfo;
 			if (_cache.TryGetValue(type, out memInfo))
 			{
@@ -830,7 +831,7 @@ namespace Salar.Bois
 		/// Gerhard Stephan 
 		/// http://jachman.wordpress.com/2006/08/22/2000-faster-using-dynamic-method-calls/
 		/// </author>
-#if DotNet
+#if DotNet || DotNetStandard
 		private GenericSetter CreateSetMethod(PropertyInfo propertyInfo)
 		{
 			/*
@@ -847,7 +848,7 @@ namespace Salar.Bois
 			arguments[0] = arguments[1] = typeof(object);
 
 
-#if SILVERLIGHT || !DotNet
+#if SILVERLIGHT || (!DotNet && !DotNetStandard)
 			var setter = new DynamicMethod(
 			  String.Concat("_Set", propertyInfo.Name, "_"),
 			  typeof(void), arguments);
@@ -885,7 +886,7 @@ namespace Salar.Bois
 		/// Gerhard Stephan 
 		/// http://jachman.wordpress.com/2006/08/22/2000-faster-using-dynamic-method-calls/
 		/// </author>
-#if DotNet
+#if DotNet || DotNetStandard
 		private GenericGetter CreateGetMethod(PropertyInfo propertyInfo)
 		{
 			/*
@@ -943,7 +944,7 @@ namespace Salar.Bois
 
 		private GenericGetter GetPropertyGetter(Type objType, PropertyInfo propertyInfo)
 		{
-#if SILVERLIGHT || !DotNet
+#if SILVERLIGHT || (!DotNet && !DotNetStandard)
 			// this is a fallback to slower method.
 			var method = propertyInfo.GetGetMethod();
 
@@ -976,7 +977,7 @@ namespace Salar.Bois
 
 		private Function<object, object, object> GetPropertySetter(Type objType, PropertyInfo propertyInfo)
 		{
-#if SILVERLIGHT || !DotNet
+#if SILVERLIGHT || (!DotNet && !DotNetStandard)
 			// this is a fallback to slower method.
 			var method = propertyInfo.GetSetMethod(true);
 
@@ -1011,7 +1012,7 @@ namespace Salar.Bois
 		/// http://social.msdn.microsoft.com/Forums/en-US/netfxbcl/thread/8754500e-4426-400f-9210-554f9f2ad58b/
 		/// </summary>
 		/// <returns></returns>
-#if SILVERLIGHT || DotNet
+#if SILVERLIGHT || DotNet || DotNetStandard
 		private GenericGetter GetFastGetterFunc(PropertyInfo p, MethodInfo getter) // untyped cast from Func<T> to Func<object> 
 		{
 #if SILVERLIGHT
@@ -1040,7 +1041,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// http://social.msdn.microsoft.com/Forums/en-US/netfxbcl/thread/8754500e-4426-400f-9210-554f9f2ad58b/
 		/// </summary>
-#if SILVERLIGHT || DotNet
+#if SILVERLIGHT || DotNet || DotNetStandard
 		private Function<object, object, object> GetFastSetterFunc(PropertyInfo p, MethodInfo setter)
 		{
 #if SILVERLIGHT

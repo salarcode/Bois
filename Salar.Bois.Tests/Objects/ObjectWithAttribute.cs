@@ -32,7 +32,7 @@ namespace Salar.Bois.Tests.Objects
 			Language = BasicTypes1.SystemLanguage.French;
 			AcceptChar = 'c';
 			TestDate = DateTime.Now.AddDays(7);
-			ForeColor = SystemColors.ControlText;
+			ForeColor = Color.MidnightBlue;
 			TestGuid = Guid.NewGuid();
 			PassedTimeSpan = new TimeSpan(2, 3, 4, 5, 200);
 		}

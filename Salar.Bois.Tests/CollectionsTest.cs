@@ -207,7 +207,7 @@ namespace Salar.Bois.Tests
 		public void WriteArray_ColorNormal()
 		{
 			ResetStream();
-			var init = new Color[] { SystemColors.Control, Color.DarkBlue };
+			var init = new Color[] { Color.Gainsboro, Color.DarkBlue };
 			bion.WriteArray(bionWriter, init);
 			ResetStream();
 

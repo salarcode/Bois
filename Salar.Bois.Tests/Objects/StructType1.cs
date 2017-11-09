@@ -30,7 +30,7 @@ namespace Salar.Bois.Tests.Objects
 							   Text3 = null,
 							   AcceptChar = 'c',
 							   TestDate = DateTime.Now.AddDays(7),
-							   ForeColor = SystemColors.ControlText,
+							   ForeColor = Color.MidnightBlue,
 						   };
 		}
 	}

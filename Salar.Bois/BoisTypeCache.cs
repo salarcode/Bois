@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-#if DotNet || SILVERLIGHT
+#if SILVERLIGHT
 using System.Reflection.Emit;
 #endif
 #if DotNet || DotNetCore || DotNetStandard

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{EB3DE067-FDF5-4AF2-B6C6-07C8686B0E30}"
 	ProjectSection(SolutionItems) = preProject
@@ -30,6 +30,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.Net4", "Salar.Bois.Net4\Salar.Bois.Net4.csproj", "{103F2ABB-949D-469F-9CEC-3066B9005285}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.SerializersStudy", "Salar.SerializersStudy\Salar.SerializersStudy.csproj", "{E771C343-1FB7-491C-9253-B935BBC8AD58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.NetStandard", "Salar.Bois.NetStandard\Salar.Bois.NetStandard.csproj", "{4D9DF8A8-C201-4B21-84C5-37914FB2B640}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.BoisTests.NetCore", "Salar.BoisTests.NetCore\Salar.BoisTests.NetCore.csproj", "{4323DD5A-5385-4C61-9580-37018AC9A704}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,8 +117,35 @@ Global
 		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{E771C343-1FB7-491C-9253-B935BBC8AD58}.Release|x86.ActiveCfg = Release|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Debug|x86.Build.0 = Debug|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Release|x86.ActiveCfg = Release|Any CPU
+		{4D9DF8A8-C201-4B21-84C5-37914FB2B640}.Release|x86.Build.0 = Release|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Debug|x86.Build.0 = Debug|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Release|x86.ActiveCfg = Release|Any CPU
+		{4323DD5A-5385-4C61-9580-37018AC9A704}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2D86761D-00EF-400A-905D-DE30B0BA0552}
 	EndGlobalSection
 EndGlobal

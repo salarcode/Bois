@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
-#if !SILVERLIGHT && DotNet
+#if DotNet || DotNetCore || DotNetStandard
 using System.Collections.Specialized;
-using System.Data;
 using System.Drawing;
+#endif
+#if !SILVERLIGHT && DotNet
+using System.Data;
 #endif
 
 /* 
@@ -458,6 +460,8 @@ namespace Salar.Bois
 				case EnBoisKnownType.DataTable:
 					WriteDataTable(writer, value as DataTable);
 					break;
+#endif
+#if DotNet || DotNetCore || DotNetStandard
 				case EnBoisKnownType.NameValueColl:
 					WriteCollectionNameValue(writer, value as NameValueCollection);
 					break;
@@ -466,6 +470,7 @@ namespace Salar.Bois
 					WriteColor(writer, (Color)value);
 					break;
 #endif
+
 
 				case EnBoisKnownType.Version:
 					WriteVersion(writer, value as Version);
@@ -488,8 +493,7 @@ namespace Salar.Bois
 			}
 		}
 
-
-#if !SILVERLIGHT && DotNet
+#if DotNet || DotNetCore || DotNetStandard
 		private void WriteCollectionNameValue(BinaryWriter writer, NameValueCollection nameValue)
 		{
 			// Int32
@@ -508,6 +512,8 @@ namespace Salar.Bois
 			// Int32
 			PrimitivesConvertion.WriteVarInt(writer, argb);
 		}
+#endif
+#if !SILVERLIGHT && DotNet
 
 		private string GetXmlSchema(DataTable dt)
 		{
@@ -993,19 +999,20 @@ namespace Salar.Bois
 				case EnBoisKnownType.DataTable:
 					return ReadDataTable(reader);
 
+#endif
+#if DotNet || DotNetCore || DotNetStandard
 				case EnBoisKnownType.NameValueColl:
 					return ReadCollectionNameValue(reader, actualMemberType);
 
 				case EnBoisKnownType.Color:
 					return ReadColor(reader);
+
+				case EnBoisKnownType.DbNull:
+					return DBNull.Value;
 #endif
 
 				case EnBoisKnownType.Version:
 					return ReadVersion(reader);
-#if DotNet
-				case EnBoisKnownType.DbNull:
-					return DBNull.Value;
-#endif
 
 				case EnBoisKnownType.Guid:
 					return ReadGuid(reader);
@@ -1113,7 +1120,7 @@ namespace Salar.Bois
 			return reader.ReadBytes(length);
 		}
 
-#if !SILVERLIGHT && DotNet
+#if DotNet || DotNetCore || DotNetStandard
 		private object ReadColor(BinaryReader reader)
 		{
 			return Color.FromArgb(PrimitivesConvertion.ReadVarInt32(reader));
@@ -1131,6 +1138,8 @@ namespace Salar.Bois
 			}
 			return nameValue;
 		}
+#endif
+#if !SILVERLIGHT && DotNet
 		private DataTable ReadDataTable(BinaryReader reader)
 		{
 			var dt = _typeCache.CreateInstance(typeof(DataTable)) as DataTable;

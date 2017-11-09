@@ -21,4 +21,10 @@
     <Compile Include="..\Salar.Bois\ReflectionHelper.cs" Link="ReflectionHelper.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.Reflection.Emit.Lightweight">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.netcore.app\2.0.0\ref\netcoreapp2.0\System.Reflection.Emit.Lightweight.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

@@ -5,11 +5,12 @@ using System.Reflection;
 #if DotNet || SILVERLIGHT
 using System.Reflection.Emit;
 #endif
-
-#if !SILVERLIGHT && DotNet
+#if DotNet || DotNetCore || DotNetStandard
 using System.Collections.Specialized;
-using System.Data;
 using System.Drawing;
+#endif
+#if !SILVERLIGHT && DotNet
+using System.Data;
 #endif
 
 /* 
@@ -447,17 +448,6 @@ namespace Salar.Bois
 					};
 			}
 
-#if !SILVERLIGHT && DotNet
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(NameValueCollection)))
-			{
-				return new BoisMemberInfo
-				{
-					KnownType = EnBoisKnownType.NameValueColl,
-					IsNullable = isNullable,
-					NullableUnderlyingType = underlyingTypeNullable,
-				};
-			}
-#endif
 			// checking for IList and ICollection should be after NameValueCollection
 			if (ReflectionHelper.CompareInterface(memActualType, typeof(IList)) ||
 				ReflectionHelper.CompareInterface(memActualType, typeof(ICollection)))
@@ -473,8 +463,16 @@ namespace Salar.Bois
 				};
 			}
 
-
-#if !SILVERLIGHT && DotNet
+#if DotNet || DotNetCore || DotNetStandard
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(NameValueCollection)))
+			{
+				return new BoisMemberInfo
+				{
+					KnownType = EnBoisKnownType.NameValueColl,
+					IsNullable = isNullable,
+					NullableUnderlyingType = underlyingTypeNullable,
+				};
+			}
 			if (memActualType == typeof(Color))
 			{
 				// is struct and uses Nullable<>
@@ -485,6 +483,8 @@ namespace Salar.Bois
 					NullableUnderlyingType = underlyingTypeNullable,
 				};
 			}
+#endif
+#if !SILVERLIGHT && DotNet
 			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataSet)))
 			{
 				return new BoisMemberInfo
@@ -544,7 +544,7 @@ namespace Salar.Bois
 					NullableUnderlyingType = underlyingTypeNullable,
 				};
 			}
-#if DotNet
+#if DotNet || DotNetCore || DotNetStandard
 			if (memActualType == typeof(DBNull))
 			{
 				// ignore!
@@ -978,7 +978,7 @@ namespace Salar.Bois
 		{
 #if SILVERLIGHT || !DotNet
 			// this is a fallback to slower method.
-			var method = propertyInfo.GetSetMethod();
+			var method = propertyInfo.GetSetMethod(true);
 
 			// generating the caller.
 			return new Function<object, object, object>((target, value) => method.Invoke(target, new object[] { value }));

@@ -10,7 +10,7 @@ using System.IO;
  */
 namespace Salar.Bois.Serializers
 {
-	internal static class PrimitivesConvertion
+	public static class PrimitivesConvertion
 	{
 		/// <summary>
 		/// 0000 0000
@@ -63,7 +63,7 @@ namespace Salar.Bois.Serializers
 		private const byte ActualFlagInsideNum = 128;
 
 
-		private static uint ZigZagInt32(int num)
+		public static uint ZigZagInt32(int num)
 		{
 			//return (uint)(num << 1) ^ (uint)(num >> 31);
 			uint abs = (uint)num << 1;
@@ -73,7 +73,7 @@ namespace Salar.Bois.Serializers
 			else
 				return abs;
 		}
-		private static int UnZigZagInt32(uint num)
+		public static int UnZigZagInt32(uint num)
 		{
 			return (int)(num >> 1) ^ (int)(-(num & 1));
 		}
@@ -84,6 +84,20 @@ namespace Salar.Bois.Serializers
 		private static long UZigZagInt64(ulong num)
 		{
 			return (long)(num >> 1) ^ (-(long)(num & 1));
+		}
+
+
+		internal static byte? ReadVarByteNullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == NullableFlagNullNum)
+				return null;
+
+			var isnull = (input & NullableFlagNullNum) == NullableFlagNullNum;
+			if (isnull)
+				return null;
+
+			return (byte)(input & NullableFlagNullMask);
 		}
 
 		/// <summary>
@@ -948,14 +962,14 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)num);
 		}
 		[Obsolete]
-		private static void WriteIntFlagged(BinaryWriter writer, int num)
+		public static void WriteIntFlagged(BinaryWriter writer, int num)
 		{
 			byte numLen;
 			var numBuff = ConvertToVarBinary(num, out numLen);
 			writer.Write(numLen);
 			writer.Write(numBuff, 0, numBuff.Length);
 		}
-		private static void WriteIntZigzag(BinaryWriter writer, int num)
+		public static void WriteIntZigzag(BinaryWriter writer, int num)
 		{
 			var zigZagEncoded = unchecked((uint)((num << 1) ^ (num >> 31)));
 			while ((zigZagEncoded & ~0x7F) != 0)
@@ -1317,7 +1331,7 @@ namespace Salar.Bois.Serializers
 			}
 		}
 
-		private static byte[] ConvertToVarBinary(int value, out byte length)
+		public static byte[] ConvertToVarBinary(int value, out byte length)
 		{
 			if (value < 0)
 			{
@@ -1346,6 +1360,7 @@ namespace Salar.Bois.Serializers
 				}
 				else if (num3 == 0 && num4 == 0)
 				{
+					//TODO: don't resize
 					Array.Resize(ref buff, 1);
 					length = 1;
 					return buff;
@@ -1357,6 +1372,7 @@ namespace Salar.Bois.Serializers
 				}
 				else if (num4 == 0)
 				{
+					//TODO: don't resize
 					Array.Resize(ref buff, 2);
 					length = 2;
 					return buff;
@@ -1366,6 +1382,7 @@ namespace Salar.Bois.Serializers
 					buff[3] = num4;
 				else
 				{
+					//TODO: don't resize
 					Array.Resize(ref buff, 3);
 					length = 3;
 					return buff;
@@ -1668,5 +1685,6 @@ namespace Salar.Bois.Serializers
 			length = 0;
 			return new byte[0];
 		}
+
 	}
 }

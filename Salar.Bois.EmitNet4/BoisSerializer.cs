@@ -1,5 +1,4 @@
-﻿#define DotNet
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
@@ -28,7 +27,7 @@ namespace Salar.Bois
 	/// </Author>
 	public class BoisSerializer
 	{
-		private BoisTypeCache_New _typeCache;
+		private BoisTypeCache _typeCache;
 
 		/// <summary>
 		/// Character encoding for strings.
@@ -41,9 +40,21 @@ namespace Salar.Bois
 		public BoisSerializer()
 		{
 			Encoding = Encoding.UTF8;
-			_typeCache = new BoisTypeCache_New();
+			_typeCache = new BoisTypeCache();
 		}
 
+		public void Initialize<T>()
+		{
+			_typeCache.GetRootTypeComputed(typeof(T), true, true);
+		}
+
+		public void Initialize(params Type[] types)
+		{
+			foreach (var type in types)
+			{
+				_typeCache.GetRootTypeComputed(type, true, true);
+			}
+		}
 
 		/// <summary>
 		/// Serializing an object to binary bois format.
@@ -65,10 +76,250 @@ namespace Salar.Bois
 			}
 			else
 			{
-				var computedType = _typeCache.GetComputedType(typeof(T), true);
-				// computedType.Invoke();
+				var computedType = _typeCache.GetRootTypeComputed(type, false, true);
+
+				computedType.InvokeWriter(writer, obj, Encoding);
 			}
 		}
+
+		/// <summary>
+		/// Deserilizing binary data to a new instance.
+		/// </summary>
+		/// <param name="objectData">The binary data.</param>
+		/// <typeparam name="T">The object type.</typeparam>
+		/// <returns>New instance of the deserialized data.</returns>
+		public T Deserialize<T>(Stream objectData)
+		{
+			var reader = new BinaryReader(objectData, Encoding);
+
+			var type = typeof(T);
+			if (_typeCache.IsPrimitveType(type))
+			{
+				return (T)ReadRootPrimtiveValue(type, reader);
+			}
+			var computedType = _typeCache.GetRootTypeComputed(type, true, false);
+
+			return computedType.InvokeReader<T>(reader, Encoding);
+		}
+
+		private object ReadRootPrimtiveValue(Type memType, BinaryReader reader)
+		{
+			if (memType == typeof(string))
+			{
+				return PrimitiveReader.ReadString(reader, Encoding);
+			}
+			Type memActualType = memType;
+			Type underlyingTypeNullable;
+			bool isNullable = ReflectionHelper.IsNullable(memType, out underlyingTypeNullable);
+
+			// check the underling type
+			if (isNullable && underlyingTypeNullable != null)
+			{
+				memActualType = underlyingTypeNullable;
+			}
+			else
+			{
+				underlyingTypeNullable = null;
+			}
+
+			if (memActualType == typeof(char))
+			{
+				if (isNullable)
+					return PrimitiveReader.ReadCharNullable(reader);
+				return PrimitiveReader.ReadChar(reader);
+			}
+			if (memActualType == typeof(bool))
+			{
+				if (isNullable)
+					return PrimitiveReader.ReadBooleanNullable(reader);
+				return PrimitiveReader.ReadBoolean(reader);
+			}
+			if (memActualType == typeof(DateTime))
+			{
+				if (isNullable)
+					return PrimitiveReader.ReadDateTimeNullable(reader);
+				return PrimitiveReader.ReadDateTime(reader);
+			}
+			if (memActualType == typeof(DateTimeOffset))
+			{
+				if (isNullable)
+					return PrimitiveReader.ReadDateTimeOffsetNullable(reader);
+				return PrimitiveReader.ReadDateTimeOffset(reader);
+			}
+			if (memActualType == typeof(byte[]))
+			{
+				return PrimitiveReader.ReadByteArray(reader);
+			}
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(Enum)))
+			{
+				return PrimitiveReader.ReadEnum(reader);
+			}
+
+			object readNumber;
+			var isANumber = ReadRootPrimtiveNumberValue(reader, memActualType, isNullable, out readNumber);
+			if (isANumber)
+				return readNumber;
+
+			if (memActualType == typeof(TimeSpan))
+			{
+				if (isNullable)
+					return PrimitiveReader.ReadTimeSpanNullable(reader);
+				return PrimitiveReader.ReadTimeSpan(reader);
+			}
+
+			if (memActualType == typeof(Version))
+			{
+				return PrimitiveReader.ReadVersion(reader);
+			}
+			if (memActualType == typeof(Guid))
+			{
+				if (isNullable)
+					return PrimitiveReader.ReadGuidNullable(reader);
+				return PrimitiveReader.ReadGuid(reader);
+			}
+#if DotNet || DotNetCore || DotNetStandard
+			if (memActualType == typeof(DBNull))
+			{
+				return PrimitiveReader.ReadDBNull(reader);
+			}
+#endif
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(Array)))
+			{
+				var arrayItemType = memActualType.GetElementType();
+
+				// only supported if the item type of array is primitive type, not a complex one
+				if (_typeCache.IsPrimitveType(arrayItemType))
+				{
+					return ReadRootPrimtiveArrayValue(reader, arrayItemType);
+				}
+			}
+
+			// this should never run, it should be prevented in IsPrimitveType method
+			throw new InvalidOperationException($"'{memActualType}' is not supported primitive type");
+		}
+
+		private object ReadRootPrimtiveArrayValue(BinaryReader reader, Type arrayItemType)
+		{
+			var length = PrimitivesConvertion.ReadVarUInt32Nullable(reader);
+
+			if (length == null)
+			{
+				return null;
+			}
+
+			var result = Array.CreateInstance(arrayItemType, (int)length.Value);
+
+			for (int i = 0; i < length; i++)
+			{
+				var item = ReadRootPrimtiveValue(arrayItemType, reader);
+				result.SetValue(item, i);
+			}
+			return result;
+		}
+
+		private bool ReadRootPrimtiveNumberValue(BinaryReader reader, Type memType, bool isNullable, out object outNumber)
+		{
+			outNumber = null;
+			if (memType.IsClass)
+			{
+				return false;
+			}
+			if (memType == typeof(int))
+			{
+				if (isNullable)
+					outNumber = PrimitivesConvertion.ReadVarInt32Nullable(reader);
+				else
+					outNumber = PrimitivesConvertion.ReadVarInt32(reader);
+
+				return true;
+			}
+			else if (memType == typeof(long))
+			{
+				if (isNullable)
+					outNumber = PrimitivesConvertion.ReadVarInt64Nullable(reader);
+				else
+					outNumber = PrimitivesConvertion.ReadVarInt64(reader);
+
+				return true;
+			}
+			else if (memType == typeof(short))
+			{
+				if (isNullable)
+					outNumber = PrimitivesConvertion.ReadVarInt16Nullable(reader);
+				else
+					outNumber = PrimitivesConvertion.ReadVarInt16(reader);
+
+				return true;
+			}
+			else if (memType == typeof(double))
+			{
+				if (isNullable)
+					outNumber = PrimitivesConvertion.ReadVarDoubleNullable(reader);
+				else
+					outNumber = PrimitivesConvertion.ReadVarDouble(reader);
+
+				return true;
+			}
+			else if (memType == typeof(decimal))
+			{
+				if (isNullable)
+					outNumber = PrimitivesConvertion.ReadVarDecimalNullable(reader);
+				else
+					outNumber = PrimitivesConvertion.ReadVarDecimal(reader);
+				return true;
+			}
+			else if (memType == typeof(float))
+			{
+				if (isNullable)
+					outNumber = PrimitivesConvertion.ReadVarSingleNullable(reader);
+				else
+					outNumber = PrimitivesConvertion.ReadVarSingle(reader);
+				return true;
+			}
+			else if (memType == typeof(byte))
+			{
+				if (isNullable)
+					outNumber = PrimitivesConvertion.ReadVarByteNullable(reader);
+				else
+					outNumber = reader.ReadByte();
+				return true;
+			}
+			else if (memType == typeof(sbyte))
+			{
+				if (isNullable)
+					outNumber = (sbyte?)PrimitivesConvertion.ReadVarByteNullable(reader);
+				else
+					outNumber = reader.ReadSByte();
+				return true;
+			}
+			else if (memType == typeof(ushort))
+			{
+				if (isNullable)
+					outNumber = PrimitivesConvertion.ReadVarUInt16Nullable(reader);
+				else
+					outNumber = PrimitivesConvertion.ReadVarUInt16(reader);
+				return true;
+			}
+			else if (memType == typeof(uint))
+			{
+				if (isNullable)
+					outNumber = PrimitivesConvertion.ReadVarUInt32Nullable(reader);
+				else
+					outNumber = PrimitivesConvertion.ReadVarUInt32(reader);
+				return true;
+			}
+			else if (memType == typeof(ulong))
+			{
+				if (isNullable)
+					outNumber = PrimitivesConvertion.ReadVarUInt64Nullable(reader);
+				else
+					outNumber = PrimitivesConvertion.ReadVarUInt64(reader);
+				return true;
+			}
+
+			return false;
+		}
+
 
 		private void WriteRootPrimtiveValue(object obj, Type memType, BinaryWriter writer)
 		{
@@ -209,7 +460,7 @@ namespace Salar.Bois
 		/// 
 		/// </summary>
 		/// <returns>true if the value type is a number</returns>
-		private bool WriteRootPrimtiveNumberValue(BinaryWriter writer,object obj,Type memType, bool isNullable)
+		private bool WriteRootPrimtiveNumberValue(BinaryWriter writer, object obj, Type memType, bool isNullable)
 		{
 			if (memType.IsClass)
 			{
@@ -260,9 +511,9 @@ namespace Salar.Bois
 			else if (memType == typeof(byte))
 			{
 				if (isNullable)
-					PrimitivesConvertion.WriteVarInt(writer, (byte?) obj);
+					PrimitivesConvertion.WriteVarInt(writer, (byte?)obj);
 				else
-					writer.Write((byte) obj);
+					writer.Write((byte)obj);
 			}
 			else if (memType == typeof(sbyte))
 			{

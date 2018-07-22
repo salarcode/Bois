@@ -6,8 +6,9 @@ using System.Text;
 
 namespace Salar.Bois.Serializers
 {
-	public static class PrimitiveWriter
+	internal static class PrimitiveWriter
 	{
+		[Obsolete("اشتباهه")]
 		internal static void WriteNullableType(BinaryWriter writer, bool isnull)
 		{
 			writer.Write(isnull ? (byte)1 : (byte)0);

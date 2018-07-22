@@ -18,17 +18,37 @@ using System.Reflection.Emit;
  */
 namespace Salar.Bois.Types
 {
-	class BoisTypeCache_New
+	sealed class BoisTypeCache
 	{
-		public BoisTypeCache_New()
+		private readonly BoisComputedTypeHashtable _hashtable;
+		public BoisTypeCache()
 		{
+			_hashtable = new BoisComputedTypeHashtable();
 		}
 
-		internal object GetComputedType(Type type, bool b)
+		internal BoisComputedTypeInfo GetRootTypeComputed(Type type, bool generateReader, bool generateWriter)
 		{
+			BoisComputedTypeInfo result;
+			if (_hashtable.TryGetValue(type, out result))
+			{
+				return result;
+			}
+			else
+			{
+				result = new BoisComputedTypeInfo();
+			}
 
-			return null;
+			if (generateWriter && result.WriterDelegate == null)
+				result.WriterDelegate = BoisTypeCompiler.ComputeRootWriter(type);
+
+			if (generateReader && result.ReaderDelegate == null)
+				result.ReaderDelegate = BoisTypeCompiler.ComputeRootReader(type);
+
+			_hashtable.TryAdd(type, result);
+
+			return result;
 		}
+
 
 		/// <summary>
 		/// Is this primitive type that doesn't need compilation directly
@@ -83,8 +103,7 @@ namespace Salar.Bois.Types
 				return true;
 			}
 
-			BoisPrimitiveTypeInfo output;
-			if (IsNumber(memActualType, out output))
+			if (IsNumber(memActualType))
 			{
 				return true;
 			}
@@ -126,11 +145,12 @@ namespace Salar.Bois.Types
 
 			if (ReflectionHelper.CompareSubType(memActualType, typeof(Array)))
 			{
-				return false;
+				var arrayItemType = memActualType.GetElementType();
+
+				return IsPrimitveType(arrayItemType);
 			}
 
 			var isGenericType = memActualType.IsGenericType;
-			Type[] interfaces = null;
 			if (isGenericType)
 			{
 				return false;
@@ -161,146 +181,64 @@ namespace Salar.Bois.Types
 #endif
 
 
- 
+
 			return false;
 		}
 
-		private bool IsNumber(Type memType, out BoisPrimitiveTypeInfo output)
+		private bool IsNumber(Type memType)
 		{
 			if (memType.IsClass)
 			{
-				output = null;
 				return false;
 			}
 			if (memType == typeof(int))
 			{
-				output = new BoisPrimitiveTypeInfo
-				{
-					KnownType = EnBoisKnownType.Int32,
-					IsSupportedPrimitive = true,
-				};
+				return true;
 			}
 			else if (memType == typeof(long))
 			{
-				output = new BoisPrimitiveTypeInfo
-				{
-					KnownType = EnBoisKnownType.Int64,
-					IsSupportedPrimitive = true,
-				};
+				return true;
 			}
 			else if (memType == typeof(short))
 			{
-				output = new BoisPrimitiveTypeInfo
-				{
-					KnownType = EnBoisKnownType.Int16,
-					IsSupportedPrimitive = true,
-				};
+				return true;
 			}
 			else if (memType == typeof(double))
 			{
-				output = new BoisPrimitiveTypeInfo
-				{
-					KnownType = EnBoisKnownType.Double,
-				};
+				return true;
 			}
 			else if (memType == typeof(decimal))
 			{
-				output = new BoisPrimitiveTypeInfo
-				{
-					KnownType = EnBoisKnownType.Decimal,
-				};
+				return true;
 			}
 			else if (memType == typeof(float))
 			{
-				output = new BoisPrimitiveTypeInfo
-				{
-					KnownType = EnBoisKnownType.Single,
-				};
+				return true;
 			}
 			else if (memType == typeof(byte))
 			{
-				output = new BoisPrimitiveTypeInfo
-				{
-					KnownType = EnBoisKnownType.Byte,
-				};
+				return true;
 			}
 			else if (memType == typeof(sbyte))
 			{
-				output = new BoisPrimitiveTypeInfo
-				{
-					KnownType = EnBoisKnownType.SByte,
-				};
+				return true;
 			}
 			else if (memType == typeof(ushort))
 			{
-				output = new BoisPrimitiveTypeInfo
-				{
-					KnownType = EnBoisKnownType.UInt16,
-				};
+				return true;
 			}
 			else if (memType == typeof(uint))
 			{
-				output = new BoisPrimitiveTypeInfo
-				{
-					KnownType = EnBoisKnownType.UInt32,
-				};
+				return true;
 			}
 			else if (memType == typeof(ulong))
 			{
-				output = new BoisPrimitiveTypeInfo
-				{
-					KnownType = EnBoisKnownType.UInt64,
-				};
+				return true;
 			}
 			else
 			{
-				output = null;
 				return false;
 			}
-			return true;
 		}
-
-	
 	}
-
-	class BoisPrimitiveTypeInfo
-	{
-		public bool IsNullable;
-		public bool IsGeneric;
-		public bool IsStringDictionary;
-		public bool IsDictionary;
-		public bool IsCollection;
-		public bool IsArray;
-		public bool IsSupportedPrimitive;
-
-		/// <summary>
-		/// Has Fields or Properties
-		/// </summary>
-		public bool IsContainerObject;
-
-		/// <summary>
-		/// IsValueType
-		/// </summary>
-		public bool IsStruct;
-
-		internal EnBoisMemberType MemberType;
-		internal EnBoisKnownType KnownType;
-		//public MemberInfo Info;
-
-		/// <summary>
-		/// if the type is value-type and is nullable, the underlying type
-		/// </summary>
-		public Type NullableUnderlyingType;
-
-		//public Function<object, object, object> PropertySetter;
-		//public BoisTypeCache.GenericGetter PropertyGetter;
-
-#if DEBUG
-		public override string ToString()
-		{
-			return $"{MemberType}: {KnownType} ";
-		}
-#endif
-	}
-
 }

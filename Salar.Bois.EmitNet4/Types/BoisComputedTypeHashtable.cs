@@ -41,6 +41,25 @@ namespace Salar.Bois.Types
 			return TryAddInternal(key, valueFactory, out _);
 		}
 
+		public void Clear()
+		{
+			lock (_writerLock)
+			{
+				var oldBucket = _buckets;
+
+				_size = 0;
+				_buckets = new Entry[oldBucket.Length];
+
+				for (int i = oldBucket.Length - 1; i >= 0; i--)
+				{
+					// releasing the reference
+					oldBucket[i].Next = null;
+					oldBucket[i].Value = default(T);
+					oldBucket[i].Key = null;
+				}
+			}
+		}
+
 		bool TryAddInternal(Type key, Func<Type, T> valueFactory, out T resultingValue)
 		{
 			lock (_writerLock)

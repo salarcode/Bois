@@ -171,8 +171,7 @@ namespace Salar.Bois.Types
 			{
 				return;
 			}
-			var typeCache = new BoisTypeCache();
-			var basicInfo = typeCache.GetBasicType(memberType);
+			var basicInfo = BoisTypeCache.GetBasicType(memberType);
 
 			if (basicInfo.KnownType != EnBasicKnownType.Unknown)
 			{
@@ -180,7 +179,7 @@ namespace Salar.Bois.Types
 			}
 			else
 			{
-				var complexTypeInfo = typeCache.GetComplexTypeUnCached(memberType);
+				var complexTypeInfo = BoisTypeCache.GetComplexTypeUnCached(memberType);
 				WriteRootObjectComplexMember(memberType, complexTypeInfo, prop, field, il);
 			}
 		}
@@ -603,8 +602,8 @@ namespace Salar.Bois.Types
 			{
 				return;
 			}
-			var typeCache = new BoisTypeCache();
-			var basicInfo = typeCache.GetBasicType(memberType);
+
+			var basicInfo = BoisTypeCache.GetBasicType(memberType);
 
 			if (basicInfo.KnownType != EnBasicKnownType.Unknown)
 			{
@@ -612,7 +611,7 @@ namespace Salar.Bois.Types
 			}
 			else
 			{
-				var complexTypeInfo = typeCache.GetComplexTypeUnCached(memberType);
+				var complexTypeInfo = BoisTypeCache.GetComplexTypeUnCached(memberType);
 				ReadRootObjectComplexMember(memberType, complexTypeInfo, prop, field, il);
 			}
 		}

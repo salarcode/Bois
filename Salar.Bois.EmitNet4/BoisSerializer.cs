@@ -27,7 +27,6 @@ namespace Salar.Bois
 	/// </Author>
 	public class BoisSerializer
 	{
-		private BoisTypeCache _typeCache;
 
 		/// <summary>
 		/// Character encoding for strings.
@@ -40,20 +39,30 @@ namespace Salar.Bois
 		public BoisSerializer()
 		{
 			Encoding = Encoding.UTF8;
-			_typeCache = new BoisTypeCache();
 		}
 
 		public void Initialize<T>()
 		{
-			_typeCache.GetRootTypeComputed(typeof(T), true, true);
+			BoisTypeCache.GetRootTypeComputed(typeof(T), true, true);
 		}
 
 		public void Initialize(params Type[] types)
 		{
+			if (types == null)
+				return;
 			foreach (var type in types)
 			{
-				_typeCache.GetRootTypeComputed(type, true, true);
+				if (type != null)
+					BoisTypeCache.GetRootTypeComputed(type, true, true);
 			}
+		}
+
+		/// <summary>
+		/// Use with caution, all the calculations will be lost and will be done again
+		/// </summary>
+		public static void ClearCache()
+		{
+			BoisTypeCache.ClearCache();
 		}
 
 		/// <summary>
@@ -70,10 +79,10 @@ namespace Salar.Bois
 			var writer = new BinaryWriter(output, Encoding);
 
 			var type = typeof(T);
-			var typeInfo = _typeCache.GetBasicType(type);
+			var typeInfo = BoisTypeCache.GetBasicType(type);
 			if (typeInfo.AsRootNeedsCompute)
 			{
-				var computedType = _typeCache.GetRootTypeComputed(type, false, true);
+				var computedType = BoisTypeCache.GetRootTypeComputed(type, false, true);
 
 				computedType.InvokeWriter(writer, obj, Encoding);
 			}
@@ -94,11 +103,11 @@ namespace Salar.Bois
 			var reader = new BinaryReader(objectData, Encoding);
 
 			var type = typeof(T);
-			var typeInfo = _typeCache.GetBasicType(type);
+			var typeInfo = BoisTypeCache.GetBasicType(type);
 
 			if (typeInfo.AsRootNeedsCompute)
 			{
-				var computedType = _typeCache.GetRootTypeComputed(type, true, false);
+				var computedType = BoisTypeCache.GetRootTypeComputed(type, true, false);
 
 				return computedType.InvokeReader<T>(reader, Encoding);
 			}
@@ -287,7 +296,7 @@ namespace Salar.Bois
 			}
 
 			var arrayItemType = typeInfo.BareType;
-			var arrayItemTypeType = _typeCache.GetBasicType(typeInfo.BareType);
+			var arrayItemTypeType = BoisTypeCache.GetBasicType(typeInfo.BareType);
 
 			// Int32
 			PrimitivesConvertion.WriteVarInt(writer, (uint?)array.Length);
@@ -447,7 +456,7 @@ namespace Salar.Bois
 			}
 
 			var arrayItemType = typeInfo.BareType;
-			var arrayItemTypeType = _typeCache.GetBasicType(typeInfo.BareType);
+			var arrayItemTypeType = BoisTypeCache.GetBasicType(typeInfo.BareType);
 
 			var result = Array.CreateInstance(arrayItemType, (int)length.Value);
 
@@ -546,7 +555,7 @@ namespace Salar.Bois
 		//				var arrayItemType = memActualType.GetElementType();
 
 		//				// only supported if the item type of array is primitive type, not a complex one
-		//				if (_typeCache.IsPrimitveType(arrayItemType))
+		//				if (BoisTypeCache.IsPrimitveType(arrayItemType))
 		//				{
 		//					return ReadRootPrimtiveArrayValue(reader, arrayItemType);
 		//				}
@@ -782,7 +791,7 @@ namespace Salar.Bois
 		//				var arrayItemType = memActualType.GetElementType();
 
 		//				// only supported if the item type of array is primitive type, not a complex one
-		//				if (_typeCache.IsPrimitveType(arrayItemType))
+		//				if (BoisTypeCache.IsPrimitveType(arrayItemType))
 		//				{
 		//					WriteRootPrimtiveArrayValue(writer, arrayItemType, (Array)obj);
 		//					return;

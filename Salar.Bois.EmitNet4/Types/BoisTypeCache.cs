@@ -20,17 +20,24 @@ using System.Runtime.CompilerServices;
  */
 namespace Salar.Bois.Types
 {
-	sealed class BoisTypeCache
+	static class BoisTypeCache
 	{
-		private readonly BoisComputedTypeHashtable<BoisComputedTypeInfo> _computedCache;
-		private readonly BoisComputedTypeHashtable<BoisBasicTypeInfo> _basicTypeCache;
-		public BoisTypeCache()
+		private static readonly BoisComputedTypeHashtable<BoisComputedTypeInfo> _computedCache;
+		private static readonly BoisComputedTypeHashtable<BoisBasicTypeInfo> _basicTypeCache;
+		static BoisTypeCache()
 		{
 			_computedCache = new BoisComputedTypeHashtable<BoisComputedTypeInfo>();
 			_basicTypeCache = new BoisComputedTypeHashtable<BoisBasicTypeInfo>();
 		}
 
-		internal BoisComputedTypeInfo GetRootTypeComputed(Type type, bool generateReader, bool generateWriter)
+
+		internal static void ClearCache()
+		{
+			_basicTypeCache.Clear();
+			_computedCache.Clear();
+		}
+
+		internal static BoisComputedTypeInfo GetRootTypeComputed(Type type, bool generateReader, bool generateWriter)
 		{
 			BoisComputedTypeInfo result;
 			if (_computedCache.TryGetValue(type, out result))
@@ -66,7 +73,7 @@ namespace Salar.Bois.Types
 			return result;
 		}
 
-		internal BoisBasicTypeInfo GetBasicType(Type type)
+		internal static BoisBasicTypeInfo GetBasicType(Type type)
 		{
 			BoisBasicTypeInfo result;
 			if (_basicTypeCache.TryGetValue(type, out result))
@@ -80,7 +87,7 @@ namespace Salar.Bois.Types
 			return result;
 		}
 
-		internal BoisComplexTypeInfo GetComplexTypeUnCached(Type type)
+		internal static BoisComplexTypeInfo GetComplexTypeUnCached(Type type)
 		{
 			var basicType = GetBasicType(type);
 			if (basicType.KnownType != EnBasicKnownType.Unknown)
@@ -95,7 +102,7 @@ namespace Salar.Bois.Types
 		//		/// <summary>
 		//		/// Is this primitive type that doesn't need compilation directly
 		//		/// </summary>
-		//		internal bool IsPrimitveType(Type memType)
+		//		internal static  bool IsPrimitveType(Type memType)
 		//		{
 		//			if (memType == typeof(string))
 		//			{
@@ -481,13 +488,13 @@ namespace Salar.Bois.Types
 
 
 			// not compatible simple type found
-			// cant be used as root
+			// cant be used as root, should be computed
 			return new BoisBasicTypeInfo()
 			{
 				BareType = underlyingTypeNullable,
 				KnownType = EnBasicKnownType.Unknown,
 				IsNullable = isNullable,
-				AsRootNeedsCompute = false
+				AsRootNeedsCompute = true
 			};
 		}
 
@@ -867,5 +874,6 @@ namespace Salar.Bois.Types
 
 			return typeInfo;
 		}
+
 	}
 }

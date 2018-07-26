@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -305,6 +306,30 @@ namespace Salar.Bois.Serializers
 		internal static void WriteValue(BinaryWriter writer, DBNull dbNull)
 		{
 			WriteNullableType(writer, true);
+		}
+		/// <summary>
+		/// Same as Int32
+		/// </summary>
+		internal static void WriteValue(BinaryWriter writer, Color color)
+		{
+			int argb = color.ToArgb();
+			// Int32
+			PrimitivesConvertion.WriteVarInt(writer, argb);
+		}
+
+		/// <summary>
+		/// Same as Nullable<Int32>
+		/// </summary>
+		internal static void WriteValue(BinaryWriter writer, Color? color)
+		{
+			if (color == null)
+			{
+				WriteNullableType(writer, true);
+				return;
+			}
+			int? argb = color.Value.ToArgb();
+			// Int32
+			PrimitivesConvertion.WriteVarInt(writer, argb);
 		}
 
 

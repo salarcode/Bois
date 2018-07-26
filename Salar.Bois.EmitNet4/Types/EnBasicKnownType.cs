@@ -1,8 +1,11 @@
 ﻿namespace Salar.Bois.Types
 {
-	enum EnBoisKnownType
+	enum EnBasicKnownType
 	{
 		Unknown = 0,
+		String,
+		Bool,
+
 		Int16,
 		Int32,
 		Int64,
@@ -14,22 +17,18 @@
 		Single,
 		Byte,
 		SByte,
-		String,
-		Char,
-		Guid,
-		Bool,
-		Enum,
+
 		DateTime,
 		DateTimeOffset,
-		TimeSpan,
-		DataSet,
-		DataTable,
-		ByteArray,
 		KnownTypeArray,
-		NameValueColl,
+		ByteArray,
+		Enum,
+		TimeSpan,
+		Char,
+		Guid,
 		Color,
-		Version,
 		DbNull,
 		Uri,
+		Version,
 	}
 }

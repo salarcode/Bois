@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -135,6 +136,21 @@ namespace Salar.Bois.Serializers
 		}
 
 		public static DBNull ReadDBNull(BinaryReader reader)
+		{
+			throw new NotImplementedException();
+		}
+
+		public static Color? ReadColorNullable(BinaryReader reader)
+		{
+			throw new NotImplementedException();
+		}
+
+		public static Color ReadColor(BinaryReader reader)
+		{
+			throw new NotImplementedException();
+		}
+
+		public static Uri ReadUri(BinaryReader reader)
 		{
 			throw new NotImplementedException();
 		}

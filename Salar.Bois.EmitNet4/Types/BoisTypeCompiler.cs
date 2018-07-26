@@ -1,66 +1,26 @@
-﻿#define DebugSaveAsAssembly
+﻿//#define DebugSaveAsAssembly
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using Salar.Bois.Serializers;
-using Sigil;
-using Sigil.NonGeneric;
-
 // ReSharper disable AssignNullToNotNullAttribute
 
 namespace Salar.Bois.Types
 {
-	internal delegate void ComputedTypeSerializer(BinaryWriter writer, object instance, Encoding encoding);
-
-	static class IlExtensions
-	{
-		internal static void LoadLocal(this ILGenerator il, LocalBuilder local)
-		{
-			switch (local.LocalIndex)
-			{
-				case 0: il.Emit(OpCodes.Ldloc_0); break;
-				case 1: il.Emit(OpCodes.Ldloc_1); break;
-				case 2: il.Emit(OpCodes.Ldloc_2); break;
-				case 3: il.Emit(OpCodes.Ldloc_3); break;
-				default:
-					if (local.LocalIndex < 256)
-					{
-						il.Emit(OpCodes.Ldloc_S, (byte)local.LocalIndex);
-					}
-					else
-					{
-						il.Emit(OpCodes.Ldloc, (ushort)local.LocalIndex);
-					}
-					break;
-			}
-		}
-	}
-
 	sealed class BoisTypeCompiler
 	{
-		/// <summary>
-		/// Will hold dynamically generated methods
-		/// </summary>
-		class BoisCompiledTypesHolder
+		internal static string GetTypeMethodName(Type type, bool serialize)
 		{
-			internal static string GetTypeMethodName(Type type, bool serialize)
-			{
-				var rnd = new Random();
-				var nameExtension = serialize ? "Writer" : "Reader";
+			var rnd = new Random();
+			var nameExtension = serialize ? "Writer" : "Reader";
 
-				return $"Computed_{type.Name}_{nameExtension}_{rnd.Next()}";
-			}
+			return $"Computed_{type.Name}_{nameExtension}_{rnd.Next()}";
 		}
 
 
-		public static Delegate ComputeRootWriter(Type type)
+		public static Delegate ComputeWriter(Type type, BoisComplexTypeInfo typeInfo)
 		{
 #if DebugSaveAsAssembly
 			var name = BoisCompiledTypesHolder.GetTypeMethodName(type, true) + ".exe";
@@ -103,7 +63,7 @@ namespace Salar.Bois.Types
 			ilMethod.DefineParameter(3, ParameterAttributes.None, "encoding");
 #else
 			var ilMethod = new DynamicMethod(
-				name: BoisCompiledTypesHolder.GetTypeMethodName(type, serialize: true),
+				name: GetTypeMethodName(type, serialize: true),
 				returnType: null,
 				// Arg0: BinaryWriter, Arg1: instance, Arg2: Encoding
 				parameterTypes: new[] { typeof(BinaryWriter), type/*typeof(object)*/, typeof(Encoding) },
@@ -115,11 +75,9 @@ namespace Salar.Bois.Types
 
 #endif
 
-			var result = new BoisComputedTypeInfo();
-
 			var il = ilMethod.GetILGenerator();
-			ComputeWriterTypeCast(il, type);
-			ComputeRootWriter(il, type);
+
+			ComputeWriter(il, type, typeInfo);
 
 			// never forget
 			il.Emit(OpCodes.Ret);
@@ -137,16 +95,343 @@ namespace Salar.Bois.Types
 
 			// the serializer method is ready
 			var writerDelegate = ilMethod.CreateDelegate(delegateType);
-			
+
 			return writerDelegate;
 #endif
-
 		}
+
+		private static void ComputeWriter(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
+		{
+			switch (typeInfo.ComplexKnownType)
+			{
+				case EnComplexKnownType.Dictionary:
+					EmitGenerator.WriteRootDictionary(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.DataSet:
+					EmitGenerator.WriteRootDataSet(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.DataTable:
+					EmitGenerator.WriteRootDataTable(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.NameValueColl:
+					EmitGenerator.WriteRootNameValueCol(type, typeInfo, il);
+					return;
+
+				case EnComplexKnownType.UnknownArray:
+					EmitGenerator.WriteRootUnknownArray(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.ISet:
+					EmitGenerator.WriteRootISet(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.Collection:
+					EmitGenerator.WriteRootList(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.Unknown:
+				default:
+					WriteRootObject(il, type, typeInfo);
+					break;
+			}
+		}
+
+		private static void WriteRootObject(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
+		{
+			if (typeInfo.Members == null || typeInfo.Members.Length == 0)
+			{
+				// no mmeber
+				return;
+			}
+
+			foreach (var member in typeInfo.Members)
+			{
+				WriteRootObjectMember(member, il);
+			}
+		}
+
+		private static void WriteRootObjectMember(MemberInfo member, ILGenerator il)
+		{
+			var prop = member as PropertyInfo;
+			var field = member as FieldInfo;
+
+			Type memberType;
+			if (prop != null)
+			{
+				memberType = prop.PropertyType;
+			}
+			else if (field != null)
+			{
+				memberType = field.FieldType;
+			}
+			else
+			{
+				return;
+			}
+			var typeCache = new BoisTypeCache();
+			var basicInfo = typeCache.GetBasicType(memberType);
+
+			if (basicInfo.KnownType != EnBasicKnownType.Unknown)
+			{
+				WriteRootObjectBasicMember(memberType, basicInfo, prop, field, il);
+			}
+			else
+			{
+				var complexTypeInfo = typeCache.GetComplexTypeUnCached(memberType);
+				WriteRootObjectComplexMember(memberType, complexTypeInfo, prop, field, il);
+			}
+		}
+
+		private static void WriteRootObjectComplexMember(Type memberType, BoisComplexTypeInfo complexTypeInfo, PropertyInfo prop, FieldInfo field, ILGenerator il)
+		{
+			switch (complexTypeInfo.ComplexKnownType)
+			{
+				case EnComplexKnownType.Collection:
+					if (prop != null)
+						EmitGenerator.WriteCollection(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.WriteDCollection(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.Dictionary:
+					if (prop != null)
+						EmitGenerator.WriteDictionary(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.WriteDictionary(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.UnknownArray:
+					if (prop != null)
+						EmitGenerator.WriteUnknownArray(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.WriteUnknownArray(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.NameValueColl:
+					if (prop != null)
+						EmitGenerator.WriteNameValueColl(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.WriteNameValueColl(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.ISet:
+					if (prop != null)
+						EmitGenerator.WriteISet(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.WriteISet(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.DataSet:
+					if (prop != null)
+						EmitGenerator.WriteDataSet(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.WriteDataSet(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.DataTable:
+					if (prop != null)
+						EmitGenerator.WriteDataTable(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.WriteDataTable(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.Unknown:
+				default:
+					return;
+			}
+		}
+
+		private static void WriteRootObjectBasicMember(Type memberType, BoisBasicTypeInfo basicInfo, PropertyInfo prop, FieldInfo field, ILGenerator il)
+		{
+			switch (basicInfo.KnownType)
+			{
+
+				case EnBasicKnownType.String:
+					if (prop != null)
+						EmitGenerator.WriteString(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteString(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Bool:
+					if (prop != null)
+						EmitGenerator.WriteBool(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteBool(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Int16:
+					if (prop != null)
+						EmitGenerator.WriteInt16(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteInt16(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Int32:
+					if (prop != null)
+						EmitGenerator.WriteInt32(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteInt32(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Int64:
+					if (prop != null)
+						EmitGenerator.WriteInt64(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteInt64(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.UInt16:
+					if (prop != null)
+						EmitGenerator.WriteUInt16(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteUInt16(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.UInt32:
+					if (prop != null)
+						EmitGenerator.WriteUInt32(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteUInt32(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.UInt64:
+					if (prop != null)
+						EmitGenerator.WriteUInt64(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteUInt64(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Double:
+					if (prop != null)
+						EmitGenerator.WriteDouble(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteDouble(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Decimal:
+					if (prop != null)
+						EmitGenerator.WriteDecimal(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteDecimal(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Single:
+					if (prop != null)
+						EmitGenerator.WriteFloat(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteFloat(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Byte:
+					if (prop != null)
+						EmitGenerator.WriteByte(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteByte(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.SByte:
+					if (prop != null)
+						EmitGenerator.WriteSByte(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteSByte(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DateTime:
+					if (prop != null)
+						EmitGenerator.WriteDateTime(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteDateTime(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DateTimeOffset:
+					if (prop != null)
+						EmitGenerator.WriteDateTimeOffset(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteDateTimeOffset(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.KnownTypeArray:
+					// TODO:
+					break;
+
+				case EnBasicKnownType.ByteArray:
+					if (prop != null)
+						EmitGenerator.WriteByteArray(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteByteArray(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Enum:
+					if (prop != null)
+						EmitGenerator.WriteEnum(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteEnum(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.TimeSpan:
+					if (prop != null)
+						EmitGenerator.WriteTimeSpan(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteTimeSpan(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Char:
+					if (prop != null)
+						EmitGenerator.WriteChar(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteChar(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Guid:
+					if (prop != null)
+						EmitGenerator.WriteGuid(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteGuid(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Color:
+					if (prop != null)
+						EmitGenerator.WriteColor(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteColor(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DbNull:
+					if (prop != null)
+						EmitGenerator.WriteDbNull(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteDbNull(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Uri:
+					if (prop != null)
+						EmitGenerator.WriteUri(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteUri(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Version:
+					if (prop != null)
+						EmitGenerator.WriteVersion(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.WriteVersion(field, il, basicInfo.IsNullable);
+					break;
+
+				default:
+				case EnBasicKnownType.Unknown:
+					return;
+			}
+		}
+
 
 		/// <summary>
 		/// The input is Object and should be casted to the original type
 		/// </summary>
-		private static void ComputeWriterTypeCast(ILGenerator il, Type type)
+		private static void ComputeWriterTypeCast_Obsolete_Stloc_0(ILGenerator il, Type type)
 		{
 			il.Emit(OpCodes.Ldarg_1); // instance
 			il.Emit(OpCodes.Castclass, type); // cast
@@ -155,528 +440,7 @@ namespace Salar.Bois.Types
 			il.Emit(OpCodes.Stloc_0);
 		}
 
-		private static void ComputeRootWriter(ILGenerator il, Type memType)
-		{
-			Type memActualType = memType;
-			Type underlyingTypeNullable;
-			bool isNullable = ReflectionHelper.IsNullable(memType, out underlyingTypeNullable);
-
-			// check the underling type
-			if (isNullable && underlyingTypeNullable != null)
-			{
-				memActualType = underlyingTypeNullable;
-			}
-			else
-			{
-				underlyingTypeNullable = null;
-			}
-
-			// ----------------------------------
-			// Step1: Check if we should the input is one of simple objects
-
-#if DotNet || DotNetCore || DotNetStandard
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(NameValueCollection)))
-			{
-				WriteRootNameValueCol(il);
-				return;
-			}
-#endif
-
-			// TODO: array
-			//if (ReflectionHelper.CompareSubType(memActualType, typeof(Array)))
-			//{
-			//	var arrayItemType = memActualType.GetElementType();
-
-			//	return IsPrimitveType(arrayItemType);
-			//}
-
-			//var isGenericType = memActualType.IsGenericType;
-			//Type[] interfaces = null;
-			//if (isGenericType)
-			//{
-			//	return false;
-			//}
-
-			if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)))
-			{
-				WriteRootDictionary(il);
-				return;
-			}
-
-			// checking for IList and ICollection should be after NameValueCollection
-			if (ReflectionHelper.CompareInterface(memActualType, typeof(IList)))
-			{
-				WriteRootList(il);
-				return;
-			}
-			if (ReflectionHelper.CompareInterface(memActualType, typeof(ICollection)))
-			{
-				WriteRootCollection(il);
-				return;
-			}
-
-#if !SILVERLIGHT && DotNet
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataSet)))
-			{
-				WriteRootDataSet(il);
-				return;
-			}
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataTable)))
-			{
-				WriteRootDataTable(il);
-				return;
-			}
-#endif
-			// ----------------------------------
-			// Step2: the input is not simple object is a complex one with fields and properties
-
-			// Write Root Object
-			WriteRootObject(il, memType);
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="il"></param>
-		/// <param name="type"></param>
-		private static void WriteRootObject(ILGenerator il, Type type)
-		{
-			bool readFields = true, readProps = true;
-
-			var objectAttr = type.GetCustomAttributes(typeof(BoisContractAttribute), false);
-			if (objectAttr.Length > 0)
-			{
-				var boisContract = objectAttr[0] as BoisContractAttribute;
-				if (boisContract != null)
-				{
-					readFields = boisContract.Fields;
-					readProps = boisContract.Properties;
-				}
-			}
-			//var typeInfo = new BoisTypeInfo
-			//{
-			//	MemberType = EnBoisMemberType.Object,
-			//	KnownType = EnBoisKnownType.Unknown,
-			//	IsContainerObject = true,
-			//	IsStruct = type.IsValueType
-			//};
-
-			if (readProps)
-			{
-				var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-				for (var index = 0; index < props.Length; index++)
-				{
-					var p = props[index];
-					if (!p.CanWrite)
-						continue;
-
-					var memProp = p.GetCustomAttributes(typeof(BoisMemberAttribute), false);
-					BoisMemberAttribute boisMember;
-					if (memProp.Length > 0 && (boisMember = (memProp[0] as BoisMemberAttribute)) != null)
-					{
-						if (!boisMember.Included)
-							continue;
-					}
-
-					WriteRootMember(p.PropertyType, p, index, il);
-				}
-			}
-
-			if (readFields)
-			{
-				var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-				foreach (var f in fields)
-				{
-				}
-			}
-
-
-		}
-
-		private static void WriteRootMember(Type memType, PropertyInfo memberInfo, int memberIndex, ILGenerator il)
-		{
-			if (memType == typeof(string))
-			{
-				WriteString(memberInfo, il);
-				return;
-			}
-			Type memActualType = memType;
-			Type underlyingTypeNullable;
-			bool isNullable = ReflectionHelper.IsNullable(memType, out underlyingTypeNullable);
-
-			// check the underling type
-			if (isNullable && underlyingTypeNullable != null)
-			{
-				memActualType = underlyingTypeNullable;
-			}
-			else
-			{
-				underlyingTypeNullable = null;
-			}
-
-
-			//			if (memActualType == typeof(char))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Char,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (memActualType == typeof(bool))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Bool,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (memActualType == typeof(DateTime))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.DateTime,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (memActualType == typeof(DateTimeOffset))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.DateTimeOffset,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (memActualType == typeof(byte[]))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.ByteArray,
-			//					IsNullable = isNullable,
-			//					IsArray = true,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (ReflectionHelper.CompareSubType(memActualType, typeof(Enum)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Enum,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (ReflectionHelper.CompareSubType(memActualType, typeof(Array)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Unknown,
-			//					IsNullable = isNullable,
-			//					IsArray = true,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-
-			//			var isGenericType = memActualType.IsGenericType;
-			//			Type[] interfaces = null;
-			//			if (isGenericType)
-			//			{
-			//				//// no more checking for a dictionary with its first argumnet as String
-			//				//if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)) &&
-			//				//	memActualType.GetGenericArguments()[0] == typeof(string))
-			//				//	return new BoisMemberInfo
-			//				//	{
-			//				//		KnownType = EnBoisKnownType.Unknown,
-			//				//		IsNullable = isNullable,
-			//				//		IsDictionary = true,
-			//				//		IsStringDictionary = true,
-			//				//		IsGeneric = true,
-			//				//		NullableUnderlyingType = underlyingTypeNullable,
-			//				//	};
-
-			//				interfaces = memActualType.GetInterfaces();
-
-			//				if (ReflectionHelper.CompareInterfaceGenericTypeDefinition(interfaces, typeof(IDictionary<,>)) ||
-			//					memActualType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
-			//					return new BoisMemberInfo
-			//					{
-			//						KnownType = EnBoisKnownType.Unknown,
-			//						IsNullable = isNullable,
-			//						IsDictionary = true,
-			//						IsGeneric = true,
-			//						NullableUnderlyingType = underlyingTypeNullable,
-			//					};
-
-			//#if DotNet4_NotYET
-			//				if (ReflectionHelper.CompareInterface(memType, typeof(ISet<>)))
-			//					return new BoisMemberInfo
-			//							   {
-			//								   KnownType = EnBoisKnownType.Unknown,
-			//								   IsNullable = isNullable,
-			//								   IsGeneric = true,
-			//								   IsSet = true,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//							   };
-			//#endif
-			//			}
-
-
-			//			if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Unknown,
-			//					IsNullable = isNullable,
-			//					IsDictionary = true,
-			//					IsGeneric = true,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			// the IDictionary should be checked before IList<>
-			//			if (isGenericType)
-			//			{
-			//				if (ReflectionHelper.CompareInterfaceGenericTypeDefinition(interfaces, typeof(IList<>)) ||
-			//					ReflectionHelper.CompareInterfaceGenericTypeDefinition(interfaces, typeof(ICollection<>)))
-			//					return new BoisMemberInfo
-			//					{
-			//						KnownType = EnBoisKnownType.Unknown,
-			//						IsNullable = isNullable,
-			//						IsGeneric = true,
-			//						IsCollection = true,
-			//						IsArray = true,
-			//						NullableUnderlyingType = underlyingTypeNullable,
-			//					};
-			//			}
-
-			//			// checking for IList and ICollection should be after NameValueCollection
-			//			if (ReflectionHelper.CompareInterface(memActualType, typeof(IList)) ||
-			//				ReflectionHelper.CompareInterface(memActualType, typeof(ICollection)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Unknown,
-			//					IsNullable = isNullable,
-			//					IsGeneric = memActualType.IsGenericType,
-			//					IsCollection = true,
-			//					IsArray = true,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-
-			//#if DotNet || DotNetCore || DotNetStandard
-			//			if (ReflectionHelper.CompareSubType(memActualType, typeof(NameValueCollection)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.NameValueColl,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (memActualType == typeof(Color))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Color,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//#endif
-			//#if !SILVERLIGHT && DotNet
-			//			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataSet)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.DataSet,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataTable)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.DataTable,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-
-			//#endif
-
-			//			if (memActualType == typeof(TimeSpan))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.TimeSpan,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-
-			//			if (memActualType == typeof(Version))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Version,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-
-			//			BoisMemberInfo output;
-			//			if (TryReadNumber(memActualType, out output))
-			//			{
-			//				output.IsNullable = isNullable;
-			//				output.NullableUnderlyingType = underlyingTypeNullable;
-			//				return output;
-			//			}
-			//			if (memActualType == typeof(Guid))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Guid,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//#if DotNet || DotNetCore || DotNetStandard
-			//			if (memActualType == typeof(DBNull))
-			//			{
-			//				// ignore!
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.DbNull,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//#endif
-
-			//			var objectMemInfo = ReadObject(memType);
-			//			objectMemInfo.NullableUnderlyingType = underlyingTypeNullable;
-			//			objectMemInfo.IsNullable = isNullable;
-
-			//			return objectMemInfo;
-
-		}
-
-		public static void WriteInt32(PropertyInfo memberInfo, short memberIndex, ILGenerator il, bool nullable)
-		{
-			var getter = memberInfo.GetGetMethod(true);
-
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
-			il.Emit(OpCodes.Ldloc, arg: memberIndex);
-			il.Emit(OpCodes.Callvirt, meth: getter);
-			var methodArg = nullable ? new[] { typeof(int?) } : new[] { typeof(int) };
-			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue), methodArg));
-			il.Emit(OpCodes.Nop);
-		}
-
-		public static void WriteInt32(FieldInfo memberInfo, short memberIndex, ILGenerator il, bool nullable)
-		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
-			il.Emit(OpCodes.Ldloc, arg: memberIndex);
-			il.Emit(OpCodes.Ldfld, field: memberInfo);
-			var methodArg = nullable ? new[] { typeof(int?) } : new[] { typeof(int) };
-			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue), methodArg));
-			il.Emit(OpCodes.Nop);
-		}
-
-		private static void WriteString(PropertyInfo memberInfo, ILGenerator il)
-		{
-			var getter = memberInfo.GetGetMethod(true);
-
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Callvirt, meth: getter); // property value
-			il.Emit(OpCodes.Ldarg_2); // Encoding
-			var methodArg = new[] { typeof(BinaryWriter), typeof(string), typeof(Encoding) };
-			il.Emit(OpCodes.Call,
-				meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
-					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Nop);
-		}
-
-		private static void WriteRootDataTable(ILGenerator il)
-		{
-			throw new NotImplementedException();
-		}
-
-		private static void WriteRootDataSet(ILGenerator il)
-		{
-			throw new NotImplementedException();
-		}
-
-		private static void WriteRootCollection(ILGenerator il)
-		{
-			throw new NotImplementedException();
-		}
-
-		private static void WriteRootList(ILGenerator il)
-		{
-			throw new NotImplementedException();
-		}
-
-		private static void WriteRootDictionary(ILGenerator il)
-		{
-			throw new NotImplementedException();
-		}
-
-		private static void WriteRootNameValueCol(ILGenerator il)
-		{
-			throw new NotImplementedException();
-		}
-
-
-		delegate double DividerDelegate(int a, int b);
-		public static void CompileType(Type type, bool writer, bool reader)
-		{
-
-			//تعریف امضای متد
-			var myMethod = new DynamicMethod(
-				name: "Compile_" + type.Name,
-				returnType: null,
-				parameterTypes: new[] { type, typeof(BinaryWriter) },
-				m: typeof(BoisCompiledTypesHolder).Module);
-
-
-
-			//تعریف بدنه متد
-			var il = myMethod.GetILGenerator();
-			il.Emit(opcode: OpCodes.Ldarg_0); //بارگذاری پارامتر اول بر روی پشته ارزیابی
-			il.Emit(opcode: OpCodes.Ldarg_1); //بارگذاری پارامتر دوم بر روی پشته ارزیابی
-			il.Emit(opcode: OpCodes.Div); // دو پارامتر از پشته ارزیابی دریافت و تقسیم خواهند شد
-			il.Emit(opcode: OpCodes.Ret); // دریافت نتیجه نهایی از پشته ارزیابی و بازگشت آن
-
-
-
-
-			//فراخوانی متد پویا
-			//روش اول
-			var result = myMethod.Invoke(obj: null, parameters: new object[] { 10, 2 });
-			Console.WriteLine(result);
-
-			//روش دوم
-			var method = (DividerDelegate)myMethod.CreateDelegate(delegateType: typeof(DividerDelegate));
-			Console.WriteLine(method(10, 2));
-		}
-
-
-
-		public static Delegate ComputeRootReader(Type type)
+		public static Delegate ComputeReader(Type type, BoisComplexTypeInfo typeInfo)
 		{
 #if DebugSaveAsAssembly
 			var name = BoisCompiledTypesHolder.GetTypeMethodName(type, false) + ".exe";
@@ -718,7 +482,7 @@ namespace Salar.Bois.Types
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "encoding");
 #else
 			var ilMethod = new DynamicMethod(
-				name: BoisCompiledTypesHolder.GetTypeMethodName(type, serialize: false),
+				name: GetTypeMethodName(type, serialize: false),
 				returnType: type,
 				// Arg0: BinaryWriter, Arg1: Encoding
 				parameterTypes: new[] { typeof(BinaryReader), typeof(Encoding) },
@@ -731,10 +495,9 @@ namespace Salar.Bois.Types
 
 
 			var il = ilMethod.GetILGenerator();
-			// TODO: Should be Reader new obj
-			ComputeReaderTypeCreation(il, type);
 
-			ComputeRootReader(il, type);
+			ComputeReaderTypeCreation(il, type);
+			ComputeReader(il, type, typeInfo);
 
 			// never forget
 			il.Emit(OpCodes.Ret);
@@ -755,9 +518,8 @@ namespace Salar.Bois.Types
 			var readerDelegate = ilMethod.CreateDelegate(delegateType);
 			return readerDelegate;
 #endif
-
-
 		}
+
 
 		private static void ComputeReaderTypeCreation(ILGenerator il, Type type)
 		{
@@ -766,481 +528,334 @@ namespace Salar.Bois.Types
 			if (constructor == null)
 				throw new Exception($"Type '{type}' doesn't have a constructor with empty parameters");
 
-			//il.DeclareLocal(type); no need it is on the stack
+			// stored as the first stack
 			il.Emit(OpCodes.Newobj, constructor);
-			//il.Emit(OpCodes.Stloc_0); no need it is on the stack
 		}
 
-		private static void ComputeRootReader(ILGenerator il, Type memType)
+		private static void ComputeReader(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
 		{
-			Type memActualType = memType;
-			Type underlyingTypeNullable;
-			bool isNullable = ReflectionHelper.IsNullable(memType, out underlyingTypeNullable);
-
-			// check the underling type
-			if (isNullable && underlyingTypeNullable != null)
+			switch (typeInfo.ComplexKnownType)
 			{
-				memActualType = underlyingTypeNullable;
+				case EnComplexKnownType.Collection:
+					EmitGenerator.ReadRootCollection(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.Dictionary:
+					EmitGenerator.ReadRootDictionary(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.UnknownArray:
+					EmitGenerator.ReadRootUnknownArray(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.NameValueColl:
+					EmitGenerator.ReadRootNameValueColl(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.ISet:
+					EmitGenerator.ReadRootISet(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.DataSet:
+					EmitGenerator.ReadRootDataSet(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.DataTable:
+					EmitGenerator.ReadRootDataTable(type, typeInfo, il);
+					break;
+
+				case EnComplexKnownType.Unknown:
+				default:
+					ReadRootObject(il, type, typeInfo);
+					break;
+			}
+		}
+
+		private static void ReadRootObject(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
+		{
+			if (typeInfo.Members == null || typeInfo.Members.Length == 0)
+			{
+				// no mmeber
+				return;
+			}
+
+			foreach (var member in typeInfo.Members)
+			{
+				ReadRootObjectMember(member, il);
+			}
+		}
+
+		private static void ReadRootObjectMember(MemberInfo member, ILGenerator il)
+		{
+			var prop = member as PropertyInfo;
+			var field = member as FieldInfo;
+
+			Type memberType;
+			if (prop != null)
+			{
+				memberType = prop.PropertyType;
+			}
+			else if (field != null)
+			{
+				memberType = field.FieldType;
 			}
 			else
 			{
-				underlyingTypeNullable = null;
-			}
-
-			// ----------------------------------
-			// Step1: Check if we should the input is one of simple objects
-
-#if DotNet || DotNetCore || DotNetStandard
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(NameValueCollection)))
-			{
-				ReadRootNameValueCol(il);
 				return;
 			}
-#endif
+			var typeCache = new BoisTypeCache();
+			var basicInfo = typeCache.GetBasicType(memberType);
 
-			// TODO: array
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(Array)))
+			if (basicInfo.KnownType != EnBasicKnownType.Unknown)
 			{
-				var arrayItemType = memActualType.GetElementType();
-
-				ReadPrimitveArrayType(arrayItemType);
-				return;
-			}
-
-			//var isGenericType = memActualType.IsGenericType;
-			//Type[] interfaces = null;
-			//if (isGenericType)
-			//{
-			// return ReadGenericType(aaaaaaa);
-			//	return false;
-			//}
-
-			if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)))
-			{
-				ReadRootDictionary(il);
-				return;
-			}
-
-			// checking for IList and ICollection should be after NameValueCollection
-			if (ReflectionHelper.CompareInterface(memActualType, typeof(IList)))
-			{
-				ReadRootList(il);
-				return;
-			}
-			if (ReflectionHelper.CompareInterface(memActualType, typeof(ICollection)))
-			{
-				ReadRootCollection(il);
-				return;
-			}
-
-#if !SILVERLIGHT && DotNet
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataSet)))
-			{
-				ReturnRootDataSet(il);
-				return;
-			}
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataTable)))
-			{
-				ReadRootDataTable(il);
-				return;
-			}
-#endif
-
-			// ----------------------------------
-			// Step2: the input is not simple object is a complex one with fields and properties
-
-			// Write Root Object
-			ReadRootObject(il, memType);
-		}
-
-		private static void ReadRootObject(ILGenerator il, Type type)
-		{
-			bool readFields = true, readProps = true;
-
-			var objectAttr = type.GetCustomAttributes(typeof(BoisContractAttribute), false);
-			if (objectAttr.Length > 0)
-			{
-				var boisContract = objectAttr[0] as BoisContractAttribute;
-				if (boisContract != null)
-				{
-					readFields = boisContract.Fields;
-					readProps = boisContract.Properties;
-				}
-			}
-			//var typeInfo = new BoisTypeInfo
-			//{
-			//	MemberType = EnBoisMemberType.Object,
-			//	KnownType = EnBoisKnownType.Unknown,
-			//	IsContainerObject = true,
-			//	IsStruct = type.IsValueType
-			//};
-
-			if (readProps)
-			{
-				var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-				for (var index = 0; index < props.Length; index++)
-				{
-					var p = props[index];
-					if (!p.CanWrite)
-						continue;
-
-					var memProp = p.GetCustomAttributes(typeof(BoisMemberAttribute), false);
-					BoisMemberAttribute boisMember;
-					if (memProp.Length > 0 && (boisMember = (memProp[0] as BoisMemberAttribute)) != null)
-					{
-						if (!boisMember.Included)
-							continue;
-					}
-
-					ReadRootMember(p.PropertyType, p, index, il);
-				}
-			}
-
-			if (readFields)
-			{
-				var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-				foreach (var f in fields)
-				{
-				}
-			}
-		}
-
-		private static void ReadRootMember(Type memType, PropertyInfo memberInfo, int index, ILGenerator il)
-		{
-			if (memType == typeof(string))
-			{
-				GenerateReadString(memberInfo, il);
-				return;
-			}
-			Type memActualType = memType;
-			Type underlyingTypeNullable;
-			bool isNullable = ReflectionHelper.IsNullable(memType, out underlyingTypeNullable);
-
-			// check the underling type
-			if (isNullable && underlyingTypeNullable != null)
-			{
-				memActualType = underlyingTypeNullable;
+				ReadRootObjectBasicMember(memberType, basicInfo, prop, field, il);
 			}
 			else
 			{
-				underlyingTypeNullable = null;
+				var complexTypeInfo = typeCache.GetComplexTypeUnCached(memberType);
+				ReadRootObjectComplexMember(memberType, complexTypeInfo, prop, field, il);
 			}
-
-
-			//			if (memActualType == typeof(char))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Char,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (memActualType == typeof(bool))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Bool,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (memActualType == typeof(DateTime))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.DateTime,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (memActualType == typeof(DateTimeOffset))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.DateTimeOffset,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (memActualType == typeof(byte[]))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.ByteArray,
-			//					IsNullable = isNullable,
-			//					IsArray = true,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (ReflectionHelper.CompareSubType(memActualType, typeof(Enum)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Enum,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (ReflectionHelper.CompareSubType(memActualType, typeof(Array)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Unknown,
-			//					IsNullable = isNullable,
-			//					IsArray = true,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-
-			//			var isGenericType = memActualType.IsGenericType;
-			//			Type[] interfaces = null;
-			//			if (isGenericType)
-			//			{
-			//				//// no more checking for a dictionary with its first argumnet as String
-			//				//if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)) &&
-			//				//	memActualType.GetGenericArguments()[0] == typeof(string))
-			//				//	return new BoisMemberInfo
-			//				//	{
-			//				//		KnownType = EnBoisKnownType.Unknown,
-			//				//		IsNullable = isNullable,
-			//				//		IsDictionary = true,
-			//				//		IsStringDictionary = true,
-			//				//		IsGeneric = true,
-			//				//		NullableUnderlyingType = underlyingTypeNullable,
-			//				//	};
-
-			//				interfaces = memActualType.GetInterfaces();
-
-			//				if (ReflectionHelper.CompareInterfaceGenericTypeDefinition(interfaces, typeof(IDictionary<,>)) ||
-			//					memActualType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
-			//					return new BoisMemberInfo
-			//					{
-			//						KnownType = EnBoisKnownType.Unknown,
-			//						IsNullable = isNullable,
-			//						IsDictionary = true,
-			//						IsGeneric = true,
-			//						NullableUnderlyingType = underlyingTypeNullable,
-			//					};
-
-			//#if DotNet4_NotYET
-			//				if (ReflectionHelper.CompareInterface(memType, typeof(ISet<>)))
-			//					return new BoisMemberInfo
-			//							   {
-			//								   KnownType = EnBoisKnownType.Unknown,
-			//								   IsNullable = isNullable,
-			//								   IsGeneric = true,
-			//								   IsSet = true,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//							   };
-			//#endif
-			//			}
-
-
-			//			if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Unknown,
-			//					IsNullable = isNullable,
-			//					IsDictionary = true,
-			//					IsGeneric = true,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			// the IDictionary should be checked before IList<>
-			//			if (isGenericType)
-			//			{
-			//				if (ReflectionHelper.CompareInterfaceGenericTypeDefinition(interfaces, typeof(IList<>)) ||
-			//					ReflectionHelper.CompareInterfaceGenericTypeDefinition(interfaces, typeof(ICollection<>)))
-			//					return new BoisMemberInfo
-			//					{
-			//						KnownType = EnBoisKnownType.Unknown,
-			//						IsNullable = isNullable,
-			//						IsGeneric = true,
-			//						IsCollection = true,
-			//						IsArray = true,
-			//						NullableUnderlyingType = underlyingTypeNullable,
-			//					};
-			//			}
-
-			//			// checking for IList and ICollection should be after NameValueCollection
-			//			if (ReflectionHelper.CompareInterface(memActualType, typeof(IList)) ||
-			//				ReflectionHelper.CompareInterface(memActualType, typeof(ICollection)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Unknown,
-			//					IsNullable = isNullable,
-			//					IsGeneric = memActualType.IsGenericType,
-			//					IsCollection = true,
-			//					IsArray = true,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-
-			//#if DotNet || DotNetCore || DotNetStandard
-			//			if (ReflectionHelper.CompareSubType(memActualType, typeof(NameValueCollection)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.NameValueColl,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (memActualType == typeof(Color))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Color,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//#endif
-			//#if !SILVERLIGHT && DotNet
-			//			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataSet)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.DataSet,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataTable)))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.DataTable,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-
-			//#endif
-
-			//			if (memActualType == typeof(TimeSpan))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.TimeSpan,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-
-			//			if (memActualType == typeof(Version))
-			//			{
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Version,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-
-			//			BoisMemberInfo output;
-			//			if (TryReadNumber(memActualType, out output))
-			//			{
-			//				output.IsNullable = isNullable;
-			//				output.NullableUnderlyingType = underlyingTypeNullable;
-			//				return output;
-			//			}
-			//			if (memActualType == typeof(Guid))
-			//			{
-			//				// is struct and uses Nullable<>
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.Guid,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//#if DotNet || DotNetCore || DotNetStandard
-			//			if (memActualType == typeof(DBNull))
-			//			{
-			//				// ignore!
-			//				return new BoisMemberInfo
-			//				{
-			//					KnownType = EnBoisKnownType.DbNull,
-			//					IsNullable = isNullable,
-			//					NullableUnderlyingType = underlyingTypeNullable,
-			//				};
-			//			}
-			//#endif
-
-			//			var objectMemInfo = ReadObject(memType);
-			//			objectMemInfo.NullableUnderlyingType = underlyingTypeNullable;
-			//			objectMemInfo.IsNullable = isNullable;
-
-			//			return objectMemInfo;
 		}
 
-		private static void GenerateReadString(PropertyInfo memberInfo, ILGenerator il)
+		private static void ReadRootObjectComplexMember(Type memberType, BoisComplexTypeInfo complexTypeInfo, PropertyInfo prop, FieldInfo field, ILGenerator il)
 		{
-			/*
-			 ldloc.s   parent
-			 ldloc.s   reader
-			 ldloc.s   encoding
-			 call      string [Salar.Bois.EmitNet4]Salar.Bois.Serializers.PrimitiveReader::ReadString(class [mscorlib]System.IO.BinaryReader, class [mscorlib]System.Text.Encoding)
-			 callvirt  instance void Salar.Bois.EmitPlayground.Program/ParentClass::set_Name(string)
-			 nop
-			 */
-			var setter = memberInfo.GetSetMethod(true);
+			switch (complexTypeInfo.ComplexKnownType)
+			{
+				case EnComplexKnownType.Collection:
+					if (prop != null)
+						EmitGenerator.ReadCollection(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.ReadCollection(field, il, complexTypeInfo.IsNullable);
+					break;
 
-			il.Emit(OpCodes.Dup); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-			il.Emit(OpCodes.Ldarg_1); // Encoding
+				case EnComplexKnownType.Dictionary:
+					if (prop != null)
+						EmitGenerator.ReadDictionary(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.ReadDictionary(field, il, complexTypeInfo.IsNullable);
+					break;
 
-			var methodArg = new[] { typeof(BinaryReader), typeof(Encoding) };
-			il.Emit(OpCodes.Call,
-				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadString),
-					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
+				case EnComplexKnownType.UnknownArray:
+					if (prop != null)
+						EmitGenerator.ReadUnknownArray(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.ReadUnknownArray(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.NameValueColl:
+					if (prop != null)
+						EmitGenerator.ReadNameValueColl(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.ReadNameValueColl(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.ISet:
+					if (prop != null)
+						EmitGenerator.ReadISet(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.ReadISet(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.DataSet:
+					if (prop != null)
+						EmitGenerator.ReadDataSet(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.ReadDataSet(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.DataTable:
+					if (prop != null)
+						EmitGenerator.ReadDataTable(prop, il, complexTypeInfo.IsNullable);
+					else
+						EmitGenerator.ReadDataTable(field, il, complexTypeInfo.IsNullable);
+					break;
+
+				case EnComplexKnownType.Unknown:
+				default:
+					return;
+			}
 		}
 
-		private static object ReadRootDataTable(ILGenerator il)
+		private static void ReadRootObjectBasicMember(Type memberType, BoisBasicTypeInfo basicInfo, PropertyInfo prop, FieldInfo field, ILGenerator il)
 		{
-			throw new NotImplementedException();
-		}
+			switch (basicInfo.KnownType)
+			{
+				case EnBasicKnownType.String:
+					if (prop != null)
+						EmitGenerator.ReadString(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadString(field, il, basicInfo.IsNullable);
+					break;
 
-		private static void ReturnRootDataSet(ILGenerator il)
-		{
-			throw new NotImplementedException();
-		}
+				case EnBasicKnownType.Bool:
+					if (prop != null)
+						EmitGenerator.ReadBool(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadBool(field, il, basicInfo.IsNullable);
+					break;
 
-		private static void ReadRootCollection(ILGenerator il)
-		{
-			throw new NotImplementedException();
-		}
+				case EnBasicKnownType.Int16:
+					if (prop != null)
+						EmitGenerator.ReadInt16(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadInt16(field, il, basicInfo.IsNullable);
+					break;
 
-		private static void ReadRootList(ILGenerator il)
-		{
-			throw new NotImplementedException();
-		}
+				case EnBasicKnownType.Int32:
+					if (prop != null)
+						EmitGenerator.ReadInt32(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadInt32(field, il, basicInfo.IsNullable);
+					break;
 
-		private static void ReadRootDictionary(ILGenerator il)
-		{
-			throw new NotImplementedException();
-		}
+				case EnBasicKnownType.Int64:
+					if (prop != null)
+						EmitGenerator.ReadInt64(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadInt64(field, il, basicInfo.IsNullable);
+					break;
 
-		private static void ReadPrimitveArrayType(Type arrayItemType)
-		{
-			throw new NotImplementedException();
-		}
+				case EnBasicKnownType.UInt16:
+					if (prop != null)
+						EmitGenerator.ReadUInt16(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadUInt16(field, il, basicInfo.IsNullable);
+					break;
 
-		private static void ReadRootNameValueCol(ILGenerator il)
-		{
-			throw new NotImplementedException();
+				case EnBasicKnownType.UInt32:
+					if (prop != null)
+						EmitGenerator.ReadUInt32(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadUInt32(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.UInt64:
+					if (prop != null)
+						EmitGenerator.ReadUInt64(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadUInt64(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Double:
+					if (prop != null)
+						EmitGenerator.ReadDouble(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadDouble(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Decimal:
+					if (prop != null)
+						EmitGenerator.ReadDecimal(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadDecimal(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Single:
+					if (prop != null)
+						EmitGenerator.ReadFloat(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadFloat(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Byte:
+					if (prop != null)
+						EmitGenerator.ReadByte(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadByte(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.SByte:
+					if (prop != null)
+						EmitGenerator.ReadSByte(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadSByte(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DateTime:
+					if (prop != null)
+						EmitGenerator.ReadDateTime(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadDateTime(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DateTimeOffset:
+					if (prop != null)
+						EmitGenerator.ReadDateTimeOffset(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadDateTimeOffset(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.KnownTypeArray:
+					// TODO:
+					break;
+
+				case EnBasicKnownType.ByteArray:
+					if (prop != null)
+						EmitGenerator.ReadByteArray(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadByteArray(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Enum:
+					if (prop != null)
+						EmitGenerator.ReadEnum(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadEnum(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.TimeSpan:
+					if (prop != null)
+						EmitGenerator.ReadTimeSpan(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadTimeSpan(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Char:
+					if (prop != null)
+						EmitGenerator.ReadChar(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadChar(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Guid:
+					if (prop != null)
+						EmitGenerator.ReadGuid(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadGuid(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Color:
+					if (prop != null)
+						EmitGenerator.ReadColor(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadColor(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DbNull:
+					if (prop != null)
+						EmitGenerator.ReadDbNull(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadDbNull(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Uri:
+					if (prop != null)
+						EmitGenerator.ReadUri(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadUri(field, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Version:
+					if (prop != null)
+						EmitGenerator.ReadVersion(prop, il, basicInfo.IsNullable);
+					else
+						EmitGenerator.ReadVersion(field, il, basicInfo.IsNullable);
+					break;
+
+				default:
+				case EnBasicKnownType.Unknown:
+					return;
+			}
 		}
 	}
 }

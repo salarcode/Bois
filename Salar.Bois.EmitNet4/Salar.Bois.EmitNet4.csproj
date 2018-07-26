@@ -33,9 +33,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Sigil, Version=4.7.0.0, Culture=neutral, PublicKeyToken=2d06c3494341c8ab, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sigil.4.7.0\lib\net45\Sigil.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -50,22 +47,21 @@
     <Compile Include="BoisMemberAttribute.cs" />
     <Compile Include="BoisSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serializers\EmitGenerator.cs" />
     <Compile Include="Serializers\NumericSerializers.cs" />
     <Compile Include="Serializers\PrimitiveReader.cs" />
     <Compile Include="Serializers\PrimitivesConvertion.cs" />
     <Compile Include="Serializers\PrimitivesSerializer.cs" />
     <Compile Include="Serializers\PrimitiveWriter.cs" />
-    <Compile Include="Types\BoisMemberInfo.cs" />
+    <Compile Include="Types\BoisBasicTypeInfo.cs" />
+    <Compile Include="Types\BoisComplexTypeInfo.cs" />
     <Compile Include="Types\BoisTypeCache.cs" />
     <Compile Include="Types\BoisTypeCompiler.cs" />
     <Compile Include="Types\BoisComputedTypeInfo.cs" />
-    <Compile Include="Types\CacheDictionary.cs" />
-    <Compile Include="Types\EnBoisKnownType.cs" />
+    <Compile Include="Types\EnBasicKnownType.cs" />
     <Compile Include="Types\BoisComputedTypeHashtable.cs" />
+    <Compile Include="Types\EnComplexKnownType.cs" />
     <Compile Include="Types\ReflectionHelper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

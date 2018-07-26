@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Salar.Bois.Types
 {
-	internal class BoisComputedTypeHashtable
+	internal class BoisComputedTypeHashtable<T>
 	{
 		Entry[] _buckets;
 		int _size; // only use in writer lock
@@ -30,18 +30,18 @@ namespace Salar.Bois.Types
 			return key1 == key2;
 		}
 
-		public bool TryAdd(Type key, BoisComputedTypeInfo value)
+		public bool TryAdd(Type key, T value)
 		{
 			return TryAdd(key, ignore => value);
 		}
 
-		public bool TryAdd(Type key, Func<Type, BoisComputedTypeInfo> valueFactory)
+		public bool TryAdd(Type key, Func<Type, T> valueFactory)
 		{
-			BoisComputedTypeInfo _;
+			T _;
 			return TryAddInternal(key, valueFactory, out _);
 		}
 
-		bool TryAddInternal(Type key, Func<Type, BoisComputedTypeInfo> valueFactory, out BoisComputedTypeInfo resultingValue)
+		bool TryAddInternal(Type key, Func<Type, T> valueFactory, out T resultingValue)
 		{
 			lock (_writerLock)
 			{
@@ -81,7 +81,7 @@ namespace Salar.Bois.Types
 			}
 		}
 
-		bool AddToBuckets(Entry[] buckets, Type newKey, Entry newEntryOrNull, Func<Type, BoisComputedTypeInfo> valueFactory, out BoisComputedTypeInfo resultingValue)
+		bool AddToBuckets(Entry[] buckets, Type newKey, Entry newEntryOrNull, Func<Type, T> valueFactory, out T resultingValue)
 		{
 			var h = (newEntryOrNull != null) ? newEntryOrNull.Hash : KeyGetHashCode(newKey);
 			if (buckets[h & (buckets.Length - 1)] == null)
@@ -129,7 +129,7 @@ namespace Salar.Bois.Types
 			return true;
 		}
 
-		public bool TryGetValue(Type key, out BoisComputedTypeInfo value)
+		public bool TryGetValue(Type key, out T value)
 		{
 			var table = _buckets;
 			var hash = KeyGetHashCode(key);
@@ -155,13 +155,13 @@ namespace Salar.Bois.Types
 			}
 
 			NOT_FOUND:
-			value = default(BoisComputedTypeInfo);
+			value = default(T);
 			return false;
 		}
 
-		public BoisComputedTypeInfo GetOrAdd(Type key, Func<Type, BoisComputedTypeInfo> valueFactory)
+		public T GetOrAdd(Type key, Func<Type, T> valueFactory)
 		{
-			BoisComputedTypeInfo v;
+			T v;
 			if (TryGetValue(key, out v))
 			{
 				return v;
@@ -193,7 +193,7 @@ namespace Salar.Bois.Types
 		private class Entry
 		{
 			public Type Key;
-			public BoisComputedTypeInfo Value;
+			public T Value;
 			public int Hash;
 			public Entry Next;
 

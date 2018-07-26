@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;DotNet</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DotNet NetFX</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -27,7 +27,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;DotNet NetFX</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -51,7 +51,6 @@
     <Compile Include="Serializers\NumericSerializers.cs" />
     <Compile Include="Serializers\PrimitiveReader.cs" />
     <Compile Include="Serializers\PrimitivesConvertion.cs" />
-    <Compile Include="Serializers\PrimitivesSerializer.cs" />
     <Compile Include="Serializers\PrimitiveWriter.cs" />
     <Compile Include="Types\BoisBasicTypeInfo.cs" />
     <Compile Include="Types\BoisComplexTypeInfo.cs" />

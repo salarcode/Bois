@@ -68,10 +68,13 @@ namespace Salar.Bois.Types
 				// Arg0: BinaryWriter, Arg1: instance, Arg2: Encoding
 				parameterTypes: new[] { typeof(BinaryWriter), type/*typeof(object)*/, typeof(Encoding) },
 				m: typeof(BoisSerializer).Module,
+				
 				skipVisibility: true);
+#if NetFX
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "writer");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "instance");
 			ilMethod.DefineParameter(3, ParameterAttributes.None, "encoding");
+#endif
 
 #endif
 
@@ -487,8 +490,10 @@ namespace Salar.Bois.Types
 				parameterTypes: new[] { typeof(BinaryReader), typeof(Encoding) },
 				m: typeof(BoisSerializer).Module,
 				skipVisibility: true);
+#if NetFX
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "reader");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "encoding");
+#endif
 
 #endif
 

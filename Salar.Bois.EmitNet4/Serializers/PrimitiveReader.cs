@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Salar.Bois.Serializers
 {
-	public  static class PrimitiveReader
+	internal static class PrimitiveReader
 	{
-		public static string ReadString(BinaryReader reader, Encoding encoding)
+		internal static string ReadString(BinaryReader reader, Encoding encoding)
 		{
 			int? length = PrimitivesConvertion.ReadVarInt32Nullable(reader);
 			if (length == null)
@@ -28,13 +28,13 @@ namespace Salar.Bois.Serializers
 			}
 		}
 
-		public static char ReadChar(BinaryReader reader)
+		internal static char ReadChar(BinaryReader reader)
 		{
 			var charByte = reader.ReadUInt16();
 			return (char)charByte;
 		}
 
-		public static char? ReadCharNullable(BinaryReader reader)
+		internal static char? ReadCharNullable(BinaryReader reader)
 		{
 			var charByte = PrimitivesConvertion.ReadVarUInt16Nullable(reader);
 			if (charByte == null)
@@ -42,7 +42,7 @@ namespace Salar.Bois.Serializers
 			return (char)charByte.Value;
 		}
 
-		public static bool? ReadBooleanNullable(BinaryReader reader)
+		internal static bool? ReadBooleanNullable(BinaryReader reader)
 		{
 			var value = PrimitivesConvertion.ReadVarByteNullable(reader);
 			if (value == null)
@@ -50,12 +50,12 @@ namespace Salar.Bois.Serializers
 			return value.Value != 0;
 		}
 
-		public static bool ReadBoolean(BinaryReader reader)
+		internal static bool ReadBoolean(BinaryReader reader)
 		{
 			return reader.ReadByte() != 0;
 		}
 
-		public static DateTime? ReadDateTimeNullable(BinaryReader reader)
+		internal static DateTime? ReadDateTimeNullable(BinaryReader reader)
 		{
 			var kind = PrimitivesConvertion.ReadVarByteNullable(reader);
 			if (kind == null)
@@ -74,7 +74,7 @@ namespace Salar.Bois.Serializers
 			return new DateTime(ticks, (DateTimeKind)kind.Value);
 		}
 
-		public static DateTime ReadDateTime(BinaryReader reader)
+		internal static DateTime ReadDateTime(BinaryReader reader)
 		{
 			var kind = reader.ReadByte();
 			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
@@ -90,69 +90,116 @@ namespace Salar.Bois.Serializers
 			return new DateTime(ticks, (DateTimeKind)kind);
 		}
 
-		public static DateTimeOffset? ReadDateTimeOffsetNullable(BinaryReader reader)
+		internal static DateTimeOffset? ReadDateTimeOffsetNullable(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			var offsetMinutes = PrimitivesConvertion.ReadVarInt16Nullable(reader);
+			if (offsetMinutes == null)
+			{
+				return null;
+			}
+
+			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
+
+			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes.Value));
 		}
 
-		public static DateTimeOffset ReadDateTimeOffset(BinaryReader reader)
+		internal static DateTimeOffset ReadDateTimeOffset(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			var offsetMinutes = PrimitivesConvertion.ReadVarInt16(reader);
+
+			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
+
+			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes));
 		}
 
-		public static byte[] ReadByteArray(BinaryReader reader)
+		internal static byte[] ReadByteArray(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			var length = PrimitivesConvertion.ReadVarUInt32Nullable(reader);
+			if (length == null)
+			{
+				return null;
+			}
+			return reader.ReadBytes((int)length.Value);
 		}
 
-		public static Enum ReadEnum(BinaryReader reader)
+		internal static Enum ReadEnum(BinaryReader reader, Type type)
 		{
-			throw new NotImplementedException();
+			var val = PrimitivesConvertion.ReadVarInt32Nullable(reader);
+			if (val == null)
+				return null;
+
+			return (Enum)Enum.ToObject(type, val);
 		}
 
-		public static TimeSpan? ReadTimeSpanNullable(BinaryReader reader)
+		internal static TimeSpan? ReadTimeSpanNullable(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			var ticks = PrimitivesConvertion.ReadVarInt64Nullable(reader);
+			if (ticks == null)
+				return null;
+
+			return new TimeSpan(ticks.Value);
 		}
 
-		public static TimeSpan ReadTimeSpan(BinaryReader reader)
+		internal static TimeSpan ReadTimeSpan(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
+			return new TimeSpan(ticks);
 		}
 
-		public static Version ReadVersion(BinaryReader reader)
+		internal static Version ReadVersion(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			var version = ReadString(reader, Encoding.ASCII);
+			if (version == null)
+				return null;
+			return new Version();
 		}
 
-		public static Guid? ReadGuidNullable(BinaryReader reader)
+		internal static Guid? ReadGuidNullable(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			var gbuff = ReadByteArray(reader);
+			if (gbuff == null)
+				return null;
+
+			if (gbuff.Length == 0)
+				return Guid.Empty;
+
+			return new Guid(gbuff);
 		}
 
-		public static Guid ReadGuid(BinaryReader reader)
+		internal static Guid ReadGuid(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			var gbuff = ReadByteArray(reader);
+			if (gbuff == null || gbuff.Length == 0)
+				return Guid.Empty;
+			return new Guid(gbuff);
 		}
 
-		public static DBNull ReadDBNull(BinaryReader reader)
+		internal static DBNull ReadDbNull(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			// just moving one step forward
+			reader.ReadByte();
+			return DBNull.Value;
 		}
 
-		public static Color? ReadColorNullable(BinaryReader reader)
+		internal static Color? ReadColorNullable(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			var argb = PrimitivesConvertion.ReadVarInt32Nullable(reader);
+			if (argb == null)
+				return null;
+			return Color.FromArgb(argb.Value);
 		}
 
-		public static Color ReadColor(BinaryReader reader)
+		internal static Color ReadColor(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			return Color.FromArgb(PrimitivesConvertion.ReadVarInt32(reader));
 		}
 
-		public static Uri ReadUri(BinaryReader reader)
+		internal static Uri ReadUri(BinaryReader reader)
 		{
-			throw new NotImplementedException();
+			var uri = ReadString(reader, Encoding.UTF8);
+			if (uri == null)
+				return null;
+			return new Uri(uri);
 		}
 	}
 }

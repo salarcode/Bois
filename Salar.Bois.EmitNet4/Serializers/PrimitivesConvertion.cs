@@ -30,7 +30,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 1000 0000
 		/// </summary>
-		private const byte NullableFlagNullNum = 128;
+		internal const byte NullableFlagNullNum = 128;
 
 		/// <summary>
 		/// 1011 1111
@@ -118,6 +118,20 @@ namespace Salar.Bois.Serializers
 				return ReadInt16(reader, insideNum);
 			}
 		}
+
+		internal static sbyte? ReadVarSByteNullable(BinaryReader reader)
+		{
+			var input = reader.ReadSByte();
+			if (input == NullableFlagNullNum)
+				return null;
+
+			var isnull = (input & NullableFlagNullNum) == NullableFlagNullNum;
+			if (isnull)
+				return null;
+
+			return (sbyte)(input & NullableFlagNullMask);
+		}
+
 
 		/// <summary>
 		/// 
@@ -499,10 +513,37 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				byte numByte = (byte)num;
+				byte numByte = (byte)num.Value;
 
 				// set the flag of inside
 				numByte = (byte)(numByte | NullableFlagInsideNum);
+				writer.Write(numByte);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		internal static void WriteVarInt(BinaryWriter writer, sbyte? num)
+		{
+			if (num == null)
+			{
+				writer.Write(NullableFlagNullNum);
+				return;
+			}
+			// store more space
+			if (num > NullableMaxNumInByte || num < 0)
+			{
+				// No Flag is required
+				// length of the integer bytes
+				WriteInt(writer, num.Value);
+			}
+			else
+			{
+				sbyte numByte = (sbyte)num.Value;
+
+				// set the flag of inside
+				numByte = (sbyte)(numByte | NullableFlagInsideNum);
 				writer.Write(numByte);
 			}
 		}

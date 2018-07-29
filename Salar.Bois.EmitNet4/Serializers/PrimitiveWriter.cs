@@ -9,11 +9,14 @@ namespace Salar.Bois.Serializers
 {
 	internal static class PrimitiveWriter
 	{
-		[Obsolete("اشتباهه")]
-		internal static void WriteNullableType(BinaryWriter writer, bool isnull)
+		/// <summary>
+		/// there is no data and the value is null
+		/// </summary>
+		internal static void WriteNullValue(BinaryWriter writer)
 		{
-			writer.Write(isnull ? (byte)1 : (byte)0);
+			writer.Write(PrimitivesConvertion.NullableFlagNullNum);
 		}
+
 
 		/// <summary>
 		/// String - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
@@ -23,7 +26,7 @@ namespace Salar.Bois.Serializers
 		{
 			if (str == null)
 			{
-				WriteNullableType(writer, true);
+				WriteNullValue(writer);
 			}
 			else if (str.Length == 0)
 			{
@@ -116,7 +119,7 @@ namespace Salar.Bois.Serializers
 		{
 			if (dt == null)
 			{
-				WriteNullableType(writer, true);
+				WriteNullValue(writer);
 				return;
 			}
 			var dateTime = dt.Value;
@@ -171,7 +174,7 @@ namespace Salar.Bois.Serializers
 		{
 			if (dto == null)
 			{
-				WriteNullableType(writer, true);
+				WriteNullValue(writer);
 				return;
 			}
 			var dateTimeOffset = dto.Value;
@@ -195,6 +198,12 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteValue(BinaryWriter writer, byte[] bytes)
 		{
+			if (bytes == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+
 			// uint doesn't deal with negative numbers
 			PrimitivesConvertion.WriteVarInt(writer, (uint?)bytes.Length);
 			writer.Write(bytes);
@@ -208,7 +217,7 @@ namespace Salar.Bois.Serializers
 		{
 			if (e == null)
 			{
-				WriteNullableType(writer, true);
+				WriteNullValue(writer);
 				return;
 			}
 			// Int32
@@ -233,7 +242,7 @@ namespace Salar.Bois.Serializers
 		{
 			if (timeSpan == null)
 			{
-				WriteNullableType(writer, true);
+				WriteNullValue(writer);
 				return;
 			}
 			PrimitivesConvertion.WriteVarInt(writer, (long?)timeSpan.Value.Ticks);
@@ -247,10 +256,10 @@ namespace Salar.Bois.Serializers
 		{
 			if (version == null)
 			{
-				WriteNullableType(writer, true);
+				WriteNullValue(writer);
 				return;
 			}
-			WriteValue(writer, version.ToString(), Encoding.Default);
+			WriteValue(writer, version.ToString(), Encoding.ASCII);
 		}
 
 		/// <summary>
@@ -281,7 +290,7 @@ namespace Salar.Bois.Serializers
 		{
 			if (g == null)
 			{
-				WriteNullableType(writer, true);
+				WriteNullValue(writer);
 				return;
 			}
 
@@ -305,7 +314,7 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteValue(BinaryWriter writer, DBNull dbNull)
 		{
-			WriteNullableType(writer, true);
+			WriteNullValue(writer);
 		}
 		/// <summary>
 		/// Same as Int32
@@ -324,7 +333,7 @@ namespace Salar.Bois.Serializers
 		{
 			if (color == null)
 			{
-				WriteNullableType(writer, true);
+				WriteNullValue(writer);
 				return;
 			}
 			int? argb = color.Value.ToArgb();

@@ -199,7 +199,7 @@ namespace Salar.Bois
 					return;
 
 				case EnBasicKnownType.Uri:
-					PrimitiveWriter.WriteValue(writer, (obj as Uri)?.ToString(), Encoding);
+					PrimitiveWriter.WriteValue(writer, (obj as Uri)?.ToString(), Encoding.UTF8);
 					break;
 
 				case EnBasicKnownType.Int16:
@@ -291,7 +291,7 @@ namespace Salar.Bois
 		{
 			if (array == null)
 			{
-				PrimitiveWriter.WriteNullableType(writer, true);
+				PrimitiveWriter.WriteNullValue(writer);
 				return;
 			}
 
@@ -336,7 +336,7 @@ namespace Salar.Bois
 					return PrimitiveReader.ReadBoolean(reader);
 
 				case EnBasicKnownType.Enum:
-					return PrimitiveReader.ReadEnum(reader);
+					return PrimitiveReader.ReadEnum(reader, type);
 
 				case EnBasicKnownType.DateTime:
 					if (typeInfo.IsNullable)
@@ -368,7 +368,7 @@ namespace Salar.Bois
 					return PrimitiveReader.ReadVersion(reader);
 
 				case EnBasicKnownType.DbNull:
-					return PrimitiveReader.ReadDBNull(reader);
+					return PrimitiveReader.ReadDbNull(reader);
 
 				case EnBasicKnownType.Uri:
 					return PrimitiveReader.ReadUri(reader);
@@ -436,7 +436,7 @@ namespace Salar.Bois
 
 				case EnBasicKnownType.SByte:
 					if (typeInfo.IsNullable)
-						return (sbyte?)PrimitivesConvertion.ReadVarByteNullable(reader);
+						return PrimitivesConvertion.ReadVarSByteNullable(reader);
 					else
 						return reader.ReadSByte();
 

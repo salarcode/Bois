@@ -204,77 +204,77 @@ namespace Salar.Bois
 
 				case EnBasicKnownType.Int16:
 					if (typeInfo.IsNullable)
-						PrimitivesConvertion.WriteVarInt(writer, obj as short?);
+						NumericSerializers.WriteVarInt(writer, obj as short?);
 					else
-						PrimitivesConvertion.WriteVarInt(writer, (short)obj);
+						NumericSerializers.WriteVarInt(writer, (short)obj);
 					break;
 
 				case EnBasicKnownType.Int32:
 					if (typeInfo.IsNullable)
-						PrimitivesConvertion.WriteVarInt(writer, obj as int?);
+						NumericSerializers.WriteVarInt(writer, obj as int?);
 					else
-						PrimitivesConvertion.WriteVarInt(writer, (int)obj);
+						NumericSerializers.WriteVarInt(writer, (int)obj);
 					return;
 
 				case EnBasicKnownType.Int64:
 					if (typeInfo.IsNullable)
-						PrimitivesConvertion.WriteVarInt(writer, obj as long?);
+						NumericSerializers.WriteVarInt(writer, obj as long?);
 					else
-						PrimitivesConvertion.WriteVarInt(writer, (long)obj);
+						NumericSerializers.WriteVarInt(writer, (long)obj);
 					return;
 
 				case EnBasicKnownType.UInt16:
 					if (typeInfo.IsNullable)
-						PrimitivesConvertion.WriteVarInt(writer, obj as ushort?);
+						NumericSerializers.WriteVarInt(writer, (int?) (obj as ushort?));
 					else
-						PrimitivesConvertion.WriteVarInt(writer, (ushort)obj);
+						NumericSerializers.WriteVarInt(writer, (int) (ushort)obj);
 					return;
 
 				case EnBasicKnownType.UInt32:
 					if (typeInfo.IsNullable)
-						PrimitivesConvertion.WriteVarInt(writer, obj as uint?);
+						NumericSerializers.WriteVarInt(writer, obj as uint?);
 					else
-						PrimitivesConvertion.WriteVarInt(writer, (uint)obj);
+						NumericSerializers.WriteVarInt(writer, (uint)obj);
 					return;
 
 				case EnBasicKnownType.UInt64:
 					if (typeInfo.IsNullable)
-						PrimitivesConvertion.WriteVarInt(writer, obj as ulong?);
+						NumericSerializers.WriteVarInt(writer, obj as ulong?);
 					else
-						PrimitivesConvertion.WriteVarInt(writer, (ulong)obj);
+						NumericSerializers.WriteVarInt(writer, (ulong)obj);
 					return;
 
 				case EnBasicKnownType.Double:
 					if (typeInfo.IsNullable)
-						PrimitivesConvertion.WriteVarDecimal(writer, obj as double?);
+						NumericSerializers.WriteVarDecimal(writer, obj as double?);
 					else
-						PrimitivesConvertion.WriteVarDecimal(writer, (double)obj);
+						NumericSerializers.WriteVarDecimal(writer, (double)obj);
 					return;
 
 				case EnBasicKnownType.Decimal:
 					if (typeInfo.IsNullable)
-						PrimitivesConvertion.WriteVarDecimal(writer, obj as decimal?);
+						NumericSerializers.WriteVarDecimal(writer, obj as decimal?);
 					else
-						PrimitivesConvertion.WriteVarDecimal(writer, (decimal)obj);
+						NumericSerializers.WriteVarDecimal(writer, (decimal)obj);
 					return;
 
 				case EnBasicKnownType.Single:
 					if (typeInfo.IsNullable)
-						PrimitivesConvertion.WriteVarDecimal(writer, obj as float?);
+						NumericSerializers.WriteVarDecimal(writer, obj as float?);
 					else
-						PrimitivesConvertion.WriteVarDecimal(writer, (float)obj);
+						NumericSerializers.WriteVarDecimal(writer, (float)obj);
 					return;
 
 				case EnBasicKnownType.Byte:
 					if (typeInfo.IsNullable)
-						PrimitivesConvertion.WriteVarInt(writer, obj as byte?);
+						NumericSerializers.WriteVarInt(writer, obj as byte?);
 					else
 						writer.Write((byte)obj);
 					return;
 
 				case EnBasicKnownType.SByte:
 					if (typeInfo.IsNullable)
-						PrimitivesConvertion.WriteVarInt(writer, obj as sbyte?);
+						NumericSerializers.WriteVarInt(writer, obj as sbyte?);
 					else
 						writer.Write((sbyte)obj);
 					return;
@@ -299,7 +299,7 @@ namespace Salar.Bois
 			var arrayItemTypeType = BoisTypeCache.GetBasicType(typeInfo.BareType);
 
 			// Int32
-			PrimitivesConvertion.WriteVarInt(writer, (uint?)array.Length);
+			NumericSerializers.WriteVarInt(writer, (uint?)array.Length);
 
 			for (int i = 0; i < array.Length; i++)
 			{
@@ -381,9 +381,9 @@ namespace Salar.Bois
 
 				case EnBasicKnownType.Int32:
 					if (typeInfo.IsNullable)
-						return PrimitivesConvertion.ReadVarInt32Nullable(reader);
+						return NumericSerializers.ReadVarInt32Nullable(reader);
 					else
-						return PrimitivesConvertion.ReadVarInt32(reader);
+						return NumericSerializers.ReadVarInt32(reader);
 
 				case EnBasicKnownType.Int64:
 					if (typeInfo.IsNullable)

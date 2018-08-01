@@ -825,7 +825,7 @@ namespace Salar.Bois.Serializers
 			}
 		}
 
-		internal static void WriteVarDecimal(BinaryWriter writer, float num)
+		public static void WriteVarDecimal(BinaryWriter writer, float num)
 		{
 			byte length;
 			var buff = ConvertToVarBinary(num, out length);
@@ -877,7 +877,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BinaryWriter writer, double num)
+		public static void WriteVarDecimal(BinaryWriter writer, double num)
 		{
 			byte length;
 			var buff = ConvertToVarBinary(num, out length);
@@ -933,7 +933,7 @@ namespace Salar.Bois.Serializers
 				WriteDecimal(writer, buff, length);
 			}
 		}
-		internal static void WriteVarDecimal(BinaryWriter writer, decimal num)
+		public static void WriteVarDecimal(BinaryWriter writer, decimal num)
 		{
 			byte length;
 			var buff = ConvertToVarBinary(num, out length);

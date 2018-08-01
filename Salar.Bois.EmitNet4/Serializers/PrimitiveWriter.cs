@@ -30,13 +30,13 @@ namespace Salar.Bois.Serializers
 			}
 			else if (str.Length == 0)
 			{
-				PrimitivesConvertion.WriteVarInt(writer, (int?)0);
+				NumericSerializers.WriteVarInt(writer, (int?)0);
 			}
 			else
 			{
 				var strBytes = encoding.GetBytes(str);
 				// Int32
-				PrimitivesConvertion.WriteVarInt(writer, (int?)strBytes.Length);
+				NumericSerializers.WriteVarInt(writer, (int?)strBytes.Length);
 				writer.Write(strBytes);
 			}
 		}
@@ -56,7 +56,7 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteValue(BinaryWriter writer, char? c)
 		{
-			PrimitivesConvertion.WriteVarInt(writer, (ushort?)c);
+			NumericSerializers.WriteVarInt(writer, (ushort?)c);
 		}
 
 		/// <summary>
@@ -78,7 +78,7 @@ namespace Salar.Bois.Serializers
 			if (b.HasValue)
 				val = b.Value ? (byte)1 : (byte)0;
 
-			PrimitivesConvertion.WriteVarInt(writer, val);
+			NumericSerializers.WriteVarInt(writer, val);
 		}
 
 		/// <summary>
@@ -94,19 +94,19 @@ namespace Salar.Bois.Serializers
 			{
 				writer.Write(kind);
 				// min datetime indicator
-				PrimitivesConvertion.WriteVarInt(writer, 0L);
+				NumericSerializers.WriteVarInt(writer, 0L);
 			}
 			else if (dateTime == DateTime.MaxValue)
 			{
 				writer.Write(kind);
 				// max datetime indicator
-				PrimitivesConvertion.WriteVarInt(writer, 1L);
+				NumericSerializers.WriteVarInt(writer, 1L);
 			}
 			else
 			{
 				writer.Write(kind);
 				//Int64
-				PrimitivesConvertion.WriteVarInt(writer, dateTime.Ticks);
+				NumericSerializers.WriteVarInt(writer, dateTime.Ticks);
 			}
 		}
 
@@ -127,21 +127,21 @@ namespace Salar.Bois.Serializers
 
 			if (dateTime == DateTime.MinValue)
 			{
-				PrimitivesConvertion.WriteVarInt(writer, kind);
+				NumericSerializers.WriteVarInt(writer, kind);
 				// min datetime indicator
-				PrimitivesConvertion.WriteVarInt(writer, 0L);
+				NumericSerializers.WriteVarInt(writer, 0L);
 			}
 			else if (dateTime == DateTime.MaxValue)
 			{
-				PrimitivesConvertion.WriteVarInt(writer, kind);
+				NumericSerializers.WriteVarInt(writer, kind);
 				// max datetime indicator
-				PrimitivesConvertion.WriteVarInt(writer, 1L);
+				NumericSerializers.WriteVarInt(writer, 1L);
 			}
 			else
 			{
-				PrimitivesConvertion.WriteVarInt(writer, kind);
+				NumericSerializers.WriteVarInt(writer, kind);
 				//Int64
-				PrimitivesConvertion.WriteVarInt(writer, dateTime.Ticks);
+				NumericSerializers.WriteVarInt(writer, dateTime.Ticks);
 			}
 		}
 
@@ -159,10 +159,10 @@ namespace Salar.Bois.Serializers
 				offsetMinutes = (short)((offset.Hours * 60) + offset.Minutes);
 			}
 			// int16
-			PrimitivesConvertion.WriteVarInt(writer, offsetMinutes);
+			NumericSerializers.WriteVarInt(writer, offsetMinutes);
 
 			// int64
-			PrimitivesConvertion.WriteVarInt(writer, dateTimeOffset.Ticks);
+			NumericSerializers.WriteVarInt(writer, dateTimeOffset.Ticks);
 		}
 
 		/// <summary>
@@ -186,10 +186,10 @@ namespace Salar.Bois.Serializers
 				offsetMinutes = (short)((offset.Hours * 60) + offset.Minutes);
 			}
 			// int16
-			PrimitivesConvertion.WriteVarInt(writer, offsetMinutes);
+			NumericSerializers.WriteVarInt(writer, offsetMinutes);
 
 			// int64
-			PrimitivesConvertion.WriteVarInt(writer, dateTimeOffset.Ticks);
+			NumericSerializers.WriteVarInt(writer, dateTimeOffset.Ticks);
 		}
 
 		/// <summary>
@@ -205,7 +205,7 @@ namespace Salar.Bois.Serializers
 			}
 
 			// uint doesn't deal with negative numbers
-			PrimitivesConvertion.WriteVarInt(writer, (uint?)bytes.Length);
+			NumericSerializers.WriteVarInt(writer, (uint?)bytes.Length);
 			writer.Write(bytes);
 		}
 
@@ -221,7 +221,7 @@ namespace Salar.Bois.Serializers
 				return;
 			}
 			// Int32
-			PrimitivesConvertion.WriteVarInt(writer, (int?)((object)e));
+			NumericSerializers.WriteVarInt(writer, (int?)((object)e));
 		}
 
 
@@ -231,7 +231,7 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteValue(BinaryWriter writer, TimeSpan timeSpan)
 		{
-			PrimitivesConvertion.WriteVarInt(writer, timeSpan.Ticks);
+			NumericSerializers.WriteVarInt(writer, timeSpan.Ticks);
 		}
 
 		/// <summary>
@@ -245,7 +245,7 @@ namespace Salar.Bois.Serializers
 				WriteNullValue(writer);
 				return;
 			}
-			PrimitivesConvertion.WriteVarInt(writer, (long?)timeSpan.Value.Ticks);
+			NumericSerializers.WriteVarInt(writer, (long?)timeSpan.Value.Ticks);
 		}
 
 		/// <summary>
@@ -271,14 +271,14 @@ namespace Salar.Bois.Serializers
 			if (guid == Guid.Empty)
 			{
 				// Int32
-				PrimitivesConvertion.WriteVarInt(writer, 0);
+				NumericSerializers.WriteVarInt(writer, 0);
 				return;
 			}
 
 			var data = guid.ToByteArray();
 
 			// Int32
-			PrimitivesConvertion.WriteVarInt(writer, (uint)data.Length);
+			NumericSerializers.WriteVarInt(writer, (uint)data.Length);
 			writer.Write(data);
 		}
 
@@ -298,14 +298,14 @@ namespace Salar.Bois.Serializers
 			if (guid == Guid.Empty)
 			{
 				// Int32
-				PrimitivesConvertion.WriteVarInt(writer, 0);
+				NumericSerializers.WriteVarInt(writer, 0);
 				return;
 			}
 
 			var data = guid.ToByteArray();
 
 			// Int32
-			PrimitivesConvertion.WriteVarInt(writer, (uint?)data.Length);
+			NumericSerializers.WriteVarInt(writer, (uint?)data.Length);
 			writer.Write(data);
 		}
 
@@ -323,7 +323,7 @@ namespace Salar.Bois.Serializers
 		{
 			int argb = color.ToArgb();
 			// Int32
-			PrimitivesConvertion.WriteVarInt(writer, argb);
+			NumericSerializers.WriteVarInt(writer, argb);
 		}
 
 		/// <summary>
@@ -338,7 +338,7 @@ namespace Salar.Bois.Serializers
 			}
 			int? argb = color.Value.ToArgb();
 			// Int32
-			PrimitivesConvertion.WriteVarInt(writer, argb);
+			NumericSerializers.WriteVarInt(writer, argb);
 		}
 
 

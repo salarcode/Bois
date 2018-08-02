@@ -86,6 +86,133 @@ namespace Salar.Bois.Serializers
 
 		#region Readers
 
+
+		internal static short? ReadVarInt16Nullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == FlagNullable)
+				return null;
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var negative = (input & FlagNullableNegativeNum) == FlagNullableNegativeNum;
+
+			if (embedded)
+			{
+				if (negative)
+				{
+					var thenumber = input & FlagNullableNegativeEmbdeddedMask;
+
+					return (short)-thenumber;
+				}
+				else
+				{
+					return (short)(input & FlagEmbdeddedMask);
+				}
+			}
+			else
+			{
+				if (negative)
+				{
+					var length = input & FlagNullableNegativeMask;
+
+					var numBuff = reader.ReadBytes(length);
+
+					return (short)-ConvertFromVarBinaryInt16(numBuff);
+				}
+				else
+				{
+					var length = input;
+
+					var numBuff = reader.ReadBytes(length);
+
+					return ConvertFromVarBinaryInt16(numBuff);
+				}
+			}
+		}
+
+		internal static short ReadVarInt16(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var negative = (input & FlagNonullNegativeNum) == FlagNonullNegativeNum;
+
+			if (embedded)
+			{
+				if (negative)
+				{
+					var thenumber = input & FlagNonullNegativeNumEmbdeddedMask;
+
+					return (short)-thenumber;
+				}
+				else
+				{
+					return (short)(input & FlagEmbdeddedMask);
+				}
+			}
+			else
+			{
+				if (negative)
+				{
+					var length = input & FlagNonullNegativeMask;
+
+					var numBuff = reader.ReadBytes(length);
+
+					return (short)-ConvertFromVarBinaryInt16(numBuff);
+				}
+				else
+				{
+					var length = input;
+
+					var numBuff = reader.ReadBytes(length);
+
+					return ConvertFromVarBinaryInt16(numBuff);
+				}
+			}
+		}
+
+		internal static ushort? ReadVarUInt16Nullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == FlagNullable)
+				return null;
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+
+			if (embedded)
+			{
+				return (ushort)(input & FlagEmbdeddedMask);
+			}
+			else
+			{
+				var length = input;
+
+				var numBuff = reader.ReadBytes(length);
+
+				return ConvertFromVarBinaryUInt16(numBuff);
+			}
+		}
+
+		internal static ushort ReadVarUInt16(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+
+			if (embedded)
+			{
+				return (ushort)(input & FlagEmbdeddedMask);
+			}
+			else
+			{
+				var length = input;
+
+				var numBuff = reader.ReadBytes(length);
+
+				return ConvertFromVarBinaryUInt16(numBuff);
+			}
+		}
+
 		internal static int? ReadVarInt32Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
@@ -168,6 +295,312 @@ namespace Salar.Bois.Serializers
 					return ConvertFromVarBinaryInt32(numBuff);
 				}
 			}
+		}
+
+		internal static uint? ReadVarUInt32Nullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == FlagNullable)
+				return null;
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+
+			if (embedded)
+			{
+				return (uint)input & FlagEmbdeddedMask;
+			}
+			else
+			{
+				var length = input;
+
+				var numBuff = reader.ReadBytes(length);
+
+				return ConvertFromVarBinaryUInt32(numBuff);
+			}
+		}
+
+		internal static uint ReadVarUInt32(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+
+			if (embedded)
+			{
+				return (uint)input & FlagEmbdeddedMask;
+			}
+			else
+			{
+				var length = input;
+
+				var numBuff = reader.ReadBytes(length);
+
+				return ConvertFromVarBinaryUInt32(numBuff);
+			}
+		}
+
+		internal static long? ReadVarInt64Nullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == FlagNullable)
+				return null;
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var negative = (input & FlagNullableNegativeNum) == FlagNullableNegativeNum;
+
+			if (embedded)
+			{
+				if (negative)
+				{
+					var thenumber = input & FlagNullableNegativeEmbdeddedMask;
+
+					return -thenumber;
+				}
+				else
+				{
+					return input & FlagEmbdeddedMask;
+				}
+			}
+			else
+			{
+				if (negative)
+				{
+					var length = input & FlagNullableNegativeMask;
+
+					var numBuff = reader.ReadBytes(length);
+
+					return -ConvertFromVarBinaryInt64(numBuff);
+				}
+				else
+				{
+					var length = input;
+
+					var numBuff = reader.ReadBytes(length);
+
+					return ConvertFromVarBinaryInt64(numBuff);
+				}
+			}
+		}
+
+		internal static long ReadVarInt64(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var negative = (input & FlagNonullNegativeNum) == FlagNonullNegativeNum;
+
+			if (embedded)
+			{
+				if (negative)
+				{
+					var thenumber = input & FlagNonullNegativeNumEmbdeddedMask;
+
+					return -thenumber;
+				}
+				else
+				{
+					return input & FlagEmbdeddedMask;
+				}
+			}
+			else
+			{
+				if (negative)
+				{
+					var length = input & FlagNonullNegativeMask;
+
+					var numBuff = reader.ReadBytes(length);
+
+					return -ConvertFromVarBinaryInt64(numBuff);
+				}
+				else
+				{
+					var length = input;
+
+					var numBuff = reader.ReadBytes(length);
+
+					return ConvertFromVarBinaryInt64(numBuff);
+				}
+			}
+		}
+
+		internal static ulong? ReadVarUInt64Nullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == FlagNullable)
+				return null;
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+
+			if (embedded)
+			{
+				return (uint)input & FlagEmbdeddedMask;
+			}
+			else
+			{
+				var length = input;
+
+				var numBuff = reader.ReadBytes(length);
+
+				return ConvertFromVarBinaryUInt64(numBuff);
+			}
+		}
+
+		internal static ulong ReadVarUInt64(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+
+			if (embedded)
+			{
+				return (ulong)input & FlagEmbdeddedMask;
+			}
+			else
+			{
+				var length = input;
+
+				var numBuff = reader.ReadBytes(length);
+
+				return ConvertFromVarBinaryUInt64(numBuff);
+			}
+		}
+
+		internal static decimal? ReadVarDecimalNullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == FlagNullable)
+				return null;
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			if (embedded)
+			{
+				return (input & FlagEmbdeddedMask);
+			}
+
+			var length = input;
+
+			var numBuff = reader.ReadBytes(length);
+
+			return ConvertFromVarBinaryDecimal(numBuff);
+		}
+
+		internal static decimal ReadVarDecimal(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			if (embedded)
+			{
+				return (input & FlagEmbdeddedMask);
+			}
+
+			var length = input;
+
+			var numBuff = reader.ReadBytes(length);
+
+			return ConvertFromVarBinaryDecimal(numBuff);
+		}
+
+		internal static double? ReadVarDoubleNullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == FlagNullable)
+				return null;
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			if (embedded)
+			{
+				return (input & FlagEmbdeddedMask);
+			}
+
+			var length = input;
+
+			var numBuff = reader.ReadBytes(length);
+
+			return ConvertFromVarBinaryDouble(numBuff);
+		}
+
+		internal static double ReadVarDouble(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			if (embedded)
+			{
+				return (input & FlagEmbdeddedMask);
+			}
+
+			var length = input;
+
+			var numBuff = reader.ReadBytes(length);
+
+			return ConvertFromVarBinaryDouble(numBuff);
+		}
+
+		internal static float? ReadVarSingleNullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == FlagNullable)
+				return null;
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			if (embedded)
+			{
+				return (input & FlagEmbdeddedMask);
+			}
+
+			var length = input;
+
+			var numBuff = reader.ReadBytes(length);
+
+			return ConvertFromVarBinarySingle(numBuff);
+		}
+
+		internal static float ReadVarSingle(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			if (embedded)
+			{
+				return (input & FlagEmbdeddedMask);
+			}
+
+			var length = input;
+
+			var numBuff = reader.ReadBytes(length);
+
+			return ConvertFromVarBinarySingle(numBuff);
+		}
+
+		internal static byte? ReadVarByteNullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == FlagNullable)
+				return null;
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			if (embedded)
+			{
+				return reader.ReadByte();
+			}
+
+			return input;
+		}
+
+		internal static sbyte? ReadVarSByteNullable(BinaryReader reader)
+		{
+			var input = reader.ReadSByte();
+			if (input == FlagNullable)
+				return null;
+
+			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			if (embedded)
+			{
+				return reader.ReadSByte();
+			}
+
+			return input;
 		}
 
 		#endregion
@@ -932,6 +1365,45 @@ namespace Salar.Bois.Serializers
 		//	return new decimal(decimalBits);
 		//}
 
+		private static short ConvertFromVarBinaryInt16(byte[] numBuff)
+		{
+			short result = numBuff[0];
+
+			if (numBuff.Length == 1)
+				return result;
+
+			result = (short)((ushort)result | (numBuff[1] << 8));
+			return result;
+		}
+
+		private static ushort ConvertFromVarBinaryUInt16(byte[] numBuff)
+		{
+			ushort result;
+			if (numBuff.Length == 4)
+			{
+				result = numBuff[0];
+				result = (ushort)(short)(result | (numBuff[1] << 8));
+			}
+			else
+			{
+				var len = numBuff.Length;
+
+				result = numBuff[0];
+				if (len == 1)
+					return result;
+
+				result = (ushort)(short)(result | (numBuff[1] << 8));
+				if (len == 2)
+					return result;
+
+				result = (ushort)(short)(result | (numBuff[2] << 16));
+				if (len == 3)
+					return result;
+
+				result = (ushort)(short)(result | (numBuff[3] << 24));
+			}
+			return result;
+		}
 
 		private static int ConvertFromVarBinaryInt32(byte[] numBuff)
 		{
@@ -964,6 +1436,11 @@ namespace Salar.Bois.Serializers
 			return result;
 		}
 
+		private static int ConvertFromVarBinaryInt32(byte[] numBuff, int startIndex)
+		{
+			return ((numBuff[startIndex + 0] | (numBuff[startIndex + 1] << 8)) | (numBuff[startIndex + 2] << 16)) | (numBuff[startIndex + 3] << 24);
+		}
+
 		private static uint ConvertFromVarBinaryUInt32(byte[] numBuff)
 		{
 			uint result;
@@ -993,6 +1470,153 @@ namespace Salar.Bois.Serializers
 				result = (uint)((int)result | (numBuff[3] << 24));
 			}
 			return result;
+		}
+
+		private static long ConvertFromVarBinaryInt64(byte[] numBuff)
+		{
+			long result;
+			if (numBuff.Length == 8)
+			{
+				uint num = (uint)(((numBuff[0] | (numBuff[1] << 8)) | (numBuff[2] << 16)) | (numBuff[3] << 24));
+				uint num2 = (uint)(((numBuff[4] | (numBuff[5] << 8)) | (numBuff[6] << 16)) | (numBuff[7] << 24));
+				return (long)((((ulong)num2) << 32) | ((ulong)num));
+			}
+			else
+			{
+				var len = numBuff.Length;
+
+				int result1 = numBuff[0];
+				if (len == 1)
+					return result1;
+
+				result1 = result1 | (numBuff[1] << 8);
+				if (len == 2)
+					return result1;
+
+				result1 = result1 | (numBuff[2] << 16);
+				if (len == 3)
+					return result1;
+
+				result1 = result1 | (numBuff[3] << 24);
+				if (len == 4)
+					return result1;
+
+				int result2 = numBuff[4];
+				if (len == 5)
+					return result2 << 32 | result1;
+
+				result2 = result2 | (numBuff[5] << 8);
+				if (len == 6)
+					return result2 << 32 | result1;
+
+				result2 = result2 | (numBuff[6] << 16);
+				if (len == 7)
+					return result2 << 32 | result1;
+
+				// size is 8, will never run
+				result2 = result2 | (numBuff[7] << 24);
+
+				return result2 << 32 | result1;
+			}
+		}
+
+		private static ulong ConvertFromVarBinaryUInt64(byte[] numBuff)
+		{
+			if (numBuff.Length == 8)
+			{
+				uint num = (uint)(((numBuff[0] | (numBuff[1] << 8)) | (numBuff[2] << 16)) | (numBuff[3] << 24));
+				uint num2 = (uint)(((numBuff[4] | (numBuff[5] << 8)) | (numBuff[6] << 16)) | (numBuff[7] << 24));
+				return ((ulong)num2 << 32) | (ulong)num;
+			}
+			else
+			{
+				var len = numBuff.Length;
+
+				uint result1 = numBuff[0];
+				if (len == 1)
+					return result1;
+
+				result1 = (uint)((int)result1 | (numBuff[1] << 8));
+				if (len == 2)
+					return result1;
+
+				result1 = (uint)((int)result1 | (numBuff[2] << 16));
+				if (len == 3)
+					return result1;
+
+				result1 = (uint)((int)result1 | (numBuff[3] << 24));
+				if (len == 4)
+					return result1;
+
+				uint result2 = numBuff[4];
+				if (len == 5)
+					return (ulong)((result2 << 32) | result1);
+
+				result2 = (uint)((int)result2 | (numBuff[5] << 8));
+				if (len == 6)
+					return (ulong)((result2 << 32) | result1);
+
+				result2 = (uint)((int)result2 | (numBuff[6] << 16));
+				if (len == 7)
+					return (ulong)((result2 << 32) | result1);
+
+				// size is 8, will never run
+				result2 = (uint)((int)result2 | (numBuff[7] << 24));
+
+				return (ulong)((result2 << 32) | result1);
+			}
+		}
+
+		private static decimal ConvertFromVarBinaryDecimal(byte[] numBuff)
+		{
+			byte[] buff;
+			if (numBuff.Length < 16)
+			{
+				buff = new byte[16];
+				Array.Copy(numBuff, buff, numBuff.Length);
+			}
+			else
+			{
+				buff = numBuff;
+			}
+
+			var decimalBits = new int[4];
+			decimalBits[0] = ConvertFromVarBinaryInt32(buff, 4 * 0);
+			decimalBits[1] = ConvertFromVarBinaryInt32(buff, 4 * 1);
+			decimalBits[2] = ConvertFromVarBinaryInt32(buff, 4 * 2);
+			decimalBits[3] = ConvertFromVarBinaryInt32(buff, 4 * 3);
+
+			return new decimal(decimalBits);
+		}
+
+		private static double ConvertFromVarBinaryDouble(byte[] numBuff)
+		{
+			if (numBuff.Length == 8)
+			{
+				return BitConverter.ToDouble(numBuff, 0);
+			}
+			else
+			{
+				var doubleBuff = new byte[8];
+
+				Array.Copy(numBuff, 0, doubleBuff, 8 - doubleBuff.Length, doubleBuff.Length);
+				return BitConverter.ToDouble(doubleBuff, 0);
+			}
+		}
+
+		private static float ConvertFromVarBinarySingle(byte[] numBuff)
+		{
+			if (numBuff.Length == 4)
+			{
+				return BitConverter.ToSingle(numBuff, 0);
+			}
+			else
+			{
+				var doubleBuff = new byte[4];
+
+				Array.Copy(numBuff, 0, doubleBuff, 4 - doubleBuff.Length, doubleBuff.Length);
+				return BitConverter.ToSingle(doubleBuff, 0);
+			}
 		}
 
 		private static byte[] ConvertToVarBinary(int value, out byte length)

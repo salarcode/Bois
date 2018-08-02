@@ -375,9 +375,9 @@ namespace Salar.Bois
 
 				case EnBasicKnownType.Int16:
 					if (typeInfo.IsNullable)
-						return PrimitivesConvertion.ReadVarInt16Nullable(reader);
+						return NumericSerializers.ReadVarInt16Nullable(reader);
 					else
-						return PrimitivesConvertion.ReadVarInt16(reader);
+						return NumericSerializers.ReadVarInt16(reader);
 
 				case EnBasicKnownType.Int32:
 					if (typeInfo.IsNullable)
@@ -387,56 +387,56 @@ namespace Salar.Bois
 
 				case EnBasicKnownType.Int64:
 					if (typeInfo.IsNullable)
-						return PrimitivesConvertion.ReadVarInt64Nullable(reader);
+						return NumericSerializers.ReadVarInt64Nullable(reader);
 					else
-						return PrimitivesConvertion.ReadVarInt64(reader);
+						return NumericSerializers.ReadVarInt64(reader);
 
 				case EnBasicKnownType.UInt16:
 					if (typeInfo.IsNullable)
-						return PrimitivesConvertion.ReadVarUInt16Nullable(reader);
+						return NumericSerializers.ReadVarUInt16Nullable(reader);
 					else
-						return PrimitivesConvertion.ReadVarUInt16(reader);
+						return NumericSerializers.ReadVarUInt16(reader);
 
 				case EnBasicKnownType.UInt32:
 					if (typeInfo.IsNullable)
-						return PrimitivesConvertion.ReadVarUInt32Nullable(reader);
+						return NumericSerializers.ReadVarUInt32Nullable(reader);
 					else
-						return PrimitivesConvertion.ReadVarUInt32(reader);
+						return NumericSerializers.ReadVarUInt32(reader);
 
 				case EnBasicKnownType.UInt64:
 					if (typeInfo.IsNullable)
-						return PrimitivesConvertion.ReadVarUInt64Nullable(reader);
+						return NumericSerializers.ReadVarUInt64Nullable(reader);
 					else
-						return PrimitivesConvertion.ReadVarUInt64(reader);
+						return NumericSerializers.ReadVarUInt64(reader);
 
 				case EnBasicKnownType.Double:
 					if (typeInfo.IsNullable)
-						return PrimitivesConvertion.ReadVarDoubleNullable(reader);
+						return NumericSerializers.ReadVarDoubleNullable(reader);
 					else
-						return PrimitivesConvertion.ReadVarDouble(reader);
+						return NumericSerializers.ReadVarDouble(reader);
 
 
 				case EnBasicKnownType.Decimal:
 					if (typeInfo.IsNullable)
-						return PrimitivesConvertion.ReadVarDecimalNullable(reader);
+						return NumericSerializers.ReadVarDecimalNullable(reader);
 					else
-						return PrimitivesConvertion.ReadVarDecimal(reader);
+						return NumericSerializers.ReadVarDecimal(reader);
 
 				case EnBasicKnownType.Single:
 					if (typeInfo.IsNullable)
-						return PrimitivesConvertion.ReadVarSingleNullable(reader);
+						return NumericSerializers.ReadVarSingleNullable(reader);
 					else
-						return PrimitivesConvertion.ReadVarSingle(reader);
+						return NumericSerializers.ReadVarSingle(reader);
 
 				case EnBasicKnownType.Byte:
 					if (typeInfo.IsNullable)
-						return PrimitivesConvertion.ReadVarByteNullable(reader);
+						return NumericSerializers.ReadVarByteNullable(reader);
 					else
 						return reader.ReadByte();
 
 				case EnBasicKnownType.SByte:
 					if (typeInfo.IsNullable)
-						return PrimitivesConvertion.ReadVarSByteNullable(reader);
+						return NumericSerializers.ReadVarSByteNullable(reader);
 					else
 						return reader.ReadSByte();
 
@@ -449,7 +449,7 @@ namespace Salar.Bois
 
 		private Array ReadRootBasicTypedArray(BinaryReader reader, BoisBasicTypeInfo typeInfo)
 		{
-			var length = PrimitivesConvertion.ReadVarUInt32Nullable(reader);
+			var length = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (length == null)
 			{
 				return null;

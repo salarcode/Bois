@@ -12,7 +12,7 @@ namespace Salar.Bois.Serializers
 	{
 		internal static string ReadString(BinaryReader reader, Encoding encoding)
 		{
-			int? length = PrimitivesConvertion.ReadVarInt32Nullable(reader);
+			int? length = NumericSerializers.ReadVarInt32Nullable(reader);
 			if (length == null)
 			{
 				return null;
@@ -36,7 +36,7 @@ namespace Salar.Bois.Serializers
 
 		internal static char? ReadCharNullable(BinaryReader reader)
 		{
-			var charByte = PrimitivesConvertion.ReadVarUInt16Nullable(reader);
+			var charByte = NumericSerializers.ReadVarUInt16Nullable(reader);
 			if (charByte == null)
 				return null;
 			return (char)charByte.Value;
@@ -44,7 +44,7 @@ namespace Salar.Bois.Serializers
 
 		internal static bool? ReadBooleanNullable(BinaryReader reader)
 		{
-			var value = PrimitivesConvertion.ReadVarByteNullable(reader);
+			var value = NumericSerializers.ReadVarByteNullable(reader);
 			if (value == null)
 				return null;
 			return value.Value != 0;
@@ -57,11 +57,11 @@ namespace Salar.Bois.Serializers
 
 		internal static DateTime? ReadDateTimeNullable(BinaryReader reader)
 		{
-			var kind = PrimitivesConvertion.ReadVarByteNullable(reader);
+			var kind = NumericSerializers.ReadVarByteNullable(reader);
 			if (kind == null)
 				return null;
 
-			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
+			var ticks = NumericSerializers.ReadVarInt64(reader);
 			if (ticks == 0L)
 			{
 				return DateTime.MinValue;
@@ -77,7 +77,7 @@ namespace Salar.Bois.Serializers
 		internal static DateTime ReadDateTime(BinaryReader reader)
 		{
 			var kind = reader.ReadByte();
-			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
+			var ticks = NumericSerializers.ReadVarInt64(reader);
 			if (ticks == 0L)
 			{
 				return DateTime.MinValue;
@@ -92,29 +92,29 @@ namespace Salar.Bois.Serializers
 
 		internal static DateTimeOffset? ReadDateTimeOffsetNullable(BinaryReader reader)
 		{
-			var offsetMinutes = PrimitivesConvertion.ReadVarInt16Nullable(reader);
+			var offsetMinutes = NumericSerializers.ReadVarInt16Nullable(reader);
 			if (offsetMinutes == null)
 			{
 				return null;
 			}
 
-			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
+			var ticks = NumericSerializers.ReadVarInt64(reader);
 
 			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes.Value));
 		}
 
 		internal static DateTimeOffset ReadDateTimeOffset(BinaryReader reader)
 		{
-			var offsetMinutes = PrimitivesConvertion.ReadVarInt16(reader);
+			var offsetMinutes = NumericSerializers.ReadVarInt16(reader);
 
-			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
+			var ticks = NumericSerializers.ReadVarInt64(reader);
 
 			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes));
 		}
 
 		internal static byte[] ReadByteArray(BinaryReader reader)
 		{
-			var length = PrimitivesConvertion.ReadVarUInt32Nullable(reader);
+			var length = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (length == null)
 			{
 				return null;
@@ -124,7 +124,7 @@ namespace Salar.Bois.Serializers
 
 		internal static Enum ReadEnum(BinaryReader reader, Type type)
 		{
-			var val = PrimitivesConvertion.ReadVarInt32Nullable(reader);
+			var val = NumericSerializers.ReadVarInt32Nullable(reader);
 			if (val == null)
 				return null;
 
@@ -133,7 +133,7 @@ namespace Salar.Bois.Serializers
 
 		internal static TimeSpan? ReadTimeSpanNullable(BinaryReader reader)
 		{
-			var ticks = PrimitivesConvertion.ReadVarInt64Nullable(reader);
+			var ticks = NumericSerializers.ReadVarInt64Nullable(reader);
 			if (ticks == null)
 				return null;
 
@@ -142,7 +142,7 @@ namespace Salar.Bois.Serializers
 
 		internal static TimeSpan ReadTimeSpan(BinaryReader reader)
 		{
-			var ticks = PrimitivesConvertion.ReadVarInt64(reader);
+			var ticks = NumericSerializers.ReadVarInt64(reader);
 			return new TimeSpan(ticks);
 		}
 
@@ -183,7 +183,7 @@ namespace Salar.Bois.Serializers
 
 		internal static Color? ReadColorNullable(BinaryReader reader)
 		{
-			var argb = PrimitivesConvertion.ReadVarInt32Nullable(reader);
+			var argb = NumericSerializers.ReadVarInt32Nullable(reader);
 			if (argb == null)
 				return null;
 			return Color.FromArgb(argb.Value);
@@ -191,7 +191,7 @@ namespace Salar.Bois.Serializers
 
 		internal static Color ReadColor(BinaryReader reader)
 		{
-			return Color.FromArgb(PrimitivesConvertion.ReadVarInt32(reader));
+			return Color.FromArgb(NumericSerializers.ReadVarInt32(reader));
 		}
 
 		internal static Uri ReadUri(BinaryReader reader)

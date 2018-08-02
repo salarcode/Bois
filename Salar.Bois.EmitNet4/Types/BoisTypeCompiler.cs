@@ -1,4 +1,4 @@
-﻿//#define DebugSaveAsAssembly
+﻿#define DebugSaveAsAssembly
 using System;
 using System.IO;
 using System.Reflection;
@@ -23,7 +23,7 @@ namespace Salar.Bois.Types
 		public static Delegate ComputeWriter(Type type, BoisComplexTypeInfo typeInfo)
 		{
 #if DebugSaveAsAssembly
-			var name = BoisCompiledTypesHolder.GetTypeMethodName(type, true) + ".exe";
+			var name = GetTypeMethodName(type, true) + ".exe";
 			var assemblyName = new AssemblyName(name);
 
 			var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
@@ -52,7 +52,7 @@ namespace Salar.Bois.Types
 			mailIl.Emit(OpCodes.Ret);
 
 			var ilMethod = programmClass.DefineMethod(
-				name: BoisCompiledTypesHolder.GetTypeMethodName(type, serialize: true),
+				name: GetTypeMethodName(type, serialize: true),
 				attributes: MethodAttributes.Public | MethodAttributes.Static,
 				returnType: null,
 				// Arg0: BinaryWriter, Arg1: instance, Arg2: Encoding
@@ -68,7 +68,7 @@ namespace Salar.Bois.Types
 				// Arg0: BinaryWriter, Arg1: instance, Arg2: Encoding
 				parameterTypes: new[] { typeof(BinaryWriter), type/*typeof(object)*/, typeof(Encoding) },
 				m: typeof(BoisSerializer).Module,
-				
+
 				skipVisibility: true);
 #if NetFX
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "writer");
@@ -92,15 +92,17 @@ namespace Salar.Bois.Types
 
 			assemblyBuilder.Save(name);
 
-			throw new NotImplementedException("این آخرشه");
-#else
+ 
+			//throw new NotImplementedException("این آخرشه");
+			return null;
+#endif
+
 			var delegateType = typeof(SerializeDelegate<>).MakeGenericType(type);
 
 			// the serializer method is ready
 			var writerDelegate = ilMethod.CreateDelegate(delegateType);
 
 			return writerDelegate;
-#endif
 		}
 
 		private static void ComputeWriter(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
@@ -445,7 +447,7 @@ namespace Salar.Bois.Types
 		public static Delegate ComputeReader(Type type, BoisComplexTypeInfo typeInfo)
 		{
 #if DebugSaveAsAssembly
-			var name = BoisCompiledTypesHolder.GetTypeMethodName(type, false) + ".exe";
+			var name = GetTypeMethodName(type, false) + ".exe";
 			var assemblyName = new AssemblyName(name);
 
 			var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
@@ -474,7 +476,7 @@ namespace Salar.Bois.Types
 			mailIl.Emit(OpCodes.Ret);
 
 			var ilMethod = programmClass.DefineMethod(
-				name: BoisCompiledTypesHolder.GetTypeMethodName(type, serialize: false),
+				name: GetTypeMethodName(type, serialize: false),
 				attributes: MethodAttributes.Public | MethodAttributes.Static,
 				returnType: type,
 				// Arg0: BinaryWriter, Arg1: Encoding
@@ -504,6 +506,7 @@ namespace Salar.Bois.Types
 			ComputeReader(il, type, typeInfo);
 
 			// never forget
+			il.Emit(OpCodes.Ldloc_0);
 			il.Emit(OpCodes.Ret);
 
 
@@ -514,26 +517,33 @@ namespace Salar.Bois.Types
 
 			assemblyBuilder.Save(name);
 
-			throw new NotImplementedException("این آخرشه");
-#else
+			//throw new NotImplementedException("این آخرشه");
+			return null;
+#endif
 			var delegateType = typeof(SerializeDelegate<>).MakeGenericType(type);
 
 			// the serializer method is ready
 			var readerDelegate = ilMethod.CreateDelegate(delegateType);
 			return readerDelegate;
-#endif
 		}
 
 
-		private static void ComputeReaderTypeCreation(ILGenerator il, Type type)
+		private static LocalBuilder ComputeReaderTypeCreation(ILGenerator il, Type type)
 		{
 			var constructor = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, Type.DefaultBinder,
 				Type.EmptyTypes, null);
 			if (constructor == null)
 				throw new Exception($"Type '{type}' doesn't have a constructor with empty parameters");
 
-			// stored as the first stack
+			//// stored as the first stack
+			//il.Emit(OpCodes.Newobj, constructor);
+
+			// stored as first local variable
+			var instanceVariable = il.DeclareLocal(type);
 			il.Emit(OpCodes.Newobj, constructor);
+			il.Emit(OpCodes.Stloc_0);
+
+			return instanceVariable;
 		}
 
 		private static void ComputeReader(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)

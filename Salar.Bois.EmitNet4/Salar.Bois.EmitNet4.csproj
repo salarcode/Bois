@@ -50,7 +50,6 @@
     <Compile Include="Serializers\EmitGenerator.cs" />
     <Compile Include="Serializers\NumericSerializers.cs" />
     <Compile Include="Serializers\PrimitiveReader.cs" />
-    <Compile Include="Serializers\PrimitivesConvertion.cs" />
     <Compile Include="Serializers\PrimitiveWriter.cs" />
     <Compile Include="Types\BoisBasicTypeInfo.cs" />
     <Compile Include="Types\BoisComplexTypeInfo.cs" />

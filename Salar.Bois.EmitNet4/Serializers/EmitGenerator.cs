@@ -67,7 +67,7 @@ namespace Salar.Bois.Serializers
 			var getter = prop.GetGetMethod(true);
 
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
-			il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_1); // instance
 			il.Emit(OpCodes.Callvirt, meth: getter); // property value
 			il.Emit(OpCodes.Ldarg_2); // Encoding
 			var methodArg = new[] { typeof(BinaryWriter), typeof(string), typeof(Encoding) };
@@ -79,7 +79,15 @@ namespace Salar.Bois.Serializers
 
 		internal static void WriteString(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_1); // instance
+			il.Emit(OpCodes.Ldfld, field: field); // field value
+			il.Emit(OpCodes.Ldarg_2); // Encoding
+			var methodArg = new[] { typeof(BinaryWriter), typeof(string), typeof(Encoding) };
+			il.Emit(OpCodes.Call,
+				meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
+			il.Emit(OpCodes.Nop);
 		}
 
 		internal static void WriteBool(PropertyInfo prop, ILGenerator il, bool nullable)
@@ -449,7 +457,7 @@ namespace Salar.Bois.Serializers
 		{
 			var setter = prop.GetSetMethod(true);
 
-			il.Emit(OpCodes.Dup); // instance
+			il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 			il.Emit(OpCodes.Ldarg_1); // Encoding
 
@@ -463,7 +471,16 @@ namespace Salar.Bois.Serializers
 
 		internal static void ReadString(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+			il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_1); // Encoding
+
+			var methodArg = new[] { typeof(BinaryReader), typeof(Encoding) };
+			il.Emit(OpCodes.Call,
+				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadString),
+					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
+			il.Emit(OpCodes.Stfld, field: field); // field value
+			il.Emit(OpCodes.Nop);
 		}
 
 		internal static void ReadBool(PropertyInfo prop, ILGenerator il, bool isNullable)

@@ -29,32 +29,32 @@ namespace Salar.Bois.Serializers
 
 		internal static void WriteRootDataTable(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		internal static void WriteRootDataSet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		internal static void WriteRootCollection(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		internal static void WriteRootList(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		internal static void WriteRootDictionary(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		internal static void WriteRootNameValueCol(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 
@@ -92,22 +92,36 @@ namespace Salar.Bois.Serializers
 
 		internal static void WriteBool(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+			var getter = prop.GetGetMethod(true);
+
+			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_1); // instance
+			il.Emit(OpCodes.Callvirt, meth: getter);
+			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(bool?) } : new[] { typeof(BinaryWriter), typeof(bool) };
+			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
+			il.Emit(OpCodes.Nop);
 		}
 
 		internal static void WriteBool(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_1); // instance
+			il.Emit(OpCodes.Ldfld, field: field);
+			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(bool?) } : new[] { typeof(BinaryWriter), typeof(bool) };
+			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
+			il.Emit(OpCodes.Nop);
 		}
 
 		internal static void WriteInt16(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteInt16(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteInt32(PropertyInfo prop, ILGenerator il, bool nullable)
@@ -115,221 +129,223 @@ namespace Salar.Bois.Serializers
 			var getter = prop.GetGetMethod(true);
 
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
-			il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_1); // instance
 			il.Emit(OpCodes.Callvirt, meth: getter);
-			var methodArg = nullable ? new[] { typeof(int?) } : new[] { typeof(int) };
-			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue), methodArg));
+			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(int?) } : new[] { typeof(BinaryWriter), typeof(int) };
+			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
 		}
 
 		internal static void WriteInt32(FieldInfo field, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
-			il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_1); // instance
 			il.Emit(OpCodes.Ldfld, field: field);
-			var methodArg = nullable ? new[] { typeof(int?) } : new[] { typeof(int) };
-			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue), methodArg));
+			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(int?) } : new[] { typeof(BinaryWriter), typeof(int) };
+			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
 		}
 
 		internal static void WriteInt64(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteInt64(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteUInt16(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteUInt16(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteUInt32(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteUInt32(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteUInt64(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteUInt64(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDouble(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDouble(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDecimal(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDecimal(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteFloat(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteFloat(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteByte(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteByte(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteSByte(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteSByte(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDateTime(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDateTime(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDateTimeOffset(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDateTimeOffset(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteByteArray(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteByteArray(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteEnum(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteEnum(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteTimeSpan(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteTimeSpan(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteChar(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteChar(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteGuid(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteGuid(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteColor(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteColor(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDbNull(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDbNull(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteUri(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteUri(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteVersion(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteVersion(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		#endregion
@@ -339,72 +355,72 @@ namespace Salar.Bois.Serializers
 
 		internal static void WriteCollection(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDCollection(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDictionary(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDictionary(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteUnknownArray(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteUnknownArray(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteNameValueColl(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteNameValueColl(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteISet(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteISet(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDataSet(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDataSet(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDataTable(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 		internal static void WriteDataTable(FieldInfo field, ILGenerator il, bool nullable)
 		{
-			
+
 		}
 
 
@@ -412,40 +428,40 @@ namespace Salar.Bois.Serializers
 
 		#region Read Root Complex Types
 
-		
+
 		internal static void ReadRootCollection(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		internal static void ReadRootDictionary(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		internal static void ReadRootUnknownArray(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		internal static void ReadRootNameValueColl(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		internal static void ReadRootISet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		internal static void ReadRootDataSet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		internal static void ReadRootDataTable(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			
+
 		}
 
 		#endregion
@@ -485,232 +501,262 @@ namespace Salar.Bois.Serializers
 
 		internal static void ReadBool(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+			var setter = prop.GetSetMethod(true);
+
+			il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+
+			var method =
+				isNullable
+					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadBooleanNullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] {typeof(BinaryReader)}, null)
+					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadBoolean),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] {typeof(BinaryReader)}, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			il.Emit(OpCodes.Nop);
 		}
 
 		internal static void ReadBool(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+			il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+
+			var method =
+				isNullable
+					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadBooleanNullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null)
+					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadBoolean),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call,meth: method);
+			il.Emit(OpCodes.Stfld, field: field); // field value
+			il.Emit(OpCodes.Nop);
 		}
 
 		internal static void ReadInt16(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadInt16(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadInt32(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadInt32(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadInt64(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadInt64(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadUInt16(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadUInt16(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadUInt32(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadUInt32(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadUInt64(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadUInt64(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadDouble(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadDouble(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadDecimal(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadDecimal(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadFloat(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadFloat(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadByte(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadByte(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadSByte(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadSByte(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadDateTime(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadDateTime(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadDateTimeOffset(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadDateTimeOffset(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadByteArray(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadByteArray(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadEnum(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadEnum(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadTimeSpan(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadTimeSpan(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadChar(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadChar(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadGuid(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadGuid(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadColor(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadColor(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadDbNull(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadDbNull(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadUri(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadUri(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadVersion(PropertyInfo prop, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 		internal static void ReadVersion(FieldInfo field, ILGenerator il, bool isNullable)
 		{
-			
+
 		}
 
 

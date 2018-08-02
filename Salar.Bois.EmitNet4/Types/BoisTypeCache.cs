@@ -803,6 +803,36 @@ namespace Salar.Bois.Types
 
 			var members = new List<MemberInfo>();
 
+			if (readFields)
+			{
+				var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+				foreach (var f in fields)
+				{
+					var index = -1;
+					var memProp = f.GetCustomAttributes(typeof(BoisMemberAttribute), false);
+					BoisMemberAttribute boisMember;
+					if (memProp.Length > 0 && (boisMember = (memProp[0] as BoisMemberAttribute)) != null)
+					{
+						if (!boisMember.Included)
+							continue;
+						index = boisMember.Index;
+					}
+
+					//var info = ReadMemberInfo(f.FieldType);
+					//info.Info = f;
+					//info.MemberType = EnBoisMemberType.Field;
+
+					if (index > -1)
+					{
+						members.Insert(index, f);
+					}
+					else
+					{
+						members.Add(f);
+					}
+				}
+			}
+
 			if (readProps)
 			{
 				var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -836,36 +866,6 @@ namespace Salar.Bois.Types
 						{
 							members.Add(p);
 						}
-					}
-				}
-			}
-
-			if (readFields)
-			{
-				var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-				foreach (var f in fields)
-				{
-					var index = -1;
-					var memProp = f.GetCustomAttributes(typeof(BoisMemberAttribute), false);
-					BoisMemberAttribute boisMember;
-					if (memProp.Length > 0 && (boisMember = (memProp[0] as BoisMemberAttribute)) != null)
-					{
-						if (!boisMember.Included)
-							continue;
-						index = boisMember.Index;
-					}
-
-					//var info = ReadMemberInfo(f.FieldType);
-					//info.Info = f;
-					//info.MemberType = EnBoisMemberType.Field;
-
-					if (index > -1)
-					{
-						members.Insert(index, f);
-					}
-					else
-					{
-						members.Add(f);
 					}
 				}
 			}

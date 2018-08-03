@@ -131,6 +131,15 @@ namespace Salar.Bois.Serializers
 			return (Enum)Enum.ToObject(type, val);
 		}
 
+		internal static T ReadEnumGeneric<T>(BinaryReader reader)
+		{
+			var val = NumericSerializers.ReadVarInt32Nullable(reader);
+			if (val == null)
+				return default(T);
+
+			return (T)Enum.ToObject(typeof(T), val);
+		}
+
 		internal static TimeSpan? ReadTimeSpanNullable(BinaryReader reader)
 		{
 			var ticks = NumericSerializers.ReadVarInt64Nullable(reader);

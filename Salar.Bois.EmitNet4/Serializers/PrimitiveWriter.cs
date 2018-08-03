@@ -263,6 +263,14 @@ namespace Salar.Bois.Serializers
 		}
 
 		/// <summary>
+		/// Same as String
+		/// </summary>
+		internal static void WriteValue(BinaryWriter writer, Uri uri)
+		{
+			PrimitiveWriter.WriteValue(writer, uri?.ToString(), Encoding.UTF8);
+		}
+
+		/// <summary>
 		/// Guid - Format: (Embedded-0-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..127
 		/// </summary>

@@ -199,7 +199,7 @@ namespace Salar.Bois
 					return;
 
 				case EnBasicKnownType.Uri:
-					PrimitiveWriter.WriteValue(writer, (obj as Uri)?.ToString(), Encoding.UTF8);
+					PrimitiveWriter.WriteValue(writer, (obj as Uri));
 					break;
 
 				case EnBasicKnownType.Int16:

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Salar.Bois.Serializers
 {
-	public static class NumericSerializers
+	internal  static class NumericSerializers
 	{
 		/// <summary>
 		/// 0100 0000 = 64
@@ -612,7 +612,7 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
-		public static void WriteVarInt(BinaryWriter writer, int num)
+		internal  static void WriteVarInt(BinaryWriter writer, int num)
 		{
 			if (num > EmbeddedSignedMaxNumInByte)
 			{

@@ -37,7 +37,10 @@ namespace Salar.Bois.Types
 			_computedCache.Clear();
 		}
 
-		internal static BoisComputedTypeInfo GetRootTypeComputed(Type type, bool generateReader, bool generateWriter)
+		internal static BoisComputedTypeInfo GetRootTypeComputed(
+			Type type,
+			bool generateReader,
+			bool generateWriter)
 		{
 			BoisComputedTypeInfo result;
 			if (_computedCache.TryGetValue(type, out result))
@@ -57,7 +60,13 @@ namespace Salar.Bois.Types
 			{
 				complexTypeInfo = GetComplexTypeUnCached(type);
 
-				result.WriterDelegate = BoisTypeCompiler.ComputeWriter(type, complexTypeInfo);
+#if EmitAssemblyOut
+				var computed = BoisTypeCompiler.ComputeWriterSaveAss(type, complexTypeInfo);
+#else
+				var computed = BoisTypeCompiler.ComputeWriter(type, complexTypeInfo);
+#endif
+				result.WriterDelegate = computed.Delegate;
+				result.WriterMethod = computed.Method;
 			}
 
 			if (generateReader && result.ReaderDelegate == null)
@@ -65,7 +74,13 @@ namespace Salar.Bois.Types
 				if (complexTypeInfo == null)
 					complexTypeInfo = GetComplexTypeUnCached(type);
 
-				result.ReaderDelegate = BoisTypeCompiler.ComputeReader(type, complexTypeInfo);
+#if EmitAssemblyOut
+				var computed = BoisTypeCompiler.ComputeReaderSaveAss(type, complexTypeInfo);
+#else
+				var computed = BoisTypeCompiler.ComputeReader(type, complexTypeInfo);
+#endif
+				result.ReaderDelegate = computed.Delegate;
+				result.ReaderMethod = computed.Method;
 			}
 
 			_computedCache.TryAdd(type, result);
@@ -719,6 +734,19 @@ namespace Salar.Bois.Types
 					};
 			}
 
+#if DotNet || DotNetCore || DotNetStandard
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(NameValueCollection)))
+			{
+				return new BoisComplexTypeInfo
+				{
+					//KnownType = EnBasicKnownType.NameValueColl,
+					IsNullable = isNullable,
+					ComplexKnownType = EnComplexKnownType.NameValueColl,
+					BareType = underlyingTypeNullable,
+				};
+			}
+#endif
+
 			// checking for IList and ICollection should be after NameValueCollection
 			if (ReflectionHelper.CompareInterface(memActualType, typeof(IList)) ||
 				ReflectionHelper.CompareInterface(memActualType, typeof(ICollection)))
@@ -735,18 +763,6 @@ namespace Salar.Bois.Types
 			}
 
 
-#if DotNet || DotNetCore || DotNetStandard
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(NameValueCollection)))
-			{
-				return new BoisComplexTypeInfo
-				{
-					//KnownType = EnBasicKnownType.NameValueColl,
-					IsNullable = isNullable,
-					ComplexKnownType = EnComplexKnownType.NameValueColl,
-					BareType = underlyingTypeNullable,
-				};
-			}
-#endif
 #if !SILVERLIGHT && DotNet
 			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataSet)))
 			{

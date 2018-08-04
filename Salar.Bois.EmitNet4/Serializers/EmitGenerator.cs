@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -55,6 +57,7 @@ namespace Salar.Bois.Serializers
 
 		internal static void WriteRootNameValueCol(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
+
 
 		}
 
@@ -711,25 +714,261 @@ namespace Salar.Bois.Serializers
 
 		}
 
-		internal static void WriteUnknownArray(PropertyInfo prop, ILGenerator il, bool nullable)
+		internal static void WriteUnknownArray(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable)
 		{
+			/*
+			var arr = instance.UnknownArray1;
+			if (arr == null)
+			{
+				PrimitiveWriter.WriteNullValue(writer);
+			}
+			else
+			{
+				NumericSerializers.WriteVarInt(writer, arr.Length);
+
+				var arrEnumurator = arr.GetEnumerator();
+				while (arrEnumurator.MoveNext())
+				{
+					PrimitiveWriter.WriteValue(writer, (string)arrEnumurator.Current, encoding);
+				}
+			}
+			 */
+			Type arrayType;
+			var actualCode = il.DefineLabel();
+			var codeEnds = il.DefineLabel();
+			var loopStart = il.DefineLabel();
+
+			LocalBuilder instanceVar;
+
+			// var arr = instance.UnknownArray1;
+			il.Emit(OpCodes.Ldarg_1); // instance
+
+			if (prop != null)
+			{
+				arrayType = prop.PropertyType;
+
+				instanceVar = il.DeclareLocal(arrayType);
+				var getter = prop.GetGetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: getter);
+			}
+			else
+			{
+				arrayType = field.FieldType;
+
+				instanceVar = il.DeclareLocal(arrayType);
+				il.Emit(OpCodes.Ldfld, field: field);
+			}
+			il.StoreLocal(instanceVar);
+
+			// item type
+			var arrItemType = arrayType.GetElementType();
+
+			// if (coll == null)
+			il.LoadLocal(instanceVar); // instance arr
+			il.Emit(OpCodes.Ldnull); // null
+			il.Emit(OpCodes.Ceq); // ==
+
+			il.Emit(OpCodes.Brfalse_S, actualCode); // jump to not null
+			il.Emit(OpCodes.Nop);
+
+			// PrimitiveWriter.WriteNullValue(writer);
+			{
+				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Call,
+					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
+				il.Emit(OpCodes.Nop);
+
+				il.Emit(OpCodes.Br_S, codeEnds);
+				il.Emit(OpCodes.Nop);
+			}
+
+			// NumericSerializers.WriteVarInt(writer, arr.Length);
+			il.MarkLabel(actualCode);
+
+			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.LoadLocal(instanceVar); // instance arr
+			il.Emit(OpCodes.Ldlen);
+			il.Emit(OpCodes.Conv_I4);
+			il.Emit(OpCodes.Call,
+				meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(int) }, null));
+			il.Emit(OpCodes.Nop);
+
+
+			// IEnumerator enumerator = arr.GetEnumerator();
+			il.LoadLocal(instanceVar); // instance coll
+			var getEnumeratorMethodInfo = typeof(Array).GetMethod(nameof(Array.GetEnumerator),
+				BindingFlags.Instance | BindingFlags.Public);
+			il.Emit(OpCodes.Callvirt, getEnumeratorMethodInfo);
+
+			var enumuratorType = getEnumeratorMethodInfo.ReturnType;
+			var enumurator = il.DeclareLocal(enumuratorType);
+			il.Emit(OpCodes.Stloc, enumurator);
+
+			//while (enumerator.MoveNext())
+			{
+				il.MarkLabel(loopStart);
+
+				il.LoadLocal(enumurator);
+				il.Emit(OpCodes.Callvirt,
+					enumuratorType.GetMethod(nameof(IEnumerator.MoveNext)));
+				il.Emit(OpCodes.Brfalse_S, codeEnds);
+
+				var typeInfo = BoisTypeCache.GetRootTypeComputed(arrItemType, false, true);
+
+				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.LoadLocal(enumurator);
+				il.Emit(OpCodes.Callvirt,
+					// ReSharper disable once PossibleNullReferenceException
+					enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod());
+				il.Emit(OpCodes.Castclass, arrItemType);
+				il.Emit(OpCodes.Ldarg_2); // Encoding
+				il.Emit(OpCodes.Call, meth: typeInfo.WriterMethod);
+
+				il.Emit(OpCodes.Nop);
+				il.Emit(OpCodes.Br_S, loopStart);
+			}
+			il.MarkLabel(codeEnds);
 
 		}
 
-		internal static void WriteUnknownArray(FieldInfo field, ILGenerator il, bool nullable)
+		internal static void WriteNameValueColl(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable)
 		{
+			/*
+			var coll = instance.NameValueCollection;
+			if (coll == null)
+			{
+				PrimitiveWriter.WriteNullValue(writer);
+			}
+			else
+			{
+				NumericSerializers.WriteVarInt(writer, coll.Count);
 
+				var collEnumurator = coll.GetEnumerator();
+				while (collEnumurator.MoveNext())
+				{
+					string key = (string) collEnumurator.Current;
+					PrimitiveWriter.WriteValue(writer, key, encoding);
+					PrimitiveWriter.WriteValue(writer, instance.NameValueCollection[key], encoding);
+				}
+			}
+			 */
+
+			var actualCode = il.DefineLabel();
+			var codeEnds = il.DefineLabel();
+			var loopStart = il.DefineLabel();
+
+			var instanceVar = il.DeclareLocal(typeof(NameValueCollection));
+
+			// NameValueCollection coll = instance.NameValueCollection;
+			il.Emit(OpCodes.Ldarg_1); // instance
+
+			if (prop != null)
+			{
+				var getter = prop.GetGetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: getter);
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Ldfld, field: field);
+			}
+			il.StoreLocal(instanceVar);
+
+			// if (coll == null)
+			il.LoadLocal(instanceVar); // instance coll
+			il.Emit(OpCodes.Ldnull); // null
+			il.Emit(OpCodes.Ceq); // ==
+
+			il.Emit(OpCodes.Brfalse_S, actualCode); // jump to not null
+			il.Emit(OpCodes.Nop);
+
+
+			// PrimitiveWriter.WriteNullValue(writer);
+			{
+				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Call,
+					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
+				il.Emit(OpCodes.Nop);
+
+				il.Emit(OpCodes.Br_S, codeEnds);
+				il.Emit(OpCodes.Nop);
+			}
+
+			// NumericSerializers.WriteVarInt(writer, coll.Count);
+			il.MarkLabel(actualCode);
+
+			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.LoadLocal(instanceVar); // instance coll
+			il.Emit(OpCodes.Callvirt,
+				// ReSharper disable once PossibleNullReferenceException
+				meth: typeof(NameValueCollection).GetProperty(nameof(NameValueCollection.Count)).GetGetMethod());
+			il.Emit(OpCodes.Call,
+				meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(int) }, null));
+			il.Emit(OpCodes.Nop);
+
+
+
+			// IEnumerator enumerator = nameValueCollection.GetEnumerator();
+			il.LoadLocal(instanceVar); // instance coll
+			var getEnumeratorMethodInfo = typeof(NameValueCollection).GetMethod(nameof(NameValueCollection.GetEnumerator),
+				BindingFlags.Instance | BindingFlags.Public);
+			il.Emit(OpCodes.Callvirt, getEnumeratorMethodInfo);
+
+			var enumuratorType = getEnumeratorMethodInfo.ReturnType;
+			var enumurator = il.DeclareLocal(enumuratorType);
+			il.Emit(OpCodes.Stloc, enumurator);
+
+
+			//while (enumerator.MoveNext())
+			{
+				il.MarkLabel(loopStart);
+
+				il.LoadLocal(enumurator);
+				il.Emit(OpCodes.Callvirt,
+					enumuratorType.GetMethod(nameof(IEnumerator.MoveNext)));
+				il.Emit(OpCodes.Brfalse_S, codeEnds);
+
+				// foreach (*string item2* in nameValueCollection)
+				var itemKeyVar = il.DeclareLocal(typeof(string));
+				il.LoadLocal(enumurator);
+				il.Emit(OpCodes.Callvirt,
+					// ReSharper disable once PossibleNullReferenceException
+					enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod());
+				il.Emit(OpCodes.Castclass, typeof(string));
+				il.Emit(OpCodes.Stloc, itemKeyVar);
+				il.Emit(OpCodes.Nop);
+
+				// PrimitiveWriter.WriteValue(writer, item, encoding);
+				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.LoadLocal(itemKeyVar); // item
+				il.Emit(OpCodes.Ldarg_2); // Encoding
+				il.Emit(OpCodes.Call,
+					meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+						BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder,
+						new[] { typeof(BinaryWriter), typeof(string), typeof(Encoding) }, null));
+				il.Emit(OpCodes.Nop);
+
+				// PrimitiveWriter.WriteValue(writer, coll[item], encoding);
+				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.LoadLocal(instanceVar); // instance coll
+				il.LoadLocal(itemKeyVar); // item
+				il.Emit(OpCodes.Callvirt,
+					meth: typeof(NameValueCollection).GetMethod(nameof(NameValueCollection.Get),
+						BindingFlags.Instance | BindingFlags.Public, Type.DefaultBinder, new[] { typeof(string) }, null));
+				il.Emit(OpCodes.Ldarg_2); // Encoding
+				il.Emit(OpCodes.Call,
+					meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+						BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder,
+						new[] { typeof(BinaryWriter), typeof(string), typeof(Encoding) }, null));
+				il.Emit(OpCodes.Nop);
+				il.Emit(OpCodes.Br_S, loopStart);
+			}
+			il.MarkLabel(codeEnds);
 		}
 
-		internal static void WriteNameValueColl(PropertyInfo prop, ILGenerator il, bool nullable)
-		{
-
-		}
-
-		internal static void WriteNameValueColl(FieldInfo field, ILGenerator il, bool nullable)
-		{
-
-		}
 
 		internal static void WriteISet(PropertyInfo prop, ILGenerator il, bool nullable)
 		{
@@ -803,7 +1042,6 @@ namespace Salar.Bois.Serializers
 		}
 
 		#endregion
-
 
 		#region Read Simple Types
 
@@ -1719,7 +1957,6 @@ namespace Salar.Bois.Serializers
 
 		#endregion
 
-
 		#region Read Complex Types
 
 		internal static void ReadCollection(PropertyInfo prop, ILGenerator il, bool nullable)
@@ -1818,6 +2055,28 @@ namespace Salar.Bois.Serializers
 					break;
 			}
 		}
+
+		internal static void StoreLocal(this ILGenerator il, LocalBuilder local)
+		{
+			switch (local.LocalIndex)
+			{
+				case 0: il.Emit(OpCodes.Stloc_0); break;
+				case 1: il.Emit(OpCodes.Stloc_1); break;
+				case 2: il.Emit(OpCodes.Stloc_2); break;
+				case 3: il.Emit(OpCodes.Stloc_3); break;
+				default:
+					if (local.LocalIndex < 256)
+					{
+						il.Emit(OpCodes.Stloc_S, (byte)local.LocalIndex);
+					}
+					else
+					{
+						il.Emit(OpCodes.Stloc, (ushort)local.LocalIndex);
+					}
+					break;
+			}
+		}
+
 	}
 
 }

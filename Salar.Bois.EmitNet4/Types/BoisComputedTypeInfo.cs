@@ -8,16 +8,20 @@ using System.Text;
 
 namespace Salar.Bois.Types
 {
-	internal delegate void SerializeDelegate<T>(BinaryWriter writer, T instance, Encoding encoding);
+	delegate void SerializeDelegate<T>(BinaryWriter writer, T instance, Encoding encoding);
 
-	internal delegate T DeserializeDelegate<T>(BinaryReader reader, Encoding encoding);
+	delegate T DeserializeDelegate<T>(BinaryReader reader, Encoding encoding);
 
 
 	class BoisComputedTypeInfo
 	{
-		internal Delegate WriterDelegate { get; set; }
+		internal Delegate WriterDelegate;
 
-		internal Delegate ReaderDelegate { get; set; }
+		internal Delegate ReaderDelegate;
+
+		internal MethodInfo WriterMethod;
+
+		internal MethodInfo ReaderMethod;
 
 		internal void InvokeWriter<T>(BinaryWriter writer, T instance, Encoding encoding)
 		{

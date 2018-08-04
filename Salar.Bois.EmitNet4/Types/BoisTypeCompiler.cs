@@ -1,5 +1,4 @@
-﻿#define DebugSaveAsAssembly
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -11,6 +10,13 @@ namespace Salar.Bois.Types
 {
 	sealed class BoisTypeCompiler
 	{
+		internal struct ComputeResult
+		{
+			public Delegate Delegate;
+
+			public MethodInfo Method;
+		}
+
 		internal static string GetTypeMethodName(Type type, bool serialize)
 		{
 			var rnd = new Random();
@@ -19,37 +25,53 @@ namespace Salar.Bois.Types
 			return $"Computed_{type.Name}_{nameExtension}_{rnd.Next()}";
 		}
 
+#if EmitAssemblyOut
+		private static TypeBuilder _computeWriterSaveAssModule = null;
 
-		public static Delegate ComputeWriter(Type type, BoisComplexTypeInfo typeInfo)
+		internal static ComputeResult ComputeWriterSaveAss(Type type, BoisComplexTypeInfo typeInfo)
 		{
-#if DebugSaveAsAssembly
+			var saveAssembly = _computeWriterSaveAssModule == null;
+
 			var name = GetTypeMethodName(type, true) + ".exe";
-			var assemblyName = new AssemblyName(name);
+			var methodName = name;
 
-			var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
-				name: assemblyName,
-				access: AssemblyBuilderAccess.RunAndSave);
+			TypeBuilder programmClass;
+			AssemblyBuilder assemblyBuilder = null;
+			if (_computeWriterSaveAssModule == null)
+			{
+				var assemblyName = new AssemblyName(name);
 
-			var moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
+				assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
+					name: assemblyName,
+					access: AssemblyBuilderAccess.RunAndSave);
 
-			var programmClass = moduleBuilder.DefineType("Program", TypeAttributes.Public);
+				var moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
+				programmClass = moduleBuilder.DefineType("Program", TypeAttributes.Public);
 
-			var mainMethod = programmClass.DefineMethod(name: "Main",
-				attributes: MethodAttributes.Public | MethodAttributes.Static,
-				returnType: null,
-				parameterTypes: new Type[] { typeof(string[]) });
+				_computeWriterSaveAssModule = programmClass;
 
-			var mailIl = mainMethod.GetILGenerator();
-			mainMethod.InitLocals = true;
-			mailIl.DeclareLocal(typeof(string));
+				var mainMethod = programmClass.DefineMethod(name: "Main",
+					attributes: MethodAttributes.Public | MethodAttributes.Static,
+					returnType: null,
+					parameterTypes: new Type[] { typeof(string[]) });
 
-			mailIl.Emit(OpCodes.Ldstr, "Hello World!");
-			mailIl.Emit(OpCodes.Stloc_0);
-			mailIl.Emit(OpCodes.Ldloc_0);
-			mailIl.Emit(OpCodes.Call, (typeof(Console)).GetMethod("WriteLine", new Type[] { typeof(string) }));
-			mailIl.Emit(OpCodes.Call, (typeof(Console)).GetMethod("ReadKey", new Type[0]));
-			mailIl.Emit(OpCodes.Pop);
-			mailIl.Emit(OpCodes.Ret);
+				var mailIl = mainMethod.GetILGenerator();
+				mainMethod.InitLocals = true;
+				mailIl.DeclareLocal(typeof(string));
+
+				mailIl.Emit(OpCodes.Ldstr, "Hello World!");
+				mailIl.Emit(OpCodes.Stloc_0);
+				mailIl.Emit(OpCodes.Ldloc_0);
+				mailIl.Emit(OpCodes.Call, (typeof(Console)).GetMethod("WriteLine", new Type[] { typeof(string) }));
+				mailIl.Emit(OpCodes.Call, (typeof(Console)).GetMethod("ReadKey", new Type[0]));
+				mailIl.Emit(OpCodes.Pop);
+				mailIl.Emit(OpCodes.Ret);
+			}
+			else
+			{
+				programmClass = _computeWriterSaveAssModule;
+				methodName = GetTypeMethodName(type, true);
+			}
 
 			var ilMethod = programmClass.DefineMethod(
 				name: GetTypeMethodName(type, serialize: true),
@@ -61,21 +83,56 @@ namespace Salar.Bois.Types
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "writer");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "instance");
 			ilMethod.DefineParameter(3, ParameterAttributes.None, "encoding");
-#else
+
+			var il = ilMethod.GetILGenerator();
+
+			ComputeWriter(il, type, typeInfo);
+
+			// never forget
+			il.Emit(OpCodes.Ret);
+
+
+			if (saveAssembly)
+			{
+				var generatedType = programmClass.CreateType();
+
+				assemblyBuilder.SetEntryPoint(((Type)programmClass).GetMethod("Main"));
+				assemblyBuilder.Save(name);
+
+				var delegateType = typeof(SerializeDelegate<>).MakeGenericType(type);
+				var writerDelegate = generatedType.GetMethod(ilMethod.Name).CreateDelegate(delegateType);
+
+				return new ComputeResult()
+				{
+					Method = ilMethod,
+					Delegate = writerDelegate
+				};
+			}
+
+
+			return new ComputeResult()
+			{
+				Method = ilMethod,
+				Delegate = null
+			};
+		}
+#endif
+
+		public static ComputeResult ComputeWriter(Type type, BoisComplexTypeInfo typeInfo, Module containerModule = null)
+		{
+			var module = containerModule ?? typeof(BoisSerializer).Module;
+
 			var ilMethod = new DynamicMethod(
 				name: GetTypeMethodName(type, serialize: true),
 				returnType: null,
 				// Arg0: BinaryWriter, Arg1: instance, Arg2: Encoding
 				parameterTypes: new[] { typeof(BinaryWriter), type/*typeof(object)*/, typeof(Encoding) },
-				m: typeof(BoisSerializer).Module,
-
+				m: module,
 				skipVisibility: true);
 #if NetFX
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "writer");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "instance");
 			ilMethod.DefineParameter(3, ParameterAttributes.None, "encoding");
-#endif
-
 #endif
 
 			var il = ilMethod.GetILGenerator();
@@ -85,27 +142,21 @@ namespace Salar.Bois.Types
 			// never forget
 			il.Emit(OpCodes.Ret);
 
-#if DebugSaveAsAssembly
-			programmClass.CreateType();
-
-			assemblyBuilder.SetEntryPoint(((Type)programmClass).GetMethod("Main"));
-
-			assemblyBuilder.Save(name);
-
- 
-			//throw new NotImplementedException("این آخرشه");
-			return null;
-#endif
-
 			var delegateType = typeof(SerializeDelegate<>).MakeGenericType(type);
 
 			// the serializer method is ready
 			var writerDelegate = ilMethod.CreateDelegate(delegateType);
 
-			return writerDelegate;
+			return new ComputeResult()
+			{
+				Delegate = writerDelegate,
+				Method = ilMethod
+			};
 		}
 
-		private static void ComputeWriter(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
+
+
+		internal static void ComputeWriter(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
 		{
 			switch (typeInfo.ComplexKnownType)
 			{
@@ -152,10 +203,25 @@ namespace Salar.Bois.Types
 				return;
 			}
 
+			//TODO: check the impact of removing object count
+			WriteRootObjectMembersCount(il, typeInfo);
+
 			foreach (var member in typeInfo.Members)
 			{
 				WriteRootObjectMember(member, il);
 			}
+		}
+
+		private static void WriteRootObjectMembersCount(ILGenerator il, BoisComplexTypeInfo typeInfo)
+		{
+			var memberCount = typeInfo.Members.Length;
+
+			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldc_I4_S, memberCount);
+			il.Emit(OpCodes.Newobj, typeof(int?).GetConstructor(new[] { typeof(int) }));
+			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(int?) }, null));
+			il.Emit(OpCodes.Nop);
 		}
 
 		private static void WriteRootObjectMember(MemberInfo member, ILGenerator il)
@@ -208,17 +274,11 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnComplexKnownType.UnknownArray:
-					if (prop != null)
-						EmitGenerator.WriteUnknownArray(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.WriteUnknownArray(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteUnknownArray(prop, field, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.NameValueColl:
-					if (prop != null)
-						EmitGenerator.WriteNameValueColl(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.WriteNameValueColl(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteNameValueColl(prop, field, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.ISet:
@@ -444,36 +504,52 @@ namespace Salar.Bois.Types
 			il.Emit(OpCodes.Stloc_0);
 		}
 
-		public static Delegate ComputeReader(Type type, BoisComplexTypeInfo typeInfo)
+#if EmitAssemblyOut
+		private static TypeBuilder _computeReaderSaveAssModule = null;
+
+		public static ComputeResult ComputeReaderSaveAss(Type type, BoisComplexTypeInfo typeInfo)
 		{
-#if DebugSaveAsAssembly
+			var saveAssembly = _computeReaderSaveAssModule == null;
+
 			var name = GetTypeMethodName(type, false) + ".exe";
-			var assemblyName = new AssemblyName(name);
+			
+			AssemblyBuilder assemblyBuilder = null;
+			TypeBuilder programmClass;
+			if (_computeReaderSaveAssModule == null)
+			{
+				var assemblyName = new AssemblyName(name);
 
-			var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
-				name: assemblyName,
-				access: AssemblyBuilderAccess.RunAndSave);
+				assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
+					name: assemblyName,
+					access: AssemblyBuilderAccess.RunAndSave);
 
-			var moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
+				var moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
 
-			var programmClass = moduleBuilder.DefineType("Program", TypeAttributes.Public);
+				programmClass = moduleBuilder.DefineType("Program", TypeAttributes.Public);
+				_computeReaderSaveAssModule = programmClass;
 
-			var mainMethod = programmClass.DefineMethod(name: "Main",
-				attributes: MethodAttributes.Public | MethodAttributes.Static,
-				returnType: null,
-				parameterTypes: new Type[] { typeof(string[]) });
+				var mainMethod = programmClass.DefineMethod(name: "Main",
+					attributes: MethodAttributes.Public | MethodAttributes.Static,
+					returnType: null,
+					parameterTypes: new Type[] { typeof(string[]) });
 
-			var mailIl = mainMethod.GetILGenerator();
-			mainMethod.InitLocals = true;
-			mailIl.DeclareLocal(typeof(string));
+				var mailIl = mainMethod.GetILGenerator();
+				mainMethod.InitLocals = true;
+				mailIl.DeclareLocal(typeof(string));
 
-			mailIl.Emit(OpCodes.Ldstr, "Hello World!");
-			mailIl.Emit(OpCodes.Stloc_0);
-			mailIl.Emit(OpCodes.Ldloc_0);
-			mailIl.Emit(OpCodes.Call, (typeof(Console)).GetMethod("WriteLine", new Type[] { typeof(string) }));
-			mailIl.Emit(OpCodes.Call, (typeof(Console)).GetMethod("ReadKey", new Type[0]));
-			mailIl.Emit(OpCodes.Pop);
-			mailIl.Emit(OpCodes.Ret);
+				mailIl.Emit(OpCodes.Ldstr, "Hello World!");
+				mailIl.Emit(OpCodes.Stloc_0);
+				mailIl.Emit(OpCodes.Ldloc_0);
+				mailIl.Emit(OpCodes.Call, (typeof(Console)).GetMethod("WriteLine", new Type[] { typeof(string) }));
+				mailIl.Emit(OpCodes.Call, (typeof(Console)).GetMethod("ReadKey", new Type[0]));
+				mailIl.Emit(OpCodes.Pop);
+				mailIl.Emit(OpCodes.Ret);
+			}
+			else
+			{
+				programmClass = _computeReaderSaveAssModule;
+			}
+
 
 			var ilMethod = programmClass.DefineMethod(
 				name: GetTypeMethodName(type, serialize: false),
@@ -484,21 +560,59 @@ namespace Salar.Bois.Types
 
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "reader");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "encoding");
-#else
+
+
+			var il = ilMethod.GetILGenerator();
+			ComputeReaderTypeCreation(il, type);
+			ComputeReader(il, type, typeInfo);
+
+			// never forget
+			il.Emit(OpCodes.Ldloc_0);
+			il.Emit(OpCodes.Ret);
+
+			if (saveAssembly)
+			{
+				var generatedType = programmClass.CreateType();
+				assemblyBuilder.SetEntryPoint(((Type)programmClass).GetMethod("Main"));
+				assemblyBuilder.Save(name);
+
+				var delegateType = typeof(DeserializeDelegate<>).MakeGenericType(type);
+				var readerDelegate = generatedType.GetMethod(ilMethod.Name).CreateDelegate(delegateType);
+
+				return new ComputeResult()
+				{
+					Method = ilMethod,
+					Delegate = readerDelegate
+				};
+			}
+
+			return new ComputeResult()
+			{
+				Method = ilMethod,
+				Delegate = null
+			};
+		}
+#endif
+
+		public static ComputeResult ComputeReader(Type type, BoisComplexTypeInfo typeInfo, Module containerModule = null)
+		{
+			Module module = null;
+			if (containerModule == null)
+				module = typeof(BoisSerializer).Module;
+			else
+				module = containerModule;
+
 			var ilMethod = new DynamicMethod(
-				name: GetTypeMethodName(type, serialize: false),
-				returnType: type,
-				// Arg0: BinaryWriter, Arg1: Encoding
-				parameterTypes: new[] { typeof(BinaryReader), typeof(Encoding) },
-				m: typeof(BoisSerializer).Module,
-				skipVisibility: true);
+			   name: GetTypeMethodName(type, serialize: false),
+			   returnType: type,
+			   // Arg0: BinaryWriter, Arg1: Encoding
+			   parameterTypes: new[] { typeof(BinaryReader), typeof(Encoding) },
+			   m: module,
+			   skipVisibility: true);
 #if NetFX
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "reader");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "encoding");
 #endif
-
-#endif
-
 
 			var il = ilMethod.GetILGenerator();
 
@@ -510,21 +624,15 @@ namespace Salar.Bois.Types
 			il.Emit(OpCodes.Ret);
 
 
-#if DebugSaveAsAssembly
-			programmClass.CreateType();
-
-			assemblyBuilder.SetEntryPoint(((Type)programmClass).GetMethod("Main"));
-
-			assemblyBuilder.Save(name);
-
-			//throw new NotImplementedException("این آخرشه");
-			return null;
-#endif
-			var delegateType = typeof(SerializeDelegate<>).MakeGenericType(type);
+			var delegateType = typeof(DeserializeDelegate<>).MakeGenericType(type);
 
 			// the serializer method is ready
 			var readerDelegate = ilMethod.CreateDelegate(delegateType);
-			return readerDelegate;
+			return new ComputeResult()
+			{
+				Method = ilMethod,
+				Delegate = readerDelegate
+			};
 		}
 
 

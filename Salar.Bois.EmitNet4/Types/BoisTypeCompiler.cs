@@ -267,10 +267,7 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnComplexKnownType.Dictionary:
-					if (prop != null)
-						EmitGenerator.WriteDictionary(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.WriteDictionary(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteDictionary(prop, field, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.UnknownArray:
@@ -312,110 +309,64 @@ namespace Salar.Bois.Types
 		{
 			switch (basicInfo.KnownType)
 			{
-
 				case EnBasicKnownType.String:
-					if (prop != null)
-						EmitGenerator.WriteString(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteString(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteString(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Bool:
-					if (prop != null)
-						EmitGenerator.WriteBool(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteBool(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteBool(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Int16:
-					if (prop != null)
-						EmitGenerator.WriteInt16(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteInt16(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteInt16(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Int32:
-					if (prop != null)
-						EmitGenerator.WriteInt32(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteInt32(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteInt32(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Int64:
-					if (prop != null)
-						EmitGenerator.WriteInt64(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteInt64(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteInt64(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.UInt16:
-					if (prop != null)
-						EmitGenerator.WriteUInt16(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteUInt16(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteUInt16(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.UInt32:
-					if (prop != null)
-						EmitGenerator.WriteUInt32(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteUInt32(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteUInt32(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.UInt64:
-					if (prop != null)
-						EmitGenerator.WriteUInt64(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteUInt64(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteUInt64(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Double:
-					if (prop != null)
-						EmitGenerator.WriteDouble(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteDouble(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDouble(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Decimal:
-					if (prop != null)
-						EmitGenerator.WriteDecimal(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteDecimal(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDecimal(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Single:
-					if (prop != null)
-						EmitGenerator.WriteFloat(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteFloat(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteFloat(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Byte:
-					if (prop != null)
-						EmitGenerator.WriteByte(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteByte(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteByte(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.SByte:
-					if (prop != null)
-						EmitGenerator.WriteSByte(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteSByte(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteSByte(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DateTime:
-					if (prop != null)
-						EmitGenerator.WriteDateTime(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteDateTime(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDateTime(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DateTimeOffset:
-					if (prop != null)
-						EmitGenerator.WriteDateTimeOffset(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteDateTimeOffset(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDateTimeOffset(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.KnownTypeArray:
@@ -423,71 +374,154 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnBasicKnownType.ByteArray:
-					if (prop != null)
-						EmitGenerator.WriteByteArray(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteByteArray(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteByteArray(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Enum:
-					if (prop != null)
-						EmitGenerator.WriteEnum(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteEnum(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteEnum(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.TimeSpan:
-					if (prop != null)
-						EmitGenerator.WriteTimeSpan(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteTimeSpan(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteTimeSpan(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Char:
-					if (prop != null)
-						EmitGenerator.WriteChar(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteChar(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteChar(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Guid:
-					if (prop != null)
-						EmitGenerator.WriteGuid(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteGuid(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteGuid(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Color:
-					if (prop != null)
-						EmitGenerator.WriteColor(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteColor(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteColor(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DbNull:
-					if (prop != null)
-						EmitGenerator.WriteDbNull(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteDbNull(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDbNull(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Uri:
-					if (prop != null)
-						EmitGenerator.WriteUri(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteUri(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteUri(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Version:
-					if (prop != null)
-						EmitGenerator.WriteVersion(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.WriteVersion(field, il, basicInfo.IsNullable);
+					EmitGenerator.WriteVersion(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				default:
 				case EnBasicKnownType.Unknown:
 					return;
+			}
+		}
+
+		internal static void WriteBasicTypeDirectly(ILGenerator il, BoisBasicTypeInfo keyTypeBasicInfo, Func<Type> valueLoader)
+		{
+			switch (keyTypeBasicInfo.KnownType)
+			{
+				case EnBasicKnownType.String:
+					EmitGenerator.WriteString(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Bool:
+					EmitGenerator.WriteBool(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Int16:
+					EmitGenerator.WriteInt16(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Int32:
+					EmitGenerator.WriteInt32(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Int64:
+					EmitGenerator.WriteInt64(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.UInt16:
+					EmitGenerator.WriteUInt16(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.UInt32:
+					EmitGenerator.WriteUInt32(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.UInt64:
+					EmitGenerator.WriteUInt64(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Double:
+					EmitGenerator.WriteDouble(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Decimal:
+					EmitGenerator.WriteDecimal(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Single:
+					EmitGenerator.WriteFloat(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Byte:
+					EmitGenerator.WriteByte(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.SByte:
+					EmitGenerator.WriteSByte(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DateTime:
+					EmitGenerator.WriteDateTime(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DateTimeOffset:
+					EmitGenerator.WriteDateTimeOffset(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.KnownTypeArray:
+					//WriteKnownTypeArray(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.ByteArray:
+					EmitGenerator.WriteByteArray(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Enum:
+					EmitGenerator.WriteEnum(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.TimeSpan:
+					EmitGenerator.WriteTimeSpan(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Char:
+					EmitGenerator.WriteChar(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Guid:
+					EmitGenerator.WriteGuid(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Color:
+					EmitGenerator.WriteColor(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DbNull:
+					EmitGenerator.WriteDbNull(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Uri:
+					EmitGenerator.WriteUri(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Version:
+					EmitGenerator.WriteVersion(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Unknown:
+				default:
+					throw new ArgumentOutOfRangeException("keyTypeBasicInfo.KnownType");
 			}
 		}
 
@@ -512,7 +546,7 @@ namespace Salar.Bois.Types
 			var saveAssembly = _computeReaderSaveAssModule == null;
 
 			var name = GetTypeMethodName(type, false) + ".exe";
-			
+
 			AssemblyBuilder assemblyBuilder = null;
 			TypeBuilder programmClass;
 			if (_computeReaderSaveAssModule == null)

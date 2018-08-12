@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Salar.Bois.Types;
+using System.Data;
 
 // ReSharper disable AssignNullToNotNullAttribute
 
@@ -18,8 +19,6 @@ namespace Salar.Bois.Serializers
 {
 	class EmitGenerator
 	{
-
-
 
 		#region Write Root Complex Types
 
@@ -681,7 +680,6 @@ namespace Salar.Bois.Serializers
 		}
 
 
-
 		internal static void WriteVersion(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
@@ -735,6 +733,10 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
+		internal static void WriteKnownTypeArray(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		{
+			WriteUnknownArray(prop, field, valueLoader, il, nullable);
+		}
 		#endregion
 
 		#region Write Complex Types
@@ -1147,8 +1149,7 @@ namespace Salar.Bois.Serializers
 			il.MarkLabel(codeEnds);
 		}
 
-
-		internal static void WriteUnknownArray(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable)
+		internal static void WriteUnknownArray(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
 			/*
 			var arr = instance.UnknownArray1;
@@ -1172,8 +1173,6 @@ namespace Salar.Bois.Serializers
 			var codeEnds = il.DefineLabel();
 			var loopStart = il.DefineLabel();
 
-			LocalBuilder instanceVar;
-
 			// var arr = instance.UnknownArray1;
 			il.Emit(OpCodes.Ldarg_1); // instance
 
@@ -1181,17 +1180,20 @@ namespace Salar.Bois.Serializers
 			{
 				arrayType = prop.PropertyType;
 
-				instanceVar = il.DeclareLocal(arrayType);
 				var getter = prop.GetGetMethod(true);
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
-			else
+			else if (field != null)
 			{
 				arrayType = field.FieldType;
 
-				instanceVar = il.DeclareLocal(arrayType);
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
+			else
+			{
+				arrayType = valueLoader();
+			}
+			var instanceVar = il.DeclareLocal(arrayType);
 			il.StoreLocal(instanceVar);
 
 			// item type
@@ -1246,16 +1248,38 @@ namespace Salar.Bois.Serializers
 					enumuratorType.GetMethod(nameof(IEnumerator.MoveNext)));
 				il.Emit(OpCodes.Brfalse_S, codeEnds);
 
-				var typeInfo = BoisTypeCache.GetRootTypeComputed(arrItemType, false, true);
+				// ---------------
+				var keyTypeBasicInfo = BoisTypeCache.GetBasicType(arrItemType);
+				if (keyTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
+				{
 
-				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
-				il.LoadLocal(enumurator);
-				il.Emit(OpCodes.Callvirt,
-					// ReSharper disable once PossibleNullReferenceException
-					enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod());
-				il.Emit(OpCodes.Castclass, arrItemType);
-				il.Emit(OpCodes.Ldarg_2); // Encoding
-				il.Emit(OpCodes.Call, meth: typeInfo.WriterMethod);
+					BoisTypeCompiler.WriteBasicTypeDirectly(il, keyTypeBasicInfo,
+						() =>
+						{
+							// read the array item
+							il.LoadLocal(enumurator);
+							il.Emit(OpCodes.Callvirt,
+								// ReSharper disable once PossibleNullReferenceException
+								enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod());
+							il.Emit(OpCodes.Castclass, arrItemType);
+
+							return arrItemType;
+						});
+				}
+				else
+				{
+					// for complex types, a method is generated
+					var typeInfo = BoisTypeCache.GetRootTypeComputed(arrItemType, false, true);
+
+					il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+					il.LoadLocal(enumurator);
+					il.Emit(OpCodes.Callvirt,
+						// ReSharper disable once PossibleNullReferenceException
+						enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod());
+					il.Emit(OpCodes.Castclass, arrItemType);
+					il.Emit(OpCodes.Ldarg_2); // Encoding
+					il.Emit(OpCodes.Call, meth: typeInfo.WriterMethod);
+				}
 
 				il.Emit(OpCodes.Nop);
 				il.Emit(OpCodes.Br_S, loopStart);
@@ -1401,34 +1425,63 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteISet(PropertyInfo prop, ILGenerator il, bool nullable)
+		internal static void WriteISet(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable)
 		{
-
+			WriteCollection(prop, field, il, nullable);
 		}
 
-		internal static void WriteISet(FieldInfo field, ILGenerator il, bool nullable)
-		{
 
+		internal static void WriteDataSet(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		{
+			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			if (prop != null)
+			{
+				var getter = prop.GetGetMethod(true);
+
+				il.Emit(OpCodes.Ldarg_1); // instance
+				il.Emit(OpCodes.Callvirt, meth: getter);
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Ldarg_1); // instance
+				il.Emit(OpCodes.Ldfld, field: field);
+			}
+			else
+			{
+				valueLoader();
+			}
+
+			var methodArg = new[] { typeof(BinaryWriter), typeof(DataSet) };
+			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
+			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteDataSet(PropertyInfo prop, ILGenerator il, bool nullable)
+
+		internal static void WriteDataTable(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
+			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			if (prop != null)
+			{
+				var getter = prop.GetGetMethod(true);
 
-		}
+				il.Emit(OpCodes.Ldarg_1); // instance
+				il.Emit(OpCodes.Callvirt, meth: getter);
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Ldarg_1); // instance
+				il.Emit(OpCodes.Ldfld, field: field);
+			}
+			else
+			{
+				valueLoader();
+			}
 
-		internal static void WriteDataSet(FieldInfo field, ILGenerator il, bool nullable)
-		{
-
-		}
-
-		internal static void WriteDataTable(PropertyInfo prop, ILGenerator il, bool nullable)
-		{
-
-		}
-
-		internal static void WriteDataTable(FieldInfo field, ILGenerator il, bool nullable)
-		{
-
+			var methodArg = new[] { typeof(BinaryWriter), typeof(DataTable) };
+			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
+			il.Emit(OpCodes.Nop);
 		}
 
 
@@ -2462,6 +2515,8 @@ namespace Salar.Bois.Serializers
 
 
 		#endregion
+
+
 	}
 
 	static class IlExtensions

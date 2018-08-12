@@ -269,7 +269,7 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnComplexKnownType.UnknownArray:
-					EmitGenerator.WriteUnknownArray(prop, field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteUnknownArray(prop, field, null, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.NameValueColl:
@@ -277,24 +277,15 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnComplexKnownType.ISet:
-					if (prop != null)
-						EmitGenerator.WriteISet(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.WriteISet(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteISet(prop, field, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.DataSet:
-					if (prop != null)
-						EmitGenerator.WriteDataSet(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.WriteDataSet(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteDataSet(prop, field, null, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.DataTable:
-					if (prop != null)
-						EmitGenerator.WriteDataTable(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.WriteDataTable(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteDataTable(prop, field, null, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.Unknown:
@@ -368,7 +359,7 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnBasicKnownType.KnownTypeArray:
-					// TODO:
+					EmitGenerator.WriteKnownTypeArray(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.ByteArray:
@@ -478,7 +469,7 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnBasicKnownType.KnownTypeArray:
-					//WriteKnownTypeArray(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					EmitGenerator.WriteKnownTypeArray(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.ByteArray:

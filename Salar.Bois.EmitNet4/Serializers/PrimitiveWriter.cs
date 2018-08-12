@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -349,7 +350,75 @@ namespace Salar.Bois.Serializers
 			NumericSerializers.WriteVarInt(writer, argb);
 		}
 
+		/// <summary>
+		/// Obsolete - only background compability
+		/// </summary>
+		internal static void WriteValue(BinaryWriter writer, DataSet ds, Encoding encoding)
+		{
+			if (ds == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+			var xml = SerializeDataTable(ds);
+			WriteValue(writer, xml, encoding);
+		}
 
+		/// <summary>
+		/// Obsolete - only background compability
+		/// </summary>
+		internal static void WriteValue(BinaryWriter writer, DataTable dt, Encoding encoding)
+		{
+			if (dt == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+			var xml = SerializeDataTable(dt);
+			WriteValue(writer, xml, encoding);
+		}
+
+
+
+		#region Private helpers
+
+		private static string SerializeDataTable(DataTable dt)
+		{
+			using (var writer = new StringWriter())
+			{
+				dt.WriteXml(writer, XmlWriteMode.WriteSchema);
+				return writer.ToString();
+			}
+		}
+
+		private static string SerializeDataTable(DataSet dt)
+		{
+			using (var writer = new StringWriter())
+			{
+				dt.WriteXml(writer, XmlWriteMode.WriteSchema);
+				return writer.ToString();
+			}
+		}
+
+
+		private static DataSet DeserializeDataSet(string data)
+		{
+			var ds = new DataSet();
+			ds.ReadXml(data);
+
+			return ds;
+		}
+
+		private static DataTable DeserializeDataTable(string data)
+		{
+			var dt = new DataTable();
+			dt.ReadXml(data);
+
+			return dt;
+		}
+
+
+		#endregion
 
 	}
 }

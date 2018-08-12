@@ -626,7 +626,7 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
- 
+
 		internal static void WriteDbNull(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
@@ -652,7 +652,7 @@ namespace Salar.Bois.Serializers
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
 		}
- 
+
 
 		internal static void WriteUri(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
@@ -680,7 +680,7 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
- 
+
 
 		internal static void WriteVersion(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
@@ -708,7 +708,7 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
- 
+
 		internal static void WriteByteArray(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
@@ -734,29 +734,223 @@ namespace Salar.Bois.Serializers
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
 		}
- 
+
 		#endregion
 
 		#region Write Complex Types
 
 
-		internal static void WriteCollection(PropertyInfo prop, ILGenerator il, bool nullable)
+		internal static void WriteCollection(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable)
 		{
+			/*
+			var list1 = instance.GenericList;
+			if (list1 == null)
+			{
+				PrimitiveWriter.WriteNullValue(writer);
+			}
+			else
+			{
+				NumericSerializers.WriteVarInt(writer, list1.Count);
+				using (var enumurator = list1.GetEnumerator())
+					while (enumurator.MoveNext())
+					{
+						var item = enumurator.Current;
+						NumericSerializers.WriteVarInt(writer, item);
+					}
+			}
+			*/
 
-		}
+			var actualCode = il.DefineLabel();
+			var codeEnds = il.DefineLabel();
+			var loopStart = il.DefineLabel();
 
-		internal static void WriteDCollection(FieldInfo field, ILGenerator il, bool nullable)
-		{
+			LocalBuilder instanceVar;
+			Type collectionType;
 
-		}
 
-		internal static void WriteDictionary(PropertyInfo prop, ILGenerator il, bool nullable)
-		{
+			// var dic  = instance.GenericDictionary;
+			il.Emit(OpCodes.Ldarg_1); // instance
+			if (prop != null)
+			{
+				collectionType = prop.PropertyType;
 
+				instanceVar = il.DeclareLocal(collectionType);
+				var getter = prop.GetGetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: getter);
+			}
+			else
+			{
+				collectionType = field.FieldType;
+
+				instanceVar = il.DeclareLocal(collectionType);
+				il.Emit(OpCodes.Ldfld, field: field);
+			}
+			il.StoreLocal(instanceVar);
+
+
+			// if (dic == null)
+			il.LoadLocal(instanceVar); // instance dic
+			il.Emit(OpCodes.Brtrue_S, actualCode); // jump to not null
+
+
+			// PrimitiveWriter.WriteNullValue(writer);
+			{
+				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Call,
+					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
+				il.Emit(OpCodes.Br_S, codeEnds);
+			}
+
+			// NumericSerializers.WriteVarInt(writer, (int?)coll.Count);
+			il.MarkLabel(actualCode);
+
+			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.LoadLocal(instanceVar); // instance coll
+			il.Emit(OpCodes.Callvirt,
+				// ReSharper disable once PossibleNullReferenceException
+				meth: collectionType.GetProperty(nameof(ICollection.Count)).GetGetMethod());
+			il.Emit(OpCodes.Newobj, typeof(int?).GetConstructor(new[] { typeof(int) }));
+			il.Emit(OpCodes.Call,
+				meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(int?) }, null));
+			il.Emit(OpCodes.Nop);
+
+
+			// IEnumerator enumerator = nameValueCollection.GetEnumerator();
+			il.LoadLocal(instanceVar); // instance coll
+			var getEnumeratorMethodInfo =
+				collectionType.GetMethod(nameof(ICollection.GetEnumerator), BindingFlags.Instance | BindingFlags.Public) ??
+				typeof(IEnumerable<>)
+					.MakeGenericType(collectionType.GetGenericArguments()[0]).GetMethod(nameof(IEnumerable.GetEnumerator));
+			il.Emit(OpCodes.Callvirt, getEnumeratorMethodInfo);
+
+			var enumuratorType = getEnumeratorMethodInfo.ReturnType;
+			var enumurator = il.DeclareLocal(enumuratorType);
+			il.StoreLocal(enumurator);
+
+			var block = il.BeginExceptionBlock();
+			{
+				var blockEnd = il.DefineLabel();
+
+				//while (enumerator.MoveNext())
+				il.MarkLabel(loopStart);
+
+				il.LoadLocal(enumurator);
+				var moveNextInfo = enumuratorType.GetMethod(nameof(IEnumerator.MoveNext));
+				if (moveNextInfo != null)
+				{
+					il.Emit(OpCodes.Call, moveNextInfo);
+				}
+				else
+				{
+					moveNextInfo = typeof(IEnumerator).GetMethod(nameof(IEnumerator.MoveNext));
+					il.Emit(OpCodes.Callvirt, moveNextInfo);
+				}
+
+				il.Emit(OpCodes.Brfalse_S, blockEnd);
+
+				// reading key-value type
+				var genericTypes = enumuratorType.GetGenericArguments();
+				if (genericTypes.Length == 0)
+				{
+					var dictionaryBaseType = ReflectionHelper.FindUnderlyingGenericElementType(collectionType);
+					genericTypes = dictionaryBaseType.GetGenericArguments();
+				}
+				var valueType = genericTypes[0];
+
+				// var item = arrEnumurator.Current;
+				var dicItemType = valueType;
+				var dicItemVar = il.DeclareLocal(dicItemType);
+				il.LoadLocal(enumurator);
+
+				// ReSharper disable once PossibleNullReferenceException
+				var getCurrentInfo = enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod();
+				if (enumuratorType.IsValueType)
+				{
+					il.Emit(OpCodes.Call, getCurrentInfo);
+				}
+				else
+				{
+					il.Emit(OpCodes.Callvirt, getCurrentInfo);
+				}
+				il.StoreLocal(dicItemVar);
+
+
+				// VALUE -------------
+				var valueTypeBasicInfo = BoisTypeCache.GetBasicType(valueType);
+				if (valueTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
+				{
+					BoisTypeCompiler.WriteBasicTypeDirectly(il, valueTypeBasicInfo,
+						() =>
+						{
+							// read the key
+							il.LoadLocal(dicItemVar);
+
+							return valueType;
+						});
+				}
+				else
+				{
+					// for complex types, a method is generated
+					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(valueType, false, true);
+
+					il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+					il.LoadLocal(dicItemVar);
+					il.Emit(OpCodes.Ldarg_2); // Encoding
+					il.Emit(OpCodes.Call, meth: valueTypeInfo.WriterMethod);
+				}
+
+				// end of loop
+				il.Emit(OpCodes.Br_S, loopStart);
+
+				// end of block
+				il.MarkLabel(blockEnd);
+			}
+			il.BeginFinallyBlock();
+			{
+				if (typeof(IDisposable).IsAssignableFrom(enumuratorType))
+				{
+					il.LoadLocal(enumurator);
+					if (enumuratorType.IsValueType)
+						il.Emit(OpCodes.Constrained, enumuratorType);
+					il.Emit(OpCodes.Callvirt,
+						meth: typeof(IDisposable).GetMethod(nameof(IDisposable.Dispose)));
+				}
+#if DEBUG
+				else
+				{
+					il.Emit(OpCodes.Nop);
+				}
+#endif
+				il.Emit(OpCodes.Nop);
+			}
+			il.EndExceptionBlock();
+			il.MarkLabel(codeEnds);
 		}
 
 		internal static void WriteDictionary(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable)
 		{
+			/*
+			var dic = instance.GenericDictionary;
+			if (dic == null)
+			{
+				PrimitiveWriter.WriteNullValue(writer);
+			}
+			else
+			{
+				NumericSerializers.WriteVarInt(writer, dic.Count);
+
+				using (var arrEnumurator = dic.GetEnumerator())
+					while (arrEnumurator.MoveNext())
+					{
+						var item = arrEnumurator.Current;
+						PrimitiveWriter.WriteValue(writer, item.Key, encoding);
+						PrimitiveWriter.WriteValue(writer, item.Value, encoding);
+					}
+			}
+			*/
+
 			var actualCode = il.DefineLabel();
 			var codeEnds = il.DefineLabel();
 			var loopStart = il.DefineLabel();
@@ -785,11 +979,7 @@ namespace Salar.Bois.Serializers
 
 			// if (dic == null)
 			il.LoadLocal(instanceVar); // instance dic
-			il.Emit(OpCodes.Ldnull); // null
-			il.Emit(OpCodes.Ceq); // ==
-
-			il.Emit(OpCodes.Brfalse_S, actualCode); // jump to not null
-			il.Emit(OpCodes.Nop);
+			il.Emit(OpCodes.Brtrue_S, actualCode); // jump to not null
 
 			// PrimitiveWriter.WriteNullValue(writer);
 			{
@@ -797,10 +987,7 @@ namespace Salar.Bois.Serializers
 				il.Emit(OpCodes.Call,
 					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
-				il.Emit(OpCodes.Nop);
-
 				il.Emit(OpCodes.Br_S, codeEnds);
-				il.Emit(OpCodes.Nop);
 			}
 
 			// NumericSerializers.WriteVarInt(writer, coll.Count);
@@ -811,10 +998,10 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Callvirt,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: dictionaryType.GetProperty(nameof(IDictionary.Count)).GetGetMethod());
-			// BUG: this should be int?
+			il.Emit(OpCodes.Newobj, typeof(int?).GetConstructor(new[] { typeof(int) }));
 			il.Emit(OpCodes.Call,
 				meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
-					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(int) }, null));
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(int?) }, null));
 			il.Emit(OpCodes.Nop);
 
 
@@ -830,20 +1017,35 @@ namespace Salar.Bois.Serializers
 
 			var block = il.BeginExceptionBlock();
 			{
+				var blockEnd = il.DefineLabel();
+
 				//while (enumerator.MoveNext())
 				il.MarkLabel(loopStart);
 
 				il.LoadLocal(enumurator);
-				il.Emit(OpCodes.Callvirt,
-					typeof(IEnumerator).GetMethod(nameof(IEnumerator.MoveNext)));
-				il.Emit(OpCodes.Brfalse_S, codeEnds);
+				var moveNextInfo = enumuratorType.GetMethod(nameof(IEnumerator.MoveNext));
+				if (moveNextInfo != null)
+				{
+					il.Emit(OpCodes.Call, moveNextInfo);
+				}
+				else
+				{
+					moveNextInfo = typeof(IEnumerator).GetMethod(nameof(IEnumerator.MoveNext));
+					il.Emit(OpCodes.Callvirt, moveNextInfo);
+				}
+
+				il.Emit(OpCodes.Brfalse_S, blockEnd);
 
 				// reading key-value type
-				var genericTypes = ReflectionHelper.FindUnderlyingGenericDictionaryElementType(dictionaryType);
-				if (genericTypes == null)
+				var genericTypes = enumuratorType.GetGenericArguments();
+				if (genericTypes.Length < 2)
 				{
-					var dictionaryBaseType = ReflectionHelper.FindUnderlyingGenericElementType(dictionaryType);
-					genericTypes = dictionaryBaseType.GetGenericArguments();
+					genericTypes = ReflectionHelper.FindUnderlyingGenericDictionaryElementType(dictionaryType);
+					if (genericTypes == null)
+					{
+						var dictionaryBaseType = ReflectionHelper.FindUnderlyingGenericElementType(dictionaryType);
+						genericTypes = dictionaryBaseType.GetGenericArguments();
+					}
 				}
 				var keyType = genericTypes[0];
 				var valueType = genericTypes[1];
@@ -853,9 +1055,16 @@ namespace Salar.Bois.Serializers
 				var dicItemType = typeof(KeyValuePair<,>).MakeGenericType(new[] { keyType, valueType });
 				var dicItemVar = il.DeclareLocal(dicItemType);
 				il.LoadLocal(enumurator);
-				il.Emit(OpCodes.Callvirt,
-					// ReSharper disable once PossibleNullReferenceException
-					enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod());
+				// ReSharper disable once PossibleNullReferenceException
+				var getCurrentInfo = enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod();
+				if (enumuratorType.IsValueType)
+				{
+					il.Emit(OpCodes.Call, getCurrentInfo);
+				}
+				else
+				{
+					il.Emit(OpCodes.Callvirt, getCurrentInfo);
+				}
 				il.StoreLocal(dicItemVar);
 
 
@@ -920,15 +1129,16 @@ namespace Salar.Bois.Serializers
 					il.Emit(OpCodes.Call, meth: valueTypeInfo.WriterMethod);
 				}
 
-
-				il.Emit(OpCodes.Nop);
 				il.Emit(OpCodes.Br_S, loopStart);
 
+				// end of block
+				il.MarkLabel(blockEnd);
 			}
 			il.BeginFinallyBlock();
 			{
 				il.LoadLocal(enumurator);
-				il.Emit(OpCodes.Castclass, typeof(IDisposable));
+				if (enumuratorType.IsValueType)
+					il.Emit(OpCodes.Constrained, enumuratorType);
 				il.Emit(OpCodes.Callvirt,
 					meth: typeof(IDisposable).GetMethod(nameof(IDisposable.Dispose)));
 				il.Emit(OpCodes.Nop);
@@ -989,11 +1199,8 @@ namespace Salar.Bois.Serializers
 
 			// if (coll == null)
 			il.LoadLocal(instanceVar); // instance arr
-			il.Emit(OpCodes.Ldnull); // null
-			il.Emit(OpCodes.Ceq); // ==
+			il.Emit(OpCodes.Brtrue_S, actualCode); // jump to not null
 
-			il.Emit(OpCodes.Brfalse_S, actualCode); // jump to not null
-			il.Emit(OpCodes.Nop);
 
 			// PrimitiveWriter.WriteNullValue(writer);
 			{
@@ -2261,6 +2468,18 @@ namespace Salar.Bois.Serializers
 	{
 		internal static void LoadLocal(this ILGenerator il, LocalBuilder local)
 		{
+			if (local.LocalType?.IsValueType == true)
+			{
+				if (local.LocalIndex < 256)
+				{
+					il.Emit(OpCodes.Ldloca_S, (byte)local.LocalIndex);
+				}
+				else
+				{
+					il.Emit(OpCodes.Ldloca, local);
+				}
+				return;
+			}
 			switch (local.LocalIndex)
 			{
 				case 0: il.Emit(OpCodes.Ldloc_0); break;

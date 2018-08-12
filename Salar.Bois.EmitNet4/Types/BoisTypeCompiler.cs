@@ -32,6 +32,7 @@ namespace Salar.Bois.Types
 		{
 			var saveAssembly = _computeWriterSaveAssModule == null;
 
+
 			var name = GetTypeMethodName(type, true) + ".exe";
 			var methodName = name;
 
@@ -260,10 +261,7 @@ namespace Salar.Bois.Types
 			switch (complexTypeInfo.ComplexKnownType)
 			{
 				case EnComplexKnownType.Collection:
-					if (prop != null)
-						EmitGenerator.WriteCollection(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.WriteDCollection(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteCollection(prop, field, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.Dictionary:
@@ -545,19 +543,20 @@ namespace Salar.Bois.Types
 		{
 			var saveAssembly = _computeReaderSaveAssModule == null;
 
-			var name = GetTypeMethodName(type, false) + ".exe";
+			var nameAss = GetTypeMethodName(type, false);
+			var nameFile = nameAss + ".exe";
 
 			AssemblyBuilder assemblyBuilder = null;
 			TypeBuilder programmClass;
 			if (_computeReaderSaveAssModule == null)
 			{
-				var assemblyName = new AssemblyName(name);
+				var assemblyName = new AssemblyName(nameAss);
 
 				assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
 					name: assemblyName,
 					access: AssemblyBuilderAccess.RunAndSave);
 
-				var moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
+				var moduleBuilder = assemblyBuilder.DefineDynamicModule(nameAss);
 
 				programmClass = moduleBuilder.DefineType("Program", TypeAttributes.Public);
 				_computeReaderSaveAssModule = programmClass;
@@ -608,7 +607,7 @@ namespace Salar.Bois.Types
 			{
 				var generatedType = programmClass.CreateType();
 				assemblyBuilder.SetEntryPoint(((Type)programmClass).GetMethod("Main"));
-				assemblyBuilder.Save(name);
+				assemblyBuilder.Save(nameFile);
 
 				var delegateType = typeof(DeserializeDelegate<>).MakeGenericType(type);
 				var readerDelegate = generatedType.GetMethod(ilMethod.Name).CreateDelegate(delegateType);

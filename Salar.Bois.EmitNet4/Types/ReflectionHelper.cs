@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -26,6 +27,10 @@ namespace Salar.Bois.Types
 		{
 			if (type.BaseType == null)
 				return null;
+			var generics = type.GetGenericArguments();
+			if (generics.Length > 0)
+				return generics[0];
+
 			foreach (var inter in type.GetInterfaces())
 			{
 				if (inter.IsGenericType)
@@ -45,6 +50,11 @@ namespace Salar.Bois.Types
 		{
 			if (type.BaseType == null)
 				return null;
+
+			var generics = type.GetGenericArguments();
+			if (generics.Length == 2)
+				return generics;
+
 			foreach (var inter in type.GetInterfaces())
 			{
 				if (inter.IsGenericType)
@@ -205,5 +215,66 @@ namespace Salar.Bois.Types
 		}
 
 
+
+		internal class AddMethodInfo
+		{
+			public MethodInfo MethodInfo;
+
+			public bool NeedsArgumentBoxing;
+
+			public bool HasRetunValue;
+		}
+
+		internal static AddMethodInfo GetIListAddMethod(Type collType, Type argType)
+		{
+			MethodInfo result;
+			try
+			{
+				result = collType.GetMethod(nameof(IList.Add), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.DefaultBinder, new[] { argType }, null);
+
+				if (result != null)
+				{
+					var firstArg = result.GetParameters()[0];
+					if (firstArg.ParameterType == argType)
+					{
+						return new AddMethodInfo
+						{
+							MethodInfo = result,
+							HasRetunValue = result.ReturnType != typeof(void)
+						};
+					}
+					if (firstArg.ParameterType == typeof(object))
+					{
+						return new AddMethodInfo
+						{
+							MethodInfo = result,
+							HasRetunValue = result.ReturnType != typeof(void),
+							NeedsArgumentBoxing = true
+						};
+					}
+				}
+			}
+			catch (Exception) { }
+
+			try
+			{
+				result = collType.GetMethod(nameof(IList.Add), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(object) }, null);
+
+				if (result == null)
+				{
+					throw new InvalidTypeException($"Collection type '{collType}' does not have Add method.");
+				}
+				return new AddMethodInfo
+				{
+					MethodInfo = result,
+					HasRetunValue = result.ReturnType != typeof(void),
+					NeedsArgumentBoxing = true
+				};
+			}
+			catch (Exception)
+			{
+				throw new InvalidTypeException($"Collection type '{collType}' does not have valid Add method.");
+			}
+		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,5 +22,10 @@ namespace Salar.Bois.Types
 		public EnBasicKnownType KnownType;
 
 		public bool IsNullable;
+
+		public override string ToString()
+		{
+			return $"{KnownType} {BareType}";
+		}
 	}
 }

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Salar.Bois.Serializers;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
-using Salar.Bois.Serializers;
 // ReSharper disable AssignNullToNotNullAttribute
 
 namespace Salar.Bois.Types
@@ -541,13 +542,13 @@ namespace Salar.Bois.Types
 			TypeBuilder programmClass;
 			if (_computeReaderSaveAssModule == null)
 			{
-				var assemblyName = new AssemblyName(nameAss);
+				var assemblyName = new AssemblyName(nameFile);
 
 				assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
 					name: assemblyName,
 					access: AssemblyBuilderAccess.RunAndSave);
 
-				var moduleBuilder = assemblyBuilder.DefineDynamicModule(nameAss);
+				var moduleBuilder = assemblyBuilder.DefineDynamicModule(nameFile);
 
 				programmClass = moduleBuilder.DefineType("Program", TypeAttributes.Public);
 				_computeReaderSaveAssModule = programmClass;
@@ -717,6 +718,28 @@ namespace Salar.Bois.Types
 			}
 		}
 
+		//class SharedVariables
+		//{
+		//	private readonly ILGenerator _il;
+		//	private List<Type> _variables = new List<Type>();
+
+
+		//	public SharedVariables(ILGenerator il)
+		//	{
+		//		_il = il;
+		//	}
+
+		//	public LocalBuilder GetLocal(Type type)
+		//	{
+		//		var index=_variables.IndexOf(type);
+		//		if (index == -1)
+		//		{
+		//			variable_il.DeclareLocal(type);
+		//		}
+				
+		//	}
+		//}
+
 		private static void ReadRootObject(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
 		{
 			if (typeInfo.Members == null || typeInfo.Members.Length == 0)
@@ -768,10 +791,8 @@ namespace Salar.Bois.Types
 			switch (complexTypeInfo.ComplexKnownType)
 			{
 				case EnComplexKnownType.Collection:
-					if (prop != null)
-						EmitGenerator.ReadCollection(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.ReadCollection(field, il, complexTypeInfo.IsNullable);
+				case EnComplexKnownType.ISet:
+					EmitGenerator.ReadGenericCollection(prop, field, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.Dictionary:
@@ -793,13 +814,6 @@ namespace Salar.Bois.Types
 						EmitGenerator.ReadNameValueColl(prop, il, complexTypeInfo.IsNullable);
 					else
 						EmitGenerator.ReadNameValueColl(field, il, complexTypeInfo.IsNullable);
-					break;
-
-				case EnComplexKnownType.ISet:
-					if (prop != null)
-						EmitGenerator.ReadISet(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.ReadISet(field, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.DataSet:
@@ -827,108 +841,63 @@ namespace Salar.Bois.Types
 			switch (basicInfo.KnownType)
 			{
 				case EnBasicKnownType.String:
-					if (prop != null)
-						EmitGenerator.ReadString(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadString(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadString(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Bool:
-					if (prop != null)
-						EmitGenerator.ReadBool(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadBool(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadBool(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Int16:
-					if (prop != null)
-						EmitGenerator.ReadInt16(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadInt16(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadInt16(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Int32:
-					if (prop != null)
-						EmitGenerator.ReadInt32(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadInt32(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadInt32(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Int64:
-					if (prop != null)
-						EmitGenerator.ReadInt64(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadInt64(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadInt64(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.UInt16:
-					if (prop != null)
-						EmitGenerator.ReadUInt16(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadUInt16(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadUInt16(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.UInt32:
-					if (prop != null)
-						EmitGenerator.ReadUInt32(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadUInt32(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadUInt32(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.UInt64:
-					if (prop != null)
-						EmitGenerator.ReadUInt64(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadUInt64(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadUInt64(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Double:
-					if (prop != null)
-						EmitGenerator.ReadDouble(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadDouble(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadDouble(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Decimal:
-					if (prop != null)
-						EmitGenerator.ReadDecimal(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadDecimal(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadDecimal(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Single:
-					if (prop != null)
-						EmitGenerator.ReadFloat(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadFloat(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadFloat(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Byte:
-					if (prop != null)
-						EmitGenerator.ReadByte(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadByte(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadByte(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.SByte:
-					if (prop != null)
-						EmitGenerator.ReadSByte(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadSByte(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadSByte(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DateTime:
-					if (prop != null)
-						EmitGenerator.ReadDateTime(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadDateTime(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadDateTime(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DateTimeOffset:
-					if (prop != null)
-						EmitGenerator.ReadDateTimeOffset(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadDateTimeOffset(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadDateTimeOffset(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.KnownTypeArray:
@@ -936,66 +905,39 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnBasicKnownType.ByteArray:
-					if (prop != null)
-						EmitGenerator.ReadByteArray(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadByteArray(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadByteArray(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Enum:
-					if (prop != null)
-						EmitGenerator.ReadEnum(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadEnum(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadEnum(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.TimeSpan:
-					if (prop != null)
-						EmitGenerator.ReadTimeSpan(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadTimeSpan(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadTimeSpan(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Char:
-					if (prop != null)
-						EmitGenerator.ReadChar(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadChar(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadChar(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Guid:
-					if (prop != null)
-						EmitGenerator.ReadGuid(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadGuid(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadGuid(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Color:
-					if (prop != null)
-						EmitGenerator.ReadColor(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadColor(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadColor(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DbNull:
-					if (prop != null)
-						EmitGenerator.ReadDbNull(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadDbNull(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadDbNull(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Uri:
-					if (prop != null)
-						EmitGenerator.ReadUri(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadUri(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadUri(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Version:
-					if (prop != null)
-						EmitGenerator.ReadVersion(prop, il, basicInfo.IsNullable);
-					else
-						EmitGenerator.ReadVersion(field, il, basicInfo.IsNullable);
+					EmitGenerator.ReadVersion(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				default:
@@ -1003,5 +945,116 @@ namespace Salar.Bois.Types
 					return;
 			}
 		}
+
+		internal static void ReadBasicTypeDirectly(ILGenerator il, BoisBasicTypeInfo keyTypeBasicInfo, Action valueSetter)
+		{
+			switch (keyTypeBasicInfo.KnownType)
+			{
+				case EnBasicKnownType.String:
+					EmitGenerator.ReadString(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Bool:
+					EmitGenerator.ReadBool(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Int16:
+					EmitGenerator.ReadInt16(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Int32:
+					EmitGenerator.ReadInt32(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Int64:
+					EmitGenerator.ReadInt64(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.UInt16:
+					EmitGenerator.ReadUInt16(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.UInt32:
+					EmitGenerator.ReadUInt32(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.UInt64:
+					EmitGenerator.ReadUInt64(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Double:
+					EmitGenerator.ReadDouble(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Decimal:
+					EmitGenerator.ReadDecimal(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Single:
+					EmitGenerator.ReadFloat(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Byte:
+					EmitGenerator.ReadByte(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.SByte:
+					EmitGenerator.ReadSByte(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DateTime:
+					EmitGenerator.ReadDateTime(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DateTimeOffset:
+					EmitGenerator.ReadDateTimeOffset(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.KnownTypeArray:
+					//EmitGenerator.ReadKnownTypeArray(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.ByteArray:
+					EmitGenerator.ReadByteArray(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Enum:
+					EmitGenerator.ReadEnum(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.TimeSpan:
+					EmitGenerator.ReadTimeSpan(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Char:
+					EmitGenerator.ReadChar(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Guid:
+					EmitGenerator.ReadGuid(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Color:
+					EmitGenerator.ReadColor(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DbNull:
+					EmitGenerator.ReadDbNull(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Uri:
+					EmitGenerator.ReadUri(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Version:
+					EmitGenerator.ReadVersion(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.Unknown:
+				default:
+					throw new ArgumentOutOfRangeException("keyTypeBasicInfo.KnownType");
+			}
+		}
+
 	}
 }

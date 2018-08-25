@@ -68,6 +68,7 @@
     <Compile Include="Types\EnBasicKnownType.cs" />
     <Compile Include="Types\BoisComputedTypeHashtable.cs" />
     <Compile Include="Types\EnComplexKnownType.cs" />
+    <Compile Include="Types\InvalidTypeException.cs" />
     <Compile Include="Types\ReflectionHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

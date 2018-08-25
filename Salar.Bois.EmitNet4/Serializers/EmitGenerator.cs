@@ -1,17 +1,14 @@
-﻿using System;
+﻿using Salar.Bois.Types;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
-using Salar.Bois.Types;
-using System.Data;
 
 // ReSharper disable AssignNullToNotNullAttribute
 
@@ -144,7 +141,6 @@ namespace Salar.Bois.Serializers
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
 		}
-
 
 		internal static void WriteUInt16(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
@@ -597,8 +593,6 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-
-
 		internal static void WriteColor(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
@@ -854,12 +848,20 @@ namespace Salar.Bois.Serializers
 
 				// reading key-value type
 				var genericTypes = enumuratorType.GetGenericArguments();
+				Type valueType = null;
 				if (genericTypes.Length == 0)
 				{
-					var dictionaryBaseType = ReflectionHelper.FindUnderlyingGenericElementType(collectionType);
-					genericTypes = dictionaryBaseType.GetGenericArguments();
+					valueType = ReflectionHelper.FindUnderlyingGenericElementType(collectionType);
+					if (valueType == null)
+					{
+						throw new InvalidTypeException(
+							$"Collection type '{collectionType}' is not generic and only generic types are supported.");
+					}
 				}
-				var valueType = genericTypes[0];
+				else
+				{
+					valueType = genericTypes[0];
+				}
 
 				// var item = arrEnumurator.Current;
 				var dicItemType = valueType;
@@ -1529,11 +1531,10 @@ namespace Salar.Bois.Serializers
 
 		#region Read Simple Types
 
-		internal static void ReadInt16(PropertyInfo prop, ILGenerator il, bool isNullable)
+		internal static void ReadInt16(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -1546,376 +1547,283 @@ namespace Salar.Bois.Serializers
 						new[] { typeof(BinaryReader) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadInt16(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt16Nullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt16),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadInt32(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt32),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadInt32(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt32),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadInt64(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt64Nullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt64),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadInt64(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt64Nullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt64),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadUInt16(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt16Nullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt16),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadUInt16(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt16Nullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt16),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadUInt32(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt32),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadUInt32(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt32),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadUInt64(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt64Nullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt64),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadUInt64(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt64Nullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt64),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadDouble(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDoubleNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDouble),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadDouble(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDoubleNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDouble),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadDecimal(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDecimalNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDecimal),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadDecimal(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDecimalNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDecimal),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadFloat(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarSingleNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarSingle),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadFloat(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarSingleNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarSingle),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadByte(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			if (isNullable)
+			if (prop != null)
 			{
-				il.Emit(OpCodes.Call,
-					meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarByteNullable),
-					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-					new[] { typeof(BinaryReader) }, null));
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
 			}
 			else
 			{
-				il.Emit(OpCodes.Callvirt,
-					meth: typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadByte)));
+				valueSetter();
 			}
-
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadByte(FieldInfo field, ILGenerator il, bool isNullable)
+		internal static void ReadInt32(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+
+			var method =
+				isNullable
+					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null)
+					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt32),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
+			il.Emit(OpCodes.Nop);
+		}
+
+
+		internal static void ReadInt64(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+
+			var method =
+				isNullable
+					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt64Nullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null)
+					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt64),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
+			il.Emit(OpCodes.Nop);
+		}
+
+		internal static void ReadUInt16(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+
+			var method =
+				isNullable
+					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt16Nullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null)
+					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt16),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
+			il.Emit(OpCodes.Nop);
+		}
+
+		internal static void ReadUInt32(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+
+			var method =
+				isNullable
+					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null)
+					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt32),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
+			il.Emit(OpCodes.Nop);
+		}
+
+		internal static void ReadUInt64(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+
+			var method =
+				isNullable
+					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt64Nullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null)
+					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt64),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
+			il.Emit(OpCodes.Nop);
+		}
+
+		internal static void ReadDouble(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+
+			var method =
+				isNullable
+					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDoubleNullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null)
+					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDouble),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
+			il.Emit(OpCodes.Nop);
+		}
+
+		internal static void ReadDecimal(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+
+			var method =
+				isNullable
+					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDecimalNullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null)
+					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDecimal),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
+			il.Emit(OpCodes.Nop);
+		}
+
+		internal static void ReadFloat(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+
+			var method =
+				isNullable
+					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarSingleNullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null)
+					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarSingle),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
+			il.Emit(OpCodes.Nop);
+		}
+
+		internal static void ReadByte(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			if (isNullable)
@@ -1931,15 +1839,26 @@ namespace Salar.Bois.Serializers
 					meth: typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadByte)));
 			}
 
-			il.Emit(OpCodes.Stfld, field); // property value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadSByte(PropertyInfo prop, ILGenerator il, bool isNullable)
+		internal static void ReadSByte(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			if (isNullable)
@@ -1955,37 +1874,26 @@ namespace Salar.Bois.Serializers
 					meth: typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadSByte)));
 			}
 
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadSByte(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			if (isNullable)
+			if (prop != null)
 			{
-				il.Emit(OpCodes.Call,
-					meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarSByteNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null));
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
 			}
 			else
 			{
-				il.Emit(OpCodes.Callvirt,
-					meth: typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadSByte)));
+				valueSetter();
 			}
-
-			il.Emit(OpCodes.Stfld, field); // property value
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadString(PropertyInfo prop, ILGenerator il, bool isNullable)
+		internal static void ReadString(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 			il.Emit(OpCodes.Ldarg_1); // Encoding
 
@@ -1993,29 +1901,27 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Call,
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadString),
 					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
+
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadString(FieldInfo field, ILGenerator il, bool isNullable)
+		internal static void ReadBool(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-			il.Emit(OpCodes.Ldarg_1); // Encoding
-
-			var methodArg = new[] { typeof(BinaryReader), typeof(Encoding) };
-			il.Emit(OpCodes.Call,
-				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadString),
-					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadBool(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2028,34 +1934,26 @@ namespace Salar.Bois.Serializers
 						new[] { typeof(BinaryReader) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadBool(FieldInfo field, ILGenerator il, bool isNullable)
+		internal static void ReadDateTime(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadBooleanNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadBoolean),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadDateTime(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2068,34 +1966,26 @@ namespace Salar.Bois.Serializers
 						new[] { typeof(BinaryReader) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadDateTime(FieldInfo field, ILGenerator il, bool isNullable)
+		internal static void ReadDateTimeOffset(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateTimeNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateTime),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadDateTimeOffset(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2108,50 +1998,26 @@ namespace Salar.Bois.Serializers
 						new[] { typeof(BinaryReader) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadDateTimeOffset(FieldInfo field, ILGenerator il, bool isNullable)
+		internal static void ReadEnum(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateTimeOffsetNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateTimeOffset),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadEnum(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var methodArg = new[] { typeof(BinaryReader) };
-			il.Emit(OpCodes.Call,
-				// ReSharper disable once PossibleNullReferenceException
-				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadEnumGeneric),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null)
-					.MakeGenericMethod(prop.PropertyType));
-
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadEnum(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 
@@ -2162,15 +2028,26 @@ namespace Salar.Bois.Serializers
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null)
 						.MakeGenericMethod(field.FieldType));
 
-			il.Emit(OpCodes.Stfld, field: field); // field value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadTimeSpan(PropertyInfo prop, ILGenerator il, bool isNullable)
+		internal static void ReadTimeSpan(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2183,34 +2060,26 @@ namespace Salar.Bois.Serializers
 						new[] { typeof(BinaryReader) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadTimeSpan(FieldInfo field, ILGenerator il, bool isNullable)
+		internal static void ReadChar(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadTimeSpanNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadTimeSpan),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadChar(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2223,34 +2092,26 @@ namespace Salar.Bois.Serializers
 						new[] { typeof(BinaryReader) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 		}
 
-		internal static void ReadChar(FieldInfo field, ILGenerator il, bool isNullable)
+
+		internal static void ReadGuid(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadCharNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadChar),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadGuid(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2263,34 +2124,27 @@ namespace Salar.Bois.Serializers
 						new[] { typeof(BinaryReader) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadGuid(FieldInfo field, ILGenerator il, bool isNullable)
+
+		internal static void ReadColor(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadGuidNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadGuid),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadColor(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2303,139 +2157,124 @@ namespace Salar.Bois.Serializers
 						new[] { typeof(BinaryReader) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadColor(FieldInfo field, ILGenerator il, bool isNullable)
+		internal static void ReadDbNull(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var method =
-				isNullable
-					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadColorNullable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadColor),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadDbNull(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var methodArg = new[] { typeof(BinaryReader) };
 			il.Emit(OpCodes.Call,
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDbNull),
 					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadDbNull(FieldInfo field, ILGenerator il, bool isNullable)
+
+		internal static void ReadUri(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var methodArg = new[] { typeof(BinaryReader) };
-			il.Emit(OpCodes.Call,
-				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDbNull),
-					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadUri(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var methodArg = new[] { typeof(BinaryReader) };
-			il.Emit(OpCodes.Call,
-				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadUri),
-					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadUri(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var methodArg = new[] { typeof(BinaryReader) };
 			il.Emit(OpCodes.Call,
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadUri),
 					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Stfld, field: field); // field value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadVersion(PropertyInfo prop, ILGenerator il, bool isNullable)
+		internal static void ReadVersion(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var methodArg = new[] { typeof(BinaryReader) };
 			il.Emit(OpCodes.Call,
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadVersion),
 					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadVersion(FieldInfo field, ILGenerator il, bool isNullable)
+		internal static void ReadByteArray(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var methodArg = new[] { typeof(BinaryReader) };
-			il.Emit(OpCodes.Call,
-				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadVersion),
-					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Stfld, field: field); // field value
-			il.Emit(OpCodes.Nop);
-		}
-
-
-		internal static void ReadByteArray(PropertyInfo prop, ILGenerator il, bool isNullable)
-		{
-			var setter = prop.GetSetMethod(true);
-
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-
-			var methodArg = new[] { typeof(BinaryReader) };
-			il.Emit(OpCodes.Call,
-				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadByteArray),
-					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			il.Emit(OpCodes.Nop);
-		}
-
-		internal static void ReadByteArray(FieldInfo field, ILGenerator il, bool isNullable)
-		{
-			il.Emit(OpCodes.Ldloc_0); // instance
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var methodArg = new[] { typeof(BinaryReader) };
 			il.Emit(OpCodes.Call,
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadByteArray),
 					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
-			il.Emit(OpCodes.Stfld, field: field); // field value
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
 			il.Emit(OpCodes.Nop);
 		}
 
@@ -2443,14 +2282,163 @@ namespace Salar.Bois.Serializers
 
 		#region Read Complex Types
 
-		internal static void ReadCollection(PropertyInfo prop, ILGenerator il, bool nullable)
+		internal static void ReadGenericCollection(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable)
 		{
+			/*
+			itemCount = NumericSerializers.ReadVarInt32Nullable(reader);
+			if (itemCount != null)
+			{
+				var coll = new Collection<int>();
+				for (int i = 0; i < itemCount; i++)
+				{
+					var item = NumericSerializers.ReadVarInt32(reader);
+					coll[i] = item;
+				}
+				instance.GenericCollection1 = coll;
+			}
+			*/
+			//il.Emit(OpCodes.Ldloc_0); // instance
+			//il.Emit(OpCodes.Ldarg_1); // Encoding
+			var beforeEndReturn = il.DefineLabel();
 
-		}
+			Type collectionType;
+			string propFieldName;
+			if (prop != null)
+			{
+				collectionType = prop.PropertyType;
+				propFieldName = prop.Name;
+			}
+			else
+			{
+				collectionType = field.FieldType;
+				propFieldName = field.Name;
+			}
+			var methodReadVarInt32Nullable = typeof(NumericSerializers)
+				.GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryReader) }, null);
 
-		internal static void ReadCollection(FieldInfo field, ILGenerator il, bool nullable)
-		{
+			// var num = NumericSerializers.ReadVarInt32Nullable(reader);
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Call, meth: methodReadVarInt32Nullable);
+			var itemCountNullableVar = il.DeclareLocal(methodReadVarInt32Nullable.ReturnType);
+			il.StoreLocal(itemCountNullableVar);
 
+			// if (num.HasValue)
+			il.LoadLocal(itemCountNullableVar);
+			il.Emit(OpCodes.Call,
+				// ReSharper disable once PossibleNullReferenceException
+				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.HasValue)).GetGetMethod());
+			il.Emit(OpCodes.Brfalse_S, beforeEndReturn);
+
+			// int value = num.Value;
+			var itemCountVar = il.DeclareLocal(ReflectionHelper.FindUnderlyingGenericElementType(methodReadVarInt32Nullable.ReturnType));
+			il.LoadLocal(itemCountNullableVar);
+			il.Emit(OpCodes.Call,
+				// ReSharper disable once PossibleNullReferenceException
+				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.Value)).GetGetMethod());
+			il.StoreLocal(itemCountVar);
+
+
+			// List<int> list2 = new List<int>();
+			var collectionInstance = il.DeclareLocal(collectionType);
+			var collectionConstructor = collectionType.GetConstructor(Type.EmptyTypes);
+			if (collectionConstructor == null)
+				throw new InvalidTypeException($"Member '{propFieldName}' is defined as '{collectionType}' which doesn't have parameterless constructor.");
+			il.Emit(OpCodes.Newobj, collectionConstructor);
+			il.StoreLocal(collectionInstance);
+
+
+			// for (/*int i = 0*/; i < num; i++)
+			var forIndexVar = il.DeclareLocal(typeof(int));
+			il.Emit(OpCodes.Ldc_I4_0);
+			il.StoreLocal(forIndexVar);
+			{
+				// Ignore this: jump to value compare
+				// il.Emit(OpCodes.Br_S, compareIndex);
+
+				var startOfLoop = il.DefineLabel();
+				il.MarkLabel(startOfLoop);
+
+				// reading key-value type
+				var genericTypes = collectionType.GetGenericArguments();
+				Type valueType = null;
+				if (genericTypes.Length == 0)
+				{
+					valueType = ReflectionHelper.FindUnderlyingGenericElementType(collectionType);
+					if (valueType == null)
+						throw new InvalidTypeException($"Member '{propFieldName}' is defined as '{collectionType}' which is not generic and only generic types are supported.");
+				}
+				else
+				{
+					valueType = genericTypes[0];
+				}
+
+				var addMethodInfo = ReflectionHelper.GetIListAddMethod(collectionType, valueType);
+
+
+				// VALUE -------------
+				var valueTypeBasicInfo = BoisTypeCache.GetBasicType(valueType);
+				if (valueTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
+				{
+					il.LoadLocal(collectionInstance);
+					BoisTypeCompiler.ReadBasicTypeDirectly(il, valueTypeBasicInfo, () =>
+					{
+						if (addMethodInfo.NeedsArgumentBoxing)
+							il.Emit(OpCodes.Box, valueType);
+
+						il.Emit(OpCodes.Callvirt, meth: addMethodInfo.MethodInfo);
+
+						if (addMethodInfo.HasRetunValue)
+							il.Emit(OpCodes.Pop);
+					});
+				}
+				else
+				{
+					// for complex types, a method is generated
+					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(valueType, true, false);
+
+					il.LoadLocal(collectionInstance);
+					il.Emit(OpCodes.Ldarg_0); // BinaryReader
+					il.Emit(OpCodes.Ldarg_1); // Encoding
+					il.Emit(OpCodes.Call, meth: valueTypeInfo.ReaderMethod);
+
+					if (addMethodInfo.NeedsArgumentBoxing)
+						il.Emit(OpCodes.Box, valueType);
+
+					il.Emit(OpCodes.Callvirt, meth: addMethodInfo.MethodInfo);
+
+					if (addMethodInfo.HasRetunValue)
+						il.Emit(OpCodes.Pop);
+				}
+
+				// num2++;
+				il.Emit(OpCodes.Ldloc, forIndexVar);
+				il.Emit(OpCodes.Ldc_I4_1);
+				il.Emit(OpCodes.Add);
+				il.StoreLocal(forIndexVar);
+
+				// i < value
+				il.Emit(OpCodes.Ldloc, forIndexVar);
+				il.Emit(OpCodes.Ldloc, itemCountVar);
+				il.Emit(OpCodes.Clt);
+				il.Emit(OpCodes.Brtrue_S, startOfLoop);
+			}
+
+			// emitSample.GenericList = list2;
+			il.Emit(OpCodes.Ldloc_0); // instance
+			il.LoadLocal(collectionInstance);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+
+				il.Emit(OpCodes.Callvirt, setter);
+			}
+			else
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+
+			il.MarkLabel(beforeEndReturn);
 		}
 
 		internal static void ReadDictionary(PropertyInfo prop, ILGenerator il, bool nullable)

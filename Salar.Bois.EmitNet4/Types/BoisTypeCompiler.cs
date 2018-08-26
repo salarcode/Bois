@@ -1,6 +1,5 @@
 ﻿using Salar.Bois.Serializers;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -718,27 +717,6 @@ namespace Salar.Bois.Types
 			}
 		}
 
-		//class SharedVariables
-		//{
-		//	private readonly ILGenerator _il;
-		//	private List<Type> _variables = new List<Type>();
-
-
-		//	public SharedVariables(ILGenerator il)
-		//	{
-		//		_il = il;
-		//	}
-
-		//	public LocalBuilder GetLocal(Type type)
-		//	{
-		//		var index=_variables.IndexOf(type);
-		//		if (index == -1)
-		//		{
-		//			variable_il.DeclareLocal(type);
-		//		}
-				
-		//	}
-		//}
 
 		private static void ReadRootObject(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
 		{
@@ -748,13 +726,15 @@ namespace Salar.Bois.Types
 				return;
 			}
 
+			var variableCache = new SharedVariables(il);
+
 			foreach (var member in typeInfo.Members)
 			{
-				ReadRootObjectMember(member, il);
+				ReadRootObjectMember(member, il, variableCache);
 			}
 		}
 
-		private static void ReadRootObjectMember(MemberInfo member, ILGenerator il)
+		private static void ReadRootObjectMember(MemberInfo member, ILGenerator il, SharedVariables variableCache)
 		{
 			var prop = member as PropertyInfo;
 			var field = member as FieldInfo;
@@ -782,24 +762,21 @@ namespace Salar.Bois.Types
 			else
 			{
 				var complexTypeInfo = BoisTypeCache.GetComplexTypeUnCached(memberType);
-				ReadRootObjectComplexMember(memberType, complexTypeInfo, prop, field, il);
+				ReadRootObjectComplexMember(memberType, complexTypeInfo, prop, field, il, variableCache);
 			}
 		}
 
-		private static void ReadRootObjectComplexMember(Type memberType, BoisComplexTypeInfo complexTypeInfo, PropertyInfo prop, FieldInfo field, ILGenerator il)
+		private static void ReadRootObjectComplexMember(Type memberType, BoisComplexTypeInfo complexTypeInfo, PropertyInfo prop, FieldInfo field, ILGenerator il, SharedVariables variableCache)
 		{
 			switch (complexTypeInfo.ComplexKnownType)
 			{
 				case EnComplexKnownType.Collection:
 				case EnComplexKnownType.ISet:
-					EmitGenerator.ReadGenericCollection(prop, field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.ReadGenericCollection(prop, field, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.Dictionary:
-					if (prop != null)
-						EmitGenerator.ReadDictionary(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.ReadDictionary(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.ReadDictionary(prop, field, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.UnknownArray:

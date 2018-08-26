@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 
 /* 
@@ -25,11 +24,12 @@ namespace Salar.Bois.Types
 		/// </summary>
 		public static Type FindUnderlyingGenericElementType(Type type)
 		{
-			if (type.BaseType == null)
-				return null;
 			var generics = type.GetGenericArguments();
 			if (generics.Length > 0)
 				return generics[0];
+
+			if (type.BaseType == null)
+				return null;
 
 			foreach (var inter in type.GetInterfaces())
 			{
@@ -48,12 +48,12 @@ namespace Salar.Bois.Types
 
 		public static Type[] FindUnderlyingGenericDictionaryElementType(Type type)
 		{
-			if (type.BaseType == null)
-				return null;
-
 			var generics = type.GetGenericArguments();
 			if (generics.Length == 2)
 				return generics;
+
+			if (type.BaseType == null)
+				return null;
 
 			foreach (var inter in type.GetInterfaces())
 			{
@@ -71,31 +71,32 @@ namespace Salar.Bois.Types
 		}
 
 
-		/// <summary>
-		/// Finds the underlying element type of a contained generic type
-		/// CPU heavy but more accurate!
-		/// </summary>
-		public static Type FindUnderlyingIEnumerableElementType(Type type)
-		{
-			if (type.BaseType == null)
-				return null;
-			var enumType = typeof(IEnumerable<>);
-			foreach (var inter in type.GetInterfaces())
-			{
-				if (inter.IsGenericType)
-				{
-					// it should have only one argument
-					var args = inter.GetGenericArguments();
-					if (args.Length == 1)
-					{
-						var enumGeneric = typeof(IEnumerable<>).MakeGenericType(args[0]);
-						if (enumGeneric.IsAssignableFrom(type))
-							return args[0];
-					}
-				}
-			}
-			return null;
-		}
+		///// <summary>
+		///// Finds the underlying element type of a contained generic type
+		///// CPU heavy but more accurate!
+		///// </summary>
+		//public static Type FindUnderlyingIEnumerableElementType(Type type)
+		//{
+		//	if (type.BaseType == null)
+		//		return null;
+		//	var enumType = typeof(IEnumerable<>);
+		//	foreach (var inter in type.GetInterfaces())
+		//	{
+		//		if (inter.IsGenericType)
+		//		{
+		//			// it should have only one argument
+		//			var args = inter.GetGenericArguments();
+		//			if (args.Length == 1)
+		//			{
+		//				var enumGeneric = typeof(IEnumerable<>).MakeGenericType(args[0]);
+		//				if (enumGeneric.IsAssignableFrom(type))
+		//					return args[0];
+		//			}
+		//		}
+		//	}
+		//	return null;
+		//}
+
 		/// <summary>
 		/// Check to see if the type implements an specific generic interface type
 		/// </summary>
@@ -224,31 +225,35 @@ namespace Salar.Bois.Types
 
 			public bool HasRetunValue;
 		}
+		internal class DictionaryAddMethodInfo : AddMethodInfo
+		{
+			public bool ValueNeedsArgumentBoxing;
+		}
 
 		internal static AddMethodInfo GetIListAddMethod(Type collType, Type argType)
 		{
-			MethodInfo result;
+			MethodInfo methodInfo;
 			try
 			{
-				result = collType.GetMethod(nameof(IList.Add), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.DefaultBinder, new[] { argType }, null);
+				methodInfo = collType.GetMethod(nameof(IList.Add), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.DefaultBinder, new[] { argType }, null);
 
-				if (result != null)
+				if (methodInfo != null)
 				{
-					var firstArg = result.GetParameters()[0];
+					var firstArg = methodInfo.GetParameters()[0];
 					if (firstArg.ParameterType == argType)
 					{
 						return new AddMethodInfo
 						{
-							MethodInfo = result,
-							HasRetunValue = result.ReturnType != typeof(void)
+							MethodInfo = methodInfo,
+							HasRetunValue = methodInfo.ReturnType != typeof(void)
 						};
 					}
 					if (firstArg.ParameterType == typeof(object))
 					{
 						return new AddMethodInfo
 						{
-							MethodInfo = result,
-							HasRetunValue = result.ReturnType != typeof(void),
+							MethodInfo = methodInfo,
+							HasRetunValue = methodInfo.ReturnType != typeof(void),
 							NeedsArgumentBoxing = true
 						};
 					}
@@ -258,23 +263,92 @@ namespace Salar.Bois.Types
 
 			try
 			{
-				result = collType.GetMethod(nameof(IList.Add), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(object) }, null);
+				methodInfo = collType.GetMethod(nameof(IList.Add), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(object) }, null);
 
-				if (result == null)
-				{
-					throw new InvalidTypeException($"Collection type '{collType}' does not have Add method.");
-				}
-				return new AddMethodInfo
-				{
-					MethodInfo = result,
-					HasRetunValue = result.ReturnType != typeof(void),
-					NeedsArgumentBoxing = true
-				};
+				if (methodInfo != null)
+					return new AddMethodInfo
+					{
+						MethodInfo = methodInfo,
+						HasRetunValue = methodInfo.ReturnType != typeof(void),
+						NeedsArgumentBoxing = true
+					};
 			}
-			catch (Exception)
+			catch (Exception) { }
+
+			throw new InvalidTypeException($"Collection type '{collType}' does not have valid Add method.");
+		}
+
+
+		internal static DictionaryAddMethodInfo GetIDictionaryAddMethod(Type dictionaryType, Type keyType, Type valueType)
+		{
+			MethodInfo methodInfo;
+			try
 			{
-				throw new InvalidTypeException($"Collection type '{collType}' does not have valid Add method.");
+				methodInfo = dictionaryType.GetMethod(nameof(IDictionary.Add),
+					BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.DefaultBinder,
+					new[] { keyType, valueType }, null);
+
+				if (methodInfo != null)
+				{
+					var args = methodInfo.GetParameters();
+					var firstArg = args[0];
+					var secondArg = args[1];
+
+					var result = new DictionaryAddMethodInfo
+					{
+						MethodInfo = methodInfo,
+						HasRetunValue = methodInfo.ReturnType != typeof(void)
+					};
+
+					if (firstArg.ParameterType != keyType)
+					{
+						if (firstArg.ParameterType == typeof(object))
+						{
+							result.NeedsArgumentBoxing = true;
+						}
+						else
+						{
+							result = null;
+						}
+					}
+					if (result != null && secondArg.ParameterType != valueType)
+					{
+						if (secondArg.ParameterType == typeof(object))
+						{
+							result.ValueNeedsArgumentBoxing = true;
+						}
+						else
+						{
+							result = null;
+						}
+					}
+
+					if (result != null)
+						return result;
+				}
 			}
+			catch (Exception) { }
+
+			try
+			{
+				methodInfo = dictionaryType.GetMethod(nameof(IDictionary.Add),
+					BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.DefaultBinder,
+					new[] { typeof(object), typeof(object) }, null);
+
+				if (methodInfo != null)
+				{
+					return new DictionaryAddMethodInfo()
+					{
+						MethodInfo = methodInfo,
+						HasRetunValue = methodInfo.ReturnType != typeof(void),
+						NeedsArgumentBoxing = true,
+						ValueNeedsArgumentBoxing = true
+					};
+				}
+			}
+			catch (Exception) { }
+
+			throw new InvalidTypeException($"Dictionary type '{dictionaryType}' does not have valid Add method.");
 		}
 	}
 }

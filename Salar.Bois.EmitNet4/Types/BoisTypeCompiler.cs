@@ -780,17 +780,11 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnComplexKnownType.UnknownArray:
-					if (prop != null)
-						EmitGenerator.ReadUnknownArray(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.ReadUnknownArray(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.ReadUnknownArray(prop, field, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.NameValueColl:
-					if (prop != null)
-						EmitGenerator.ReadNameValueColl(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.ReadNameValueColl(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.ReadNameValueColl(prop, field, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.DataSet:
@@ -879,6 +873,7 @@ namespace Salar.Bois.Types
 
 				case EnBasicKnownType.KnownTypeArray:
 					// TODO:
+					EmitGenerator.ReadUnknownArray(prop, field, il, basicInfo.IsNullable, new SharedVariables(il));
 					break;
 
 				case EnBasicKnownType.ByteArray:

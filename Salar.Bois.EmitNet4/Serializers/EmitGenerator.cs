@@ -2355,7 +2355,8 @@ namespace Salar.Bois.Serializers
 			il.StoreLocal(forIndexVar);
 			{
 				// Ignore this: jump to value compare
-				// il.Emit(OpCodes.Br_S, compareIndex);
+				var compareIndex = il.DefineLabel();
+				il.Emit(OpCodes.Br_S, compareIndex);
 
 				var startOfLoop = il.DefineLabel();
 				il.MarkLabel(startOfLoop);
@@ -2409,6 +2410,7 @@ namespace Salar.Bois.Serializers
 				il.Emit(OpCodes.Add);
 				il.StoreLocal(forIndexVar);
 
+				il.MarkLabel(compareIndex);
 				// i < value
 				il.Emit(OpCodes.Ldloc, forIndexVar);
 				il.Emit(OpCodes.Ldloc, itemCountVar_shared);
@@ -2453,10 +2455,6 @@ namespace Salar.Bois.Serializers
 					dic.Add(key, value);
 
 					dic.Add(PrimitiveReader.ReadString(reader, encoding), PrimitiveReader.ReadString(reader, encoding));
-
-					count = 0;
-
-					dic[key] = value;
 				}
 				instance.GenericDictionary = dic;
 			}
@@ -2482,7 +2480,7 @@ namespace Salar.Bois.Serializers
 
 			var itemCountNullableVar_shared = variableCache.GetOrAdd(methodReadVarInt32Nullable.ReturnType);
 			var itemCountVar_shared = variableCache.GetOrAdd(ReflectionHelper.FindUnderlyingGenericElementType(methodReadVarInt32Nullable.ReturnType));
-			
+
 			// var num = NumericSerializers.ReadVarInt32Nullable(reader);
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 			il.Emit(OpCodes.Call, meth: methodReadVarInt32Nullable);
@@ -2516,7 +2514,8 @@ namespace Salar.Bois.Serializers
 			il.StoreLocal(forIndexVar);
 			{
 				// Ignore this: jump to value compare
-				// il.Emit(OpCodes.Br_S, compareIndex);
+				var compareIndex = il.DefineLabel();
+				il.Emit(OpCodes.Br_S, compareIndex);
 
 				var startOfLoop = il.DefineLabel();
 				il.MarkLabel(startOfLoop);
@@ -2554,7 +2553,7 @@ namespace Salar.Bois.Serializers
 					if (addMethodInfo.NeedsArgumentBoxing)
 						il.Emit(OpCodes.Box, keyType);
 				}
-				
+
 				// VALUE -------------
 				var valueTypeBasicInfo = BoisTypeCache.GetBasicType(valueType);
 				if (valueTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
@@ -2589,6 +2588,7 @@ namespace Salar.Bois.Serializers
 				il.Emit(OpCodes.Add);
 				il.StoreLocal(forIndexVar);
 
+				il.MarkLabel(compareIndex);
 				// i < value
 				il.Emit(OpCodes.Ldloc, forIndexVar);
 				il.Emit(OpCodes.Ldloc, itemCountVar_shared);
@@ -2617,59 +2617,345 @@ namespace Salar.Bois.Serializers
 			variableCache.ReturnVariable(itemCountVar_shared);
 		}
 
-		internal static void ReadDictionary(FieldInfo field, ILGenerator il, bool nullable)
-		{
 
+
+		internal static void ReadNameValueColl(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable, SharedVariables variableCache)
+		{
+			/*
+			var dicCoun0 = NumericSerializers.ReadVarInt32Nullable(reader);
+			if (dicCoun0.HasValue)
+			{
+				var count = dicCoun0.Value;
+
+				var dic = new Dictionary<string, string>();
+				for (int i = 0; i < count; i++)
+				{
+					var key = PrimitiveReader.ReadString(reader, encoding);
+					var value = PrimitiveReader.ReadString(reader, encoding);
+					dic.Add(key, value);
+
+					dic.Add(PrimitiveReader.ReadString(reader, encoding), PrimitiveReader.ReadString(reader, encoding));
+				}
+				instance.GenericDictionary = dic;
+			}
+			*/
+			var beforeEndReturn = il.DefineLabel();
+
+			Type dictionaryType;
+			string propFieldName;
+			if (prop != null)
+			{
+				dictionaryType = prop.PropertyType;
+				propFieldName = prop.Name;
+			}
+			else
+			{
+				dictionaryType = field.FieldType;
+				propFieldName = field.Name;
+			}
+			var methodReadVarInt32Nullable = typeof(NumericSerializers)
+				.GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryReader) }, null);
+
+
+			var itemCountNullableVar_shared = variableCache.GetOrAdd(methodReadVarInt32Nullable.ReturnType);
+			var itemCountVar_shared = variableCache.GetOrAdd(ReflectionHelper.FindUnderlyingGenericElementType(methodReadVarInt32Nullable.ReturnType));
+
+			// var num = NumericSerializers.ReadVarInt32Nullable(reader);
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Call, meth: methodReadVarInt32Nullable);
+			il.StoreLocal(itemCountNullableVar_shared);
+
+			// if (num.HasValue)
+			il.LoadLocal(itemCountNullableVar_shared);
+			il.Emit(OpCodes.Call,
+				// ReSharper disable once PossibleNullReferenceException
+				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.HasValue)).GetGetMethod());
+			il.Emit(OpCodes.Brfalse_S, beforeEndReturn);
+
+			// int value = num.Value;
+			il.LoadLocal(itemCountNullableVar_shared);
+			il.Emit(OpCodes.Call,
+				// ReSharper disable once PossibleNullReferenceException
+				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.Value)).GetGetMethod());
+			il.StoreLocal(itemCountVar_shared);
+
+			// var dic = new Dictionary<string, string>();
+			var dictionaryInstance = il.DeclareLocal(dictionaryType);
+			var dictionaryConstructor = dictionaryType.GetConstructor(Type.EmptyTypes);
+			if (dictionaryConstructor == null)
+				throw new InvalidTypeException($"Member '{propFieldName}' is defined as '{dictionaryType}' which doesn't have parameterless constructor.");
+			il.Emit(OpCodes.Newobj, dictionaryConstructor);
+			il.StoreLocal(dictionaryInstance);
+
+			// for (/*int i = 0*/; i < num; i++)
+			var forIndexVar = il.DeclareLocal(typeof(int));
+			il.Emit(OpCodes.Ldc_I4_0);
+			il.StoreLocal(forIndexVar);
+			{
+				// Ignore this: jump to value compare
+				var compareIndex = il.DefineLabel();
+				il.Emit(OpCodes.Br_S, compareIndex);
+
+				var startOfLoop = il.DefineLabel();
+				il.MarkLabel(startOfLoop);
+
+				// reading key-value type
+				var itemTypeBasicInfo = BoisTypeCache.GetBasicType(typeof(string));
+				var addMethodInfo = dictionaryType.GetMethod(nameof(NameValueCollection.Add),
+					BindingFlags.Instance | BindingFlags.Public,
+					Type.DefaultBinder, new[] { typeof(string), typeof(string) }, null);
+
+				//  dictionary
+				il.LoadLocal(dictionaryInstance);
+				// KEY -------------
+				BoisTypeCompiler.ReadBasicTypeDirectly(il, itemTypeBasicInfo, () => { });
+
+				// VALUE -------------
+				BoisTypeCompiler.ReadBasicTypeDirectly(il, itemTypeBasicInfo, () => { });
+
+				// dictionary.Add
+				il.Emit(OpCodes.Callvirt, meth: addMethodInfo);
+
+				// num2++;
+				il.Emit(OpCodes.Ldloc, forIndexVar);
+				il.Emit(OpCodes.Ldc_I4_1);
+				il.Emit(OpCodes.Add);
+				il.StoreLocal(forIndexVar);
+
+				il.MarkLabel(compareIndex);
+				// i < value
+				il.Emit(OpCodes.Ldloc, forIndexVar);
+				il.Emit(OpCodes.Ldloc, itemCountVar_shared);
+				il.Emit(OpCodes.Clt);
+				il.Emit(OpCodes.Brtrue_S, startOfLoop);
+			}
+
+			// emitSample.GenericDictionary = dictionary;
+			il.Emit(OpCodes.Ldloc_0); // instance
+			il.LoadLocal(dictionaryInstance);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+
+				il.Emit(OpCodes.Callvirt, setter);
+			}
+			else
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+
+			il.MarkLabel(beforeEndReturn);
+
+			// returning the variables
+			variableCache.ReturnVariable(itemCountNullableVar_shared);
+			variableCache.ReturnVariable(itemCountVar_shared);
 		}
 
-		internal static void ReadUnknownArray(PropertyInfo prop, ILGenerator il, bool nullable)
-		{
 
+		internal static void ReadUnknownArray(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable, SharedVariables variableCache)
+		{
+			/*
+			itemCount = NumericSerializers.ReadVarInt32Nullable(reader);
+			if (itemCount != null)
+			{
+				var coll = new Collection<int>();
+				for (int i = 0; i < itemCount; i++)
+				{
+					var item = NumericSerializers.ReadVarInt32(reader);
+					coll[i] = item;
+				}
+				instance.GenericCollection1 = coll;
+			}
+			*/
+			//il.Emit(OpCodes.Ldloc_0); // instance
+			//il.Emit(OpCodes.Ldarg_1); // Encoding
+			var beforeEndReturn = il.DefineLabel();
+
+			Type arrType;
+			string propFieldName;
+			if (prop != null)
+			{
+				arrType = prop.PropertyType;
+				propFieldName = prop.Name;
+			}
+			else
+			{
+				arrType = field.FieldType;
+				propFieldName = field.Name;
+			}
+			var methodReadVarInt32Nullable = typeof(NumericSerializers)
+				.GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryReader) }, null);
+
+			// var num = NumericSerializers.ReadVarInt32Nullable(reader);
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Call, meth: methodReadVarInt32Nullable);
+			var itemCountNullableVar_shared = variableCache.GetOrAdd(methodReadVarInt32Nullable.ReturnType);
+			var itemCountVar_shared = variableCache.GetOrAdd(ReflectionHelper.FindUnderlyingGenericElementType(methodReadVarInt32Nullable.ReturnType));
+			il.StoreLocal(itemCountNullableVar_shared);
+
+			// if (num.HasValue)
+			il.LoadLocal(itemCountNullableVar_shared);
+			il.Emit(OpCodes.Call,
+				// ReSharper disable once PossibleNullReferenceException
+				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.HasValue)).GetGetMethod());
+			il.Emit(OpCodes.Brfalse_S, beforeEndReturn);
+
+			// int value = num.Value;
+			il.LoadLocal(itemCountNullableVar_shared);
+			il.Emit(OpCodes.Call,
+				// ReSharper disable once PossibleNullReferenceException
+				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.Value)).GetGetMethod());
+			il.StoreLocal(itemCountVar_shared);
+
+
+			var arrayItemType = arrType.GetElementType();
+			// var arr = new Array();
+			var arrInstance = il.DeclareLocal(arrType);
+			il.Emit(OpCodes.Ldloc, itemCountVar_shared);
+			il.Emit(OpCodes.Newarr, arrayItemType);
+			il.StoreLocal(arrInstance);
+
+
+			// for (/*int i = 0*/; i < num; i++)
+			var forIndexVar = il.DeclareLocal(typeof(int));
+			il.Emit(OpCodes.Ldc_I4_0);
+			il.StoreLocal(forIndexVar);
+			{
+				// Ignore this: jump to value compare
+				var compareIndex = il.DefineLabel();
+				il.Emit(OpCodes.Br_S, compareIndex);
+
+				var startOfLoop = il.DefineLabel();
+				il.MarkLabel(startOfLoop);
+
+				// VALUE -------------
+				var valueTypeBasicInfo = BoisTypeCache.GetBasicType(arrayItemType);
+				if (valueTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
+				{
+					il.LoadLocal(arrInstance);
+					il.Emit(OpCodes.Ldloc, forIndexVar);
+					BoisTypeCompiler.ReadBasicTypeDirectly(il, valueTypeBasicInfo, () =>
+					{
+						il.Emit(OpCodes.Stelem, arrayItemType);
+					});
+				}
+				else
+				{
+					// for complex types, a method is generated
+					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(arrayItemType, true, false);
+
+					il.LoadLocal(arrInstance);
+					il.Emit(OpCodes.Ldloc, forIndexVar);
+					il.Emit(OpCodes.Ldarg_0); // BinaryReader
+					il.Emit(OpCodes.Ldarg_1); // Encoding
+					il.Emit(OpCodes.Call, meth: valueTypeInfo.ReaderMethod);
+
+					il.Emit(OpCodes.Stelem, arrayItemType);
+				}
+
+				// num2++;
+				il.Emit(OpCodes.Ldloc, forIndexVar);
+				il.Emit(OpCodes.Ldc_I4_1);
+				il.Emit(OpCodes.Add);
+				il.StoreLocal(forIndexVar);
+
+				il.MarkLabel(compareIndex);
+				// i < value
+				il.Emit(OpCodes.Ldloc, forIndexVar);
+				il.Emit(OpCodes.Ldloc, itemCountVar_shared);
+				il.Emit(OpCodes.Clt);
+				il.Emit(OpCodes.Brtrue_S, startOfLoop);
+			}
+
+			// emitSample.GenericList = list2;
+			il.Emit(OpCodes.Ldloc_0); // instance
+			il.LoadLocal(arrInstance);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+
+				il.Emit(OpCodes.Callvirt, setter);
+			}
+			else
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+
+			il.MarkLabel(beforeEndReturn);
+
+			// returning the variables
+			variableCache.ReturnVariable(itemCountNullableVar_shared);
+			variableCache.ReturnVariable(itemCountVar_shared);
 		}
 
-		internal static void ReadUnknownArray(FieldInfo field, ILGenerator il, bool nullable)
+		internal static void ReadDataSet(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool nullable)
 		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_1); // Encoding
 
+			var method =
+				nullable
+					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataSet),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null)
+					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataSet),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
+			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadNameValueColl(PropertyInfo prop, ILGenerator il, bool nullable)
+
+
+		internal static void ReadDataTable(PropertyInfo prop,FieldInfo field, Action valueSetter, ILGenerator il, bool nullable)
 		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_1); // Encoding
 
-		}
+			var method =
+				nullable
+					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataTable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null)
+					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataTable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BinaryReader) }, null);
 
-		internal static void ReadNameValueColl(FieldInfo field, ILGenerator il, bool nullable)
-		{
-
-		}
-
-		internal static void ReadISet(PropertyInfo prop, ILGenerator il, bool nullable)
-		{
-
-		}
-
-		internal static void ReadISet(FieldInfo field, ILGenerator il, bool nullable)
-		{
-
-		}
-
-		internal static void ReadDataSet(PropertyInfo prop, ILGenerator il, bool nullable)
-		{
-
-		}
-
-		internal static void ReadDataSet(FieldInfo field, ILGenerator il, bool nullable)
-		{
-
-		}
-
-		internal static void ReadDataTable(PropertyInfo prop, ILGenerator il, bool nullable)
-		{
-
-		}
-
-		internal static void ReadDataTable(FieldInfo field, ILGenerator il, bool nullable)
-		{
-
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter();
+			}
+			il.Emit(OpCodes.Nop);
 		}
 
 

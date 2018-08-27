@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Salar.Bois.Serializers
@@ -280,7 +278,7 @@ namespace Salar.Bois.Serializers
 			if (guid == Guid.Empty)
 			{
 				// Int32
-				NumericSerializers.WriteVarInt(writer, 0);
+				NumericSerializers.WriteVarInt(writer, (uint)0);
 				return;
 			}
 
@@ -307,7 +305,7 @@ namespace Salar.Bois.Serializers
 			if (guid == Guid.Empty)
 			{
 				// Int32
-				NumericSerializers.WriteVarInt(writer, 0);
+				NumericSerializers.WriteVarInt(writer, (uint?)0);
 				return;
 			}
 

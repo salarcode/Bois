@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Salar.Bois.Serializers
 {
@@ -165,21 +162,25 @@ namespace Salar.Bois.Serializers
 
 		internal static Guid? ReadGuidNullable(BinaryReader reader)
 		{
-			var gbuff = ReadByteArray(reader);
-			if (gbuff == null)
+			var len = NumericSerializers.ReadVarUInt32Nullable(reader);
+
+			if (len == null)
 				return null;
 
-			if (gbuff.Length == 0)
+			if (len == 0)
 				return Guid.Empty;
 
+			var gbuff = reader.ReadBytes((int)len.Value);
 			return new Guid(gbuff);
 		}
 
 		internal static Guid ReadGuid(BinaryReader reader)
 		{
-			var gbuff = ReadByteArray(reader);
-			if (gbuff == null || gbuff.Length == 0)
+			var len = NumericSerializers.ReadVarUInt32(reader);
+			if (len == 0)
 				return Guid.Empty;
+
+			var gbuff = reader.ReadBytes((int) len);
 			return new Guid(gbuff);
 		}
 

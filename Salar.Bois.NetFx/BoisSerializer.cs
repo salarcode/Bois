@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Data;
+﻿using Salar.Bois.Serializers;
+using Salar.Bois.Types;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Text;
-using Salar.Bois.Serializers;
-using Salar.Bois.Types;
 
 /* 
  * Salar BOIS (Binary Object Indexed Serialization)
@@ -225,9 +222,9 @@ namespace Salar.Bois
 
 				case EnBasicKnownType.UInt16:
 					if (typeInfo.IsNullable)
-						NumericSerializers.WriteVarInt(writer, (int?) (obj as ushort?));
+						NumericSerializers.WriteVarInt(writer, (int?)(obj as ushort?));
 					else
-						NumericSerializers.WriteVarInt(writer, (int) (ushort)obj);
+						NumericSerializers.WriteVarInt(writer, (int)(ushort)obj);
 					return;
 
 				case EnBasicKnownType.UInt32:
@@ -376,69 +373,58 @@ namespace Salar.Bois
 				case EnBasicKnownType.Int16:
 					if (typeInfo.IsNullable)
 						return NumericSerializers.ReadVarInt16Nullable(reader);
-					else
-						return NumericSerializers.ReadVarInt16(reader);
+					return NumericSerializers.ReadVarInt16(reader);
 
 				case EnBasicKnownType.Int32:
 					if (typeInfo.IsNullable)
 						return NumericSerializers.ReadVarInt32Nullable(reader);
-					else
-						return NumericSerializers.ReadVarInt32(reader);
+					return NumericSerializers.ReadVarInt32(reader);
 
 				case EnBasicKnownType.Int64:
 					if (typeInfo.IsNullable)
 						return NumericSerializers.ReadVarInt64Nullable(reader);
-					else
-						return NumericSerializers.ReadVarInt64(reader);
+					return NumericSerializers.ReadVarInt64(reader);
 
 				case EnBasicKnownType.UInt16:
 					if (typeInfo.IsNullable)
 						return NumericSerializers.ReadVarUInt16Nullable(reader);
-					else
-						return NumericSerializers.ReadVarUInt16(reader);
+					return NumericSerializers.ReadVarUInt16(reader);
 
 				case EnBasicKnownType.UInt32:
 					if (typeInfo.IsNullable)
 						return NumericSerializers.ReadVarUInt32Nullable(reader);
-					else
-						return NumericSerializers.ReadVarUInt32(reader);
+					return NumericSerializers.ReadVarUInt32(reader);
 
 				case EnBasicKnownType.UInt64:
 					if (typeInfo.IsNullable)
 						return NumericSerializers.ReadVarUInt64Nullable(reader);
-					else
-						return NumericSerializers.ReadVarUInt64(reader);
+					return NumericSerializers.ReadVarUInt64(reader);
 
 				case EnBasicKnownType.Double:
 					if (typeInfo.IsNullable)
 						return NumericSerializers.ReadVarDoubleNullable(reader);
-					else
-						return NumericSerializers.ReadVarDouble(reader);
+					return NumericSerializers.ReadVarDouble(reader);
 
 
 				case EnBasicKnownType.Decimal:
 					if (typeInfo.IsNullable)
 						return NumericSerializers.ReadVarDecimalNullable(reader);
-					else
-						return NumericSerializers.ReadVarDecimal(reader);
+					return NumericSerializers.ReadVarDecimal(reader);
 
 				case EnBasicKnownType.Single:
 					if (typeInfo.IsNullable)
 						return NumericSerializers.ReadVarSingleNullable(reader);
-					else
-						return NumericSerializers.ReadVarSingle(reader);
+					return NumericSerializers.ReadVarSingle(reader);
 
 				case EnBasicKnownType.Byte:
 					if (typeInfo.IsNullable)
 						return NumericSerializers.ReadVarByteNullable(reader);
-					else
-						return reader.ReadByte();
+					return reader.ReadByte();
 
 				case EnBasicKnownType.SByte:
 					if (typeInfo.IsNullable)
 						return NumericSerializers.ReadVarSByteNullable(reader);
-					else
-						return reader.ReadSByte();
+					return reader.ReadSByte();
 
 				case EnBasicKnownType.Unknown:
 					//

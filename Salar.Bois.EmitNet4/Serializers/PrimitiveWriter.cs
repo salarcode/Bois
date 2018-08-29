@@ -397,25 +397,7 @@ namespace Salar.Bois.Serializers
 				return writer.ToString();
 			}
 		}
-
-
-		private static DataSet DeserializeDataSet(string data)
-		{
-			var ds = new DataSet();
-			ds.ReadXml(data);
-
-			return ds;
-		}
-
-		private static DataTable DeserializeDataTable(string data)
-		{
-			var dt = new DataTable();
-			dt.ReadXml(data);
-
-			return dt;
-		}
-
-
+		
 		#endregion
 
 	}

@@ -261,11 +261,11 @@ namespace Salar.Bois.Types
 			switch (complexTypeInfo.ComplexKnownType)
 			{
 				case EnComplexKnownType.Collection:
-					EmitGenerator.WriteCollection(prop, field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteCollection(prop, field, null, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.Dictionary:
-					EmitGenerator.WriteDictionary(prop, field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteDictionary(prop, field, null, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.UnknownArray:
@@ -273,11 +273,11 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnComplexKnownType.NameValueColl:
-					EmitGenerator.WriteNameValueColl(prop, field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteNameValueColl(prop, field, null, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.ISet:
-					EmitGenerator.WriteISet(prop, field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteISet(prop, field, null, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.DataSet:
@@ -772,7 +772,7 @@ namespace Salar.Bois.Types
 			{
 				case EnComplexKnownType.Collection:
 				case EnComplexKnownType.ISet:
-					EmitGenerator.ReadGenericCollection(prop, field, il, complexTypeInfo.IsNullable, variableCache);
+					EmitGenerator.ReadGenericCollection(prop, field,null, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.Dictionary:
@@ -788,17 +788,11 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnComplexKnownType.DataSet:
-					if (prop != null)
-						EmitGenerator.ReadDataSet(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.ReadDataSet(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.ReadDataSet(prop, field, null, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.DataTable:
-					if (prop != null)
-						EmitGenerator.ReadDataTable(prop, il, complexTypeInfo.IsNullable);
-					else
-						EmitGenerator.ReadDataTable(field, il, complexTypeInfo.IsNullable);
+					EmitGenerator.ReadDataTable(prop, field, null, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.Unknown:

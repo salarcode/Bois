@@ -20,46 +20,75 @@ namespace Salar.Bois.Serializers
 
 		#region Write Root Complex Types
 
-		internal static void WriteRootISet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
-		{
-
-		}
-
 		internal static void WriteRootUnknownArray(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			WriteUnknownArray(null, null, () =>
+				{
+					il.Emit(OpCodes.Ldarg_1); // instance
+					return typeInfo.BareType;
+				},
+				il, typeInfo.IsNullable);
 
 		}
 
 		internal static void WriteRootDataTable(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			WriteDataTable(null, null, () =>
+				{
+					il.Emit(OpCodes.Ldarg_1); // instance
+					return typeInfo.BareType;
+				},
+				il, typeInfo.IsNullable);
 		}
 
 		internal static void WriteRootDataSet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			WriteDataSet(null, null, () =>
+				{
+					il.Emit(OpCodes.Ldarg_1); // instance
+					return typeInfo.BareType;
+				},
+				il, typeInfo.IsNullable);
 		}
 
 		internal static void WriteRootCollection(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
+			WriteCollection(null, null, () =>
+				{
+					il.Emit(OpCodes.Ldarg_1); // instance
+					return typeInfo.BareType;
+				},
+				il, typeInfo.IsNullable);
+		}
 
+		internal static void WriteRootISet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
+		{
+			WriteRootCollection(type, typeInfo, il);
 		}
 
 		internal static void WriteRootList(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			WriteRootCollection(type, typeInfo, il);
 		}
 
 		internal static void WriteRootDictionary(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			WriteDictionary(null, null, () =>
+				{
+					il.Emit(OpCodes.Ldarg_1); // instance
+					return typeInfo.BareType;
+				},
+				il, typeInfo.IsNullable);
 		}
 
 		internal static void WriteRootNameValueCol(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
-
+			WriteNameValueColl(null, null, () =>
+				{
+					il.Emit(OpCodes.Ldarg_1); // instance
+					return typeInfo.BareType;
+				},
+				il, typeInfo.IsNullable);
 		}
 
 
@@ -735,9 +764,7 @@ namespace Salar.Bois.Serializers
 		#endregion
 
 		#region Write Complex Types
-
-
-		internal static void WriteCollection(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable)
+		internal static void WriteCollection(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
 			/*
 			var list1 = instance.GenericList;
@@ -761,27 +788,29 @@ namespace Salar.Bois.Serializers
 			var codeEnds = il.DefineLabel();
 			var loopStart = il.DefineLabel();
 
-			LocalBuilder instanceVar;
 			Type collectionType;
 
-
 			// var dic  = instance.GenericDictionary;
-			il.Emit(OpCodes.Ldarg_1); // instance
 			if (prop != null)
 			{
 				collectionType = prop.PropertyType;
 
-				instanceVar = il.DeclareLocal(collectionType);
 				var getter = prop.GetGetMethod(true);
+				il.Emit(OpCodes.Ldarg_1); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
-			else
+			else if (field != null)
 			{
 				collectionType = field.FieldType;
 
-				instanceVar = il.DeclareLocal(collectionType);
+				il.Emit(OpCodes.Ldarg_1); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
+			else
+			{
+				collectionType = valueLoader();
+			}
+			var instanceVar = il.DeclareLocal(collectionType);
 			il.StoreLocal(instanceVar);
 
 
@@ -826,7 +855,7 @@ namespace Salar.Bois.Serializers
 			var enumurator = il.DeclareLocal(enumuratorType);
 			il.StoreLocal(enumurator);
 
-			var block = il.BeginExceptionBlock();
+			il.BeginExceptionBlock();
 			{
 				var blockEnd = il.DefineLabel();
 
@@ -849,7 +878,7 @@ namespace Salar.Bois.Serializers
 
 				// reading key-value type
 				var genericTypes = enumuratorType.GetGenericArguments();
-				Type valueType = null;
+				Type valueType;
 				if (genericTypes.Length == 0)
 				{
 					valueType = ReflectionHelper.FindUnderlyingGenericElementType(collectionType);
@@ -934,7 +963,7 @@ namespace Salar.Bois.Serializers
 			il.MarkLabel(codeEnds);
 		}
 
-		internal static void WriteDictionary(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable)
+		internal static void WriteDictionary(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
 			/*
 			var dic = instance.GenericDictionary;
@@ -960,26 +989,30 @@ namespace Salar.Bois.Serializers
 			var codeEnds = il.DefineLabel();
 			var loopStart = il.DefineLabel();
 
-			LocalBuilder instanceVar;
 			Type dictionaryType;
 
 			// var dic  = instance.GenericDictionary;
-			il.Emit(OpCodes.Ldarg_1); // instance
 			if (prop != null)
 			{
 				dictionaryType = prop.PropertyType;
 
-				instanceVar = il.DeclareLocal(dictionaryType);
 				var getter = prop.GetGetMethod(true);
+
+				il.Emit(OpCodes.Ldarg_1); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
-			else
+			else if (field != null)
 			{
 				dictionaryType = field.FieldType;
 
-				instanceVar = il.DeclareLocal(dictionaryType);
+				il.Emit(OpCodes.Ldarg_1); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
+			else
+			{
+				dictionaryType = valueLoader();
+			}
+			var instanceVar = il.DeclareLocal(dictionaryType);
 			il.StoreLocal(instanceVar);
 
 			// if (dic == null)
@@ -1020,7 +1053,7 @@ namespace Salar.Bois.Serializers
 			var enumurator = il.DeclareLocal(enumuratorType);
 			il.StoreLocal(enumurator);
 
-			var block = il.BeginExceptionBlock();
+			il.BeginExceptionBlock();
 			{
 				var blockEnd = il.DefineLabel();
 
@@ -1057,7 +1090,7 @@ namespace Salar.Bois.Serializers
 
 
 				// var item = arrEnumurator.Current;
-				var dicItemType = typeof(KeyValuePair<,>).MakeGenericType(new[] { keyType, valueType });
+				var dicItemType = typeof(KeyValuePair<,>).MakeGenericType(keyType, valueType);
 				var dicItemVar = il.DeclareLocal(dicItemType);
 				il.LoadLocal(enumurator);
 				// ReSharper disable once PossibleNullReferenceException
@@ -1291,7 +1324,7 @@ namespace Salar.Bois.Serializers
 
 		}
 
-		internal static void WriteNameValueColl(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable)
+		internal static void WriteNameValueColl(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
 			/*
 			var coll = instance.NameValueCollection;
@@ -1320,16 +1353,21 @@ namespace Salar.Bois.Serializers
 			var instanceVar = il.DeclareLocal(typeof(NameValueCollection));
 
 			// NameValueCollection coll = instance.NameValueCollection;
-			il.Emit(OpCodes.Ldarg_1); // instance
 
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
+				il.Emit(OpCodes.Ldarg_1); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
+				il.Emit(OpCodes.Ldarg_1); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
+			}
+			else
+			{
+				valueLoader();
 			}
 			il.StoreLocal(instanceVar);
 
@@ -1427,12 +1465,10 @@ namespace Salar.Bois.Serializers
 			il.MarkLabel(codeEnds);
 		}
 
-
-		internal static void WriteISet(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable)
+		internal static void WriteISet(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
-			WriteCollection(prop, field, il, nullable);
+			WriteCollection(prop, field, valueLoader, il, nullable);
 		}
-
 
 		internal static void WriteDataSet(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
@@ -1460,7 +1496,6 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-
 		internal static void WriteDataTable(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
@@ -1486,46 +1521,42 @@ namespace Salar.Bois.Serializers
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
 		}
-
-
 		#endregion
 
 		#region Read Root Complex Types
-
-
 		internal static void ReadRootCollection(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			ReadGenericCollection(null, null, type, il, typeInfo.IsNullable, new SharedVariables(il));
 		}
 
 		internal static void ReadRootDictionary(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			ReadDictionary(null, null, type, il, typeInfo.IsNullable, new SharedVariables(il));
 		}
 
 		internal static void ReadRootUnknownArray(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			ReadUnknownArray(null, null, type, il, typeInfo.IsNullable, new SharedVariables(il));
 		}
 
 		internal static void ReadRootNameValueColl(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			ReadNameValueColl(null, null, type, il, typeInfo.IsNullable, new SharedVariables(il));
 		}
 
 		internal static void ReadRootISet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			ReadRootCollection(type, typeInfo, il);
 		}
 
 		internal static void ReadRootDataSet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			ReadDataSet(null, null, type, il, typeInfo.IsNullable);
 		}
 
 		internal static void ReadRootDataTable(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-
+			ReadDataTable(null, null, type, il, typeInfo.IsNullable);
 		}
 
 		#endregion
@@ -1559,7 +1590,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1591,11 +1622,10 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
-
 
 		internal static void ReadInt64(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
@@ -1624,7 +1654,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1656,7 +1686,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1688,7 +1718,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1720,7 +1750,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1752,7 +1782,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1784,7 +1814,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1816,7 +1846,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1851,7 +1881,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1886,7 +1916,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1914,7 +1944,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1946,7 +1976,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -1978,7 +2008,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -2010,24 +2040,37 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadEnum(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadEnum(PropertyInfo prop, FieldInfo field, Action valueSetter, Type valueSetterType, ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
 				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
+			Type memberType;
+			if (prop != null)
+			{
+				memberType = prop.PropertyType;
+			}
+			else if (field != null)
+			{
+				memberType = field.FieldType;
+			}
+			else
+			{
+				memberType = valueSetterType;
+			}
 
 			var methodArg = new[] { typeof(BinaryReader) };
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadEnumGeneric),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null)
-						.MakeGenericMethod(field.FieldType));
+						.MakeGenericMethod(memberType));
 
 			if (prop != null)
 			{
@@ -2040,7 +2083,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -2072,7 +2115,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -2104,7 +2147,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 		}
 
@@ -2136,7 +2179,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -2169,7 +2212,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -2195,7 +2238,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -2222,7 +2265,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -2248,7 +2291,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -2274,7 +2317,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				valueSetter?.Invoke();
 			}
 			il.Emit(OpCodes.Nop);
 		}
@@ -2283,7 +2326,7 @@ namespace Salar.Bois.Serializers
 
 		#region Read Complex Types
 
-		internal static void ReadGenericCollection(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable, SharedVariables variableCache)
+		internal static void ReadGenericCollection(PropertyInfo prop, FieldInfo field, Type rootType, ILGenerator il, bool nullable, SharedVariables variableCache)
 		{
 			/*
 			itemCount = NumericSerializers.ReadVarInt32Nullable(reader);
@@ -2309,10 +2352,16 @@ namespace Salar.Bois.Serializers
 				collectionType = prop.PropertyType;
 				propFieldName = prop.Name;
 			}
-			else
+			else if (field != null)
 			{
 				collectionType = field.FieldType;
 				propFieldName = field.Name;
+			}
+			else
+			{
+				// only if called from root
+				collectionType = rootType;
+				propFieldName = "";
 			}
 			var methodReadVarInt32Nullable = typeof(NumericSerializers)
 				.GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
@@ -2419,17 +2468,23 @@ namespace Salar.Bois.Serializers
 			}
 
 			// emitSample.GenericList = list2;
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.LoadLocal(collectionInstance);
 			if (prop != null)
 			{
-				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocal(collectionInstance);
 
-				il.Emit(OpCodes.Callvirt, setter);
+				il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocal(collectionInstance);
+
+				il.Emit(OpCodes.Stfld, field: field); // field value
 			}
 			else
 			{
-				il.Emit(OpCodes.Stfld, field: field); // field value
+				// nothing should be generated
 			}
 
 			il.MarkLabel(beforeEndReturn);
@@ -2439,7 +2494,7 @@ namespace Salar.Bois.Serializers
 			variableCache.ReturnVariable(itemCountVar_shared);
 		}
 
-		internal static void ReadDictionary(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable, SharedVariables variableCache)
+		internal static void ReadDictionary(PropertyInfo prop, FieldInfo field, Type rootType, ILGenerator il, bool nullable, SharedVariables variableCache)
 		{
 			/*
 			var dicCoun0 = NumericSerializers.ReadVarInt32Nullable(reader);
@@ -2468,16 +2523,22 @@ namespace Salar.Bois.Serializers
 				dictionaryType = prop.PropertyType;
 				propFieldName = prop.Name;
 			}
-			else
+			else if (field != null)
 			{
 				dictionaryType = field.FieldType;
 				propFieldName = field.Name;
+			}
+			else
+			{
+				dictionaryType = rootType;
+				propFieldName = "";
 			}
 			var methodReadVarInt32Nullable = typeof(NumericSerializers)
 				.GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
 					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryReader) }, null);
 
 
+			// ReSharper disable once PossibleNullReferenceException
 			var itemCountNullableVar_shared = variableCache.GetOrAdd(methodReadVarInt32Nullable.ReturnType);
 			var itemCountVar_shared = variableCache.GetOrAdd(ReflectionHelper.FindUnderlyingGenericElementType(methodReadVarInt32Nullable.ReturnType));
 
@@ -2597,17 +2658,23 @@ namespace Salar.Bois.Serializers
 			}
 
 			// emitSample.GenericDictionary = dictionary;
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.LoadLocal(dictionaryInstance);
 			if (prop != null)
 			{
-				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocal(dictionaryInstance);
 
-				il.Emit(OpCodes.Callvirt, setter);
+				il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocal(dictionaryInstance);
+
+				il.Emit(OpCodes.Stfld, field: field); // field value
 			}
 			else
 			{
-				il.Emit(OpCodes.Stfld, field: field); // field value
+				// nothing should be generated
 			}
 
 			il.MarkLabel(beforeEndReturn);
@@ -2619,7 +2686,7 @@ namespace Salar.Bois.Serializers
 
 
 
-		internal static void ReadNameValueColl(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable, SharedVariables variableCache)
+		internal static void ReadNameValueColl(PropertyInfo prop, FieldInfo field, Type rootType, ILGenerator il, bool nullable, SharedVariables variableCache)
 		{
 			/*
 			var dicCoun0 = NumericSerializers.ReadVarInt32Nullable(reader);
@@ -2648,16 +2715,22 @@ namespace Salar.Bois.Serializers
 				dictionaryType = prop.PropertyType;
 				propFieldName = prop.Name;
 			}
-			else
+			else if (field != null)
 			{
 				dictionaryType = field.FieldType;
 				propFieldName = field.Name;
+			}
+			else
+			{
+				dictionaryType = rootType;
+				propFieldName = "";
 			}
 			var methodReadVarInt32Nullable = typeof(NumericSerializers)
 				.GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
 					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryReader) }, null);
 
 
+			// ReSharper disable once PossibleNullReferenceException
 			var itemCountNullableVar_shared = variableCache.GetOrAdd(methodReadVarInt32Nullable.ReturnType);
 			var itemCountVar_shared = variableCache.GetOrAdd(ReflectionHelper.FindUnderlyingGenericElementType(methodReadVarInt32Nullable.ReturnType));
 
@@ -2732,19 +2805,24 @@ namespace Salar.Bois.Serializers
 			}
 
 			// emitSample.GenericDictionary = dictionary;
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.LoadLocal(dictionaryInstance);
 			if (prop != null)
 			{
-				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocal(dictionaryInstance);
 
-				il.Emit(OpCodes.Callvirt, setter);
+				il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocal(dictionaryInstance);
+
+				il.Emit(OpCodes.Stfld, field: field); // field value
 			}
 			else
 			{
-				il.Emit(OpCodes.Stfld, field: field); // field value
+				// nothing should be generated
 			}
-
 			il.MarkLabel(beforeEndReturn);
 
 			// returning the variables
@@ -2753,7 +2831,7 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void ReadUnknownArray(PropertyInfo prop, FieldInfo field, ILGenerator il, bool nullable, SharedVariables variableCache)
+		internal static void ReadUnknownArray(PropertyInfo prop, FieldInfo field, Type rootType, ILGenerator il, bool nullable, SharedVariables variableCache)
 		{
 			/*
 			itemCount = NumericSerializers.ReadVarInt32Nullable(reader);
@@ -2773,16 +2851,17 @@ namespace Salar.Bois.Serializers
 			var beforeEndReturn = il.DefineLabel();
 
 			Type arrType;
-			string propFieldName;
 			if (prop != null)
 			{
 				arrType = prop.PropertyType;
-				propFieldName = prop.Name;
+			}
+			else if (field != null)
+			{
+				arrType = field.FieldType;
 			}
 			else
 			{
-				arrType = field.FieldType;
-				propFieldName = field.Name;
+				arrType = rootType;
 			}
 			var methodReadVarInt32Nullable = typeof(NumericSerializers)
 				.GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
@@ -2870,17 +2949,23 @@ namespace Salar.Bois.Serializers
 			}
 
 			// emitSample.GenericList = list2;
-			il.Emit(OpCodes.Ldloc_0); // instance
-			il.LoadLocal(arrInstance);
 			if (prop != null)
 			{
-				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocal(arrInstance);
 
-				il.Emit(OpCodes.Callvirt, setter);
+				il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocal(arrInstance);
+
+				il.Emit(OpCodes.Stfld, field: field); // field value
 			}
 			else
 			{
-				il.Emit(OpCodes.Stfld, field: field); // field value
+				// nothing should be generated
 			}
 
 			il.MarkLabel(beforeEndReturn);
@@ -2890,21 +2975,16 @@ namespace Salar.Bois.Serializers
 			variableCache.ReturnVariable(itemCountVar_shared);
 		}
 
-		internal static void ReadDataSet(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool nullable)
+		internal static void ReadDataSet(PropertyInfo prop, FieldInfo field, Type rootType, ILGenerator il, bool nullable)
 		{
-			if (valueSetter == null)
+			if (rootType == null)
 				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 			il.Emit(OpCodes.Ldarg_1); // Encoding
 
-			var method =
-				nullable
-					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataSet),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataSet),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+			var method = typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataSet),
+				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+				new[] { typeof(BinaryReader) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2918,28 +2998,22 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				// nothing should be generated
 			}
 			il.Emit(OpCodes.Nop);
 		}
 
 
-
-		internal static void ReadDataTable(PropertyInfo prop,FieldInfo field, Action valueSetter, ILGenerator il, bool nullable)
+		internal static void ReadDataTable(PropertyInfo prop, FieldInfo field, Type rootType, ILGenerator il, bool nullable)
 		{
-			if (valueSetter == null)
+			if (rootType == null)
 				il.Emit(OpCodes.Ldloc_0); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 			il.Emit(OpCodes.Ldarg_1); // Encoding
 
-			var method =
-				nullable
-					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataTable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
-					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataTable),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+			var method = typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataTable),
+				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+				new[] { typeof(BinaryReader) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2953,7 +3027,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				valueSetter();
+				// nothing should be generated
 			}
 			il.Emit(OpCodes.Nop);
 		}

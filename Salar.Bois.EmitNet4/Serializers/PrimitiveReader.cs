@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -211,5 +212,45 @@ namespace Salar.Bois.Serializers
 				return null;
 			return new Uri(uri);
 		}
+
+		internal static DataTable ReadDataTable(BinaryReader reader)
+		{
+			var data = ReadString(reader, Encoding.UTF8);
+			if (string.IsNullOrEmpty(data))
+				return null;
+
+			return DeserializeDataTable(data);
+		}
+
+		internal static DataSet ReadDataSet(BinaryReader reader)
+		{
+			var data = ReadString(reader, Encoding.UTF8);
+			if (string.IsNullOrEmpty(data))
+				return null;
+
+			return DeserializeDataSet(data);
+		}
+
+
+		#region Private helpers
+
+		private static DataSet DeserializeDataSet(string data)
+		{
+			var ds = new DataSet();
+			ds.ReadXml(data);
+
+			return ds;
+		}
+
+		private static DataTable DeserializeDataTable(string data)
+		{
+			var dt = new DataTable();
+			dt.ReadXml(data);
+
+			return dt;
+		}
+
+
+		#endregion
 	}
 }

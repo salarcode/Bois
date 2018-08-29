@@ -525,7 +525,7 @@ namespace Salar.Bois.Types
 				{
 					KnownType = EnBasicKnownType.Int32,
 					BareType = typeof(int),
-					AsRootNeedsCompute = true,
+					AsRootNeedsCompute = false,
 				};
 			}
 			else if (memType == typeof(long))
@@ -534,7 +534,7 @@ namespace Salar.Bois.Types
 				{
 					KnownType = EnBasicKnownType.Int64,
 					BareType = typeof(long),
-					AsRootNeedsCompute = true,
+					AsRootNeedsCompute = false,
 				};
 			}
 			else if (memType == typeof(short))
@@ -543,7 +543,7 @@ namespace Salar.Bois.Types
 				{
 					KnownType = EnBasicKnownType.Int16,
 					BareType = typeof(short),
-					AsRootNeedsCompute = true,
+					AsRootNeedsCompute = false,
 				};
 			}
 			else if (memType == typeof(double))
@@ -552,7 +552,7 @@ namespace Salar.Bois.Types
 				{
 					KnownType = EnBasicKnownType.Double,
 					BareType = typeof(double),
-					AsRootNeedsCompute = true,
+					AsRootNeedsCompute = false,
 				};
 			}
 			else if (memType == typeof(decimal))
@@ -561,7 +561,7 @@ namespace Salar.Bois.Types
 				{
 					KnownType = EnBasicKnownType.Decimal,
 					BareType = typeof(decimal),
-					AsRootNeedsCompute = true,
+					AsRootNeedsCompute = false,
 				};
 			}
 			else if (memType == typeof(float))
@@ -570,7 +570,7 @@ namespace Salar.Bois.Types
 				{
 					KnownType = EnBasicKnownType.Single,
 					BareType = typeof(float),
-					AsRootNeedsCompute = true,
+					AsRootNeedsCompute = false,
 				};
 			}
 			else if (memType == typeof(byte))
@@ -579,7 +579,7 @@ namespace Salar.Bois.Types
 				{
 					KnownType = EnBasicKnownType.Byte,
 					BareType = typeof(byte),
-					AsRootNeedsCompute = true,
+					AsRootNeedsCompute = false,
 				};
 			}
 			else if (memType == typeof(sbyte))
@@ -588,7 +588,7 @@ namespace Salar.Bois.Types
 				{
 					KnownType = EnBasicKnownType.SByte,
 					BareType = typeof(sbyte),
-					AsRootNeedsCompute = true,
+					AsRootNeedsCompute = false,
 				};
 			}
 			else if (memType == typeof(ushort))
@@ -597,7 +597,7 @@ namespace Salar.Bois.Types
 				{
 					KnownType = EnBasicKnownType.UInt16,
 					BareType = typeof(ushort),
-					AsRootNeedsCompute = true,
+					AsRootNeedsCompute = false,
 				};
 			}
 			else if (memType == typeof(uint))
@@ -606,7 +606,7 @@ namespace Salar.Bois.Types
 				{
 					KnownType = EnBasicKnownType.UInt32,
 					BareType = typeof(uint),
-					AsRootNeedsCompute = true,
+					AsRootNeedsCompute = false,
 				};
 			}
 			else if (memType == typeof(ulong))
@@ -615,7 +615,7 @@ namespace Salar.Bois.Types
 				{
 					KnownType = EnBasicKnownType.UInt64,
 					BareType = typeof(ulong),
-					AsRootNeedsCompute = true,
+					AsRootNeedsCompute = false,
 				};
 			}
 

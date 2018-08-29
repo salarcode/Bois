@@ -37,4 +37,4 @@ using System.Runtime.InteropServices;
 //#if DEBUG
 [assembly: InternalsVisibleTo("Salar.Bois.EmitPlayground")]
 //#endif
-
+[assembly: InternalsVisibleTo("Salar.Bois.NetFx.Tests")]

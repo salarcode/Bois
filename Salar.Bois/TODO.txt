@@ -1,7 +1,0 @@
-BUG:	Null values in struct.
-BUG:	Struct object CreateInstance
-BUG:	Getter & Setter for structs
-*	Support more primitive types.
-*	Better DataTable support.
-*	An option to control depth of serialization.
-*	Embed cache object inside the serializer.

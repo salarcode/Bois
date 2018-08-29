@@ -772,19 +772,19 @@ namespace Salar.Bois.Types
 			{
 				case EnComplexKnownType.Collection:
 				case EnComplexKnownType.ISet:
-					EmitGenerator.ReadGenericCollection(prop, field,null, il, complexTypeInfo.IsNullable, variableCache);
+					EmitGenerator.ReadGenericCollection(prop, field, null, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.Dictionary:
-					EmitGenerator.ReadDictionary(prop, field, il, complexTypeInfo.IsNullable, variableCache);
+					EmitGenerator.ReadDictionary(prop, field, null, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.UnknownArray:
-					EmitGenerator.ReadUnknownArray(prop, field, il, complexTypeInfo.IsNullable, variableCache);
+					EmitGenerator.ReadUnknownArray(prop, field, null, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.NameValueColl:
-					EmitGenerator.ReadNameValueColl(prop, field, il, complexTypeInfo.IsNullable, variableCache);
+					EmitGenerator.ReadNameValueColl(prop, field, null, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.DataSet:
@@ -866,8 +866,7 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnBasicKnownType.KnownTypeArray:
-					// TODO:
-					EmitGenerator.ReadUnknownArray(prop, field, il, basicInfo.IsNullable, new SharedVariables(il));
+					EmitGenerator.ReadUnknownArray(prop, field, null, il, basicInfo.IsNullable, new SharedVariables(il));
 					break;
 
 				case EnBasicKnownType.ByteArray:
@@ -875,7 +874,7 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnBasicKnownType.Enum:
-					EmitGenerator.ReadEnum(prop, field, null, il, basicInfo.IsNullable);
+					EmitGenerator.ReadEnum(prop, field, null, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.TimeSpan:
@@ -985,7 +984,7 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnBasicKnownType.Enum:
-					EmitGenerator.ReadEnum(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					EmitGenerator.ReadEnum(null, null, valueSetter, keyTypeBasicInfo.BareType, il, keyTypeBasicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.TimeSpan:

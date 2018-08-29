@@ -11,11 +11,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{EB3DE0
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.EmitNet4", "Salar.Bois.EmitNet4\Salar.Bois.EmitNet4.csproj", "{F247F38A-8BFA-4B7A-AB4E-12C646402F9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.NetFx", "Salar.Bois.EmitNet4\Salar.Bois.NetFx.csproj", "{F247F38A-8BFA-4B7A-AB4E-12C646402F9C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.EmitStd", "Salar.Bois.EmitStd\Salar.Bois.EmitStd.csproj", "{4074C5A5-60F9-4C2A-A307-C6B3D12DBAF4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.EmitCore", "Salar.Bois.EmitCore\Salar.Bois.EmitCore.csproj", "{B4598D6D-CECE-497B-A161-B2FA697CEEB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.Core", "Salar.Bois.EmitCore\Salar.Bois.Core.csproj", "{B4598D6D-CECE-497B-A161-B2FA697CEEB8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.EmitPlayground", "Salar.Bois.EmitPlayground\Salar.Bois.EmitPlayground.csproj", "{748DC61D-3EDD-4FEF-B4A7-D1945300A9BB}"
 EndProject

@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Salar.Bois</RootNamespace>
+    <AssemblyName>Salar.Bois.NetStandard</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Salar.Bois.EmitNet4\BoisContractAttribute.cs" Link="BoisContractAttribute.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\BoisMemberAttribute.cs" Link="BoisMemberAttribute.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\BoisSerializer.cs" Link="BoisSerializer.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Serializers\EmitGenerator.cs" Link="Serializers\EmitGenerator.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Serializers\NumericSerializers.cs" Link="Serializers\NumericSerializers.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Serializers\PrimitiveReader.cs" Link="Serializers\PrimitiveReader.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Serializers\PrimitivesConvertion.cs" Link="Serializers\PrimitivesConvertion.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Serializers\PrimitivesSerializer.cs" Link="Serializers\PrimitivesSerializer.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Serializers\PrimitiveWriter.cs" Link="Serializers\PrimitiveWriter.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Types\BoisBasicTypeInfo.cs" Link="Types\BoisBasicTypeInfo.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Types\BoisComplexTypeInfo.cs" Link="Types\BoisComplexTypeInfo.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Types\BoisComputedTypeHashtable.cs" Link="Types\BoisComputedTypeHashtable.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Types\BoisComputedTypeInfo.cs" Link="Types\BoisComputedTypeInfo.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Types\BoisTypeCache.cs" Link="Types\BoisTypeCache.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Types\BoisTypeCompiler.cs" Link="Types\BoisTypeCompiler.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Types\EnBasicKnownType.cs" Link="Types\EnBasicKnownType.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Types\EnComplexKnownType.cs" Link="Types\EnComplexKnownType.cs" />
+    <Compile Include="..\Salar.Bois.EmitNet4\Types\ReflectionHelper.cs" Link="Types\ReflectionHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Serializers\" />
+    <Folder Include="Types\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Reflection.Emit.Lightweight">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.netcore.app\2.0.0\ref\netcoreapp2.0\System.Reflection.Emit.Lightweight.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

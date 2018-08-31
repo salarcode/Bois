@@ -603,7 +603,7 @@ namespace Salar.Bois.Types
 				ComputeReader(il, type, typeInfo);
 
 				// never forget
-				il.LoadLocal(instanceVar);
+				il.LoadLocalValue(instanceVar);
 				il.Emit(OpCodes.Ret);
 			}
 			else
@@ -672,7 +672,7 @@ namespace Salar.Bois.Types
 				ComputeReader(il, type, typeInfo);
 
 				// never forget
-				il.LoadLocal(instanceVar);
+				il.LoadLocalValue(instanceVar);
 				il.Emit(OpCodes.Ret);
 			}
 			else

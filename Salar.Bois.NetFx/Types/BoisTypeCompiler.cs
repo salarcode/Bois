@@ -754,10 +754,42 @@ namespace Salar.Bois.Types
 
 			var variableCache = new SharedVariables(il);
 
+			ReadRootObjectMembersCount(il, type, variableCache);
+
 			foreach (var member in typeInfo.Members)
 			{
 				ReadRootObjectMember(member, il, variableCache);
 			}
+		}
+
+		private static void ReadRootObjectMembersCount(ILGenerator il, Type type, SharedVariables variableCache)
+		{
+			var notNull = il.DefineLabel();
+			// if (!NumericSerializers.ReadVarInt32Nullable(reader).HasValue)
+
+			var readVarInt32Nullable = typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
+				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+				new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Call, readVarInt32Nullable);
+			var memberCount = variableCache.GetOrAdd(typeof(int?));
+			il.StoreLocal(memberCount);
+
+			il.LoadLocalAddress(memberCount);
+			// ReSharper disable once PossibleNullReferenceException
+			il.Emit(OpCodes.Call, typeof(int?).GetProperty(nameof(Nullable<int>.HasValue)).GetGetMethod());
+
+			il.Emit(OpCodes.Brfalse_S, notNull);
+			il.Emit(OpCodes.Ldnull);
+			// TODO: check if this is necessary OpCodes.Box
+			//il.Emit(OpCodes.Box, type);
+			il.Emit(OpCodes.Ret);
+
+			il.MarkLabel(notNull);
+
+
+			variableCache.ReturnVariable(memberCount);
 		}
 
 		private static void ReadRootObjectMember(MemberInfo member, ILGenerator il, SharedVariables variableCache)
@@ -783,7 +815,7 @@ namespace Salar.Bois.Types
 
 			if (basicInfo.KnownType != EnBasicKnownType.Unknown)
 			{
-				ReadRootObjectBasicMember(memberType, basicInfo, prop, field, il);
+				ReadRootObjectBasicMember(memberType, basicInfo, prop, field, il, variableCache);
 			}
 			else
 			{
@@ -819,7 +851,7 @@ namespace Salar.Bois.Types
 			}
 		}
 
-		private static void ReadRootObjectBasicMember(Type memberType, BoisBasicTypeInfo basicInfo, PropertyInfo prop, FieldInfo field, ILGenerator il)
+		private static void ReadRootObjectBasicMember(Type memberType, BoisBasicTypeInfo basicInfo, PropertyInfo prop, FieldInfo field, ILGenerator il, SharedVariables variableCache)
 		{
 			switch (basicInfo.KnownType)
 			{
@@ -884,7 +916,7 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnBasicKnownType.KnownTypeArray:
-					EmitGenerator.ReadUnknownArray(prop, field, null, il, basicInfo.IsNullable, new SharedVariables(il));
+					EmitGenerator.ReadUnknownArray(prop, field, null, il, basicInfo.IsNullable, variableCache);
 					break;
 
 				case EnBasicKnownType.ByteArray:

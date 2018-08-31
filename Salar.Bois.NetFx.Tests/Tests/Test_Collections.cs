@@ -1,10 +1,11 @@
-﻿using FluentAssertions;
-using Salar.Bois.NetFx.Tests.Base;
+﻿using Salar.Bois.NetFx.Tests.Base;
 using Salar.Bois.NetFx.Tests.TestObjects;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xunit;
+using Assert = Xunit.Assert;
 
 // ReSharper disable InconsistentNaming
 
@@ -30,10 +31,9 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			Bois.Serialize(init, TestStream);
 			ResetStream();
 
-			//var final = Bois.Deserialize<List<int>>(TestStream);
-			var final = Computed_List_Reader_1829665514(Reader, Encoding.UTF8);
+			var final = Bois.Deserialize<List<int>>(TestStream);
 
-			final.Should().AllBeEquivalentTo(final);
+			CollectionAssert.AreEqual(init, final);
 		}
 		public static List<int> Computed_List_Reader_1829665514(BinaryReader reader, Encoding encoding)
 		{
@@ -63,7 +63,8 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			var final = Bois.Deserialize<TestObjectCollectionsPrimitive>(TestStream);
 
-			final.Should().AllBeEquivalentTo(testObject);
+			//final.Should().AllBeEquivalentTo(testObject);
+			Assert.Equal(testObject, final);
 		}
 
 	}

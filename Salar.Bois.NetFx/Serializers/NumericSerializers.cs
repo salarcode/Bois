@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Salar.Bois.Serializers
 {
-	internal  static class NumericSerializers
+	internal static class NumericSerializers
 	{
 		/// <summary>
 		/// 0100 0000 = 64
@@ -612,20 +608,32 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
-		internal  static void WriteVarInt(BinaryWriter writer, int num)
+		internal static void WriteVarInt(BinaryWriter writer, int num)
 		{
-			if (num > EmbeddedSignedMaxNumInByte)
+			void WriteBigPositive()
 			{
-				// number is not negative
-				// number is not embedded
-
 				var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
 
 				writer.Write(numLen);
 				writer.Write(numBuff, 0, numLen);
 			}
+
+			if (num > EmbeddedSignedMaxNumInByte)
+			{
+				// number is not negative
+				// number is not embedded
+
+				WriteBigPositive();
+			}
 			else if (num < 0)
 			{
+				if (num == int.MinValue)
+				{
+					// Very special case, int.minValut cannot be converted
+
+					WriteBigPositive();
+					return;
+				}
 				num = -num;
 				if (num > EmbeddedSignedMaxNumInByte)
 				{
@@ -655,36 +663,20 @@ namespace Salar.Bois.Serializers
 		}
 
 		/// <summary>
-		/// [EmbedIndicator-0-0-0-0-0-0-0] [optional data]  0..127 can be embedded
-		/// </summary>
-		/// <param name="writer"></param>
-		/// <param name="num"></param>
-		internal static void WriteVarInt(BinaryWriter writer, uint num)
-		{
-			if (num > EmbeddedUnsignedMaxNumInByte)
-			{
-				// number is not embedded
-
-				var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
-			}
-			else
-			{
-				// number is embedded
-
-				writer.Write((byte)(num | FlagEmbdedded));
-			}
-		}
-
-		/// <summary>
 		/// [EmbedIndicator-NullIndicator-SignIndicator-0-0-0-0-0] [optional data]  0..31 can be embedded
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
 		internal static void WriteVarInt(BinaryWriter writer, int? num)
 		{
+			void WriteBigPositive()
+			{
+				var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
+
+				writer.Write(numLen);
+				writer.Write(numBuff, 0, numLen);
+			}
+
 			if (num == null)
 			{
 				// number is null
@@ -697,13 +689,18 @@ namespace Salar.Bois.Serializers
 				// number is not negative
 				// number is not embedded
 
-				var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
+				WriteBigPositive();
 			}
 			else if (num < 0)
 			{
+				if (num == int.MinValue)
+				{
+					// Very special case, int.minValut cannot be converted
+
+					WriteBigPositive();
+					return;
+				}
+
 				num = -num;
 				if (num > EmbeddedSignedNullableMaxNumInByte)
 				{
@@ -732,6 +729,30 @@ namespace Salar.Bois.Serializers
 				// number is embedded
 
 				writer.Write((byte)(num.Value | FlagEmbdedded));
+			}
+		}
+
+		/// <summary>
+		/// [EmbedIndicator-0-0-0-0-0-0-0] [optional data]  0..127 can be embedded
+		/// </summary>
+		/// <param name="writer"></param>
+		/// <param name="num"></param>
+		internal static void WriteVarInt(BinaryWriter writer, uint num)
+		{
+			if (num > EmbeddedUnsignedMaxNumInByte)
+			{
+				// number is not embedded
+
+				var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
+
+				writer.Write(numLen);
+				writer.Write(numBuff, 0, numLen);
+			}
+			else
+			{
+				// number is embedded
+
+				writer.Write((byte)(num | FlagEmbdedded));
 			}
 		}
 

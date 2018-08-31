@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 
 /* 
@@ -228,6 +229,9 @@ namespace Salar.Bois.Types
 		internal class DictionaryAddMethodInfo : AddMethodInfo
 		{
 			public bool ValueNeedsArgumentBoxing;
+
+			public bool NeedsIDictionaryBoxing;
+			public Type BoxingIDictionaryType;
 		}
 
 		internal static AddMethodInfo GetIListAddMethod(Type collType, Type argType)
@@ -344,6 +348,28 @@ namespace Salar.Bois.Types
 						NeedsArgumentBoxing = true,
 						ValueNeedsArgumentBoxing = true
 					};
+				}
+			}
+			catch (Exception) { }
+
+			try
+			{
+				if (CompareInterfaceGenericTypeDefinition(dictionaryType.GetInterfaces(), typeof(IDictionary<,>)))
+				{
+					var genericInterfaceType = typeof(IDictionary<,>).MakeGenericType(keyType, valueType);
+					methodInfo = genericInterfaceType.GetMethod(nameof(IDictionary.Add));
+					if (methodInfo != null)
+					{
+						return new DictionaryAddMethodInfo()
+						{
+							MethodInfo = methodInfo,
+							HasRetunValue = methodInfo.ReturnType != typeof(void),
+							NeedsArgumentBoxing = true,
+							ValueNeedsArgumentBoxing = true,
+							NeedsIDictionaryBoxing = true,
+							BoxingIDictionaryType= genericInterfaceType
+						};
+					}
 				}
 			}
 			catch (Exception) { }

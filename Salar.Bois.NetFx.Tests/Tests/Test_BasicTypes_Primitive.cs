@@ -19,7 +19,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData(128), InlineData(-128)]
 		[InlineData(256), InlineData(-256)]
 		[InlineData(int.MaxValue)]
-		[InlineData(int.MinValue + 1)]// cant do the minValue because, Negating the minimum value of a twos complement number is invalid.
+		[InlineData(int.MinValue)]
 		public void Numbers_Int_Normal(int number)
 		{
 			ResetBois();
@@ -44,7 +44,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData(128), InlineData(-128)]
 		[InlineData(256), InlineData(-256)]
 		[InlineData(int.MaxValue)]
-		[InlineData(int.MinValue + 1)]// cant do the minValue because, Negating the minimum value of a twos complement number is invalid.
+		[InlineData(int.MinValue)]
 		public void Numbers_IntNullable_Normal(int? number)
 		{
 			ResetBois();
@@ -53,6 +53,54 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			ResetStream();
 
 			var final = NumericSerializers.ReadVarInt32Nullable(Reader);
+
+			final.Should().Be(number);
+		}
+
+		[Theory]
+		[InlineData((uint)0)]
+		[InlineData((uint)31)]
+		[InlineData((uint)32)]
+		[InlineData((uint)64)]
+		[InlineData((uint)65)]
+		[InlineData((uint)127)]
+		[InlineData((uint)128)]
+		[InlineData((uint)256)]
+		[InlineData(uint.MaxValue)]
+		[InlineData(uint.MinValue)]
+		public void Numbers_UInt_Normal(uint number)
+		{
+			ResetBois();
+
+			NumericSerializers.WriteVarInt(Writer, number);
+			Bois.Serialize(number, TestStream);
+			ResetStream();
+
+			var final = NumericSerializers.ReadVarUInt32(Reader);
+
+			final.Should().Be(number);
+		}
+
+		[Theory]
+		[InlineData(null)]
+		[InlineData((uint)0)]
+		[InlineData((uint)31)]
+		[InlineData((uint)32)]
+		[InlineData((uint)64)]
+		[InlineData((uint)65)]
+		[InlineData((uint)127)]
+		[InlineData((uint)128)]
+		[InlineData((uint)256)]
+		[InlineData(uint.MaxValue)]
+		[InlineData(uint.MinValue)]
+		public void Numbers_UIntNullable_Normal(uint? number)
+		{
+			ResetBois();
+
+			NumericSerializers.WriteVarInt(Writer, number);
+			ResetStream();
+
+			var final = NumericSerializers.ReadVarUInt32Nullable(Reader);
 
 			final.Should().Be(number);
 		}

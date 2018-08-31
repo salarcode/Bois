@@ -30,5 +30,7 @@
 		DbNull,
 		Uri,
 		Version,
+		DataSet,
+		DataTable
 	}
 }

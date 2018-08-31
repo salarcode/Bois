@@ -25,38 +25,38 @@ namespace Salar.Bois.Serializers
 			WriteUnknownArray(null, null, () =>
 				{
 					il.Emit(OpCodes.Ldarg_1); // instance
-					return typeInfo.BareType;
+					return type;
 				},
 				il, typeInfo.IsNullable);
 
 		}
 
-		internal static void WriteRootDataTable(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
-		{
-			WriteDataTable(null, null, () =>
-				{
-					il.Emit(OpCodes.Ldarg_1); // instance
-					return typeInfo.BareType;
-				},
-				il, typeInfo.IsNullable);
-		}
+		//internal static void WriteRootDataTable(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
+		//{
+		//	WriteDataTable(null, null, () =>
+		//		{
+		//			il.Emit(OpCodes.Ldarg_1); // instance
+		//			return type;
+		//		},
+		//		il, typeInfo.IsNullable);
+		//}
 
-		internal static void WriteRootDataSet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
-		{
-			WriteDataSet(null, null, () =>
-				{
-					il.Emit(OpCodes.Ldarg_1); // instance
-					return typeInfo.BareType;
-				},
-				il, typeInfo.IsNullable);
-		}
+		//internal static void WriteRootDataSet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
+		//{
+		//	WriteDataSet(null, null, () =>
+		//		{
+		//			il.Emit(OpCodes.Ldarg_1); // instance
+		//			return type;
+		//		},
+		//		il, typeInfo.IsNullable);
+		//}
 
 		internal static void WriteRootCollection(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			WriteCollection(null, null, () =>
 				{
 					il.Emit(OpCodes.Ldarg_1); // instance
-					return typeInfo.BareType;
+					return type;
 				},
 				il, typeInfo.IsNullable);
 		}
@@ -76,7 +76,7 @@ namespace Salar.Bois.Serializers
 			WriteDictionary(null, null, () =>
 				{
 					il.Emit(OpCodes.Ldarg_1); // instance
-					return typeInfo.BareType;
+					return type;
 				},
 				il, typeInfo.IsNullable);
 		}
@@ -86,7 +86,7 @@ namespace Salar.Bois.Serializers
 			WriteNameValueColl(null, null, () =>
 				{
 					il.Emit(OpCodes.Ldarg_1); // instance
-					return typeInfo.BareType;
+					return type;
 				},
 				il, typeInfo.IsNullable);
 		}
@@ -919,7 +919,7 @@ namespace Salar.Bois.Serializers
 						() =>
 						{
 							// read the key
-							il.LoadLocal(dicItemVar);
+							il.LoadLocalAddress(dicItemVar);
 
 							return valueType;
 						});
@@ -930,7 +930,7 @@ namespace Salar.Bois.Serializers
 					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(valueType, false, true);
 
 					il.Emit(OpCodes.Ldarg_0); // BinaryWriter
-					il.LoadLocal(dicItemVar);
+					il.LoadLocalAddress(dicItemVar);
 					il.Emit(OpCodes.Ldarg_2); // Encoding
 					il.Emit(OpCodes.Call, meth: valueTypeInfo.WriterMethod);
 				}
@@ -1104,7 +1104,6 @@ namespace Salar.Bois.Serializers
 					il.Emit(OpCodes.Callvirt, getCurrentInfo);
 				}
 				il.StoreLocal(dicItemVar);
-
 
 				// KEY ---------------
 				var keyTypeBasicInfo = BoisTypeCache.GetBasicType(keyType);
@@ -1547,16 +1546,6 @@ namespace Salar.Bois.Serializers
 		internal static void ReadRootISet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			ReadRootCollection(type, typeInfo, il);
-		}
-
-		internal static void ReadRootDataSet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
-		{
-			ReadDataSet(null, null, type, il, typeInfo.IsNullable);
-		}
-
-		internal static void ReadRootDataTable(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
-		{
-			ReadDataTable(null, null, type, il, typeInfo.IsNullable);
 		}
 
 		#endregion
@@ -2296,6 +2285,62 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
+		internal static void ReadDataSet(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool nullable)
+		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_1); // Encoding
+
+			var method = typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataSet),
+				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+				new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter?.Invoke();
+			}
+			il.Emit(OpCodes.Nop);
+		}
+
+
+		internal static void ReadDataTable(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool nullable)
+		{
+			if (valueSetter == null)
+				il.Emit(OpCodes.Ldloc_0); // instance
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_1); // Encoding
+
+			var method = typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataTable),
+				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+				new[] { typeof(BinaryReader) }, null);
+
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter?.Invoke();
+			}
+			il.Emit(OpCodes.Nop);
+		}
 		internal static void ReadByteArray(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
@@ -2375,14 +2420,14 @@ namespace Salar.Bois.Serializers
 			il.StoreLocal(itemCountNullableVar_shared);
 
 			// if (num.HasValue)
-			il.LoadLocal(itemCountNullableVar_shared);
+			il.LoadLocalAddress(itemCountNullableVar_shared);
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.HasValue)).GetGetMethod());
 			il.Emit(OpCodes.Brfalse_S, beforeEndReturn);
 
 			// int value = num.Value;
-			il.LoadLocal(itemCountNullableVar_shared);
+			il.LoadLocalAddress(itemCountNullableVar_shared);
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.Value)).GetGetMethod());
@@ -2484,10 +2529,19 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				// nothing should be generated
+				// returning the instance
+				il.LoadLocal(collectionInstance);
+				il.Emit(OpCodes.Ret);
 			}
 
 			il.MarkLabel(beforeEndReturn);
+
+			if (rootType != null)
+			{
+				// returning null 
+				il.Emit(OpCodes.Ldnull);
+				il.Emit(OpCodes.Ret);
+			}
 
 			// returning the variables
 			variableCache.ReturnVariable(itemCountNullableVar_shared);
@@ -2548,14 +2602,14 @@ namespace Salar.Bois.Serializers
 			il.StoreLocal(itemCountNullableVar_shared);
 
 			// if (num.HasValue)
-			il.LoadLocal(itemCountNullableVar_shared);
+			il.LoadLocalAddress(itemCountNullableVar_shared);
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.HasValue)).GetGetMethod());
 			il.Emit(OpCodes.Brfalse_S, beforeEndReturn);
 
 			// int value = num.Value;
-			il.LoadLocal(itemCountNullableVar_shared);
+			il.LoadLocalAddress(itemCountNullableVar_shared);
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.Value)).GetGetMethod());
@@ -2639,6 +2693,9 @@ namespace Salar.Bois.Serializers
 				}
 
 				// dictionary.Add
+				if (addMethodInfo.NeedsIDictionaryBoxing)
+					il.Emit(OpCodes.Box, addMethodInfo.BoxingIDictionaryType);
+
 				il.Emit(OpCodes.Callvirt, meth: addMethodInfo.MethodInfo);
 				if (addMethodInfo.HasRetunValue)
 					il.Emit(OpCodes.Pop);
@@ -2674,10 +2731,19 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				// nothing should be generated
+				// returning the instance
+				il.LoadLocal(dictionaryInstance);
+				il.Emit(OpCodes.Ret);
 			}
 
 			il.MarkLabel(beforeEndReturn);
+
+			if (rootType != null)
+			{
+				// returning null 
+				il.Emit(OpCodes.Ldnull);
+				il.Emit(OpCodes.Ret);
+			}
 
 			// returning the variables
 			variableCache.ReturnVariable(itemCountNullableVar_shared);
@@ -2740,14 +2806,14 @@ namespace Salar.Bois.Serializers
 			il.StoreLocal(itemCountNullableVar_shared);
 
 			// if (num.HasValue)
-			il.LoadLocal(itemCountNullableVar_shared);
+			il.LoadLocalAddress(itemCountNullableVar_shared);
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.HasValue)).GetGetMethod());
 			il.Emit(OpCodes.Brfalse_S, beforeEndReturn);
 
 			// int value = num.Value;
-			il.LoadLocal(itemCountNullableVar_shared);
+			il.LoadLocalAddress(itemCountNullableVar_shared);
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.Value)).GetGetMethod());
@@ -2821,9 +2887,19 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				// nothing should be generated
+				// returning the instance
+				il.LoadLocal(dictionaryInstance);
+				il.Emit(OpCodes.Ret);
 			}
 			il.MarkLabel(beforeEndReturn);
+
+			if (rootType != null)
+			{
+				// returning null 
+				il.Emit(OpCodes.Ldnull);
+				il.Emit(OpCodes.Ret);
+			}
+
 
 			// returning the variables
 			variableCache.ReturnVariable(itemCountNullableVar_shared);
@@ -2875,14 +2951,14 @@ namespace Salar.Bois.Serializers
 			il.StoreLocal(itemCountNullableVar_shared);
 
 			// if (num.HasValue)
-			il.LoadLocal(itemCountNullableVar_shared);
+			il.LoadLocalAddress(itemCountNullableVar_shared);
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.HasValue)).GetGetMethod());
 			il.Emit(OpCodes.Brfalse_S, beforeEndReturn);
 
 			// int value = num.Value;
-			il.LoadLocal(itemCountNullableVar_shared);
+			il.LoadLocalAddress(itemCountNullableVar_shared);
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<int>.Value)).GetGetMethod());
@@ -2965,95 +3041,32 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				// nothing should be generated
+				// returning the instance
+				il.LoadLocal(arrInstance);
+				il.Emit(OpCodes.Ret);
 			}
 
 			il.MarkLabel(beforeEndReturn);
+
+			if (rootType != null)
+			{
+				// returning null 
+				il.Emit(OpCodes.Ldnull);
+				il.Emit(OpCodes.Ret);
+			}
 
 			// returning the variables
 			variableCache.ReturnVariable(itemCountNullableVar_shared);
 			variableCache.ReturnVariable(itemCountVar_shared);
 		}
 
-		internal static void ReadDataSet(PropertyInfo prop, FieldInfo field, Type rootType, ILGenerator il, bool nullable)
-		{
-			if (rootType == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-			il.Emit(OpCodes.Ldarg_1); // Encoding
-
-			var method = typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataSet),
-				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-				new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			if (prop != null)
-			{
-				var setter = prop.GetSetMethod(true);
-				il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			}
-			else if (field != null)
-			{
-				il.Emit(OpCodes.Stfld, field: field); // field value
-			}
-			else
-			{
-				// nothing should be generated
-			}
-			il.Emit(OpCodes.Nop);
-		}
-
-
-		internal static void ReadDataTable(PropertyInfo prop, FieldInfo field, Type rootType, ILGenerator il, bool nullable)
-		{
-			if (rootType == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-			il.Emit(OpCodes.Ldarg_1); // Encoding
-
-			var method = typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataTable),
-				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-				new[] { typeof(BinaryReader) }, null);
-
-			il.Emit(OpCodes.Call, meth: method);
-			if (prop != null)
-			{
-				var setter = prop.GetSetMethod(true);
-				il.Emit(OpCodes.Callvirt, meth: setter); // property value
-			}
-			else if (field != null)
-			{
-				il.Emit(OpCodes.Stfld, field: field); // field value
-			}
-			else
-			{
-				// nothing should be generated
-			}
-			il.Emit(OpCodes.Nop);
-		}
-
-
 		#endregion
-
-
 	}
 
 	static class IlExtensions
 	{
 		internal static void LoadLocal(this ILGenerator il, LocalBuilder local)
 		{
-			if (local.LocalType?.IsValueType == true)
-			{
-				if (local.LocalIndex < 256)
-				{
-					il.Emit(OpCodes.Ldloca_S, (byte)local.LocalIndex);
-				}
-				else
-				{
-					il.Emit(OpCodes.Ldloca, local);
-				}
-				return;
-			}
 			switch (local.LocalIndex)
 			{
 				case 0: il.Emit(OpCodes.Ldloc_0); break;
@@ -3072,6 +3085,29 @@ namespace Salar.Bois.Serializers
 					break;
 			}
 		}
+
+		internal static void LoadLocalAddress(this ILGenerator il, LocalBuilder local)
+		{
+			if (local.LocalIndex < 256)
+			{
+				il.Emit(OpCodes.Ldloca_S, (byte)local.LocalIndex);
+			}
+			else
+			{
+				il.Emit(OpCodes.Ldloca, local);
+			}
+		}
+
+		internal static void LoadLocalAuto(this ILGenerator il, LocalBuilder local)
+		{
+			if (local.LocalType?.IsValueType == true)
+			{
+				LoadLocalAddress(il, local);
+				return;
+			}
+			LoadLocal(il, local);
+		}
+
 
 		internal static void StoreLocal(this ILGenerator il, LocalBuilder local)
 		{

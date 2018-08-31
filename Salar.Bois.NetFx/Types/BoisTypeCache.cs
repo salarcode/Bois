@@ -1,15 +1,11 @@
 ﻿#define DotNet
 using System;
-using Salar.Bois;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Drawing;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 
 /* 
  * Salar BOIS (Binary Object Indexed Serialization)
@@ -40,7 +36,11 @@ namespace Salar.Bois.Types
 		internal static BoisComputedTypeInfo GetRootTypeComputed(
 			Type type,
 			bool generateReader,
-			bool generateWriter)
+			bool generateWriter
+#if EmitAssemblyOut
+			,bool outputAssembly = true
+#endif
+			)
 		{
 			BoisComputedTypeInfo result;
 			if (_computedCache.TryGetValue(type, out result))
@@ -61,7 +61,7 @@ namespace Salar.Bois.Types
 				complexTypeInfo = GetComplexTypeUnCached(type);
 
 #if EmitAssemblyOut
-				var computed = BoisTypeCompiler.ComputeWriterSaveAss(type, complexTypeInfo);
+				var computed = BoisTypeCompiler.ComputeWriterSaveAss(type, complexTypeInfo, outputAssembly);
 #else
 				var computed = BoisTypeCompiler.ComputeWriter(type, complexTypeInfo);
 #endif
@@ -75,7 +75,7 @@ namespace Salar.Bois.Types
 					complexTypeInfo = GetComplexTypeUnCached(type);
 
 #if EmitAssemblyOut
-				var computed = BoisTypeCompiler.ComputeReaderSaveAss(type, complexTypeInfo);
+				var computed = BoisTypeCompiler.ComputeReaderSaveAss(type, complexTypeInfo, outputAssembly);
 #else
 				var computed = BoisTypeCompiler.ComputeReader(type, complexTypeInfo);
 #endif
@@ -502,6 +502,27 @@ namespace Salar.Bois.Types
 			}
 
 
+#if !SILVERLIGHT && DotNet
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataSet)))
+			{
+				return new BoisBasicTypeInfo
+				{
+					IsNullable = isNullable,
+					KnownType = EnBasicKnownType.DataSet,
+					BareType = underlyingTypeNullable,
+				};
+			}
+			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataTable)))
+			{
+				return new BoisBasicTypeInfo
+				{
+					IsNullable = isNullable,
+					KnownType = EnBasicKnownType.DataTable,
+					BareType = underlyingTypeNullable,
+				};
+			}
+
+#endif
 			// not compatible simple type found
 			// cant be used as root, should be computed
 			return new BoisBasicTypeInfo()
@@ -761,30 +782,6 @@ namespace Salar.Bois.Types
 					BareType = underlyingTypeNullable,
 				};
 			}
-
-
-#if !SILVERLIGHT && DotNet
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataSet)))
-			{
-				return new BoisComplexTypeInfo
-				{
-					IsNullable = isNullable,
-					ComplexKnownType = EnComplexKnownType.DataSet,
-					BareType = underlyingTypeNullable,
-				};
-			}
-			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataTable)))
-			{
-				return new BoisComplexTypeInfo
-				{
-					IsNullable = isNullable,
-					ComplexKnownType = EnComplexKnownType.DataTable,
-					BareType = underlyingTypeNullable,
-				};
-			}
-
-#endif
-
 
 			var objectMemInfo = ReadComplexTypeMembers(memType);
 			objectMemInfo.BareType = underlyingTypeNullable;

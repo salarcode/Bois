@@ -26,32 +26,36 @@ namespace Salar.Bois.Types
 		}
 
 #if EmitAssemblyOut
-		private static TypeBuilder _computeWriterSaveAssModule = null;
+		private static TypeBuilder _outWriterModule = null;
+		private static TypeBuilder _outWriterProgrammClass = null;
+		private static AssemblyBuilder _outWriterAssemblyBuilder = null;
+		private static string _writerAssemblyName;
 
-		internal static ComputeResult ComputeWriterSaveAss(Type type, BoisComplexTypeInfo typeInfo)
+		internal static ComputeResult ComputeWriterSaveAss(Type type, BoisComplexTypeInfo typeInfo, bool outputAssembly = true)
 		{
-			var saveAssembly = _computeWriterSaveAssModule == null;
+			var saveAssembly = _outWriterModule == null;
 
-
-			var name = GetTypeMethodName(type, true) + ".exe";
-			var methodName = name;
-
-			TypeBuilder programmClass;
-			AssemblyBuilder assemblyBuilder = null;
-			if (_computeWriterSaveAssModule == null)
+			if (_outWriterModule == null)
 			{
-				var assemblyName = new AssemblyName(name);
+				_writerAssemblyName = GetTypeMethodName(type, true) + ".exe";
 
-				assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
-					name: assemblyName,
+				var daCtor = typeof(System.Diagnostics.DebuggableAttribute).GetConstructor(new Type[] { typeof(System.Diagnostics.DebuggableAttribute.DebuggingModes) });
+				var daBuilder = new CustomAttributeBuilder(daCtor, new object[] {
+					System.Diagnostics.DebuggableAttribute.DebuggingModes.DisableOptimizations |
+					System.Diagnostics.DebuggableAttribute.DebuggingModes.Default });
+
+				_outWriterAssemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
+					name: new AssemblyName(_writerAssemblyName),
 					access: AssemblyBuilderAccess.RunAndSave);
 
-				var moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
-				programmClass = moduleBuilder.DefineType("Program", TypeAttributes.Public);
+				_outWriterAssemblyBuilder.SetCustomAttribute(daBuilder);
 
-				_computeWriterSaveAssModule = programmClass;
+				var moduleBuilder = _outWriterAssemblyBuilder.DefineDynamicModule(_writerAssemblyName);
+				_outWriterProgrammClass = moduleBuilder.DefineType("Program", TypeAttributes.Public);
 
-				var mainMethod = programmClass.DefineMethod(name: "Main",
+				_outWriterModule = _outWriterProgrammClass;
+
+				var mainMethod = _outWriterProgrammClass.DefineMethod(name: "Main",
 					attributes: MethodAttributes.Public | MethodAttributes.Static,
 					returnType: null,
 					parameterTypes: new Type[] { typeof(string[]) });
@@ -70,11 +74,10 @@ namespace Salar.Bois.Types
 			}
 			else
 			{
-				programmClass = _computeWriterSaveAssModule;
-				methodName = GetTypeMethodName(type, true);
+				_outWriterProgrammClass = _outWriterModule;
 			}
 
-			var ilMethod = programmClass.DefineMethod(
+			var ilMethod = _outWriterProgrammClass.DefineMethod(
 				name: GetTypeMethodName(type, serialize: true),
 				attributes: MethodAttributes.Public | MethodAttributes.Static,
 				returnType: null,
@@ -93,12 +96,9 @@ namespace Salar.Bois.Types
 			il.Emit(OpCodes.Ret);
 
 
-			if (saveAssembly)
+			if (saveAssembly && outputAssembly)
 			{
-				var generatedType = programmClass.CreateType();
-
-				assemblyBuilder.SetEntryPoint(((Type)programmClass).GetMethod("Main"));
-				assemblyBuilder.Save(name);
+				var generatedType = SaveAssemblyOutput_Writer();
 
 				var delegateType = typeof(SerializeDelegate<>).MakeGenericType(type);
 				var writerDelegate = generatedType.GetMethod(ilMethod.Name).CreateDelegate(delegateType);
@@ -117,6 +117,16 @@ namespace Salar.Bois.Types
 				Delegate = null
 			};
 		}
+
+		internal static Type SaveAssemblyOutput_Writer()
+		{
+			var generatedType = _outWriterProgrammClass.CreateType();
+
+			_outWriterAssemblyBuilder.SetEntryPoint(((Type)_outWriterProgrammClass).GetMethod("Main"));
+			_outWriterAssemblyBuilder.Save(_writerAssemblyName);
+			return generatedType;
+		}
+
 #endif
 
 		public static ComputeResult ComputeWriter(Type type, BoisComplexTypeInfo typeInfo, Module containerModule = null)
@@ -161,16 +171,12 @@ namespace Salar.Bois.Types
 		{
 			switch (typeInfo.ComplexKnownType)
 			{
+				case EnComplexKnownType.Collection:
+					EmitGenerator.WriteRootList(type, typeInfo, il);
+					break;
+
 				case EnComplexKnownType.Dictionary:
 					EmitGenerator.WriteRootDictionary(type, typeInfo, il);
-					break;
-
-				case EnComplexKnownType.DataSet:
-					EmitGenerator.WriteRootDataSet(type, typeInfo, il);
-					break;
-
-				case EnComplexKnownType.DataTable:
-					EmitGenerator.WriteRootDataTable(type, typeInfo, il);
 					break;
 
 				case EnComplexKnownType.NameValueColl:
@@ -183,10 +189,6 @@ namespace Salar.Bois.Types
 
 				case EnComplexKnownType.ISet:
 					EmitGenerator.WriteRootISet(type, typeInfo, il);
-					break;
-
-				case EnComplexKnownType.Collection:
-					EmitGenerator.WriteRootList(type, typeInfo, il);
 					break;
 
 				case EnComplexKnownType.Unknown:
@@ -278,14 +280,6 @@ namespace Salar.Bois.Types
 
 				case EnComplexKnownType.ISet:
 					EmitGenerator.WriteISet(prop, field, null, il, complexTypeInfo.IsNullable);
-					break;
-
-				case EnComplexKnownType.DataSet:
-					EmitGenerator.WriteDataSet(prop, field, null, il, complexTypeInfo.IsNullable);
-					break;
-
-				case EnComplexKnownType.DataTable:
-					EmitGenerator.WriteDataTable(prop, field, null, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.Unknown:
@@ -395,6 +389,14 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnBasicKnownType.Version:
+					EmitGenerator.WriteVersion(prop, field, null, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DataTable:
+					EmitGenerator.WriteVersion(prop, field, null, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DataSet:
 					EmitGenerator.WriteVersion(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
@@ -508,6 +510,14 @@ namespace Salar.Bois.Types
 					EmitGenerator.WriteVersion(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
 					break;
 
+				case EnBasicKnownType.DataTable:
+					EmitGenerator.WriteDataTable(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DataSet:
+					EmitGenerator.WriteDataSet(null, null, valueLoader, il, keyTypeBasicInfo.IsNullable);
+					break;
+
 				case EnBasicKnownType.Unknown:
 				default:
 					throw new ArgumentOutOfRangeException("keyTypeBasicInfo.KnownType");
@@ -528,31 +538,29 @@ namespace Salar.Bois.Types
 		}
 
 #if EmitAssemblyOut
-		private static TypeBuilder _computeReaderSaveAssModule = null;
+		private static TypeBuilder _outReaderModule = null;
+		private static string _readerAssemblyName;
+		private static AssemblyBuilder _outReaderAssemblyBuilder = null;
+		private static TypeBuilder _outReaderProgrammClass;
 
-		public static ComputeResult ComputeReaderSaveAss(Type type, BoisComplexTypeInfo typeInfo)
+		public static ComputeResult ComputeReaderSaveAss(Type type, BoisComplexTypeInfo typeInfo, bool outputAssembly = true)
 		{
-			var saveAssembly = _computeReaderSaveAssModule == null;
+			var saveAssembly = _outReaderModule == null;
 
-			var nameAss = GetTypeMethodName(type, false);
-			var nameFile = nameAss + ".exe";
-
-			AssemblyBuilder assemblyBuilder = null;
-			TypeBuilder programmClass;
-			if (_computeReaderSaveAssModule == null)
+			if (_outReaderModule == null)
 			{
-				var assemblyName = new AssemblyName(nameFile);
+				_readerAssemblyName = GetTypeMethodName(type, false) + ".exe";
 
-				assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
-					name: assemblyName,
+				_outReaderAssemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
+					name: new AssemblyName(_readerAssemblyName),
 					access: AssemblyBuilderAccess.RunAndSave);
 
-				var moduleBuilder = assemblyBuilder.DefineDynamicModule(nameFile);
+				var moduleBuilder = _outReaderAssemblyBuilder.DefineDynamicModule(_readerAssemblyName);
 
-				programmClass = moduleBuilder.DefineType("Program", TypeAttributes.Public);
-				_computeReaderSaveAssModule = programmClass;
+				_outReaderProgrammClass = moduleBuilder.DefineType("Program", TypeAttributes.Public);
+				_outReaderModule = _outReaderProgrammClass;
 
-				var mainMethod = programmClass.DefineMethod(name: "Main",
+				var mainMethod = _outReaderProgrammClass.DefineMethod(name: "Main",
 					attributes: MethodAttributes.Public | MethodAttributes.Static,
 					returnType: null,
 					parameterTypes: new Type[] { typeof(string[]) });
@@ -571,11 +579,11 @@ namespace Salar.Bois.Types
 			}
 			else
 			{
-				programmClass = _computeReaderSaveAssModule;
+				_outReaderProgrammClass = _outReaderModule;
 			}
 
 
-			var ilMethod = programmClass.DefineMethod(
+			var ilMethod = _outReaderProgrammClass.DefineMethod(
 				name: GetTypeMethodName(type, serialize: false),
 				attributes: MethodAttributes.Public | MethodAttributes.Static,
 				returnType: type,
@@ -587,18 +595,27 @@ namespace Salar.Bois.Types
 
 
 			var il = ilMethod.GetILGenerator();
-			ComputeReaderTypeCreation(il, type);
-			ComputeReader(il, type, typeInfo);
+			LocalBuilder instanceVar;
 
-			// never forget
-			il.Emit(OpCodes.Ldloc_0);
-			il.Emit(OpCodes.Ret);
-
-			if (saveAssembly)
+			if (typeInfo.ComplexKnownType == EnComplexKnownType.Unknown)
 			{
-				var generatedType = programmClass.CreateType();
-				assemblyBuilder.SetEntryPoint(((Type)programmClass).GetMethod("Main"));
-				assemblyBuilder.Save(nameFile);
+				instanceVar = ComputeReaderTypeCreation(il, type);
+				ComputeReader(il, type, typeInfo);
+
+				// never forget
+				il.LoadLocal(instanceVar);
+				il.Emit(OpCodes.Ret);
+			}
+			else
+			{
+				// root object should return the instance variable
+				ComputeReader(il, type, typeInfo);
+			}
+
+
+			if (saveAssembly && outputAssembly)
+			{
+				var generatedType = SaveAssemblyOutput_Reader();
 
 				var delegateType = typeof(DeserializeDelegate<>).MakeGenericType(type);
 				var readerDelegate = generatedType.GetMethod(ilMethod.Name).CreateDelegate(delegateType);
@@ -615,6 +632,14 @@ namespace Salar.Bois.Types
 				Method = ilMethod,
 				Delegate = null
 			};
+		}
+
+		public static Type SaveAssemblyOutput_Reader()
+		{
+			var generatedType = _outReaderProgrammClass.CreateType();
+			_outReaderAssemblyBuilder.SetEntryPoint(((Type)_outReaderProgrammClass).GetMethod("Main"));
+			_outReaderAssemblyBuilder.Save(_readerAssemblyName);
+			return generatedType;
 		}
 #endif
 
@@ -639,14 +664,22 @@ namespace Salar.Bois.Types
 #endif
 
 			var il = ilMethod.GetILGenerator();
+			LocalBuilder instanceVar;
 
-			ComputeReaderTypeCreation(il, type);
-			ComputeReader(il, type, typeInfo);
+			if (typeInfo.ComplexKnownType == EnComplexKnownType.Unknown)
+			{
+				instanceVar = ComputeReaderTypeCreation(il, type);
+				ComputeReader(il, type, typeInfo);
 
-			// never forget
-			il.Emit(OpCodes.Ldloc_0);
-			il.Emit(OpCodes.Ret);
-
+				// never forget
+				il.LoadLocal(instanceVar);
+				il.Emit(OpCodes.Ret);
+			}
+			else
+			{
+				// root object should return the instance variable
+				ComputeReader(il, type, typeInfo);
+			}
 
 			var delegateType = typeof(DeserializeDelegate<>).MakeGenericType(type);
 
@@ -678,6 +711,7 @@ namespace Salar.Bois.Types
 			return instanceVariable;
 		}
 
+		/// <returns>The instance variable</returns>
 		private static void ComputeReader(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
 		{
 			switch (typeInfo.ComplexKnownType)
@@ -700,14 +734,6 @@ namespace Salar.Bois.Types
 
 				case EnComplexKnownType.ISet:
 					EmitGenerator.ReadRootISet(type, typeInfo, il);
-					break;
-
-				case EnComplexKnownType.DataSet:
-					EmitGenerator.ReadRootDataSet(type, typeInfo, il);
-					break;
-
-				case EnComplexKnownType.DataTable:
-					EmitGenerator.ReadRootDataTable(type, typeInfo, il);
 					break;
 
 				case EnComplexKnownType.Unknown:
@@ -785,14 +811,6 @@ namespace Salar.Bois.Types
 
 				case EnComplexKnownType.NameValueColl:
 					EmitGenerator.ReadNameValueColl(prop, field, null, il, complexTypeInfo.IsNullable, variableCache);
-					break;
-
-				case EnComplexKnownType.DataSet:
-					EmitGenerator.ReadDataSet(prop, field, null, il, complexTypeInfo.IsNullable);
-					break;
-
-				case EnComplexKnownType.DataTable:
-					EmitGenerator.ReadDataTable(prop, field, null, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.Unknown:
@@ -905,6 +923,14 @@ namespace Salar.Bois.Types
 					EmitGenerator.ReadVersion(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
+				case EnBasicKnownType.DataTable:
+					EmitGenerator.ReadDataTable(prop, field, null, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DataSet:
+					EmitGenerator.ReadDataSet(prop, field, null, il, basicInfo.IsNullable);
+					break;
+
 				default:
 				case EnBasicKnownType.Unknown:
 					return;
@@ -1013,6 +1039,14 @@ namespace Salar.Bois.Types
 
 				case EnBasicKnownType.Version:
 					EmitGenerator.ReadVersion(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DataTable:
+					EmitGenerator.ReadDataTable(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.DataSet:
+					EmitGenerator.ReadDataSet(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Unknown:

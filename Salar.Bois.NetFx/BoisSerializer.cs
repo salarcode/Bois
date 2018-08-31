@@ -1,6 +1,7 @@
 ﻿using Salar.Bois.Serializers;
 using Salar.Bois.Types;
 using System;
+using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -50,8 +51,17 @@ namespace Salar.Bois
 			foreach (var type in types)
 			{
 				if (type != null)
-					BoisTypeCache.GetRootTypeComputed(type, true, true);
+					BoisTypeCache.GetRootTypeComputed(type, true, true
+#if EmitAssemblyOut
+						, outputAssembly: false
+#endif
+					);
 			}
+
+#if EmitAssemblyOut
+			BoisTypeCompiler.SaveAssemblyOutput_Writer();
+			BoisTypeCompiler.SaveAssemblyOutput_Reader();
+#endif
 		}
 
 		/// <summary>
@@ -198,6 +208,14 @@ namespace Salar.Bois
 				case EnBasicKnownType.Uri:
 					PrimitiveWriter.WriteValue(writer, (obj as Uri));
 					break;
+
+				case EnBasicKnownType.DataTable:
+					PrimitiveWriter.WriteValue(writer, obj as DataTable, Encoding);
+					return;
+
+				case EnBasicKnownType.DataSet:
+					PrimitiveWriter.WriteValue(writer, obj as DataSet, Encoding);
+					return;
 
 				case EnBasicKnownType.Int16:
 					if (typeInfo.IsNullable)
@@ -366,6 +384,12 @@ namespace Salar.Bois
 
 				case EnBasicKnownType.DbNull:
 					return PrimitiveReader.ReadDbNull(reader);
+
+				case EnBasicKnownType.DataTable:
+					return PrimitiveReader.ReadDataTable(reader);
+
+				case EnBasicKnownType.DataSet:
+					return PrimitiveReader.ReadDataSet(reader);
 
 				case EnBasicKnownType.Uri:
 					return PrimitiveReader.ReadUri(reader);

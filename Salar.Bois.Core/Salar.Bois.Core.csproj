@@ -4,9 +4,14 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>Salar.Bois.Core</AssemblyName>
     <RootNamespace>Salar.Bois</RootNamespace>
+    <Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;DotNet;NetCore;NETCOREAPP2_0</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug+AssemblyOut|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;DotNet;NetCore;NETCOREAPP2_0</DefineConstants>
   </PropertyGroup>
 

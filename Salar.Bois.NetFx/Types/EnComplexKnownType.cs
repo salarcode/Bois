@@ -13,8 +13,6 @@ namespace Salar.Bois.Types
 		UnknownArray,
 		NameValueColl,
 		ISet,
-		DataSet,
-		DataTable,
 		Unknown
 	}
 }

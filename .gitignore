@@ -306,3 +306,4 @@ $tf*/
 /CreateNuget-Push.cmd
 /CreateNuget-Pack.cmd
 *.nupkg
+/Salar.Bois.Playground

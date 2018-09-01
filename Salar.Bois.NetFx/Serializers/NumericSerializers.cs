@@ -578,10 +578,10 @@ namespace Salar.Bois.Serializers
 			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
 			if (embedded)
 			{
-				return reader.ReadByte();
+				return (byte)(input & FlagEmbdeddedMask);
 			}
 
-			return input;
+			return reader.ReadByte();
 		}
 
 		internal static sbyte? ReadVarSByteNullable(BinaryReader reader)
@@ -591,12 +591,28 @@ namespace Salar.Bois.Serializers
 				return null;
 
 			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var negative = (input & FlagNullableNegativeNum) == FlagNullableNegativeNum;
 			if (embedded)
 			{
+				if (negative)
+				{
+					var thenumber = -((sbyte) (input & FlagNullableNegativeEmbdeddedMask));
+
+					return (sbyte) thenumber;
+				}
+				return (sbyte) (input & FlagEmbdeddedMask);
+			}
+			else
+			{
+				if (negative)
+				{
+					var number = -reader.ReadSByte();
+
+					return (sbyte)number;
+				}
+
 				return reader.ReadSByte();
 			}
-
-			return input;
 		}
 
 		#endregion

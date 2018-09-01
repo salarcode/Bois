@@ -130,16 +130,16 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 		[Theory]
 		[InlineData(null)]
-		[InlineData(0)]
-		[InlineData(31), InlineData(-31)]
-		[InlineData(32), InlineData(-32)]
-		[InlineData(64), InlineData(-64)]
-		[InlineData(65), InlineData(-65)]
-		[InlineData(127), InlineData(-127)]
-		[InlineData(128), InlineData(-128)]
-		[InlineData(256), InlineData(-256)]
-		[InlineData(int.MaxValue)]
-		[InlineData(int.MinValue)]
+		[InlineData((byte)0)]
+		[InlineData((byte)31)]
+		[InlineData((byte)32)]
+		[InlineData((byte)64)]
+		[InlineData((byte)65)]
+		[InlineData((byte)127)]
+		[InlineData((byte)128)]
+		[InlineData((byte)255)]
+		[InlineData(byte.MaxValue)]
+		[InlineData(byte.MinValue)]
 		public void Numbers_byteNullable_Normal(byte? number)
 		{
 			ResetBois();

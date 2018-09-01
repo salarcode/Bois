@@ -1559,10 +1559,12 @@ namespace Salar.Bois.Serializers
 			{
 				valueLoader();
 			}
+			il.Emit(OpCodes.Ldarg_2); // Encoding
 
-			var methodArg = new[] { typeof(BinaryWriter), typeof(DataSet) };
+			var methodArg = new[] { typeof(BinaryWriter), typeof(DataSet), typeof(Encoding) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
+
 			il.Emit(OpCodes.Nop);
 		}
 
@@ -1585,8 +1587,9 @@ namespace Salar.Bois.Serializers
 			{
 				valueLoader();
 			}
+			il.Emit(OpCodes.Ldarg_2); // Encoding
 
-			var methodArg = new[] { typeof(BinaryWriter), typeof(DataTable) };
+			var methodArg = new[] { typeof(BinaryWriter), typeof(DataTable), typeof(Encoding) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -2365,7 +2368,7 @@ namespace Salar.Bois.Serializers
 
 			var method = typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataSet),
 				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-				new[] { typeof(BinaryReader) }, null);
+				new[] { typeof(BinaryReader), typeof(Encoding) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2394,7 +2397,7 @@ namespace Salar.Bois.Serializers
 
 			var method = typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataTable),
 				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-				new[] { typeof(BinaryReader) }, null);
+				new[] { typeof(BinaryReader), typeof(Encoding) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2592,16 +2595,16 @@ namespace Salar.Bois.Serializers
 				if (valueTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
 				{
 					il.LoadLocalValue(collectionInstance);
-					BoisTypeCompiler.ReadBasicTypeDirectly(il, valueTypeBasicInfo, () =>
-					{
-						if (addMethodInfo.NeedsArgumentBoxing)
-							il.Emit(OpCodes.Box, valueType);
+					BoisTypeCompiler.ReadBasicTypeDirectly(il, valueType, valueTypeBasicInfo, () =>
+					 {
+						 if (addMethodInfo.NeedsArgumentBoxing)
+							 il.Emit(OpCodes.Box, valueType);
 
-						il.Emit(OpCodes.Callvirt, meth: addMethodInfo.MethodInfo);
+						 il.Emit(OpCodes.Callvirt, meth: addMethodInfo.MethodInfo);
 
-						if (addMethodInfo.HasRetunValue)
-							il.Emit(OpCodes.Pop);
-					});
+						 if (addMethodInfo.HasRetunValue)
+							 il.Emit(OpCodes.Pop);
+					 });
 				}
 				else
 				{
@@ -2774,7 +2777,7 @@ namespace Salar.Bois.Serializers
 				var keyTypeBasicInfo = BoisTypeCache.GetBasicType(keyType);
 				if (keyTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
 				{
-					BoisTypeCompiler.ReadBasicTypeDirectly(il, keyTypeBasicInfo, () =>
+					BoisTypeCompiler.ReadBasicTypeDirectly(il, keyType, keyTypeBasicInfo, () =>
 					{
 						if (addMethodInfo.NeedsArgumentBoxing)
 							il.Emit(OpCodes.Box, keyType);
@@ -2797,7 +2800,7 @@ namespace Salar.Bois.Serializers
 				var valueTypeBasicInfo = BoisTypeCache.GetBasicType(valueType);
 				if (valueTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
 				{
-					BoisTypeCompiler.ReadBasicTypeDirectly(il, valueTypeBasicInfo, () =>
+					BoisTypeCompiler.ReadBasicTypeDirectly(il, valueType, valueTypeBasicInfo, () =>
 					{
 						if (addMethodInfo.ValueNeedsArgumentBoxing)
 							il.Emit(OpCodes.Box, valueType);
@@ -2972,10 +2975,10 @@ namespace Salar.Bois.Serializers
 				//  dictionary
 				il.LoadLocalValue(dictionaryInstance);
 				// KEY -------------
-				BoisTypeCompiler.ReadBasicTypeDirectly(il, itemTypeBasicInfo, () => { });
+				BoisTypeCompiler.ReadBasicTypeDirectly(il, typeof(string), itemTypeBasicInfo, () => { });
 
 				// VALUE -------------
-				BoisTypeCompiler.ReadBasicTypeDirectly(il, itemTypeBasicInfo, () => { });
+				BoisTypeCompiler.ReadBasicTypeDirectly(il, typeof(string), itemTypeBasicInfo, () => { });
 
 				// dictionary.Add
 				il.Emit(OpCodes.Callvirt, meth: addMethodInfo);
@@ -3115,7 +3118,7 @@ namespace Salar.Bois.Serializers
 				{
 					il.LoadLocalValue(arrInstance);
 					il.Emit(OpCodes.Ldloc, forIndexVar);
-					BoisTypeCompiler.ReadBasicTypeDirectly(il, valueTypeBasicInfo, () =>
+					BoisTypeCompiler.ReadBasicTypeDirectly(il, arrayItemType, valueTypeBasicInfo, () =>
 					{
 						il.Emit(OpCodes.Stelem, arrayItemType);
 					});

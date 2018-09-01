@@ -401,11 +401,11 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnBasicKnownType.DataTable:
-					EmitGenerator.WriteVersion(prop, field, null, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDataTable(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DataSet:
-					EmitGenerator.WriteVersion(prop, field, null, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDataSet(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				default:
@@ -982,7 +982,7 @@ namespace Salar.Bois.Types
 			}
 		}
 
-		internal static void ReadBasicTypeDirectly(ILGenerator il, BoisBasicTypeInfo keyTypeBasicInfo, Action valueSetter)
+		internal static void ReadBasicTypeDirectly(ILGenerator il, Type memberType, BoisBasicTypeInfo keyTypeBasicInfo, Action valueSetter)
 		{
 			switch (keyTypeBasicInfo.KnownType)
 			{
@@ -1055,7 +1055,7 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnBasicKnownType.Enum:
-					EmitGenerator.ReadEnum(null, null, valueSetter, keyTypeBasicInfo.BareType, il, keyTypeBasicInfo.IsNullable);
+					EmitGenerator.ReadEnum(null, null, valueSetter, memberType, il, keyTypeBasicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.TimeSpan:

@@ -15,6 +15,8 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
+			BoisSerializer.Initialize<TestObjectPrimitiveTypes>();
+
 			Bois.Serialize(init, TestStream);
 			ResetStream();
 

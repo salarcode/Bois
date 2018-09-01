@@ -62,6 +62,7 @@ namespace Salar.Bois.NetFx.Tests.TestObjects
 		public byte[] ByteArray { get; set; } = new byte[10];
 
 		public Guid Guid { get; set; }
+		public Guid Guid2{ get; set; }
 
 		public Color Color { get; set; } = Color.GreenYellow;
 
@@ -90,7 +91,7 @@ namespace Salar.Bois.NetFx.Tests.TestObjects
 			{
 				new TestObjectPrimitiveTypes
 				{
-
+					Guid = Guid.NewGuid()
 				}
 			};
 		}

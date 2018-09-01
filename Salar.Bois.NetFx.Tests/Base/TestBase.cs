@@ -1,8 +1,8 @@
-﻿using ReflectionMagic;
+﻿using Newtonsoft.Json;
+using ReflectionMagic;
 using System;
 using System.IO;
-using System.Net.Http.Headers;
-using System.Reflection;
+using Xunit;
 
 namespace Salar.Bois.NetFx.Tests.Base
 {
@@ -27,7 +27,7 @@ namespace Salar.Bois.NetFx.Tests.Base
 
 		public BinaryWriter Writer => _writer ?? (_writer = new BinaryWriter(TestStream));
 
-		public BinaryReader Reader=> _reader ?? (_reader = new BinaryReader(TestStream));
+		public BinaryReader Reader => _reader ?? (_reader = new BinaryReader(TestStream));
 
 		public void ResetBois()
 		{
@@ -37,6 +37,30 @@ namespace Salar.Bois.NetFx.Tests.Base
 		public void ResetStream()
 		{
 			TestStream.Position = 0;
+		}
+
+
+		public void SerializeAreEqual<T>(T expected, T actual)
+		{
+			string expectedStr;
+			try
+			{
+				expectedStr = JsonConvert.SerializeObject(expected);
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("Failed to serialize to json, the expected value.", ex);
+			}
+			string actualStr;
+			try
+			{
+				actualStr = JsonConvert.SerializeObject(actual);
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("Failed to serialize to json, the actual value.", ex);
+			}
+			Assert.Equal(expectedStr, actualStr);
 		}
 
 

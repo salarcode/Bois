@@ -181,7 +181,7 @@ namespace Salar.Bois.Serializers
 			if (len == 0)
 				return Guid.Empty;
 
-			var gbuff = reader.ReadBytes((int) len);
+			var gbuff = reader.ReadBytes((int)len);
 			return new Guid(gbuff);
 		}
 
@@ -213,18 +213,18 @@ namespace Salar.Bois.Serializers
 			return new Uri(uri);
 		}
 
-		internal static DataTable ReadDataTable(BinaryReader reader)
+		internal static DataTable ReadDataTable(BinaryReader reader, Encoding encoding)
 		{
-			var data = ReadString(reader, Encoding.UTF8);
+			var data = ReadString(reader, encoding);
 			if (string.IsNullOrEmpty(data))
 				return null;
 
 			return DeserializeDataTable(data);
 		}
 
-		internal static DataSet ReadDataSet(BinaryReader reader)
+		internal static DataSet ReadDataSet(BinaryReader reader, Encoding encoding)
 		{
-			var data = ReadString(reader, Encoding.UTF8);
+			var data = ReadString(reader, encoding);
 			if (string.IsNullOrEmpty(data))
 				return null;
 

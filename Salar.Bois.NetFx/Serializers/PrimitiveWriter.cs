@@ -220,7 +220,7 @@ namespace Salar.Bois.Serializers
 				return;
 			}
 			// Int32
-			NumericSerializers.WriteVarInt(writer, (int?)((object)e));
+			NumericSerializers.WriteVarInt(writer, (int?) (int) (object) e);
 		}
 
 

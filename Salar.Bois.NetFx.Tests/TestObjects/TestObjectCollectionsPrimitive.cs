@@ -6,7 +6,7 @@ using System.Collections.Specialized;
 
 namespace Salar.Bois.NetFx.Tests.TestObjects
 {
-	public class TestObjectCollectionsPrimitive : IEnumerable<object[]>
+	public class TestObjectCollectionsPrimitive 
 	{
 		public List<int> ListInt { get; set; }
 
@@ -26,7 +26,7 @@ namespace Salar.Bois.NetFx.Tests.TestObjects
 		public ConcurrentBag<int> ConcurrentBag { get; set; }
 		public ConcurrentBag<int?> ConcurrentBagField;
 
-		public IEnumerator<object[]> GetEnumerator()
+		public static IEnumerable<object[]> GetTestData()
 		{
 			yield return new object[]
 			{
@@ -69,7 +69,5 @@ namespace Salar.Bois.NetFx.Tests.TestObjects
 				}
 			};
 		}
-
-		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
 }

@@ -765,7 +765,7 @@ namespace Salar.Bois.Types
 		private static void ReadRootObjectMembersCount(ILGenerator il, Type type, SharedVariables variableCache)
 		{
 			var notNull = il.DefineLabel();
-			// if (!NumericSerializers.ReadVarInt32Nullable(reader).HasValue)
+			// Code-For: if (!NumericSerializers.ReadVarInt32Nullable(reader).HasValue)
 
 			var readVarInt32Nullable = typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
 				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
@@ -780,7 +780,7 @@ namespace Salar.Bois.Types
 			// ReSharper disable once PossibleNullReferenceException
 			il.Emit(OpCodes.Call, typeof(int?).GetProperty(nameof(Nullable<int>.HasValue)).GetGetMethod());
 
-			il.Emit(OpCodes.Brfalse_S, notNull);
+			il.Emit(OpCodes.Brtrue_S, notNull);
 			il.Emit(OpCodes.Ldnull);
 			// TODO: check if this is necessary OpCodes.Box
 			//il.Emit(OpCodes.Box, type);

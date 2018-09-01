@@ -386,10 +386,10 @@ namespace Salar.Bois
 					return PrimitiveReader.ReadDbNull(reader);
 
 				case EnBasicKnownType.DataTable:
-					return PrimitiveReader.ReadDataTable(reader);
+					return PrimitiveReader.ReadDataTable(reader, Encoding);
 
 				case EnBasicKnownType.DataSet:
-					return PrimitiveReader.ReadDataSet(reader);
+					return PrimitiveReader.ReadDataSet(reader, Encoding);
 
 				case EnBasicKnownType.Uri:
 					return PrimitiveReader.ReadUri(reader);

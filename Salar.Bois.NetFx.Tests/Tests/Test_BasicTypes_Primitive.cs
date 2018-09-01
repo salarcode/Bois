@@ -218,9 +218,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			var final = PrimitiveReader.ReadColor(Reader);
 
-			Assert.True(init.ToArgb() == final.ToArgb(), "Colors value are not same");
+			Assert.True(init.ToArgb() == final.ToArgb(), "Color value are not same");
 
-			final.Should().BeEquivalentTo(init, because: "The colors name are not same");
+			// saving name and compare against it is pointless
+			//final.Should().BeEquivalentTo(init, because: "The colors name are not same");
 		}
 
 		[Theory]
@@ -235,7 +236,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			var final = PrimitiveReader.ReadColorNullable(Reader);
 
-			final.Should().BeEquivalentTo(init, because: "The colors name are not same");
+			Assert.True(init?.ToArgb() == final?.ToArgb(), "Color value are not same");
+
+			// saving name and compare against it is pointless
+			//final.Should().BeEquivalentTo(init, because: "The colors name are not same");
 		}
 
 
@@ -287,6 +291,8 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			yield return new object[] { DateTime.Now };
 			yield return new object[] { DateTime.UtcNow };
 			yield return new object[] { new DateTime(2018, 9, 1, 14, 29, 16, DateTimeKind.Utc) };
+			yield return new object[] { new DateTime(2018, 9, 1, 19, 41, 16, DateTimeKind.Local) };
+			yield return new object[] { new DateTime(2018, 9, 1, 19, 41, 16, DateTimeKind.Unspecified) };
 		}
 
 		[Theory]
@@ -403,13 +409,13 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			var final = PrimitiveReader.ReadDataSet(Reader, Encoding.UTF8);
 
-			final.Should().BeEquivalentTo(init);
+			SerializeAreEqual(final, init);
 		}
 
 		public static IEnumerable<object[]> GetDataTableData()
 		{
-			yield return new object[] { new DataTable() };
-
+			yield return new object[] { new DataTable("Name") };
+			//yield return new object[] { new DataTable() };
 		}
 
 		[Theory]
@@ -424,7 +430,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			var final = PrimitiveReader.ReadDataTable(Reader, Encoding.UTF8);
 
-			final.Should().BeEquivalentTo(init);
+			SerializeAreEqual(final, init);
 		}
 	}
 }

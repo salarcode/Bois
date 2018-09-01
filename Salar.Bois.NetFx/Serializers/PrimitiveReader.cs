@@ -187,8 +187,8 @@ namespace Salar.Bois.Serializers
 
 		internal static DBNull ReadDbNull(BinaryReader reader)
 		{
-			// just moving one step forward
-			reader.ReadByte();
+			if (reader.ReadByte() == NumericSerializers.FlagNullable)
+				return null;
 			return DBNull.Value;
 		}
 
@@ -210,7 +210,7 @@ namespace Salar.Bois.Serializers
 			var uri = ReadString(reader, Encoding.UTF8);
 			if (uri == null)
 				return null;
-			return new Uri(uri);
+			return new Uri(uri, UriKind.RelativeOrAbsolute);
 		}
 
 		internal static DataTable ReadDataTable(BinaryReader reader, Encoding encoding)
@@ -237,16 +237,20 @@ namespace Salar.Bois.Serializers
 		private static DataSet DeserializeDataSet(string data)
 		{
 			var ds = new DataSet();
-			ds.ReadXml(data);
-
+			using (var reader=new StringReader(data))
+			{
+				ds.ReadXml(reader);
+			}
 			return ds;
 		}
 
 		private static DataTable DeserializeDataTable(string data)
 		{
 			var dt = new DataTable();
-			dt.ReadXml(data);
-
+			using (var reader = new StringReader(data))
+			{
+				dt.ReadXml(reader);
+			}
 			return dt;
 		}
 

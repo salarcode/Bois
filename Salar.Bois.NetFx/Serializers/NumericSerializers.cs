@@ -393,10 +393,7 @@ namespace Salar.Bois.Serializers
 
 					return -thenumber;
 				}
-				else
-				{
-					return input & FlagEmbdeddedMask;
-				}
+				return input & FlagEmbdeddedMask;
 			}
 			else
 			{
@@ -526,7 +523,7 @@ namespace Salar.Bois.Serializers
 			if (embedded)
 			{
 				var numBuffSingle = new byte[8];
-				numBuffSingle[7] = (byte) (input & FlagEmbdeddedMask);
+				numBuffSingle[7] = (byte)(input & FlagEmbdeddedMask);
 
 				return ConvertFromVarBinaryDouble(numBuffSingle);
 			}
@@ -567,7 +564,7 @@ namespace Salar.Bois.Serializers
 			if (embedded)
 			{
 				// last byte
-				var numBuffSingle = new byte[4] {0, 0, 0, (byte) (input & FlagEmbdeddedMask)};
+				var numBuffSingle = new byte[4] { 0, 0, 0, (byte)(input & FlagEmbdeddedMask) };
 				return ConvertFromVarBinarySingle(numBuffSingle);
 			}
 
@@ -1573,97 +1570,31 @@ namespace Salar.Bois.Serializers
 
 		private static long ConvertFromVarBinaryInt64(byte[] numBuff)
 		{
-			long result;
-			if (numBuff.Length == 8)
+			if (numBuff.Length != 8)
 			{
-				uint num = (uint)(((numBuff[0] | (numBuff[1] << 8)) | (numBuff[2] << 16)) | (numBuff[3] << 24));
-				uint num2 = (uint)(((numBuff[4] | (numBuff[5] << 8)) | (numBuff[6] << 16)) | (numBuff[7] << 24));
-				return (long)((((ulong)num2) << 32) | ((ulong)num));
+				var fixBuff = new byte[8];
+				Array.Copy(numBuff, 0, fixBuff, 0, numBuff.Length);
+				numBuff = fixBuff;
 			}
-			else
-			{
-				var len = numBuff.Length;
 
-				int result1 = numBuff[0];
-				if (len == 1)
-					return result1;
-
-				result1 = result1 | (numBuff[1] << 8);
-				if (len == 2)
-					return result1;
-
-				result1 = result1 | (numBuff[2] << 16);
-				if (len == 3)
-					return result1;
-
-				result1 = result1 | (numBuff[3] << 24);
-				if (len == 4)
-					return result1;
-
-				int result2 = numBuff[4];
-				if (len == 5)
-					return result2 << 32 | result1;
-
-				result2 = result2 | (numBuff[5] << 8);
-				if (len == 6)
-					return result2 << 32 | result1;
-
-				result2 = result2 | (numBuff[6] << 16);
-				if (len == 7)
-					return result2 << 32 | result1;
-
-				// size is 8, will never run
-				result2 = result2 | (numBuff[7] << 24);
-
-				return result2 << 32 | result1;
-			}
+			uint num = (uint)(((numBuff[0] | (numBuff[1] << 8)) | (numBuff[2] << 16)) | (numBuff[3] << 24));
+			uint num2 = (uint)(((numBuff[4] | (numBuff[5] << 8)) | (numBuff[6] << 16)) | (numBuff[7] << 24));
+			return (long)((((ulong)num2) << 32) | ((ulong)num));
 		}
 
 		private static ulong ConvertFromVarBinaryUInt64(byte[] numBuff)
 		{
-			if (numBuff.Length == 8)
+			if (numBuff.Length != 8)
 			{
-				uint num = (uint)(((numBuff[0] | (numBuff[1] << 8)) | (numBuff[2] << 16)) | (numBuff[3] << 24));
-				uint num2 = (uint)(((numBuff[4] | (numBuff[5] << 8)) | (numBuff[6] << 16)) | (numBuff[7] << 24));
-				return ((ulong)num2 << 32) | (ulong)num;
+				var fixBuff = new byte[8];
+				Array.Copy(numBuff, 0, fixBuff, 0, numBuff.Length);
+				numBuff = fixBuff;
 			}
-			else
-			{
-				var len = numBuff.Length;
 
-				uint result1 = numBuff[0];
-				if (len == 1)
-					return result1;
+			uint num = (uint)(((numBuff[0] | (numBuff[1] << 8)) | (numBuff[2] << 16)) | (numBuff[3] << 24));
+			uint num2 = (uint)(((numBuff[4] | (numBuff[5] << 8)) | (numBuff[6] << 16)) | (numBuff[7] << 24));
+			return ((ulong)num2 << 32) | (ulong)num;
 
-				result1 = (uint)((int)result1 | (numBuff[1] << 8));
-				if (len == 2)
-					return result1;
-
-				result1 = (uint)((int)result1 | (numBuff[2] << 16));
-				if (len == 3)
-					return result1;
-
-				result1 = (uint)((int)result1 | (numBuff[3] << 24));
-				if (len == 4)
-					return result1;
-
-				uint result2 = numBuff[4];
-				if (len == 5)
-					return (ulong)((result2 << 32) | result1);
-
-				result2 = (uint)((int)result2 | (numBuff[5] << 8));
-				if (len == 6)
-					return (ulong)((result2 << 32) | result1);
-
-				result2 = (uint)((int)result2 | (numBuff[6] << 16));
-				if (len == 7)
-					return (ulong)((result2 << 32) | result1);
-
-				// size is 8, will never run
-				result2 = (uint)((int)result2 | (numBuff[7] << 24));
-
-				return (ulong)((result2 << 32) | result1);
-			}
 		}
 
 		private static decimal ConvertFromVarBinaryDecimal(byte[] numBuff)

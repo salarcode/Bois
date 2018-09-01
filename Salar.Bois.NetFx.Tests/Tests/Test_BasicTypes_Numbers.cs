@@ -19,6 +19,8 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData(127), InlineData(-127)]
 		[InlineData(128), InlineData(-128)]
 		[InlineData(256), InlineData(-256)]
+		[InlineData(short.MaxValue + 1)]
+		[InlineData(ushort.MaxValue + 1)]
 		[InlineData(int.MaxValue)]
 		[InlineData(int.MinValue)]
 		public void Numbers_Int_Normal(int number)
@@ -256,6 +258,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((long)127), InlineData((long)-127)]
 		[InlineData((long)128), InlineData((long)-128)]
 		[InlineData((long)256), InlineData((long)-256)]
+		[InlineData(short.MaxValue + 1)]
+		[InlineData(ushort.MinValue + 1)]
+		[InlineData((long)int.MaxValue + 1)]
+		[InlineData((long)uint.MaxValue + 1)]
 		[InlineData(long.MaxValue)]
 		[InlineData(long.MinValue)]
 		public void Numbers_long_Normal(long number)
@@ -304,6 +310,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((ulong)127)]
 		[InlineData((ulong)128)]
 		[InlineData((ulong)256)]
+		[InlineData(short.MaxValue + 1)]
+		[InlineData(ushort.MinValue + 1)]
+		[InlineData((long)int.MaxValue + 1)]
+		[InlineData((long)uint.MaxValue + 1)]
 		[InlineData(ulong.MaxValue)]
 		[InlineData(ulong.MinValue)]
 		public void Numbers_ulong_Normal(ulong number)

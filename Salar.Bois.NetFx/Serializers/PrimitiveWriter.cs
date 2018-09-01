@@ -220,7 +220,7 @@ namespace Salar.Bois.Serializers
 				return;
 			}
 			// Int32
-			NumericSerializers.WriteVarInt(writer, (int?) (int) (object) e);
+			NumericSerializers.WriteVarInt(writer, (int?)(int)(object)e);
 		}
 
 
@@ -321,7 +321,12 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteValue(BinaryWriter writer, DBNull dbNull)
 		{
-			WriteNullValue(writer);
+			if (dbNull == null)
+				WriteNullValue(writer);
+			else
+			{
+				WriteValue(writer, true);
+			}
 		}
 		/// <summary>
 		/// Same as Int32
@@ -397,7 +402,7 @@ namespace Salar.Bois.Serializers
 				return writer.ToString();
 			}
 		}
-		
+
 		#endregion
 
 	}

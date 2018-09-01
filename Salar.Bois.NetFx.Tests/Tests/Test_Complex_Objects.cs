@@ -36,8 +36,5 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			SerializeAreEqual(init, final);
 		}
-
-
-
 	}
 }

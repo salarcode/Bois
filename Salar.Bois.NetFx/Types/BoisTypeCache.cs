@@ -45,13 +45,15 @@ namespace Salar.Bois.Types
 			BoisComputedTypeInfo result;
 			if (_computedCache.TryGetValue(type, out result))
 			{
-				if ((!generateReader || result.ReaderDelegate != null) &&
-					(!generateWriter || result.WriterDelegate != null))
+				if ((!generateReader || result.ReaderMethod != null) &&
+					(!generateWriter || result.WriterMethod != null))
 					return result;
 			}
 			else
 			{
 				result = new BoisComputedTypeInfo();
+
+				_computedCache.TryAdd(type, result);
 			}
 
 			BoisComplexTypeInfo complexTypeInfo = null;
@@ -61,9 +63,21 @@ namespace Salar.Bois.Types
 				complexTypeInfo = GetComplexTypeUnCached(type);
 
 #if EmitAssemblyOut
-				var computed = BoisTypeCompiler.ComputeWriterSaveAss(type, complexTypeInfo, outputAssembly);
+				var computed = BoisTypeCompiler.ComputeWriterSaveAss(type, complexTypeInfo, outputAssembly,
+					(dynamicMethod) =>
+					{
+						// this call is usefull for Recursive Methods
+
+						result.WriterMethod = dynamicMethod;
+					});
 #else
-				var computed = BoisTypeCompiler.ComputeWriter(type, complexTypeInfo);
+				var computed = BoisTypeCompiler.ComputeWriter(type, complexTypeInfo,
+					(dynamicMethod) =>
+					{
+						// this call is usefull for Recursive Methods
+
+						result.WriterMethod = dynamicMethod;
+					});
 #endif
 				result.WriterDelegate = computed.Delegate;
 				result.WriterMethod = computed.Method;
@@ -75,15 +89,26 @@ namespace Salar.Bois.Types
 					complexTypeInfo = GetComplexTypeUnCached(type);
 
 #if EmitAssemblyOut
-				var computed = BoisTypeCompiler.ComputeReaderSaveAss(type, complexTypeInfo, outputAssembly);
+				var computed = BoisTypeCompiler.ComputeReaderSaveAss(type, complexTypeInfo, outputAssembly,
+					(dynamicMethod) =>
+					{
+						// this call is usefull for Recursive Methods
+
+						result.ReaderMethod = dynamicMethod;
+					});
 #else
-				var computed = BoisTypeCompiler.ComputeReader(type, complexTypeInfo);
+				var computed = BoisTypeCompiler.ComputeReader(type, complexTypeInfo,
+					(dynamicMethod) =>
+					{
+						// this call is usefull for Recursive Methods
+
+						result.ReaderMethod = dynamicMethod;
+					});
 #endif
 				result.ReaderDelegate = computed.Delegate;
 				result.ReaderMethod = computed.Method;
 			}
 
-			_computedCache.TryAdd(type, result);
 
 			return result;
 		}

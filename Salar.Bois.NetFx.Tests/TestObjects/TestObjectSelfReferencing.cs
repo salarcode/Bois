@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Salar.Bois.NetFx.Tests.TestObjects
 {
@@ -9,7 +10,6 @@ namespace Salar.Bois.NetFx.Tests.TestObjects
 		public string Name { get; set; }
 
 		public TestObjectSelfReferencing Self { get; set; }
-
 
 		public static IEnumerable<object[]> GetTestData()
 		{

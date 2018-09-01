@@ -31,7 +31,7 @@ namespace Salar.Bois.Types
 		private static AssemblyBuilder _outWriterAssemblyBuilder = null;
 		private static string _writerAssemblyName;
 
-		internal static ComputeResult ComputeWriterSaveAss(Type type, BoisComplexTypeInfo typeInfo, bool outputAssembly = true)
+		internal static ComputeResult ComputeWriterSaveAss(Type type, BoisComplexTypeInfo typeInfo, bool outputAssembly = true, Action<MethodInfo> beforeMehodBody = null)
 		{
 			var saveAssembly = _outWriterModule == null;
 
@@ -88,6 +88,9 @@ namespace Salar.Bois.Types
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "instance");
 			ilMethod.DefineParameter(3, ParameterAttributes.None, "encoding");
 
+			// this call is usefull for Recursive Methods
+			beforeMehodBody?.Invoke(ilMethod);
+
 			var il = ilMethod.GetILGenerator();
 
 			ComputeWriter(il, type, typeInfo);
@@ -129,7 +132,7 @@ namespace Salar.Bois.Types
 
 #endif
 
-		public static ComputeResult ComputeWriter(Type type, BoisComplexTypeInfo typeInfo, Module containerModule = null)
+		public static ComputeResult ComputeWriter(Type type, BoisComplexTypeInfo typeInfo, Action<DynamicMethod> beforeMehodBody = null, Module containerModule = null)
 		{
 			var module = containerModule ?? typeof(BoisSerializer).Module;
 
@@ -146,6 +149,10 @@ namespace Salar.Bois.Types
 			ilMethod.DefineParameter(3, ParameterAttributes.None, "encoding");
 #endif
 
+			// this call is usefull for Recursive Methods
+			beforeMehodBody?.Invoke(ilMethod);
+
+			// the il generator
 			var il = ilMethod.GetILGenerator();
 
 			ComputeWriter(il, type, typeInfo);
@@ -284,6 +291,7 @@ namespace Salar.Bois.Types
 
 				case EnComplexKnownType.Unknown:
 				default:
+					EmitGenerator.WriteUnknownComplexTypeCall(memberType, prop, field, il, complexTypeInfo);
 					return;
 			}
 		}
@@ -543,7 +551,7 @@ namespace Salar.Bois.Types
 		private static AssemblyBuilder _outReaderAssemblyBuilder = null;
 		private static TypeBuilder _outReaderProgrammClass;
 
-		public static ComputeResult ComputeReaderSaveAss(Type type, BoisComplexTypeInfo typeInfo, bool outputAssembly = true)
+		public static ComputeResult ComputeReaderSaveAss(Type type, BoisComplexTypeInfo typeInfo, bool outputAssembly = true, Action<MethodInfo> beforeMehodBody = null)
 		{
 			var saveAssembly = _outReaderModule == null;
 
@@ -593,13 +601,14 @@ namespace Salar.Bois.Types
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "reader");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "encoding");
 
+			// this call is usefull for Recursive Methods
+			beforeMehodBody?.Invoke(ilMethod);
 
 			var il = ilMethod.GetILGenerator();
-			LocalBuilder instanceVar;
 
 			if (typeInfo.ComplexKnownType == EnComplexKnownType.Unknown)
 			{
-				instanceVar = ComputeReaderTypeCreation(il, type);
+				var instanceVar = ComputeReaderTypeCreation(il, type);
 				ComputeReader(il, type, typeInfo);
 
 				// never forget
@@ -643,7 +652,7 @@ namespace Salar.Bois.Types
 		}
 #endif
 
-		public static ComputeResult ComputeReader(Type type, BoisComplexTypeInfo typeInfo, Module containerModule = null)
+		public static ComputeResult ComputeReader(Type type, BoisComplexTypeInfo typeInfo, Action<DynamicMethod> beforeMehodBody = null, Module containerModule = null)
 		{
 			Module module = null;
 			if (containerModule == null)
@@ -663,12 +672,15 @@ namespace Salar.Bois.Types
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "encoding");
 #endif
 
+			// this call is usefull for Recursive Methods
+			beforeMehodBody?.Invoke(ilMethod);
+
+			// the il generator
 			var il = ilMethod.GetILGenerator();
-			LocalBuilder instanceVar;
 
 			if (typeInfo.ComplexKnownType == EnComplexKnownType.Unknown)
 			{
-				instanceVar = ComputeReaderTypeCreation(il, type);
+				var instanceVar = ComputeReaderTypeCreation(il, type);
 				ComputeReader(il, type, typeInfo);
 
 				// never forget
@@ -847,6 +859,7 @@ namespace Salar.Bois.Types
 
 				case EnComplexKnownType.Unknown:
 				default:
+					EmitGenerator.ReadUnknownComplexTypeCall(memberType, prop, field, il, complexTypeInfo);
 					return;
 			}
 		}

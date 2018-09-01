@@ -744,6 +744,75 @@ namespace Salar.Bois.Serializers
 		#endregion
 
 		#region Write Complex Types
+
+		internal static void WriteUnknownComplexTypeCall(Type memberType, PropertyInfo prop, FieldInfo field, ILGenerator il,
+			BoisComplexTypeInfo complexTypeInfo)
+		{
+			// for complex types, a method is generated
+			var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(memberType, false, true);
+
+			var LabelWriteNull = il.DefineLabel();
+			var LabelEndOfCode = il.DefineLabel();
+
+			// CODE-FOR: if (instance.prop != null)
+			if (prop != null)
+			{
+				var getter = prop.GetGetMethod(true);
+				il.Emit(OpCodes.Ldarg_1); // instance
+				il.Emit(OpCodes.Callvirt, meth: getter);
+			}
+			else
+			{
+				il.Emit(OpCodes.Ldarg_1); // instance
+				il.Emit(OpCodes.Ldfld, field: field);
+			}
+			il.Emit(OpCodes.Ldnull);
+			il.Emit(OpCodes.Cgt_Un);
+			il.Emit(OpCodes.Brfalse_S, LabelWriteNull);
+
+			// write value
+			{
+				// IMPORTANT: because we need to detect wether the object is null or not we need this byte
+				// CODE-FOR: writer.Write((byte)0);
+				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Ldc_I4_0);
+				il.Emit(OpCodes.Call,
+					meth: typeof(BinaryWriter).GetMethod(nameof(BinaryWriter.Write), BindingFlags.Instance | BindingFlags.Public,
+						Type.DefaultBinder, new[] { typeof(byte) }, null));
+				il.Emit(OpCodes.Nop);
+
+				// CODE-FOR: Calling the emitted writer
+				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				if (prop != null)
+				{
+					var getter = prop.GetGetMethod(true);
+					il.Emit(OpCodes.Ldarg_1); // instance
+					il.Emit(OpCodes.Callvirt, meth: getter);
+				}
+				else
+				{
+					il.Emit(OpCodes.Ldarg_1); // instance
+					il.Emit(OpCodes.Ldfld, field: field);
+				}
+				il.Emit(OpCodes.Ldarg_2); // Encoding
+				il.Emit(OpCodes.Call, meth: valueTypeInfo.WriterMethod);
+			}
+			// CODE-FOR: else
+			il.Emit(OpCodes.Br_S, LabelEndOfCode);
+			{
+				il.MarkLabel(LabelWriteNull);
+
+				// CODE-FOR: PrimitiveWriter.WriteNullValue(writer);
+				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Call,
+					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
+				il.Emit(OpCodes.Nop);
+			}
+
+			il.MarkLabel(LabelEndOfCode);
+		}
+
 		internal static void WriteCollection(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
 			/*
@@ -2372,6 +2441,59 @@ namespace Salar.Bois.Serializers
 		#endregion
 
 		#region Read Complex Types
+		internal static void ReadUnknownComplexTypeCall(Type memberType, PropertyInfo prop, FieldInfo field, ILGenerator il, BoisComplexTypeInfo complexTypeInfo)
+		{
+			// for complex types, a method is generated
+			var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(memberType, true, false);
+
+			var LabelReadValue = il.DefineLabel();
+			var LabelEndOfCode = il.DefineLabel();
+
+			// CODE-FOR: if (reader.ReadByte() == 64)
+			il.Emit(OpCodes.Ldarg_0);
+			il.Emit(OpCodes.Call,
+				meth: typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadByte)));
+			il.Emit(OpCodes.Ldc_I4_S, NumericSerializers.FlagNullable);
+			il.Emit(OpCodes.Ceq);
+			il.Emit(OpCodes.Brfalse_S, LabelReadValue);
+
+			// CODE-FOR: setting null as value
+			{
+				il.Emit(OpCodes.Ldloc_0); // instance
+				il.Emit(OpCodes.Ldnull);
+				if (prop != null)
+				{
+					il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
+				}
+				else
+				{
+					il.Emit(OpCodes.Stfld, field: field); // field value
+				}
+			}
+			// CODE-FOR: else
+			il.Emit(OpCodes.Br_S, LabelEndOfCode);
+			// CODE-FOR: reading value
+			{
+				il.MarkLabel(LabelReadValue);
+
+				// CODE-FOR: Set value
+				il.Emit(OpCodes.Ldloc_0); // instance
+				il.Emit(OpCodes.Ldarg_0); // BinaryReader
+				il.Emit(OpCodes.Ldarg_1); // Encoding
+				il.Emit(OpCodes.Call, meth: valueTypeInfo.ReaderMethod);
+
+				if (prop != null)
+				{
+					il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
+				}
+				else
+				{
+					il.Emit(OpCodes.Stfld, field: field); // field value
+				}
+			}
+
+			il.MarkLabel(LabelEndOfCode);
+		}
 
 		internal static void ReadGenericCollection(PropertyInfo prop, FieldInfo field, Type rootType, ILGenerator il, bool nullable, SharedVariables variableCache)
 		{
@@ -3063,6 +3185,9 @@ namespace Salar.Bois.Serializers
 		}
 
 		#endregion
+
+
+
 	}
 
 	static class IlExtensions

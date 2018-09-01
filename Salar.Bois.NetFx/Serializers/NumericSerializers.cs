@@ -506,11 +506,13 @@ namespace Salar.Bois.Serializers
 			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
 			if (embedded)
 			{
-				return (input & FlagEmbdeddedMask);
+				var numBuffSingle = new byte[8];
+				numBuffSingle[7] = (byte)(input & FlagEmbdeddedMask);
+
+				return ConvertFromVarBinaryDouble(numBuffSingle);
 			}
 
 			var length = input;
-
 			var numBuff = reader.ReadBytes(length);
 
 			return ConvertFromVarBinaryDouble(numBuff);
@@ -523,7 +525,10 @@ namespace Salar.Bois.Serializers
 			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
 			if (embedded)
 			{
-				return (input & FlagEmbdeddedMask);
+				var numBuffSingle = new byte[8];
+				numBuffSingle[7] = (byte) (input & FlagEmbdeddedMask);
+
+				return ConvertFromVarBinaryDouble(numBuffSingle);
 			}
 
 			var length = input;
@@ -542,7 +547,9 @@ namespace Salar.Bois.Serializers
 			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
 			if (embedded)
 			{
-				return (input & FlagEmbdeddedMask);
+				// last byte
+				var numBuffSingle = new byte[4] { 0, 0, 0, (byte)(input & FlagEmbdeddedMask) };
+				return ConvertFromVarBinarySingle(numBuffSingle);
 			}
 
 			var length = input;
@@ -559,11 +566,12 @@ namespace Salar.Bois.Serializers
 			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
 			if (embedded)
 			{
-				return (input & FlagEmbdeddedMask);
+				// last byte
+				var numBuffSingle = new byte[4] {0, 0, 0, (byte) (input & FlagEmbdeddedMask)};
+				return ConvertFromVarBinarySingle(numBuffSingle);
 			}
 
 			var length = input;
-
 			var numBuff = reader.ReadBytes(length);
 
 			return ConvertFromVarBinarySingle(numBuff);
@@ -596,11 +604,11 @@ namespace Salar.Bois.Serializers
 			{
 				if (negative)
 				{
-					var thenumber = -((sbyte) (input & FlagNullableNegativeEmbdeddedMask));
+					var thenumber = -((sbyte)(input & FlagNullableNegativeEmbdeddedMask));
 
-					return (sbyte) thenumber;
+					return (sbyte)thenumber;
 				}
-				return (sbyte) (input & FlagEmbdeddedMask);
+				return (sbyte)(input & FlagEmbdeddedMask);
 			}
 			else
 			{
@@ -1690,7 +1698,7 @@ namespace Salar.Bois.Serializers
 			{
 				var doubleBuff = new byte[8];
 
-				Array.Copy(numBuff, 0, doubleBuff, 8 - doubleBuff.Length, doubleBuff.Length);
+				Array.Copy(numBuff, 0, doubleBuff, 8 - numBuff.Length, numBuff.Length);
 				return BitConverter.ToDouble(doubleBuff, 0);
 			}
 		}
@@ -1705,7 +1713,7 @@ namespace Salar.Bois.Serializers
 			{
 				var doubleBuff = new byte[4];
 
-				Array.Copy(numBuff, 0, doubleBuff, 4 - doubleBuff.Length, doubleBuff.Length);
+				Array.Copy(numBuff, 0, doubleBuff, 4 - numBuff.Length, numBuff.Length);
 				return BitConverter.ToSingle(doubleBuff, 0);
 			}
 		}

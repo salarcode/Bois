@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Salar.Bois.Types;
+using System;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -363,8 +364,15 @@ namespace Salar.Bois.Serializers
 				WriteNullValue(writer);
 				return;
 			}
-			var xml = SerializeDataTable(ds);
-			WriteValue(writer, xml, encoding);
+			// tables count
+			NumericSerializers.WriteVarInt(writer, (int?)ds.Tables.Count);
+
+			WriteValue(writer, ds.DataSetName, encoding);
+
+			foreach (DataTable dt in ds.Tables)
+			{
+				WriteValue(writer, dt, encoding);
+			}
 		}
 
 		/// <summary>
@@ -377,33 +385,251 @@ namespace Salar.Bois.Serializers
 				WriteNullValue(writer);
 				return;
 			}
-			var xml = SerializeDataTable(dt);
-			WriteValue(writer, xml, encoding);
-		}
+			// column count
+			NumericSerializers.WriteVarInt(writer, (int?)dt.Columns.Count);
 
+			// table name
+			WriteValue(writer, dt.TableName, encoding);
 
-
-		#region Private helpers
-
-		private static string SerializeDataTable(DataTable dt)
-		{
-			using (var writer = new StringWriter())
+			// columns
+			foreach (DataColumn col in dt.Columns)
 			{
-				dt.WriteXml(writer, XmlWriteMode.WriteSchema);
-				return writer.ToString();
+				WriteValue(writer, col.Caption, encoding);
+				WriteValue(writer, col.ColumnName, encoding);
+
+				var dataType = col.DataType?.ToString();
+				if (dataType != null)
+				{
+					dataType = "0." + dataType.Remove(0, "System.".Length);
+				}
+				WriteValue(writer, dataType, encoding);
+			}
+
+			NumericSerializers.WriteVarInt(writer, dt.Rows.Count);
+			foreach (DataRow row in dt.Rows)
+			{
+				for (var colIndex = 0; colIndex < row.ItemArray.Length; colIndex++)
+				{
+					var item = row.ItemArray[colIndex];
+					var itemType = dt.Columns[colIndex].DataType;
+
+					var basicTypeInfo = BoisTypeCache.GetBasicType(itemType);
+
+					if (basicTypeInfo.KnownType == EnBasicKnownType.Unknown)
+						throw new Exception($"Serialization of DataTable with item type of '{itemType}' is not supported.");
+
+					var itemToWrite = item;
+					if (itemType == typeof(string))
+					{
+						itemToWrite =
+							item == DBNull.Value
+								? null
+								: item.ToString();
+					}
+					else if (item == DBNull.Value)
+						itemToWrite = null;
+
+					// write the object
+					WriteRootBasicType(writer, itemToWrite, itemType, basicTypeInfo, encoding);
+				}
 			}
 		}
 
-		private static string SerializeDataTable(DataSet dt)
+		internal static void WriteRootBasicType(BinaryWriter writer, object obj, Type type, BoisBasicTypeInfo typeInfo, Encoding encoding)
 		{
-			using (var writer = new StringWriter())
+			switch (typeInfo.KnownType)
 			{
-				dt.WriteXml(writer, XmlWriteMode.WriteSchema);
-				return writer.ToString();
+				case EnBasicKnownType.String:
+					PrimitiveWriter.WriteValue(writer, obj as string, encoding);
+					return;
+
+				case EnBasicKnownType.Char:
+					if (typeInfo.IsNullable)
+						PrimitiveWriter.WriteValue(writer, obj as char?);
+					else
+						PrimitiveWriter.WriteValue(writer, (char)obj);
+					return;
+
+				case EnBasicKnownType.Guid:
+					if (typeInfo.IsNullable)
+						PrimitiveWriter.WriteValue(writer, obj as Guid?);
+					else
+						PrimitiveWriter.WriteValue(writer, (Guid)obj);
+					return;
+
+				case EnBasicKnownType.Bool:
+					if (typeInfo.IsNullable)
+						PrimitiveWriter.WriteValue(writer, obj as bool?);
+					else
+						PrimitiveWriter.WriteValue(writer, (bool)obj);
+					return;
+
+				case EnBasicKnownType.Enum:
+					PrimitiveWriter.WriteValue(writer, obj as Enum);
+					return;
+
+				case EnBasicKnownType.DateTime:
+					if (typeInfo.IsNullable)
+						PrimitiveWriter.WriteValue(writer, obj as DateTime?);
+					else
+						PrimitiveWriter.WriteValue(writer, (DateTime)obj);
+					return;
+
+				case EnBasicKnownType.DateTimeOffset:
+					if (typeInfo.IsNullable)
+						PrimitiveWriter.WriteValue(writer, obj as DateTimeOffset?);
+					else
+						PrimitiveWriter.WriteValue(writer, (DateTimeOffset)obj);
+					return;
+
+				case EnBasicKnownType.TimeSpan:
+					if (typeInfo.IsNullable)
+						PrimitiveWriter.WriteValue(writer, obj as TimeSpan?);
+					else
+						PrimitiveWriter.WriteValue(writer, (TimeSpan)obj);
+					return;
+
+				case EnBasicKnownType.ByteArray:
+					PrimitiveWriter.WriteValue(writer, obj as byte[]);
+					return;
+
+				case EnBasicKnownType.KnownTypeArray:
+
+					// calling for subitem
+					WriteRootBasicTypedArray(writer, obj as Array, typeInfo, encoding);
+					return;
+
+				case EnBasicKnownType.Color:
+					if (typeInfo.IsNullable)
+						PrimitiveWriter.WriteValue(writer, obj as Color?);
+					else
+						PrimitiveWriter.WriteValue(writer, (Color)obj);
+					break;
+
+				case EnBasicKnownType.Version:
+					PrimitiveWriter.WriteValue(writer, obj as Version);
+					return;
+
+				case EnBasicKnownType.DbNull:
+					PrimitiveWriter.WriteValue(writer, obj as DBNull);
+					return;
+
+				case EnBasicKnownType.Uri:
+					PrimitiveWriter.WriteValue(writer, (obj as Uri));
+					break;
+
+				case EnBasicKnownType.DataTable:
+					PrimitiveWriter.WriteValue(writer, obj as DataTable, encoding);
+					return;
+
+				case EnBasicKnownType.DataSet:
+					PrimitiveWriter.WriteValue(writer, obj as DataSet, encoding);
+					return;
+
+				case EnBasicKnownType.Int16:
+					if (typeInfo.IsNullable)
+						NumericSerializers.WriteVarInt(writer, obj as short?);
+					else
+						NumericSerializers.WriteVarInt(writer, (short)obj);
+					break;
+
+				case EnBasicKnownType.Int32:
+					if (typeInfo.IsNullable)
+						NumericSerializers.WriteVarInt(writer, obj as int?);
+					else
+						NumericSerializers.WriteVarInt(writer, (int)obj);
+					return;
+
+				case EnBasicKnownType.Int64:
+					if (typeInfo.IsNullable)
+						NumericSerializers.WriteVarInt(writer, obj as long?);
+					else
+						NumericSerializers.WriteVarInt(writer, (long)obj);
+					return;
+
+				case EnBasicKnownType.UInt16:
+					if (typeInfo.IsNullable)
+						NumericSerializers.WriteVarInt(writer, (int?)(obj as ushort?));
+					else
+						NumericSerializers.WriteVarInt(writer, (int)(ushort)obj);
+					return;
+
+				case EnBasicKnownType.UInt32:
+					if (typeInfo.IsNullable)
+						NumericSerializers.WriteVarInt(writer, obj as uint?);
+					else
+						NumericSerializers.WriteVarInt(writer, (uint)obj);
+					return;
+
+				case EnBasicKnownType.UInt64:
+					if (typeInfo.IsNullable)
+						NumericSerializers.WriteVarInt(writer, obj as ulong?);
+					else
+						NumericSerializers.WriteVarInt(writer, (ulong)obj);
+					return;
+
+				case EnBasicKnownType.Double:
+					if (typeInfo.IsNullable)
+						NumericSerializers.WriteVarDecimal(writer, obj as double?);
+					else
+						NumericSerializers.WriteVarDecimal(writer, (double)obj);
+					return;
+
+				case EnBasicKnownType.Decimal:
+					if (typeInfo.IsNullable)
+						NumericSerializers.WriteVarDecimal(writer, obj as decimal?);
+					else
+						NumericSerializers.WriteVarDecimal(writer, (decimal)obj);
+					return;
+
+				case EnBasicKnownType.Single:
+					if (typeInfo.IsNullable)
+						NumericSerializers.WriteVarDecimal(writer, obj as float?);
+					else
+						NumericSerializers.WriteVarDecimal(writer, (float)obj);
+					return;
+
+				case EnBasicKnownType.Byte:
+					if (typeInfo.IsNullable)
+						NumericSerializers.WriteVarInt(writer, obj as byte?);
+					else
+						writer.Write((byte)obj);
+					return;
+
+				case EnBasicKnownType.SByte:
+					if (typeInfo.IsNullable)
+						NumericSerializers.WriteVarInt(writer, obj as sbyte?);
+					else
+						writer.Write((sbyte)obj);
+					return;
+
+
+				case EnBasicKnownType.Unknown:
+				default:
+					// should never reach here
+					throw new Exception($"Not supported type '{type}' as root");
 			}
 		}
 
-		#endregion
+		internal static void WriteRootBasicTypedArray(BinaryWriter writer, Array array, BoisBasicTypeInfo typeInfo, Encoding encoding)
+		{
+			if (array == null)
+			{
+				PrimitiveWriter.WriteNullValue(writer);
+				return;
+			}
 
+			var arrayItemType = typeInfo.BareType;
+			var arrayItemTypeType = BoisTypeCache.GetBasicType(typeInfo.BareType);
+
+			// Int32
+			NumericSerializers.WriteVarInt(writer, (uint?)array.Length);
+
+			for (int i = 0; i < array.Length; i++)
+			{
+				WriteRootBasicType(writer, array.GetValue(i), arrayItemType, arrayItemTypeType, encoding);
+			}
+
+		}
 	}
 }

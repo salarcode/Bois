@@ -393,8 +393,31 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 		public static IEnumerable<object[]> GetDataSetData()
 		{
-			yield return new object[] { new DataSet() };
+			var table1 = new DataTable("Dt1")
+			{
+				Columns =
+				{
+					new DataColumn("Col1", typeof(int)),
+					new DataColumn("Col2", typeof(string)),
+					new DataColumn("Col3"),
+				}
+			};
+			table1.Rows.Add(new object[] { 10, "Test1", true });
+			table1.Rows.Add(new object[] { 20, null, true });
+			table1.Rows.Add(new object[] { 500, "Test3", true });
 
+			yield return new object[]
+			{
+				new DataSet()
+				{
+					Tables =
+					{
+						table1
+					}
+				}
+			};
+
+			yield return new object[] { new DataSet("DsName") };
 		}
 
 		[Theory]
@@ -409,13 +432,33 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			var final = PrimitiveReader.ReadDataSet(Reader, Encoding.UTF8);
 
-			SerializeAreEqual(final, init);
+			SerializeAreEqual(init, final);
 		}
 
 		public static IEnumerable<object[]> GetDataTableData()
 		{
 			yield return new object[] { new DataTable("Name") };
-			//yield return new object[] { new DataTable() };
+			yield return new object[] { new DataTable() };
+			var table1 = new DataTable("Dt1")
+			{
+				Columns =
+				{
+					new DataColumn("Col1", typeof(int)),
+					new DataColumn("Col2", typeof(string)),
+					new DataColumn("Col3"),
+				}
+			};
+			table1.Rows.Add(new object[] { 10, "Test1", true });
+			table1.Rows.Add(new object[] { 20, null, true });
+			table1.Rows.Add(new object[] { 500, "Test3", true });
+			yield return new object[] { table1 };
+
+			var table2 = new DataTable("Dt2") { };
+			table1.Rows.Add(new object[] { 10, "Test1", true });
+			table1.Rows.Add(new object[] { 20, null, true });
+			table1.Rows.Add(new object[] { 500, "Test3", true });
+			yield return new object[] { table2 };
+
 		}
 
 		[Theory]
@@ -430,7 +473,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			var final = PrimitiveReader.ReadDataTable(Reader, Encoding.UTF8);
 
-			SerializeAreEqual(final, init);
+			SerializeAreEqual(init, final);
 		}
 	}
 }

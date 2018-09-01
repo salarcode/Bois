@@ -25,7 +25,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			ResetBois();
 
-			Bois.Initialize<List<int>>();
+			BoisSerializer.Initialize<List<int>>();
 
 			Bois.Serialize(init, TestStream);
 			ResetStream();

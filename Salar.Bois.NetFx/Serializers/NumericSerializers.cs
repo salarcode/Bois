@@ -812,6 +812,40 @@ namespace Salar.Bois.Serializers
 		}
 
 		/// <summary>
+		/// Same as "uint?" except that it doesn't store null value, but still preserves null flag
+		/// </summary>
+		/// <remarks>
+		/// The value stored as member count can be 'null', but since this method is called where it is obvious that 
+		/// the don't have null value, there is no point creating Nullable object to convert it
+		/// </remarks>
+		internal static void WriteUIntNullableMemberCount(BinaryWriter writer, uint num)
+		{
+			// NOTE:
+			// Member count can be null, but not the place this method is being called
+			// Hence why i'm storing null flag
+
+			if (num > EmbeddedUnsignedNullableMaxNumInByte)
+			{
+				// number is not null
+				// number is not negative
+				// number is not embedded
+
+				var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
+
+				writer.Write(numLen);
+				writer.Write(numBuff, 0, numLen);
+			}
+			else
+			{
+				// number is not null
+				// number is not negative
+				// number is embedded
+
+				writer.Write((byte)(num | FlagEmbdedded));
+			}
+		}
+
+		/// <summary>
 		/// 
 		/// </summary>
 		internal static void WriteVarInt(BinaryWriter writer, short num)

@@ -224,14 +224,36 @@ namespace Salar.Bois.Types
 
 		private static void WriteRootObjectMembersCount(ILGenerator il, BoisComplexTypeInfo typeInfo)
 		{
+			var labelWriteCount = il.DefineLabel();
+			var labelEndOfCode = il.DefineLabel();
+
+			il.Emit(OpCodes.Ldarg_1); // instance
+			il.Emit(OpCodes.Brtrue_S, labelWriteCount);
+
+			// CODE-FOR: PrimitiveWriter.WriteNullValue(writer);
+			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Call,
+				typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
+					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
+			il.Emit(OpCodes.Nop);
+
+			// CODE-FOR: return;
+			il.Emit(OpCodes.Ret);
+
+			// CODE-FOR: else
+			il.Emit(OpCodes.Br_S, labelEndOfCode);
+			
+			// CODE-FOR: writing member count
+			il.MarkLabel(labelWriteCount);
 			var memberCount = typeInfo.Members.Length;
 
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			il.Emit(OpCodes.Ldc_I4_S, memberCount);
-			il.Emit(OpCodes.Newobj, typeof(int?).GetConstructor(new[] { typeof(int) }));
-			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
-				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(int?) }, null));
+			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteUIntNullableMemberCount),
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(uint) }, null));
 			il.Emit(OpCodes.Nop);
+
+			il.MarkLabel(labelEndOfCode);
 		}
 
 		private static void WriteRootObjectMember(MemberInfo member, ILGenerator il)
@@ -777,20 +799,20 @@ namespace Salar.Bois.Types
 		private static void ReadRootObjectMembersCount(ILGenerator il, Type type, SharedVariables variableCache)
 		{
 			var notNull = il.DefineLabel();
-			// Code-For: if (!NumericSerializers.ReadVarInt32Nullable(reader).HasValue)
+			// CODE-FOR: if (!NumericSerializers.ReadVarUInt32Nullable(reader).HasValue)
 
-			var readVarInt32Nullable = typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
+			var readCountMethod = typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
 				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
 				new[] { typeof(BinaryReader) }, null);
 
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
-			il.Emit(OpCodes.Call, readVarInt32Nullable);
-			var memberCount = variableCache.GetOrAdd(typeof(int?));
+			il.Emit(OpCodes.Call, readCountMethod);
+			var memberCount = variableCache.GetOrAdd(typeof(uint?));
 			il.StoreLocal(memberCount);
 
 			il.LoadLocalAddress(memberCount);
 			// ReSharper disable once PossibleNullReferenceException
-			il.Emit(OpCodes.Call, typeof(int?).GetProperty(nameof(Nullable<int>.HasValue)).GetGetMethod());
+			il.Emit(OpCodes.Call, typeof(uint?).GetProperty(nameof(Nullable<uint>.HasValue)).GetGetMethod());
 
 			il.Emit(OpCodes.Brtrue_S, notNull);
 			il.Emit(OpCodes.Ldnull);

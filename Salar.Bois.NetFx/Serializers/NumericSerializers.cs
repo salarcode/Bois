@@ -1296,8 +1296,8 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteVarDecimal(BinaryWriter writer, float num)
 		{
-			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-			var firstByte = numBuff[0];
+			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen, out var position);
+			var firstByte = numBuff[position];
 
 			if (numLen == 1 && firstByte <= EmbeddedUnsignedMaxNumInByte)
 			{
@@ -1309,7 +1309,7 @@ namespace Salar.Bois.Serializers
 			{
 				// number is not embedded
 				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
+				writer.Write(numBuff, position, numLen);
 			}
 		}
 
@@ -1326,8 +1326,8 @@ namespace Salar.Bois.Serializers
 				return;
 			}
 
-			var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-			var firstByte = numBuff[0];
+			var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen, out var position);
+			var firstByte = numBuff[position];
 
 			if (numLen == 1 && firstByte <= EmbeddedUnsignedNullableMaxNumInByte)
 			{
@@ -1339,7 +1339,7 @@ namespace Salar.Bois.Serializers
 			{
 				// number is not embedded
 				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
+				writer.Write(numBuff, position, numLen);
 			}
 		}
 
@@ -1348,8 +1348,8 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteVarDecimal(BinaryWriter writer, double num)
 		{
-			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-			var firstByte = numBuff[0];
+			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen, out var position);
+			var firstByte = numBuff[position];
 
 			if (numLen == 1 && firstByte <= EmbeddedUnsignedMaxNumInByte)
 			{
@@ -1361,7 +1361,7 @@ namespace Salar.Bois.Serializers
 			{
 				// number is not embedded
 				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
+				writer.Write(numBuff, position, numLen);
 			}
 		}
 
@@ -1378,8 +1378,8 @@ namespace Salar.Bois.Serializers
 				return;
 			}
 
-			var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-			var firstByte = numBuff[0];
+			var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen, out var position);
+			var firstByte = numBuff[position];
 
 			if (numLen == 1 && firstByte <= EmbeddedUnsignedNullableMaxNumInByte)
 			{
@@ -1391,7 +1391,7 @@ namespace Salar.Bois.Serializers
 			{
 				// number is not embedded
 				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
+				writer.Write(numBuff, position, numLen);
 			}
 		}
 
@@ -1891,6 +1891,24 @@ namespace Salar.Bois.Serializers
 			return buff;
 		}
 
+		private static byte[] ConvertToVarBinary(float value, out byte length, out int position)
+		{
+			var bitsArray = BitConverter.GetBytes(value);
+			for (int i = 0; i < 4; i++)
+			{
+				if (bitsArray[i] > 0)
+				{
+					position = i;
+					length = (byte)(4 - position);
+
+					return bitsArray;
+				}
+			}
+			length = 1;
+			position = 0;
+			return new byte[] { 0 };
+		}
+
 		private static byte[] ConvertToVarBinary(float value, out byte length)
 		{
 			// Float & double numeric formats stores valuable bytes from right to left
@@ -1930,6 +1948,24 @@ namespace Salar.Bois.Serializers
 			length = 4;
 
 			return valueBuff;
+		}
+
+		private static byte[] ConvertToVarBinary(double value, out byte length, out int position)
+		{
+			var bitsArray = BitConverter.GetBytes(value);
+			for (int i = 0; i < 8; i++)
+			{
+				if (bitsArray[i] > 0)
+				{
+					position = i;
+					length = (byte)(8 - position);
+
+					return bitsArray;
+				}
+			}
+			length = 1;
+			position = 0;
+			return new byte[] { 0 };
 		}
 
 		private static byte[] ConvertToVarBinary(double value, out byte length)

@@ -104,7 +104,7 @@ namespace Salar.Bois
 		/// <param name="obj">The object to be serialized.</param>
 		/// <param name="type">The object type.</param>
 		/// <param name="output">The output of the serialization in binary.</param>
-		public void Serialize(object obj, Type type, Stream output)
+		internal void Serialize(object obj, Type type, Stream output)
 		{
 			if (obj == null)
 				throw new ArgumentNullException(nameof(obj), "Object cannot be null.");
@@ -116,7 +116,12 @@ namespace Salar.Bois
 			{
 				var computedType = BoisTypeCache.GetRootTypeComputed(type, false, true);
 
-				computedType.InvokeWriter(writer, obj, Encoding);
+				// ReSharper disable once PossibleNullReferenceException
+				var invokeMethod = typeof(BoisComputedTypeInfo).GetMethod(nameof(BoisComputedTypeInfo.InvokeWriter),
+						BindingFlags.Instance | BindingFlags.NonPublic)
+					.MakeGenericMethod(type);
+
+				invokeMethod.Invoke(computedType, new object[] { writer, obj, Encoding });
 			}
 			else
 			{

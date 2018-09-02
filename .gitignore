@@ -307,3 +307,4 @@ $tf*/
 /CreateNuget-Pack.cmd
 *.nupkg
 /Salar.Bois.Playground
+/Salar.Bois.PlayBenchmark

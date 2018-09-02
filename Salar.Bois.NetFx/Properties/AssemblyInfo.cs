@@ -38,3 +38,4 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Salar.Bois.EmitPlayground")]
 //#endif
 [assembly: InternalsVisibleTo("Salar.Bois.NetFx.Tests")]
+[assembly: InternalsVisibleTo("Salar.Bois.PlayBenchmark")]

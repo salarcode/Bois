@@ -1353,19 +1353,44 @@ namespace Salar.Bois.Serializers
 				il.Emit(OpCodes.Brfalse_S, codeEnds);
 
 				// ---------------
-				var keyTypeBasicInfo = BoisTypeCache.GetBasicType(arrItemType);
-				if (keyTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
-				{
+				// var item = arrEnumurator.Current;
+				var dicItemVar = il.DeclareLocal(arrItemType);
+				il.LoadLocalAuto(enumurator);
 
-					BoisTypeCompiler.WriteBasicTypeDirectly(il, keyTypeBasicInfo,
+				// ReSharper disable once PossibleNullReferenceException
+				var getCurrentInfo = enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod();
+				if (enumuratorType.IsValueType)
+				{
+					il.Emit(OpCodes.Call, getCurrentInfo);
+				}
+				else
+				{
+					il.Emit(OpCodes.Callvirt, getCurrentInfo);
+				}
+				if (getCurrentInfo.ReturnType != arrItemType)
+				{
+					// This is only if the return type is Object
+					// If the return type is anything other Object this code is not tested for that
+					if (getCurrentInfo.ReturnType == typeof(object))
+					{
+						il.Emit(OpCodes.Unbox_Any, arrItemType);
+					}
+					else
+					{
+						il.Emit(OpCodes.Box, arrItemType);
+					}
+				}
+
+				il.StoreLocal(dicItemVar);
+				// VALUE -------------
+				var valueTypeBasicInfo = BoisTypeCache.GetBasicType(arrItemType);
+				if (valueTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
+				{
+					BoisTypeCompiler.WriteBasicTypeDirectly(il, valueTypeBasicInfo,
 						() =>
 						{
-							// read the array item
-							il.LoadLocalAuto(enumurator);
-							il.Emit(OpCodes.Callvirt,
-								// ReSharper disable once PossibleNullReferenceException
-								enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod());
-							il.Emit(OpCodes.Castclass, arrItemType);
+							// read the key
+							il.LoadLocalValue(dicItemVar);
 
 							return arrItemType;
 						});
@@ -1373,16 +1398,12 @@ namespace Salar.Bois.Serializers
 				else
 				{
 					// for complex types, a method is generated
-					var typeInfo = BoisTypeCache.GetRootTypeComputed(arrItemType, false, true);
+					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(arrItemType, false, true);
 
 					il.Emit(OpCodes.Ldarg_0); // BinaryWriter
-					il.LoadLocalAuto(enumurator);
-					il.Emit(OpCodes.Callvirt,
-						// ReSharper disable once PossibleNullReferenceException
-						enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod());
-					il.Emit(OpCodes.Castclass, arrItemType);
+					il.LoadLocalValue(dicItemVar);
 					il.Emit(OpCodes.Ldarg_2); // Encoding
-					il.Emit(OpCodes.Call, meth: typeInfo.WriterMethod);
+					il.Emit(OpCodes.Call, meth: valueTypeInfo.WriterMethod);
 				}
 
 				il.Emit(OpCodes.Nop);

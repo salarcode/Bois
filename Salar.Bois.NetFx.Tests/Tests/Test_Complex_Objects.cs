@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using Salar.Bois.NetFx.Tests.Base;
+﻿using Salar.Bois.NetFx.Tests.Base;
 using Salar.Bois.NetFx.Tests.TestObjects;
 using Xunit;
 
@@ -22,7 +21,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			ResetStream();
 
 			var final = Bois.Deserialize<TestObjectPrimitiveTypes>(TestStream);
-			
+
 			SerializeAreEqual(init, final);
 		}
 

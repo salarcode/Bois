@@ -1,9 +1,8 @@
 ﻿using Salar.Bois.Serializers;
 using Salar.Bois.Types;
 using System;
-using System.Data;
-using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 /* 
@@ -100,6 +99,33 @@ namespace Salar.Bois
 		}
 
 		/// <summary>
+		/// Serializing an object to binary bois format.
+		/// </summary>
+		/// <param name="obj">The object to be serialized.</param>
+		/// <param name="type">The object type.</param>
+		/// <param name="output">The output of the serialization in binary.</param>
+		public void Serialize(object obj, Type type, Stream output)
+		{
+			if (obj == null)
+				throw new ArgumentNullException(nameof(obj), "Object cannot be null.");
+			//_serializeDepth = 0;
+			var writer = new BinaryWriter(output, Encoding);
+
+			var typeInfo = BoisTypeCache.GetBasicType(type);
+			if (typeInfo.AsRootNeedsCompute)
+			{
+				var computedType = BoisTypeCache.GetRootTypeComputed(type, false, true);
+
+				computedType.InvokeWriter(writer, obj, Encoding);
+			}
+			else
+			{
+				PrimitiveWriter.WriteRootBasicType(writer, obj, type, typeInfo, Encoding);
+			}
+		}
+
+
+		/// <summary>
 		/// Deserilizing binary data to a new instance.
 		/// </summary>
 		/// <param name="objectData">The binary data.</param>
@@ -120,7 +146,36 @@ namespace Salar.Bois
 			}
 			else
 			{
-				return (T) PrimitiveReader.ReadRootBasicType(reader, type, typeInfo,Encoding);
+				return (T)PrimitiveReader.ReadRootBasicType(reader, type, typeInfo, Encoding);
+			}
+		}
+
+		/// <summary>
+		/// Deserilizing binary data to a new instance.
+		/// </summary>
+		/// <param name="objectData">The binary data.</param>
+		/// <param name="type">The object type.</param>
+		/// <returns>New instance of the deserialized data.</returns>
+		internal object Deserialize(Stream objectData, Type type)
+		{
+			var reader = new BinaryReader(objectData, Encoding);
+
+			var typeInfo = BoisTypeCache.GetBasicType(type);
+
+			if (typeInfo.AsRootNeedsCompute)
+			{
+				var computedType = BoisTypeCache.GetRootTypeComputed(type, true, false);
+
+				// ReSharper disable once PossibleNullReferenceException
+				var invokeMethod = typeof(BoisComputedTypeInfo).GetMethod(nameof(BoisComputedTypeInfo.InvokeReader),
+					BindingFlags.Instance | BindingFlags.NonPublic)
+					.MakeGenericMethod(type);
+
+				return invokeMethod.Invoke(computedType, new object[] { reader, Encoding });
+			}
+			else
+			{
+				return PrimitiveReader.ReadRootBasicType(reader, type, typeInfo, Encoding);
 			}
 		}
 	}

@@ -223,6 +223,9 @@ namespace Salar.Bois.Types
 			{
 				var arrayItemType = memActualType.GetElementType();
 
+				if (arrayItemType == null)
+					throw new Exception($"Unknown array '{memType}' with no element type not suported.");
+
 				var arrayItemInfo = ReadBasicTypeInfo(arrayItemType);
 
 				if (arrayItemInfo.KnownType == EnBasicKnownType.Unknown)

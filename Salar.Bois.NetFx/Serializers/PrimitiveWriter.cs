@@ -398,7 +398,7 @@ namespace Salar.Bois.Serializers
 				WriteValue(writer, col.ColumnName, encoding);
 
 				var dataType = col.DataType?.ToString();
-				if (dataType != null)
+				if (dataType != null && dataType.StartsWith("System."))
 				{
 					dataType = "0." + dataType.Remove(0, "System.".Length);
 				}

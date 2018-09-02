@@ -159,7 +159,7 @@ namespace Salar.Bois.Serializers
 			var version = ReadString(reader, Encoding.ASCII);
 			if (version == null)
 				return null;
-			return new Version();
+			return new Version(version);
 		}
 
 		internal static Guid? ReadGuidNullable(BinaryReader reader)

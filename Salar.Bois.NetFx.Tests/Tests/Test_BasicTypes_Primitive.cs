@@ -197,6 +197,32 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			final.Should().Be(init);
 		}
 
+		public static IEnumerable<object[]> GetVersionData()
+		{
+			yield return new object[] { new Version(), };
+			yield return new object[] { new Version("0.0.0.0"), };
+			yield return new object[] { new Version("30.10.10.0"), };
+			yield return new object[] { new Version(10, 10, 2, 2), };
+			yield return new object[] { new Version(0, 0, 2, 2), };
+			yield return new object[] { new Version(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue), };
+		}
+
+		[Theory]
+		[InlineData(null)]
+		[MemberData(nameof(GetVersionData))]
+		public void TestingVersion(Version init)
+		{
+			ResetBois();
+
+			PrimitiveWriter.WriteValue(Writer, init);
+			ResetStream();
+
+			var final = PrimitiveReader.ReadVersion(Reader);
+
+			final.Should().Be(init);
+		}
+
+
 		public static IEnumerable<object[]> GetColorData()
 		{
 			yield return new object[] { Color.Empty };

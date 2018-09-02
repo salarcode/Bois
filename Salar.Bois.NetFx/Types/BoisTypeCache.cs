@@ -209,6 +209,16 @@ namespace Salar.Bois.Types
 					BareType = underlyingTypeNullable,
 				};
 			}
+			if (memActualType == typeof(byte[]))
+			{
+				return new BoisBasicTypeInfo
+				{
+					KnownType = EnBasicKnownType.ByteArray,
+					IsNullable = isNullable,
+					AsRootNeedsCompute = false,
+					BareType = underlyingTypeNullable,
+				};
+			}
 			if (ReflectionHelper.CompareSubType(memActualType, typeof(Array)))
 			{
 				var arrayItemType = memActualType.GetElementType();
@@ -232,16 +242,6 @@ namespace Salar.Bois.Types
 				return arrayItemInfo;
 			}
 
-			if (memActualType == typeof(byte[]))
-			{
-				return new BoisBasicTypeInfo
-				{
-					KnownType = EnBasicKnownType.ByteArray,
-					IsNullable = isNullable,
-					AsRootNeedsCompute = false,
-					BareType = underlyingTypeNullable,
-				};
-			}
 			if (ReflectionHelper.CompareSubType(memActualType, typeof(Enum)))
 			{
 				return new BoisBasicTypeInfo

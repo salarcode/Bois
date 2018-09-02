@@ -382,12 +382,12 @@ namespace Salar.Bois.Types
 					EmitGenerator.WriteDateTimeOffset(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
-				case EnBasicKnownType.KnownTypeArray:
-					EmitGenerator.WriteKnownTypeArray(prop, field, null, il, basicInfo.IsNullable);
-					break;
-
 				case EnBasicKnownType.ByteArray:
 					EmitGenerator.WriteByteArray(prop, field, null, il, basicInfo.IsNullable);
+					break;
+
+				case EnBasicKnownType.KnownTypeArray:
+					EmitGenerator.WriteKnownTypeArray(prop, field, null, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Enum:

@@ -30,13 +30,13 @@ namespace Salar.Bois.Serializers
 			}
 			else if (str.Length == 0)
 			{
-				NumericSerializers.WriteVarInt(writer, (int?)0);
+				NumericSerializers.WriteUIntNullableMemberCount(writer, 0u);
 			}
 			else
 			{
 				var strBytes = encoding.GetBytes(str);
 				// Int32
-				NumericSerializers.WriteVarInt(writer, (int?)strBytes.Length);
+				NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)strBytes.Length);
 				writer.Write(strBytes);
 			}
 		}
@@ -205,7 +205,7 @@ namespace Salar.Bois.Serializers
 			}
 
 			// uint doesn't deal with negative numbers
-			NumericSerializers.WriteVarInt(writer, (uint?)bytes.Length);
+			NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)bytes.Length);
 			writer.Write(bytes);
 		}
 
@@ -306,14 +306,14 @@ namespace Salar.Bois.Serializers
 			if (guid == Guid.Empty)
 			{
 				// Int32
-				NumericSerializers.WriteVarInt(writer, (uint?)0);
+				NumericSerializers.WriteUIntNullableMemberCount(writer, 0u);
 				return;
 			}
 
 			var data = guid.ToByteArray();
 
 			// Int32
-			NumericSerializers.WriteVarInt(writer, (uint?)data.Length);
+			NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)data.Length);
 			writer.Write(data);
 		}
 
@@ -365,7 +365,7 @@ namespace Salar.Bois.Serializers
 				return;
 			}
 			// tables count
-			NumericSerializers.WriteVarInt(writer, (int?)ds.Tables.Count);
+			NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)ds.Tables.Count);
 
 			WriteValue(writer, ds.DataSetName, encoding);
 
@@ -386,7 +386,7 @@ namespace Salar.Bois.Serializers
 				return;
 			}
 			// column count
-			NumericSerializers.WriteVarInt(writer, (int?)dt.Columns.Count);
+			NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)dt.Columns.Count);
 
 			// table name
 			WriteValue(writer, dt.TableName, encoding);
@@ -549,9 +549,9 @@ namespace Salar.Bois.Serializers
 
 				case EnBasicKnownType.UInt16:
 					if (typeInfo.IsNullable)
-						NumericSerializers.WriteVarInt(writer, (int?)(obj as ushort?));
+						NumericSerializers.WriteVarInt(writer, obj as ushort?);
 					else
-						NumericSerializers.WriteVarInt(writer, (int)(ushort)obj);
+						NumericSerializers.WriteVarInt(writer, (ushort)obj);
 					return;
 
 				case EnBasicKnownType.UInt32:
@@ -623,7 +623,7 @@ namespace Salar.Bois.Serializers
 			var arrayItemTypeType = BoisTypeCache.GetBasicType(typeInfo.BareType);
 
 			// Int32
-			NumericSerializers.WriteVarInt(writer, (uint?)array.Length);
+			NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)array.Length);
 
 			for (int i = 0; i < array.Length; i++)
 			{

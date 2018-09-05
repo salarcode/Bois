@@ -11,18 +11,18 @@ namespace Salar.Bois.Serializers
 	{
 		internal static string ReadString(BinaryReader reader, Encoding encoding)
 		{
-			int? length = NumericSerializers.ReadVarInt32Nullable(reader);
+			uint? length = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (length == null)
 			{
 				return null;
 			}
 			else if (length == 0)
 			{
-				return String.Empty;
+				return string.Empty;
 			}
 			else
 			{
-				var strBuff = reader.ReadBytes(length.Value);
+				var strBuff = reader.ReadBytes((int)length.Value);
 				return encoding.GetString(strBuff, 0, strBuff.Length);
 			}
 		}
@@ -164,7 +164,7 @@ namespace Salar.Bois.Serializers
 
 		internal static Guid? ReadGuidNullable(BinaryReader reader)
 		{
-			var len = NumericSerializers.ReadVarUInt32Nullable(reader);
+			uint? len = NumericSerializers.ReadVarUInt32Nullable(reader);
 
 			if (len == null)
 				return null;
@@ -178,7 +178,7 @@ namespace Salar.Bois.Serializers
 
 		internal static Guid ReadGuid(BinaryReader reader)
 		{
-			var len = NumericSerializers.ReadVarUInt32(reader);
+			uint len = NumericSerializers.ReadVarUInt32(reader);
 			if (len == 0)
 				return Guid.Empty;
 
@@ -216,7 +216,7 @@ namespace Salar.Bois.Serializers
 
 		internal static DataTable ReadDataTable(BinaryReader reader, Encoding encoding)
 		{
-			var columnCount = NumericSerializers.ReadVarInt32Nullable(reader);
+			var columnCount = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (columnCount == null)
 				return null;
 
@@ -272,7 +272,7 @@ namespace Salar.Bois.Serializers
 
 		internal static DataSet ReadDataSet(BinaryReader reader, Encoding encoding)
 		{
-			var tablesCount = NumericSerializers.ReadVarInt32Nullable(reader);
+			var tablesCount = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (tablesCount == null)
 				return null;
 

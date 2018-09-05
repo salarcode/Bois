@@ -253,7 +253,7 @@ namespace Salar.Bois.Types
 
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			il.Emit(OpCodes.Ldc_I4_S, memberCount);
-			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteUIntNullableCount),
+			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteUIntNullableMemberCount),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(uint) }, null));
 			il.Emit(OpCodes.Nop);
 

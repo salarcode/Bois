@@ -1,6 +1,7 @@
 ﻿using Salar.Bois.NetFx.Tests.Base;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -18,7 +19,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			yield return new object[] { new float?[] { 10.9998f, null, 10.15f, 19.5f } };
 			yield return new object[] { new Uri[] { new Uri("https://www.nuget.org/packages/Salar.Bois"), new Uri("https://github.com/salarcode/Bois"), } };
 			yield return new object[] { new ConsoleKey[] { ConsoleKey.Backspace, ConsoleKey.BrowserStop } };
+			yield return new object[] { new ConsoleKey?[] { null, null, null, ConsoleKey.BrowserStop } };
+			yield return new object[] { new Size[] { new Size(10, 20), new Size(90, 30), } };
 			yield return new object[] { new Guid?[] { Guid.Empty, Guid.NewGuid(), null, Guid.NewGuid() } };
+
 		}
 
 		[Theory]

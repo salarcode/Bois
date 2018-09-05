@@ -101,11 +101,13 @@
     <Compile Include="TestObjects\TestObjectListImplemented.cs" />
     <Compile Include="TestObjects\TestObjectPrimitiveTypes.cs" />
     <Compile Include="TestObjects\TestObjectSelfReferencing.cs" />
+    <Compile Include="TestObjects\TestStructPrimitives.cs" />
     <Compile Include="Tests\Test_BasicTypes_Numbers.cs" />
     <Compile Include="Tests\Test_BasicTypes_Primitive.cs" />
     <Compile Include="Tests\Test_BasicType_Arrays.cs" />
     <Compile Include="Tests\Test_Complex_Collections.cs" />
     <Compile Include="Tests\Test_Complex_Objects.cs" />
+    <Compile Include="Tests\Test_Complex_Struct.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

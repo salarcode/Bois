@@ -214,7 +214,7 @@ namespace Salar.Bois.Types
 			}
 
 			//TODO: check the impact of removing object count
-			WriteRootObjectMembersCount(il, typeInfo);
+			WriteRootObjectMembersCount(il, type, typeInfo);
 
 			foreach (var member in typeInfo.Members)
 			{
@@ -222,34 +222,38 @@ namespace Salar.Bois.Types
 			}
 		}
 
-		private static void WriteRootObjectMembersCount(ILGenerator il, BoisComplexTypeInfo typeInfo)
+		private static void WriteRootObjectMembersCount(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
 		{
 			var labelWriteCount = il.DefineLabel();
 			var labelEndOfCode = il.DefineLabel();
 
-			il.Emit(OpCodes.Ldarg_1); // instance
-			il.Emit(OpCodes.Brtrue_S, labelWriteCount);
+			if (!type.IsValueType && !typeInfo.IsNullable)
+			{
+				il.Emit(OpCodes.Ldarg_1); // instance
+				il.Emit(OpCodes.Brtrue_S, labelWriteCount);
 
-			// CODE-FOR: PrimitiveWriter.WriteNullValue(writer);
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
-			il.Emit(OpCodes.Call,
-				typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
-					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
-			il.Emit(OpCodes.Nop);
+				// CODE-FOR: PrimitiveWriter.WriteNullValue(writer);
+				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Call,
+					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
+				il.Emit(OpCodes.Nop);
 
-			// CODE-FOR: return;
-			il.Emit(OpCodes.Ret);
+				// CODE-FOR: return;
+				il.Emit(OpCodes.Ret);
 
-			// CODE-FOR: else
-			il.Emit(OpCodes.Br_S, labelEndOfCode);
-			
+				// CODE-FOR: else
+				il.Emit(OpCodes.Br_S, labelEndOfCode);
+			}
+
 			// CODE-FOR: writing member count
 			il.MarkLabel(labelWriteCount);
+
 			var memberCount = typeInfo.Members.Length;
 
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			il.Emit(OpCodes.Ldc_I4_S, memberCount);
-			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteUIntNullableMemberCount),
+			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteUIntNullableCount),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(uint) }, null));
 			il.Emit(OpCodes.Nop);
 
@@ -732,10 +736,19 @@ namespace Salar.Bois.Types
 			var constructor = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, Type.DefaultBinder,
 				Type.EmptyTypes, null);
 			if (constructor == null)
-				throw new Exception($"Type '{type}' doesn't have a constructor with empty parameters");
+			{
+				// is it struct?
+				if (!type.IsClass && type.IsValueType)
+				{
+					var structVariable = il.DeclareLocal(type);
+					il.Emit(OpCodes.Ldloca_S, 0);
+					il.Emit(OpCodes.Initobj, type);
 
-			//// stored as the first stack
-			//il.Emit(OpCodes.Newobj, constructor);
+					return structVariable;
+				}
+				throw new Exception($"Type '{type}' doesn't have a constructor with empty parameters");
+			}
+
 
 			// stored as first local variable
 			var instanceVariable = il.DeclareLocal(type);

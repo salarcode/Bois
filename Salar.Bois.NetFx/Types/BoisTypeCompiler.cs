@@ -210,7 +210,7 @@ namespace Salar.Bois.Types
 		{
 			if (typeInfo.Members == null || typeInfo.Members.Length == 0)
 			{
-				// no mmeber
+				// no member
 				return;
 			}
 

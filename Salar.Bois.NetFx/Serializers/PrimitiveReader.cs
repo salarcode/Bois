@@ -314,7 +314,7 @@ namespace Salar.Bois.Serializers
 					return PrimitiveReader.ReadBoolean(reader);
 
 				case EnBasicKnownType.Enum:
-					return PrimitiveReader.ReadEnum(reader, type);
+					return PrimitiveReader.ReadEnum(reader, typeInfo.BareType ?? type);
 
 				case EnBasicKnownType.DateTime:
 					if (typeInfo.IsNullable)
@@ -429,13 +429,13 @@ namespace Salar.Bois.Serializers
 			}
 
 			var arrayItemType = typeInfo.BareType;
-			var arrayItemTypeType = BoisTypeCache.GetBasicType(typeInfo.BareType);
+			var boisBasicTypeInfo = BoisTypeCache.GetBasicType(typeInfo.BareType);
 
 			var result = Array.CreateInstance(arrayItemType, (int)length.Value);
 
 			for (int i = 0; i < length; i++)
 			{
-				var item = ReadRootBasicType(reader, arrayItemType, arrayItemTypeType, encoding);
+				var item = ReadRootBasicType(reader, arrayItemType, boisBasicTypeInfo, encoding);
 				result.SetValue(item, i);
 			}
 			return result;

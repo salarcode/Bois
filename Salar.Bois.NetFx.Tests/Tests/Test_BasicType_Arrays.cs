@@ -31,6 +31,9 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
+			BoisSerializer.Initialize(init.GetType());
+
+
 			var arrayType = init.GetType();
 
 			Bois.Serialize(init, arrayType, TestStream);

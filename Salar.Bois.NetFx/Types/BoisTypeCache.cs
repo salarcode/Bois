@@ -61,7 +61,8 @@ namespace Salar.Bois.Types
 			if (generateWriter && result.WriterDelegate == null)
 			{
 				complexTypeInfo = GetComplexTypeUnCached(type);
-
+				if (complexTypeInfo == null)
+					return result;
 #if EmitAssemblyOut
 				var computed = BoisTypeCompiler.ComputeWriterSaveAss(type, complexTypeInfo, outputAssembly,
 					(dynamicMethod) =>
@@ -86,7 +87,11 @@ namespace Salar.Bois.Types
 			if (generateReader && result.ReaderDelegate == null)
 			{
 				if (complexTypeInfo == null)
+				{
 					complexTypeInfo = GetComplexTypeUnCached(type);
+					if (complexTypeInfo == null)
+						return result;
+				}
 
 #if EmitAssemblyOut
 				var computed = BoisTypeCompiler.ComputeReaderSaveAss(type, complexTypeInfo, outputAssembly,

@@ -43,7 +43,7 @@ namespace Salar.Bois
 			BoisTypeCache.GetRootTypeComputed(typeof(T), true, true);
 		}
 
-		public void Initialize(params Type[] types)
+		public static void Initialize(params Type[] types)
 		{
 			if (types == null)
 				return;

@@ -5,6 +5,25 @@ using System.Drawing;
 
 namespace Salar.Bois.NetFx.Tests.TestObjects
 {
+	public struct TestStructSimple
+	{
+		public int Id { get; set; }
+
+		public string Name { get; set; }
+
+		public static IEnumerable<object[]> GetTestData()
+		{
+			yield return new object[]
+			{
+				new TestStructSimple
+				{
+					Id = 1024,
+					Name = "Salar"
+				}
+			};
+		}
+	}
+
 	public struct TestStructPrimitives
 	{
 		public bool Boolean { get; set; }
@@ -86,6 +105,7 @@ namespace Salar.Bois.NetFx.Tests.TestObjects
 
 		public static IEnumerable<object[]> GetTestData()
 		{
+
 			yield return new object[]
 			{
 				new TestStructPrimitives

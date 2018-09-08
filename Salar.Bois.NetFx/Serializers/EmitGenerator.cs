@@ -20,22 +20,22 @@ namespace Salar.Bois.Serializers
 
 		#region Write Root Complex Types
 
-		internal static void WriteRootUnknownArray(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
+		internal static void WriteRootUnknownArray(Type containerType, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			WriteUnknownArray(null, null, () =>
 				{
-					il.LoadArgument(1, type); // instance
-					return type;
+					il.LoadArgAuto(1, containerType); // instance
+					return containerType;
 				},
+				containerType,
 				il, typeInfo.IsNullable);
-
 		}
 
 		internal static void WriteRootCollection(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			WriteCollection(null, null, () =>
 				{
-					il.LoadArgument(1, type); // instance
+					il.LoadArgAuto(1, type); // instance
 					return type;
 				},
 				il, typeInfo.IsNullable);
@@ -55,7 +55,7 @@ namespace Salar.Bois.Serializers
 		{
 			WriteDictionary(null, null, () =>
 				{
-					il.LoadArgument(1, type); // instance
+					il.LoadArgAuto(1, type); // instance
 					return type;
 				},
 				il, typeInfo.IsNullable);
@@ -65,7 +65,7 @@ namespace Salar.Bois.Serializers
 		{
 			WriteNameValueColl(null, null, () =>
 				{
-					il.LoadArgument(1, type); // instance
+					il.LoadArgAuto(1, type); // instance
 					return type;
 				},
 				il, typeInfo.IsNullable);
@@ -74,18 +74,19 @@ namespace Salar.Bois.Serializers
 		#endregion
 
 		#region Write Simple Types
-		internal static void WriteInt16(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteInt16(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -99,19 +100,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteInt32(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteInt32(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -125,19 +127,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteInt64(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteInt64(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -151,19 +154,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteUInt16(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteUInt16(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -177,19 +181,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteUInt32(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteUInt32(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -203,19 +208,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteUInt64(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteUInt64(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -229,19 +235,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteDouble(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteDouble(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -255,19 +262,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteDecimal(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteDecimal(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -281,19 +289,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteFloat(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteFloat(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -308,19 +317,20 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteByte(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteByte(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -344,19 +354,20 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteSByte(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteSByte(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -381,19 +392,19 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteString(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteString(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -410,19 +421,19 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteBool(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteBool(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -436,19 +447,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteDateTime(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteDateTime(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -463,19 +475,20 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteDateTimeOffset(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteDateTimeOffset(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -490,7 +503,8 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteEnum(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteEnum(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			Type itemType;
 
@@ -500,13 +514,13 @@ namespace Salar.Bois.Serializers
 				itemType = prop.PropertyType;
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
 				itemType = field.FieldType;
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -523,19 +537,20 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteTimeSpan(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteTimeSpan(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -550,19 +565,20 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteChar(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteChar(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -576,19 +592,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteGuid(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteGuid(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -602,19 +619,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteColor(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteColor(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -629,19 +647,20 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteDbNull(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteDbNull(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -656,19 +675,20 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteUri(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteUri(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -683,19 +703,20 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteVersion(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteVersion(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -710,19 +731,20 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void WriteByteArray(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteByteArray(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -736,16 +758,16 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteKnownTypeArray(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteKnownTypeArray(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
 		{
-			WriteUnknownArray(prop, field, valueLoader, il, nullable);
+			WriteUnknownArray(prop, field, valueLoader, containerType, il, nullable);
 		}
 		#endregion
 
 		#region Write Complex Types
 
-		internal static void WriteUnknownComplexTypeCall(Type memberType, PropertyInfo prop, FieldInfo field, ILGenerator il,
-			BoisComplexTypeInfo complexTypeInfo)
+		internal static void WriteUnknownComplexTypeCall(Type memberType, PropertyInfo prop, FieldInfo field, ILGenerator il, Type containerType, BoisComplexTypeInfo complexTypeInfo)
 		{
 			// for complex types, a method is generated
 			var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(memberType, false, true);
@@ -757,12 +779,12 @@ namespace Salar.Bois.Serializers
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
-				il.LoadArgument(1, memberType); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else
 			{
-				il.LoadArgument(1, memberType); // instance
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			il.Emit(OpCodes.Ldnull);
@@ -785,12 +807,12 @@ namespace Salar.Bois.Serializers
 				if (prop != null)
 				{
 					var getter = prop.GetGetMethod(true);
-					il.LoadArgument(1, memberType); // instance
+					il.LoadArgAuto(1, containerType); // instance
 					il.Emit(OpCodes.Callvirt, meth: getter);
 				}
 				else
 				{
-					il.LoadArgument(1, memberType); // instance
+					il.LoadArgAuto(1, containerType); // instance
 					il.Emit(OpCodes.Ldfld, field: field);
 				}
 				il.Emit(OpCodes.Ldarg_2); // Encoding
@@ -845,14 +867,14 @@ namespace Salar.Bois.Serializers
 				collectionType = prop.PropertyType;
 
 				var getter = prop.GetGetMethod(true);
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, collectionType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
 				collectionType = field.FieldType;
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, collectionType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -985,7 +1007,7 @@ namespace Salar.Bois.Serializers
 				var valueTypeBasicInfo = BoisTypeCache.GetBasicType(valueType);
 				if (valueTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
 				{
-					BoisTypeCompiler.WriteBasicTypeDirectly(il, valueTypeBasicInfo,
+					BoisTypeCompiler.WriteBasicTypeDirectly(collectionType, il, valueTypeBasicInfo,
 						() =>
 						{
 							// read the key
@@ -1068,14 +1090,14 @@ namespace Salar.Bois.Serializers
 
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, dictionaryType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
 				dictionaryType = field.FieldType;
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, dictionaryType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -1179,7 +1201,7 @@ namespace Salar.Bois.Serializers
 				if (keyTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
 				{
 
-					BoisTypeCompiler.WriteBasicTypeDirectly(il, keyTypeBasicInfo,
+					BoisTypeCompiler.WriteBasicTypeDirectly(dictionaryType, il, keyTypeBasicInfo,
 						() =>
 						{
 							// read the key
@@ -1209,7 +1231,7 @@ namespace Salar.Bois.Serializers
 				var valueTypeBasicInfo = BoisTypeCache.GetBasicType(valueType);
 				if (valueTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
 				{
-					BoisTypeCompiler.WriteBasicTypeDirectly(il, valueTypeBasicInfo,
+					BoisTypeCompiler.WriteBasicTypeDirectly(dictionaryType, il, valueTypeBasicInfo,
 						() =>
 						{
 							// read the key
@@ -1253,7 +1275,7 @@ namespace Salar.Bois.Serializers
 			il.MarkLabel(codeEnds);
 		}
 
-		internal static void WriteUnknownArray(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteUnknownArray(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType, ILGenerator il, bool nullable)
 		{
 			/*
 			var arr = instance.UnknownArray1;
@@ -1288,19 +1310,21 @@ namespace Salar.Bois.Serializers
 			var loopCountVar_Shared = il.DeclareLocal(typeof(int));
 
 			// var arr = instance.UnknownArray1;
-			il.Emit(OpCodes.Ldarg_1); // instance
 
 			if (prop != null)
 			{
 				arrayType = prop.PropertyType;
 
 				var getter = prop.GetGetMethod(true);
+
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
 				arrayType = field.FieldType;
 
+				il.LoadArgAuto(1, containerType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -1366,7 +1390,7 @@ namespace Salar.Bois.Serializers
 				var valueTypeBasicInfo = BoisTypeCache.GetBasicType(arrItemType);
 				if (valueTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
 				{
-					BoisTypeCompiler.WriteBasicTypeDirectly(il, valueTypeBasicInfo,
+					BoisTypeCompiler.WriteBasicTypeDirectly(arrayType, il, valueTypeBasicInfo,
 						() =>
 						{
 							// CODE-FOR: array[index]
@@ -1407,91 +1431,9 @@ namespace Salar.Bois.Serializers
 				il.Emit(OpCodes.Brtrue_S, LoopStartLabel);
 			}
 
-
-			//// IEnumerator enumerator = arr.GetEnumerator();
-			//il.LoadLocalValue(instanceVar); // instance coll
-			//var getEnumeratorMethodInfo = typeof(Array).GetMethod(nameof(Array.GetEnumerator),
-			//	BindingFlags.Instance | BindingFlags.Public);
-			//il.Emit(OpCodes.Callvirt, getEnumeratorMethodInfo);
-
-			//var enumuratorType = getEnumeratorMethodInfo.ReturnType;
-			//var enumurator = il.DeclareLocal(enumuratorType);
-			//il.Emit(OpCodes.Stloc, enumurator);
-
-			////while (enumerator.MoveNext())
-			//{
-			//	il.MarkLabel(loopStart);
-
-			//	il.LoadLocalAuto(enumurator);
-			//	il.Emit(OpCodes.Callvirt,
-			//		enumuratorType.GetMethod(nameof(IEnumerator.MoveNext)));
-			//	il.Emit(OpCodes.Brfalse_S, codeEnds);
-
-			//	// ---------------
-			//	// var item = arrEnumurator.Current;
-			//	var dicItemVar = il.DeclareLocal(arrItemType);
-			//	il.LoadLocalAuto(enumurator);
-
-			//	// ReSharper disable once PossibleNullReferenceException
-			//	var getCurrentInfo = enumuratorType.GetProperty(nameof(IEnumerator.Current)).GetGetMethod();
-			//	if (enumuratorType.IsValueType)
-			//	{
-			//		il.Emit(OpCodes.Call, getCurrentInfo);
-			//	}
-			//	else
-			//	{
-			//		il.Emit(OpCodes.Callvirt, getCurrentInfo);
-			//	}
-			//	if (getCurrentInfo.ReturnType != arrItemType)
-			//	{
-			//		// This is only if the return type is Object
-			//		// If the return type is anything other Object this code is not tested for that
-			//		if (getCurrentInfo.ReturnType == typeof(object))
-			//		{
-			//			il.Emit(OpCodes.Unbox_Any, arrItemType);
-			//		}
-			//		else
-			//		{
-			//			il.Emit(OpCodes.Box, arrItemType);
-			//		}
-			//	}
-
-			//	il.StoreLocal(dicItemVar);
-			//	// VALUE -------------
-			//	var valueTypeBasicInfo = BoisTypeCache.GetBasicType(arrItemType);
-			//	if (valueTypeBasicInfo.KnownType != EnBasicKnownType.Unknown)
-			//	{
-			//		BoisTypeCompiler.WriteBasicTypeDirectly(il, valueTypeBasicInfo,
-			//			() =>
-			//			{
-			//				// read the key
-			//				il.LoadLocalValue(dicItemVar);
-
-			//				return arrItemType;
-			//			});
-			//	}
-			//	else
-			//	{
-			//		// for complex types, a method is generated
-			//		var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(arrItemType, false, true);
-
-			//		il.Emit(OpCodes.Ldarg_0); // BinaryWriter
-			//		il.LoadLocalValue(dicItemVar);
-			//		il.Emit(OpCodes.Ldarg_2); // Encoding
-			//		il.Emit(OpCodes.Call, meth: valueTypeInfo.WriterMethod);
-			//	}
-
-			//	il.Emit(OpCodes.Nop);
-			//	il.Emit(OpCodes.Br_S, loopStart);
-			//}
-
 			il.MarkLabel(codeEnds);
 		}
 
-		private static void WriteEmitArrayIndexReader(Type arrItemType, ILGenerator il)
-		{
-
-		}
 
 		internal static void WriteNameValueColl(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
 		{
@@ -1526,12 +1468,12 @@ namespace Salar.Bois.Serializers
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, typeof(NameValueCollection)); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, typeof(NameValueCollection)); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -1639,19 +1581,20 @@ namespace Salar.Bois.Serializers
 			WriteCollection(prop, field, valueLoader, il, nullable);
 		}
 
-		internal static void WriteDataSet(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteDataSet(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, prop.PropertyType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, field.FieldType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -1667,19 +1610,20 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void WriteDataTable(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, ILGenerator il, bool nullable)
+		internal static void WriteDataTable(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
 		{
 			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
 
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, prop.PropertyType); // instance
 				il.Emit(OpCodes.Callvirt, meth: getter);
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldarg_1); // instance
+				il.LoadArgAuto(1, field.FieldType); // instance
 				il.Emit(OpCodes.Ldfld, field: field);
 			}
 			else
@@ -1708,7 +1652,7 @@ namespace Salar.Bois.Serializers
 
 		internal static void ReadRootUnknownArray(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
-			ReadUnknownArray(null, null, type, il, typeInfo.IsNullable, new SharedVariables(il));
+			ReadUnknownArray(null, null, type, type, il, typeInfo.IsNullable, new SharedVariables(il));
 		}
 
 		internal static void ReadRootNameValueColl(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
@@ -1725,10 +1669,11 @@ namespace Salar.Bois.Serializers
 
 		#region Read Simple Types
 
-		internal static void ReadInt16(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadInt16(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -1757,10 +1702,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadInt32(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadInt32(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -1789,10 +1735,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadInt64(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadInt64(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -1821,10 +1768,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadUInt16(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadUInt16(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -1853,10 +1801,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadUInt32(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadUInt32(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -1885,10 +1834,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadUInt64(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadUInt64(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -1917,10 +1867,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadDouble(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadDouble(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -1949,10 +1900,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadDecimal(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadDecimal(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -1981,10 +1933,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadFloat(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadFloat(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2013,10 +1966,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadByte(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadByte(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			if (isNullable)
@@ -2048,10 +2002,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadSByte(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadSByte(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			if (isNullable)
@@ -2083,10 +2038,10 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadString(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadString(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType, ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 			il.Emit(OpCodes.Ldarg_1); // Encoding
 
@@ -2111,10 +2066,10 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadBool(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadBool(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType, ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2143,10 +2098,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadDateTime(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadDateTime(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2175,10 +2131,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadDateTimeOffset(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadDateTimeOffset(PropertyInfo prop, FieldInfo field, Action valueSetter,
+			Type containerType, ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2207,13 +2164,13 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadEnum(PropertyInfo prop, FieldInfo field, Action valueSetter, Type valueSetterType, ILGenerator il, bool isNullable)
+		internal static void ReadEnum(PropertyInfo prop, FieldInfo field, Action valueSetter, Type memberType,
+			Type containerType, ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
-			Type memberType;
 			if (prop != null)
 			{
 				memberType = prop.PropertyType;
@@ -2224,7 +2181,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				memberType = valueSetterType;
+				// not needed. memberType = memberType;
 			}
 
 			var methodArg = new[] { typeof(BinaryReader) };
@@ -2250,10 +2207,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadTimeSpan(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadTimeSpan(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2282,10 +2240,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadChar(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadChar(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2314,10 +2273,11 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void ReadGuid(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadGuid(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2347,10 +2307,11 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void ReadColor(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadColor(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var method =
@@ -2379,10 +2340,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadDbNull(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadDbNull(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var methodArg = new[] { typeof(BinaryReader) };
@@ -2406,10 +2368,11 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void ReadUri(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadUri(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var methodArg = new[] { typeof(BinaryReader) };
@@ -2432,10 +2395,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadVersion(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadVersion(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var methodArg = new[] { typeof(BinaryReader) };
@@ -2458,10 +2422,11 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
-		internal static void ReadDataSet(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool nullable)
+		internal static void ReadDataSet(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 			il.Emit(OpCodes.Ldarg_1); // Encoding
 
@@ -2487,10 +2452,11 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void ReadDataTable(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool nullable)
+		internal static void ReadDataTable(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool nullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 			il.Emit(OpCodes.Ldarg_1); // Encoding
 
@@ -2514,10 +2480,11 @@ namespace Salar.Bois.Serializers
 			}
 			il.Emit(OpCodes.Nop);
 		}
-		internal static void ReadByteArray(PropertyInfo prop, FieldInfo field, Action valueSetter, ILGenerator il, bool isNullable)
+		internal static void ReadByteArray(PropertyInfo prop, FieldInfo field, Action valueSetter, Type containerType,
+			ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 
 			var methodArg = new[] { typeof(BinaryReader) };
@@ -2552,7 +2519,7 @@ namespace Salar.Bois.Serializers
 			var LabelEndOfCode = il.DefineLabel();
 
 			// CODE-FOR: if (reader.ReadByte() == 64)
-			il.Emit(OpCodes.Ldarg_0);
+			il.Emit(OpCodes.Ldarg_0); // BinaryReader
 			il.Emit(OpCodes.Call,
 				meth: typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadByte)));
 			il.Emit(OpCodes.Ldc_I4_S, NumericSerializers.FlagNullable);
@@ -2561,7 +2528,7 @@ namespace Salar.Bois.Serializers
 
 			// CODE-FOR: setting null as value
 			{
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, memberType); // instance
 				il.Emit(OpCodes.Ldnull);
 				if (prop != null)
 				{
@@ -2579,7 +2546,7 @@ namespace Salar.Bois.Serializers
 				il.MarkLabel(LabelReadValue);
 
 				// CODE-FOR: Set value
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, memberType); // instance
 				il.Emit(OpCodes.Ldarg_0); // BinaryReader
 				il.Emit(OpCodes.Ldarg_1); // Encoding
 				il.Emit(OpCodes.Call, meth: valueTypeInfo.ReaderMethod);
@@ -2612,8 +2579,8 @@ namespace Salar.Bois.Serializers
 				instance.GenericCollection1 = coll;
 			}
 			*/
-			//il.Emit(OpCodes.Ldloc_0); // instance
-			//il.Emit(OpCodes.Ldarg_1); // Encoding
+			// OpCodes.Ldloc_0 // instance
+			// OpCodes.Ldarg_1 // Encoding
 			var beforeEndReturn = il.DefineLabel();
 
 			Type collectionType;
@@ -2741,14 +2708,14 @@ namespace Salar.Bois.Serializers
 			// emitSample.GenericList = list2;
 			if (prop != null)
 			{
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, collectionType); // instance
 				il.LoadLocalValue(collectionInstance);
 
 				il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, collectionType); // instance
 				il.LoadLocalValue(collectionInstance);
 
 				il.Emit(OpCodes.Stfld, field: field); // field value
@@ -2943,14 +2910,14 @@ namespace Salar.Bois.Serializers
 			// emitSample.GenericDictionary = dictionary;
 			if (prop != null)
 			{
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, dictionaryType); // instance
 				il.LoadLocalValue(dictionaryInstance);
 
 				il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, dictionaryType); // instance
 				il.LoadLocalValue(dictionaryInstance);
 
 				il.Emit(OpCodes.Stfld, field: field); // field value
@@ -3099,14 +3066,14 @@ namespace Salar.Bois.Serializers
 			// emitSample.GenericDictionary = dictionary;
 			if (prop != null)
 			{
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, dictionaryType); // instance
 				il.LoadLocalValue(dictionaryInstance);
 
 				il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, dictionaryType); // instance
 				il.LoadLocalValue(dictionaryInstance);
 
 				il.Emit(OpCodes.Stfld, field: field); // field value
@@ -3133,7 +3100,8 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		internal static void ReadUnknownArray(PropertyInfo prop, FieldInfo field, Type rootType, ILGenerator il, bool nullable, SharedVariables variableCache)
+		internal static void ReadUnknownArray(PropertyInfo prop, FieldInfo field, Type arrayType, Type containerType,
+			ILGenerator il, bool nullable, SharedVariables variableCache)
 		{
 			/*
 			itemCount = NumericSerializers.ReadVarUInt32Nullable(reader);
@@ -3148,8 +3116,8 @@ namespace Salar.Bois.Serializers
 				instance.GenericCollection1 = coll;
 			}
 			*/
-			//il.Emit(OpCodes.Ldloc_0); // instance
-			//il.Emit(OpCodes.Ldarg_1); // Encoding
+			// OpCodes.Ldloc_0 // instance
+			// OpCodes.Ldarg_1 // Encoding
 			var beforeEndReturn = il.DefineLabel();
 
 			Type arrType;
@@ -3163,7 +3131,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				arrType = rootType;
+				arrType = arrayType;
 			}
 			var methodReadVarInt32Nullable = typeof(NumericSerializers)
 				.GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
@@ -3253,14 +3221,14 @@ namespace Salar.Bois.Serializers
 			// emitSample.GenericList = list2;
 			if (prop != null)
 			{
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 				il.LoadLocalValue(arrInstance);
 
 				il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
 			}
 			else if (field != null)
 			{
-				il.Emit(OpCodes.Ldloc_0); // instance
+				il.LoadLocalAuto(0, containerType); // instance
 				il.LoadLocalValue(arrInstance);
 
 				il.Emit(OpCodes.Stfld, field: field); // field value
@@ -3274,7 +3242,7 @@ namespace Salar.Bois.Serializers
 
 			il.MarkLabel(beforeEndReturn);
 
-			if (rootType != null)
+			if (arrayType != null)
 			{
 				// returning null 
 				il.Emit(OpCodes.Ldnull);
@@ -3292,11 +3260,40 @@ namespace Salar.Bois.Serializers
 
 	}
 
+	static class TypeExtensions
+	{
+		public static bool IsStruct(this Type type)
+		{
+			return type.IsValueType && !type.IsPrimitive && !type.IsClass && !type.IsEnum;
+		}
+	}
+
 	static class IlExtensions
 	{
-		internal static void LoadArgument(this ILGenerator il, int index, Type argumentType)
+		internal static void LoadArgValue(this ILGenerator il, int index, Type argumentType)
 		{
-			if (!argumentType.IsClass && argumentType.IsValueType)
+			switch (index)
+			{
+				case 0: il.Emit(OpCodes.Ldarg_0); break;
+				case 1: il.Emit(OpCodes.Ldarg_1); break;
+				case 2: il.Emit(OpCodes.Ldarg_2); break;
+				case 3: il.Emit(OpCodes.Ldarg_3); break;
+				default:
+					if (index < 256)
+					{
+						il.Emit(OpCodes.Ldarg_S, (byte)index);
+					}
+					else
+					{
+						il.Emit(OpCodes.Ldarg, (ushort)index);
+					}
+					break;
+			}
+		}
+
+		internal static void LoadArgAuto(this ILGenerator il, int index, Type argumentType)
+		{
+			if (argumentType.IsValueType && !argumentType.IsPrimitive && !argumentType.IsClass && !argumentType.IsEnum)
 			{
 				if (index < 256)
 				{
@@ -3384,6 +3381,32 @@ namespace Salar.Bois.Serializers
 				return;
 			}
 			LoadLocalValue(il, local);
+		}
+
+		internal static void LoadLocalAuto(this ILGenerator il, int index, Type argumentType)
+		{
+			if (argumentType.IsValueType && !argumentType.IsPrimitive && !argumentType.IsClass && !argumentType.IsEnum)
+			{
+				if (index < 256)
+				{
+					il.Emit(OpCodes.Ldloca_S, (byte)index);
+				}
+				else
+				{
+					throw new Exception("For index greater than 256 Local variable name is required");
+				}
+			}
+			else
+			{
+				if (index < 256)
+				{
+					il.Emit(OpCodes.Ldloc_S, (byte)index);
+				}
+				else
+				{
+					throw new Exception("For index greater than 256 Local variable name is required");
+				}
+			}
 		}
 
 

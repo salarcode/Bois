@@ -225,6 +225,10 @@ namespace Salar.Bois.Types
 
 		private static void WriteRootObjectMembersCount(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
 		{
+			if (type.IsStruct())
+				// no null indicator and member count for structs
+				return;
+
 			var labelWriteCount = il.DefineLabel();
 			var labelEndOfCode = il.DefineLabel();
 
@@ -812,6 +816,12 @@ namespace Salar.Bois.Types
 
 		private static void ReadRootObjectMembersCount(ILGenerator il, Type type, SharedVariables variableCache)
 		{
+			if (type.IsStruct())
+			{
+				// member count is not written for structs
+				return;
+			}
+
 			var notNull = il.DefineLabel();
 			// CODE-FOR: if (!NumericSerializers.ReadVarUInt32Nullable(reader).HasValue)
 
@@ -830,8 +840,8 @@ namespace Salar.Bois.Types
 			il.Emit(OpCodes.Brtrue_S, notNull);
 
 
-			// CODE-FOR: return null;
 			// CODE-FOR: return default(struct);
+			// CODE-FOR: return null;
 			if (type.IsStruct())
 			{
 				var defaultInstance = il.DeclareLocal(type);
@@ -907,7 +917,7 @@ namespace Salar.Bois.Types
 
 				case EnComplexKnownType.Unknown:
 				default:
-					EmitGenerator.ReadUnknownComplexTypeCall(memberType, prop, field, il, complexTypeInfo);
+					EmitGenerator.ReadUnknownComplexTypeCall(memberType, prop, field, containerType, il, complexTypeInfo);
 					return;
 			}
 		}

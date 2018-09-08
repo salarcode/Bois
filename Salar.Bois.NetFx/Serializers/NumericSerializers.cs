@@ -82,49 +82,32 @@ namespace Salar.Bois.Serializers
 
 		#region Array Pool
 
-		private static class BufferManager
+		private static class SharedArray
 		{
-			[ThreadStatic] private static byte[] _array4Bytes;
+			[ThreadStatic] private static byte[] _array;
 
-			[ThreadStatic] private static byte[] _array8Bytes;
-
-			[ThreadStatic] private static byte[] _array16Bytes;
-
-			public static byte[] GetArray4()
+			public static byte[] Get()
 			{
-				if (_array4Bytes == null)
-				{
-					_array4Bytes = new byte[4];
-				}
-				return _array4Bytes;
+				return _array ?? (_array = new byte[16]);
 			}
 
-			public static byte[] GetArray8()
+			public static void ClearArray4()
 			{
-				if (_array8Bytes == null)
-				{
-					_array8Bytes = new byte[8];
-				}
-				return _array8Bytes;
+				_array[0] = 0;
+				_array[1] = 0;
+				_array[2] = 0;
+				_array[3] = 0;
 			}
-
-			public static void ClearArray4(byte[] arr)
+			public static void ClearArray8()
 			{
-				arr[0] = 0;
-				arr[1] = 0;
-				arr[2] = 0;
-				arr[3] = 0;
-			}
-			public static void ClearArray8(byte[] arr)
-			{
-				arr[0] = 0;
-				arr[1] = 0;
-				arr[2] = 0;
-				arr[3] = 0;
-				arr[4] = 0;
-				arr[5] = 0;
-				arr[6] = 0;
-				arr[7] = 0;
+				_array[0] = 0;
+				_array[1] = 0;
+				_array[2] = 0;
+				_array[3] = 0;
+				_array[4] = 0;
+				_array[5] = 0;
+				_array[6] = 0;
+				_array[7] = 0;
 			}
 		}
 
@@ -550,12 +533,12 @@ namespace Salar.Bois.Serializers
 			if (input == FlagNullable)
 				return null;
 
-			var buff = BufferManager.GetArray8();
+			var buff = SharedArray.Get();
 
 			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
 			if (embedded)
 			{
-				BufferManager.ClearArray8(buff);
+				SharedArray.ClearArray8();
 
 				// last byte
 				buff[7] = (byte)(input & FlagEmbdeddedMask);
@@ -565,7 +548,7 @@ namespace Salar.Bois.Serializers
 			var length = input;
 
 			if (length < 8)
-				BufferManager.ClearArray8(buff);
+				SharedArray.ClearArray8();
 
 			reader.Read(buff, 8 - length, length);
 
@@ -576,12 +559,12 @@ namespace Salar.Bois.Serializers
 		{
 			var input = reader.ReadByte();
 
-			var buff = BufferManager.GetArray8();
+			var buff = SharedArray.Get();
 
 			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
 			if (embedded)
 			{
-				BufferManager.ClearArray8(buff);
+				SharedArray.ClearArray8();
 
 				// last byte
 				buff[7] = (byte)(input & FlagEmbdeddedMask);
@@ -591,7 +574,7 @@ namespace Salar.Bois.Serializers
 			var length = input;
 
 			if (length < 8)
-				BufferManager.ClearArray8(buff);
+				SharedArray.ClearArray8();
 
 			reader.Read(buff, 8 - length, length);
 
@@ -604,12 +587,12 @@ namespace Salar.Bois.Serializers
 			if (input == FlagNullable)
 				return null;
 
-			var buff = BufferManager.GetArray4();
+			var buff = SharedArray.Get();
 
 			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
 			if (embedded)
 			{
-				BufferManager.ClearArray4(buff);
+				SharedArray.ClearArray4();
 
 				// last byte
 				buff[3] = (byte)(input & FlagEmbdeddedMask);
@@ -619,7 +602,7 @@ namespace Salar.Bois.Serializers
 			var length = input;
 
 			if (length < 4)
-				BufferManager.ClearArray4(buff);
+				SharedArray.ClearArray4();
 
 			reader.Read(buff, 4 - length, length);
 
@@ -630,12 +613,12 @@ namespace Salar.Bois.Serializers
 		{
 			var input = reader.ReadByte();
 
-			var buff = BufferManager.GetArray4();
+			var buff = SharedArray.Get();
 
 			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
 			if (embedded)
 			{
-				BufferManager.ClearArray4(buff);
+				SharedArray.ClearArray4();
 
 				// last byte
 				buff[3] = (byte)(input & FlagEmbdeddedMask);
@@ -645,7 +628,7 @@ namespace Salar.Bois.Serializers
 			var length = input;
 
 			if (length < 4)
-				BufferManager.ClearArray4(buff);
+				SharedArray.ClearArray4();
 
 			reader.Read(buff, 4 - length, length);
 
@@ -1640,7 +1623,7 @@ namespace Salar.Bois.Serializers
 		{
 			if (numBuff.Length != 8)
 			{
-				var fixBuff = new byte[8];
+				var fixBuff = SharedArray.Get(); // 8 required
 				Array.Copy(numBuff, 0, fixBuff, 0, numBuff.Length);
 				numBuff = fixBuff;
 			}
@@ -1654,7 +1637,7 @@ namespace Salar.Bois.Serializers
 		{
 			if (numBuff.Length != 8)
 			{
-				var fixBuff = new byte[8];
+				var fixBuff = SharedArray.Get(); // 8 required
 				Array.Copy(numBuff, 0, fixBuff, 0, numBuff.Length);
 				numBuff = fixBuff;
 			}
@@ -1670,8 +1653,9 @@ namespace Salar.Bois.Serializers
 			byte[] buff;
 			if (numBuff.Length < 16)
 			{
-				buff = new byte[16];
-				Array.Copy(numBuff, buff, numBuff.Length);
+				// TODO: check why SharedArray.Get() decreases performance by 3x times
+				buff = new byte[16]; // 16 required
+				Array.Copy(numBuff, 0, buff, 0, numBuff.Length);
 			}
 			else
 			{
@@ -1722,7 +1706,7 @@ namespace Salar.Bois.Serializers
 			if (value < 0)
 			{
 				length = 4;
-				var buff = new byte[4];
+				var buff = SharedArray.Get();
 				buff[0] = (byte)value;
 				buff[1] = (byte)(value >> 8);
 				buff[2] = (byte)(value >> 16);
@@ -1731,7 +1715,7 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				var buff = new byte[4];
+				var buff = SharedArray.Get();
 				var num1 = (byte)value;
 				var num2 = (byte)(value >> 8);
 				var num3 = (byte)(value >> 16);
@@ -1780,7 +1764,7 @@ namespace Salar.Bois.Serializers
 				return new byte[] { 0 };
 			}
 
-			var buff = new byte[4];
+			var buff = SharedArray.Get();
 			var num1 = (byte)value;
 			var num2 = (byte)(value >> 8);
 			var num3 = (byte)(value >> 16);
@@ -1822,7 +1806,7 @@ namespace Salar.Bois.Serializers
 
 		private static byte[] ConvertToVarBinary(long value, out byte length)
 		{
-			var buff = new byte[8];
+			var buff = SharedArray.Get();
 			buff[0] = (byte)value;
 			buff[1] = (byte)(value >> 8);
 			buff[2] = (byte)(value >> 16);
@@ -1849,7 +1833,7 @@ namespace Salar.Bois.Serializers
 
 		private static byte[] ConvertToVarBinary(ulong value, out byte length)
 		{
-			var buff = new byte[8];
+			var buff = SharedArray.Get();
 			buff[0] = (byte)value;
 			buff[1] = (byte)(value >> 8);
 			buff[2] = (byte)(value >> 16);
@@ -2074,7 +2058,7 @@ namespace Salar.Bois.Serializers
 		private static byte[] ConvertToVarBinary(decimal value, out byte length)
 		{
 			var bits = decimal.GetBits(value);
-			var bitsArray = new byte[16];
+			var bitsArray = SharedArray.Get();
 
 			for (byte i = 0; i < bits.Length; i++)
 			{
@@ -2088,8 +2072,6 @@ namespace Salar.Bois.Serializers
 				if (bitsArray[i] > 0)
 				{
 					length = (byte)(i + 1);
-					//if (length != 16)
-					//	Array.Resize(ref bitsArray, length);
 
 					return bitsArray;
 				}

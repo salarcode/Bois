@@ -10,19 +10,19 @@ namespace Salar.Bois.NetFx.Tests.Tests
 {
 	public class Test_Complex_Struct : TestBase
 	{
-		//[Theory]
-		//[MemberData(nameof(TestStructPrimitives.GetTestData), MemberType = typeof(TestStructPrimitives))]
-		//public void TestingStructSelfReferencing(TestStructPrimitives init)
-		//{
-		//	ResetBois();
+		[Theory]
+		[MemberData(nameof(TestStructPrimitives.GetTestData), MemberType = typeof(TestStructPrimitives))]
+		public void TestingStructSelfReferencing(TestStructPrimitives init)
+		{
+			ResetBois();
 
-		//	Bois.Serialize(init, TestStream);
-		//	ResetStream();
+			Bois.Serialize(init, TestStream);
+			ResetStream();
 
-		//	var final = Bois.Deserialize<TestStructPrimitives>(TestStream);
+			var final = Bois.Deserialize<TestStructPrimitives>(TestStream);
 
-		//	SerializeAreEqual(init, final);
-		//}
+			SerializeAreEqual(init, final);
+		}
 
 
 		[Theory]

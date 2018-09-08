@@ -266,21 +266,28 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
+				var buff = SharedArray.Get();
 				if (negative)
 				{
 					var length = input & FlagNullableNegativeMask;
 
-					var numBuff = reader.ReadBytes(length);
+					if (length < 4)
+						SharedArray.ClearArray4();
 
-					return -ConvertFromVarBinaryInt32(numBuff);
+					reader.Read(buff, 0, length);
+
+					return -ConvertFromVarBinaryInt32(buff, length);
 				}
 				else
 				{
 					var length = input;
 
-					var numBuff = reader.ReadBytes(length);
+					if (length < 4)
+						SharedArray.ClearArray4();
 
-					return ConvertFromVarBinaryInt32(numBuff);
+					reader.Read(buff, 0, length);
+
+					return ConvertFromVarBinaryInt32(buff, length);
 				}
 			}
 		}
@@ -296,9 +303,9 @@ namespace Salar.Bois.Serializers
 			{
 				if (negative)
 				{
-					var thenumber = input & FlagNonullNegativeNumEmbdeddedMask;
+					var theNumber = input & FlagNonullNegativeNumEmbdeddedMask;
 
-					return -thenumber;
+					return -theNumber;
 				}
 				else
 				{
@@ -307,21 +314,29 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
+				var buff = SharedArray.Get();
+
 				if (negative)
 				{
-					var length = input & FlagNonullNegativeMask;
+					int length = input & FlagNonullNegativeMask;
 
-					var numBuff = reader.ReadBytes(length);
+					if (length < 4)
+						SharedArray.ClearArray4();
 
-					return -ConvertFromVarBinaryInt32(numBuff);
+					reader.Read(buff, 0, length);
+
+					return -ConvertFromVarBinaryInt32(buff, length);
 				}
 				else
 				{
-					var length = input;
+					int length = input;
 
-					var numBuff = reader.ReadBytes(length);
+					if (length < 4)
+						SharedArray.ClearArray4();
 
-					return ConvertFromVarBinaryInt32(numBuff);
+					reader.Read(buff, 0, length);
+
+					return ConvertFromVarBinaryInt32(buff, length);
 				}
 			}
 		}
@@ -340,11 +355,15 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				var length = input;
+				var buff = SharedArray.Get();
+				int length = input;
 
-				var numBuff = reader.ReadBytes(length);
+				if (length < 4)
+					SharedArray.ClearArray4();
 
-				return ConvertFromVarBinaryUInt32(numBuff);
+				reader.Read(buff, 0, length);
+
+				return ConvertFromVarBinaryUInt32(buff, length);
 			}
 		}
 
@@ -360,11 +379,15 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				var length = input;
+				var buff = SharedArray.Get();
+				int length = input;
 
-				var numBuff = reader.ReadBytes(length);
+				if (length < 4)
+					SharedArray.ClearArray4();
 
-				return ConvertFromVarBinaryUInt32(numBuff);
+				reader.Read(buff, 0, length);
+
+				return ConvertFromVarBinaryUInt32(buff, length);
 			}
 		}
 
@@ -381,9 +404,9 @@ namespace Salar.Bois.Serializers
 			{
 				if (negative)
 				{
-					var thenumber = input & FlagNullableNegativeEmbdeddedMask;
+					long theNumber = input & FlagNullableNegativeEmbdeddedMask;
 
-					return -thenumber;
+					return -theNumber;
 				}
 				else
 				{
@@ -392,21 +415,27 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
+				var buff = SharedArray.Get();
 				if (negative)
 				{
-					var length = input & FlagNullableNegativeMask;
+					int length = input & FlagNullableNegativeMask;
 
-					var numBuff = reader.ReadBytes(length);
+					if (length < 8)
+						SharedArray.ClearArray8();
 
-					return -ConvertFromVarBinaryInt64(numBuff);
+					reader.Read(buff, 0, length);
+
+					return -ConvertFromVarBinaryInt64(buff);
 				}
 				else
 				{
-					var length = input;
+					int length = input;
+					if (length < 8)
+						SharedArray.ClearArray8();
 
-					var numBuff = reader.ReadBytes(length);
+					reader.Read(buff, 0, length);
 
-					return ConvertFromVarBinaryInt64(numBuff);
+					return ConvertFromVarBinaryInt64(buff);
 				}
 			}
 		}
@@ -430,21 +459,28 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
+				var buff = SharedArray.Get();
 				if (negative)
 				{
-					var length = input & FlagNonullNegativeMask;
+					int length = input & FlagNonullNegativeMask;
 
-					var numBuff = reader.ReadBytes(length);
+					if (length < 8)
+						SharedArray.ClearArray8();
 
-					return -ConvertFromVarBinaryInt64(numBuff);
+					reader.Read(buff, 0, length);
+
+					return -ConvertFromVarBinaryInt64(buff);
 				}
 				else
 				{
-					var length = input;
+					int length = input;
 
-					var numBuff = reader.ReadBytes(length);
+					if (length < 8)
+						SharedArray.ClearArray8();
 
-					return ConvertFromVarBinaryInt64(numBuff);
+					reader.Read(buff, 0, length);
+
+					return ConvertFromVarBinaryInt64(buff);
 				}
 			}
 		}
@@ -463,11 +499,15 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				var length = input;
+				int length = input;
 
-				var numBuff = reader.ReadBytes(length);
+				var buff = SharedArray.Get();
+				if (length < 8)
+					SharedArray.ClearArray8();
 
-				return ConvertFromVarBinaryUInt64(numBuff);
+				reader.Read(buff, 0, length);
+
+				return ConvertFromVarBinaryUInt64(buff);
 			}
 		}
 
@@ -483,11 +523,15 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				var length = input;
+				int length = input;
 
-				var numBuff = reader.ReadBytes(length);
+				var buff = SharedArray.Get();
+				if (length < 8)
+					SharedArray.ClearArray8();
 
-				return ConvertFromVarBinaryUInt64(numBuff);
+				reader.Read(buff, 0, length);
+
+				return ConvertFromVarBinaryUInt64(buff);
 			}
 		}
 
@@ -503,7 +547,7 @@ namespace Salar.Bois.Serializers
 				return (input & FlagEmbdeddedMask);
 			}
 
-			var length = input;
+			int length = input;
 
 			var numBuff = reader.ReadBytes(length);
 
@@ -520,7 +564,7 @@ namespace Salar.Bois.Serializers
 				return (input & FlagEmbdeddedMask);
 			}
 
-			var length = input;
+			int length = input;
 
 			var numBuff = reader.ReadBytes(length);
 
@@ -545,7 +589,7 @@ namespace Salar.Bois.Serializers
 				return BitConverter.ToDouble(buff, 0);
 			}
 
-			var length = input;
+			int length = input;
 
 			if (length < 8)
 				SharedArray.ClearArray8();
@@ -571,7 +615,7 @@ namespace Salar.Bois.Serializers
 				return BitConverter.ToDouble(buff, 0);
 			}
 
-			var length = input;
+			int length = input;
 
 			if (length < 8)
 				SharedArray.ClearArray8();
@@ -599,7 +643,7 @@ namespace Salar.Bois.Serializers
 				return BitConverter.ToSingle(buff, 0);
 			}
 
-			var length = input;
+			int length = input;
 
 			if (length < 4)
 				SharedArray.ClearArray4();
@@ -625,7 +669,7 @@ namespace Salar.Bois.Serializers
 				return BitConverter.ToSingle(buff, 0);
 			}
 
-			var length = input;
+			int length = input;
 
 			if (length < 4)
 				SharedArray.ClearArray4();
@@ -662,9 +706,9 @@ namespace Salar.Bois.Serializers
 			{
 				if (negative)
 				{
-					var thenumber = -((sbyte)(input & FlagNullableNegativeEmbdeddedMask));
+					var theNumber = -((sbyte)(input & FlagNullableNegativeEmbdeddedMask));
 
-					return (sbyte)thenumber;
+					return (sbyte)theNumber;
 				}
 				return (sbyte)(input & FlagEmbdeddedMask);
 			}
@@ -1519,7 +1563,7 @@ namespace Salar.Bois.Serializers
 			if (numBuff.Length == 1)
 				return result;
 
-			result = (short)((ushort)result | (numBuff[1] << 8));
+			result = unchecked((short)((ushort)result | (numBuff[1] << 8)));
 			return result;
 		}
 
@@ -1529,7 +1573,7 @@ namespace Salar.Bois.Serializers
 			if (numBuff.Length == 4)
 			{
 				result = numBuff[0];
-				result = (ushort)(short)(result | (numBuff[1] << 8));
+				result = unchecked((ushort)(short)(result | (numBuff[1] << 8)));
 			}
 			else
 			{
@@ -1539,112 +1583,94 @@ namespace Salar.Bois.Serializers
 				if (len == 1)
 					return result;
 
-				result = (ushort)(short)(result | (numBuff[1] << 8));
+				result = unchecked((ushort)(short)(result | (numBuff[1] << 8)));
 				if (len == 2)
 					return result;
 
-				result = (ushort)(short)(result | (numBuff[2] << 16));
+				result = unchecked((ushort)(short)(result | (numBuff[2] << 16)));
 				if (len == 3)
 					return result;
 
-				result = (ushort)(short)(result | (numBuff[3] << 24));
+				result = unchecked((ushort)(short)(result | (numBuff[3] << 24)));
 			}
 			return result;
 		}
 
-		private static int ConvertFromVarBinaryInt32(byte[] numBuff)
+		private static int ConvertFromVarBinaryInt32(byte[] numBuff, int len)
 		{
 			int result;
-			if (numBuff.Length == 4)
+			if (len == 4)
 			{
 				result = numBuff[0];
-				result = result | (numBuff[1] << 8);
-				result = result | (numBuff[2] << 16);
-				result = result | (numBuff[3] << 24);
+				result = unchecked(result | (numBuff[1] << 8));
+				result = unchecked(result | (numBuff[2] << 16));
+				result = unchecked(result | (numBuff[3] << 24));
 			}
 			else
 			{
-				var len = numBuff.Length;
-
 				result = numBuff[0];
 				if (len == 1)
 					return result;
 
-				result = result | (numBuff[1] << 8);
+				result = unchecked(result | (numBuff[1] << 8));
 				if (len == 2)
 					return result;
 
-				result = result | (numBuff[2] << 16);
+				result = unchecked(result | (numBuff[2] << 16));
 				if (len == 3)
 					return result;
 
-				result = result | (numBuff[3] << 24);
+				result = unchecked(result | (numBuff[3] << 24));
 			}
 			return result;
 		}
 
-		private static int ConvertFromVarBinaryInt32(byte[] numBuff, int startIndex)
+		private static int ConvertFromVarBinaryInt32StartIndex(byte[] numBuff, int startIndex)
 		{
 			return ((numBuff[startIndex + 0] | (numBuff[startIndex + 1] << 8)) | (numBuff[startIndex + 2] << 16)) | (numBuff[startIndex + 3] << 24);
 		}
 
-		private static uint ConvertFromVarBinaryUInt32(byte[] numBuff)
+		private static uint ConvertFromVarBinaryUInt32(byte[] numBuff, int len)
 		{
 			uint result;
-			if (numBuff.Length == 4)
+			if (len == 4)
 			{
 				result = numBuff[0];
-				result = (uint)((int)result | (numBuff[1] << 8));
-				result = (uint)((int)result | (numBuff[2] << 16));
-				result = (uint)((int)result | (numBuff[3] << 24));
+				result = unchecked((uint)((int)result | (numBuff[1] << 8)));
+				result = unchecked((uint)((int)result | (numBuff[2] << 16)));
+				result = unchecked((uint)((int)result | (numBuff[3] << 24)));
 			}
 			else
 			{
-				var len = numBuff.Length;
-
 				result = numBuff[0];
 				if (len == 1)
 					return result;
 
-				result = (uint)((int)result | (numBuff[1] << 8));
+				result = unchecked((uint)((int)result | (numBuff[1] << 8)));
 				if (len == 2)
 					return result;
 
-				result = (uint)((int)result | (numBuff[2] << 16));
+				result = unchecked((uint)((int)result | (numBuff[2] << 16)));
 				if (len == 3)
 					return result;
 
-				result = (uint)((int)result | (numBuff[3] << 24));
+				result = unchecked((uint)((int)result | (numBuff[3] << 24)));
 			}
 			return result;
 		}
 
 		private static long ConvertFromVarBinaryInt64(byte[] numBuff)
 		{
-			if (numBuff.Length != 8)
-			{
-				var fixBuff = SharedArray.Get(); // 8 required
-				Array.Copy(numBuff, 0, fixBuff, 0, numBuff.Length);
-				numBuff = fixBuff;
-			}
-
-			uint num = (uint)(((numBuff[0] | (numBuff[1] << 8)) | (numBuff[2] << 16)) | (numBuff[3] << 24));
-			uint num2 = (uint)(((numBuff[4] | (numBuff[5] << 8)) | (numBuff[6] << 16)) | (numBuff[7] << 24));
-			return (long)((((ulong)num2) << 32) | ((ulong)num));
+			uint num = unchecked((uint)(((numBuff[0] | (numBuff[1] << 8)) | (numBuff[2] << 16)) | (numBuff[3] << 24)));
+			uint num2 = unchecked((uint)(((numBuff[4] | (numBuff[5] << 8)) | (numBuff[6] << 16)) | (numBuff[7] << 24)));
+			return unchecked((long)((((ulong)num2) << 32) | ((ulong)num)));
 		}
 
 		private static ulong ConvertFromVarBinaryUInt64(byte[] numBuff)
 		{
-			if (numBuff.Length != 8)
-			{
-				var fixBuff = SharedArray.Get(); // 8 required
-				Array.Copy(numBuff, 0, fixBuff, 0, numBuff.Length);
-				numBuff = fixBuff;
-			}
-
-			uint num = (uint)(((numBuff[0] | (numBuff[1] << 8)) | (numBuff[2] << 16)) | (numBuff[3] << 24));
-			uint num2 = (uint)(((numBuff[4] | (numBuff[5] << 8)) | (numBuff[6] << 16)) | (numBuff[7] << 24));
-			return ((ulong)num2 << 32) | (ulong)num;
+			uint num = unchecked((uint)(((numBuff[0] | (numBuff[1] << 8)) | (numBuff[2] << 16)) | (numBuff[3] << 24)));
+			uint num2 = unchecked((uint)(((numBuff[4] | (numBuff[5] << 8)) | (numBuff[6] << 16)) | (numBuff[7] << 24)));
+			return unchecked(((ulong)num2 << 32) | (ulong)num);
 
 		}
 
@@ -1663,10 +1689,10 @@ namespace Salar.Bois.Serializers
 			}
 
 			var decimalBits = new int[4];
-			decimalBits[0] = ConvertFromVarBinaryInt32(buff, 4 * 0);
-			decimalBits[1] = ConvertFromVarBinaryInt32(buff, 4 * 1);
-			decimalBits[2] = ConvertFromVarBinaryInt32(buff, 4 * 2);
-			decimalBits[3] = ConvertFromVarBinaryInt32(buff, 4 * 3);
+			decimalBits[0] = ConvertFromVarBinaryInt32StartIndex(buff, 4 * 0);
+			decimalBits[1] = ConvertFromVarBinaryInt32StartIndex(buff, 4 * 1);
+			decimalBits[2] = ConvertFromVarBinaryInt32StartIndex(buff, 4 * 2);
+			decimalBits[3] = ConvertFromVarBinaryInt32StartIndex(buff, 4 * 3);
 
 			return new decimal(decimalBits);
 		}
@@ -1708,18 +1734,20 @@ namespace Salar.Bois.Serializers
 				length = 4;
 				var buff = SharedArray.Get();
 				buff[0] = (byte)value;
-				buff[1] = (byte)(value >> 8);
-				buff[2] = (byte)(value >> 16);
-				buff[3] = (byte)(value >> 24);
+				buff[1] = unchecked((byte)(value >> 8));
+				buff[2] = unchecked((byte)(value >> 16));
+				buff[3] = unchecked((byte)(value >> 24));
 				return buff;
 			}
 			else
 			{
 				var buff = SharedArray.Get();
+				SharedArray.ClearArray4();
+
 				var num1 = (byte)value;
-				var num2 = (byte)(value >> 8);
-				var num3 = (byte)(value >> 16);
-				var num4 = (byte)(value >> 24);
+				var num2 = unchecked((byte)(value >> 8));
+				var num3 = unchecked((byte)(value >> 16));
+				var num4 = unchecked((byte)(value >> 24));
 
 
 				buff[0] = num1;
@@ -1765,10 +1793,12 @@ namespace Salar.Bois.Serializers
 			}
 
 			var buff = SharedArray.Get();
+			SharedArray.ClearArray4();
+
 			var num1 = (byte)value;
-			var num2 = (byte)(value >> 8);
-			var num3 = (byte)(value >> 16);
-			var num4 = (byte)(value >> 24);
+			var num2 = unchecked((byte)(value >> 8));
+			var num3 = unchecked((byte)(value >> 16));
+			var num4 = unchecked((byte)(value >> 24));
 
 
 			buff[0] = num1;
@@ -1808,13 +1838,13 @@ namespace Salar.Bois.Serializers
 		{
 			var buff = SharedArray.Get();
 			buff[0] = (byte)value;
-			buff[1] = (byte)(value >> 8);
-			buff[2] = (byte)(value >> 16);
-			buff[3] = (byte)(value >> 24);
-			buff[4] = (byte)(value >> 32);
-			buff[5] = (byte)(value >> 40);
-			buff[6] = (byte)(value >> 48);
-			buff[7] = (byte)(value >> 56);
+			buff[1] = unchecked((byte)(value >> 8));
+			buff[2] = unchecked((byte)(value >> 16));
+			buff[3] = unchecked((byte)(value >> 24));
+			buff[4] = unchecked((byte)(value >> 32));
+			buff[5] = unchecked((byte)(value >> 40));
+			buff[6] = unchecked((byte)(value >> 48));
+			buff[7] = unchecked((byte)(value >> 56));
 
 			for (int i = 8 - 1; i >= 0; i--)
 			{
@@ -1835,21 +1865,19 @@ namespace Salar.Bois.Serializers
 		{
 			var buff = SharedArray.Get();
 			buff[0] = (byte)value;
-			buff[1] = (byte)(value >> 8);
-			buff[2] = (byte)(value >> 16);
-			buff[3] = (byte)(value >> 24);
-			buff[4] = (byte)(value >> 32);
-			buff[5] = (byte)(value >> 40);
-			buff[6] = (byte)(value >> 48);
-			buff[7] = (byte)(value >> 56);
+			buff[1] = unchecked((byte)(value >> 8));
+			buff[2] = unchecked((byte)(value >> 16));
+			buff[3] = unchecked((byte)(value >> 24));
+			buff[4] = unchecked((byte)(value >> 32));
+			buff[5] = unchecked((byte)(value >> 40));
+			buff[6] = unchecked((byte)(value >> 48));
+			buff[7] = unchecked((byte)(value >> 56));
 
 			for (int i = 8 - 1; i >= 0; i--)
 			{
 				if (buff[i] > 0)
 				{
 					length = (byte)(i + 1);
-					//if (length != 8)
-					//	Array.Resize(ref buff, length);
 					return buff;
 				}
 			}
@@ -1865,14 +1893,14 @@ namespace Salar.Bois.Serializers
 				length = 2;
 				var buff = new byte[2];
 				buff[0] = (byte)value;
-				buff[1] = (byte)(value >> 8);
+				buff[1] = unchecked((byte)(value >> 8));
 				return buff;
 			}
 			else
 			{
 				var buff = new byte[2];
 				var num1 = (byte)value;
-				var num2 = (byte)(value >> 8);
+				var num2 = unchecked((byte)(value >> 8));
 
 				buff[0] = num1;
 
@@ -1893,7 +1921,7 @@ namespace Salar.Bois.Serializers
 		{
 			var buff = new byte[2];
 			var num1 = (byte)value;
-			var num2 = (byte)(value >> 8);
+			var num2 = unchecked((byte)(value >> 8));
 
 			buff[0] = num1;
 

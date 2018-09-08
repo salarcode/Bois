@@ -121,6 +121,7 @@ namespace Salar.Bois.NetFx.Tests.TestObjects
 			{
 				new TestStructPrimitives
 				{
+					Color = System.Drawing.Color.FromArgb(50,20,20,30),
 					Int16 = 90,
 					Int16NullableF = 123,
 					TimeSpan = System.DateTime.Now.TimeOfDay,

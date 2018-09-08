@@ -10,6 +10,24 @@ namespace Salar.Bois.NetFx.Tests.Tests
 {
 	public class Test_BasicTypes_Numbers : TestBase
 	{
+		public static IEnumerable<object[]> GetIntBytes()
+		{
+			int num = int.MaxValue;
+			do
+			{
+				num = (int)(num / 8);
+				yield return new object[] { num };
+			} while (num > 0);
+
+			num = int.MinValue;
+			do
+			{
+				num = (int)(num / 8);
+				yield return new object[] { num };
+			} while (num < 0);
+		}
+
+
 		[Theory]
 		[InlineData(0)]
 		[InlineData(31), InlineData(-31)]
@@ -23,6 +41,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData(ushort.MaxValue + 1)]
 		[InlineData(int.MaxValue)]
 		[InlineData(int.MinValue)]
+		[MemberData(nameof(GetIntBytes))]
 		public void Numbers_Int_Normal(int number)
 		{
 			ResetBois();
@@ -59,6 +78,16 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			final.Should().Be(number);
 		}
 
+		public static IEnumerable<object[]> GetUIntBytes()
+		{
+			uint num = uint.MaxValue;
+			do
+			{
+				num = (uint)(num / 8);
+				yield return new object[] { num };
+			} while (num > 0);
+		}
+
 		[Theory]
 		[InlineData((uint)0)]
 		[InlineData((uint)31)]
@@ -70,6 +99,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((uint)256)]
 		[InlineData(uint.MaxValue)]
 		[InlineData(uint.MinValue)]
+		[MemberData(nameof(GetUIntBytes))]
 		public void Numbers_UInt_Normal(uint number)
 		{
 			ResetBois();
@@ -107,6 +137,23 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		}
 
 
+		public static IEnumerable<object[]> GetSbyteBytes()
+		{
+			sbyte num = sbyte.MaxValue;
+			do
+			{
+				num = (sbyte)(num / 8);
+				yield return new object[] { num };
+			} while (num > 0);
+
+			num = sbyte.MinValue;
+			do
+			{
+				num = (sbyte)(num / 8);
+				yield return new object[] { num };
+			} while (num < 0);
+		}
+
 		[Theory]
 		[InlineData(null)]
 		[InlineData((sbyte)0)]
@@ -117,6 +164,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((sbyte)127), InlineData((sbyte)-127)]
 		[InlineData(sbyte.MaxValue)]
 		[InlineData(sbyte.MinValue)]
+		[MemberData(nameof(GetSbyteBytes))]
 		public void Numbers_sbyteNullable_Normal(sbyte? number)
 		{
 			ResetBois();
@@ -154,6 +202,23 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			final.Should().Be(number);
 		}
 
+		public static IEnumerable<object[]> GetShortBytes()
+		{
+			var num = short.MaxValue;
+			do
+			{
+				num = (short)(num / 8);
+				yield return new object[] { num };
+			} while (num > 0);
+
+			num = short.MinValue;
+			do
+			{
+				num = (short)(num / 8);
+				yield return new object[] { num };
+			} while (num < 0);
+		}
+
 		[Theory]
 		[InlineData((short)0)]
 		[InlineData((short)31), InlineData((short)-31)]
@@ -165,6 +230,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((short)256), InlineData((short)-256)]
 		[InlineData(short.MaxValue)]
 		[InlineData(short.MinValue)]
+		[MemberData(nameof(GetShortBytes))]
 		public void Numbers_short_Normal(short number)
 		{
 			ResetBois();
@@ -202,6 +268,16 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		}
 
 
+		public static IEnumerable<object[]> GetUshortBytes()
+		{
+			var num = ushort.MaxValue;
+			do
+			{
+				num = (ushort)(num / 8);
+				yield return new object[] { num };
+			} while (num > 0);
+		}
+
 		[Theory]
 		[InlineData((ushort)0)]
 		[InlineData((ushort)31)]
@@ -213,6 +289,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((ushort)256)]
 		[InlineData(ushort.MaxValue)]
 		[InlineData(ushort.MinValue)]
+		[MemberData(nameof(GetUshortBytes))]
 		public void Numbers_ushort_Normal(ushort number)
 		{
 			ResetBois();
@@ -249,6 +326,24 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			final.Should().Be(number);
 		}
 
+		public static IEnumerable<object[]> GetLongBytes()
+		{
+			var num = long.MaxValue;
+			do
+			{
+				num = (long)(num / 8);
+				yield return new object[] { num };
+			} while (num > 0);
+
+			num = short.MinValue;
+			do
+			{
+				num = (long)(num / 8);
+				yield return new object[] { num };
+			} while (num < 0);
+		}
+
+
 		[Theory]
 		[InlineData((long)0)]
 		[InlineData((long)31), InlineData((long)-31)]
@@ -264,6 +359,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((long)uint.MaxValue + 1)]
 		[InlineData(long.MaxValue)]
 		[InlineData(long.MinValue)]
+		[MemberData(nameof(GetLongBytes))]
 		public void Numbers_long_Normal(long number)
 		{
 			ResetBois();
@@ -301,6 +397,16 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		}
 
 
+		public static IEnumerable<object[]> GetULongBytes()
+		{
+			var num = ulong.MaxValue;
+			do
+			{
+				num = (ulong)(num / 8);
+				yield return new object[] { num };
+			} while (num > 0);
+		}
+
 		[Theory]
 		[InlineData((ulong)0)]
 		[InlineData((ulong)31)]
@@ -316,6 +422,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((long)uint.MaxValue + 1)]
 		[InlineData(ulong.MaxValue)]
 		[InlineData(ulong.MinValue)]
+		[MemberData(nameof(GetULongBytes))]
 		public void Numbers_ulong_Normal(ulong number)
 		{
 			ResetBois();
@@ -354,6 +461,23 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 
 
+		public static IEnumerable<object[]> GetFloatBytes()
+		{
+			var num = float.MaxValue;
+			do
+			{
+				num = (float)(num / 8);
+				yield return new object[] { num };
+			} while (num > 0);
+
+			num = float.MinValue;
+			do
+			{
+				num = (float)(num / 8);
+				yield return new object[] { num };
+			} while (num < 0);
+		}
+
 		[Theory]
 		[InlineData((float)0)]
 		[InlineData((float)31), InlineData((float)-31)]
@@ -373,6 +497,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((float)256.44), InlineData((float)-256.66)]
 		[InlineData(float.MaxValue)]
 		[InlineData(float.MinValue)]
+		[MemberData(nameof(GetFloatBytes))]
 		public void Numbers_float_Normal(float number)
 		{
 			ResetBois();
@@ -418,6 +543,23 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		}
 
 
+		public static IEnumerable<object[]> GetDoubleBytes()
+		{
+			var num = double.MaxValue;
+			do
+			{
+				num = (double)(num / 8);
+				yield return new object[] { num };
+			} while (num > 0);
+
+			num = float.MinValue;
+			do
+			{
+				num = (double)(num / 8);
+				yield return new object[] { num };
+			} while (num < 0);
+		}
+
 		[Theory]
 		[InlineData((double)0)]
 		[InlineData((double)31), InlineData((double)-31)]
@@ -437,6 +579,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((double)256.44), InlineData((double)-256.66)]
 		[InlineData(double.MaxValue)]
 		[InlineData(double.MinValue)]
+		[MemberData(nameof(GetDoubleBytes))]
 		public void Numbers_double_Normal(double number)
 		{
 			ResetBois();
@@ -540,6 +683,22 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			yield return new object[] { -127.66m };
 			yield return new object[] { -128.66m };
 			yield return new object[] { -256.66m };
+
+
+			var num = decimal.MaxValue;
+			do
+			{
+				num = (decimal)(num / 8);
+				yield return new object[] { num };
+			} while (num > 0);
+
+			num = decimal.MinValue;
+			do
+			{
+				num = (decimal)(num / 8);
+				yield return new object[] { num };
+			} while (num < 0);
+
 		}
 
 		[Theory]

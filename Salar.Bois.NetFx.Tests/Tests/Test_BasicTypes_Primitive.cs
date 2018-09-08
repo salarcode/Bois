@@ -244,7 +244,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			var final = PrimitiveReader.ReadColor(Reader);
 
-			Assert.True(init.ToArgb() == final.ToArgb(), "Color value are not same");
+			Assert.True(init.ToArgb() == final.ToArgb(), $"Color value are not same, expected: {init.ToArgb()}, actual: {final.ToArgb()}");
 
 			// saving name and compare against it is pointless
 			//final.Should().BeEquivalentTo(init, because: "The colors name are not same");
@@ -262,7 +262,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			var final = PrimitiveReader.ReadColorNullable(Reader);
 
-			Assert.True(init?.ToArgb() == final?.ToArgb(), "Color value are not same");
+			Assert.True(init?.ToArgb() == final?.ToArgb(), $"Color value are not same, expected: {init?.ToArgb()}, actual: {final?.ToArgb()}");
 
 			// saving name and compare against it is pointless
 			//final.Should().BeEquivalentTo(init, because: "The colors name are not same");

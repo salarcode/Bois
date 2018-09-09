@@ -225,7 +225,7 @@ namespace Salar.Bois.Types
 
 		private static void WriteRootObjectMembersCount(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
 		{
-			if (type.IsStruct())
+			if (type.IsExplicitStruct())
 				// no null indicator and member count for structs
 				return;
 
@@ -301,11 +301,11 @@ namespace Salar.Bois.Types
 			switch (complexTypeInfo.ComplexKnownType)
 			{
 				case EnComplexKnownType.Collection:
-					EmitGenerator.WriteCollection(prop, field, null, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteCollection(prop, field, null, containerType, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.Dictionary:
-					EmitGenerator.WriteDictionary(prop, field, null, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteDictionary(prop, field, null, containerType, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.UnknownArray:
@@ -317,7 +317,7 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnComplexKnownType.ISet:
-					EmitGenerator.WriteISet(prop, field, null, il, complexTypeInfo.IsNullable);
+					EmitGenerator.WriteISet(prop, field, null, containerType, il, complexTypeInfo.IsNullable);
 					break;
 
 				case EnComplexKnownType.Unknown:
@@ -816,7 +816,7 @@ namespace Salar.Bois.Types
 
 		private static void ReadRootObjectMembersCount(ILGenerator il, Type type, SharedVariables variableCache)
 		{
-			if (type.IsStruct())
+			if (type.IsExplicitStruct())
 			{
 				// member count is not written for structs
 				return;
@@ -842,7 +842,7 @@ namespace Salar.Bois.Types
 
 			// CODE-FOR: return default(struct);
 			// CODE-FOR: return null;
-			if (type.IsStruct())
+			if (type.IsExplicitStruct())
 			{
 				var defaultInstance = il.DeclareLocal(type);
 				il.LoadLocalAddress(defaultInstance);
@@ -900,11 +900,11 @@ namespace Salar.Bois.Types
 			{
 				case EnComplexKnownType.Collection:
 				case EnComplexKnownType.ISet:
-					EmitGenerator.ReadGenericCollection(prop, field, null, il, complexTypeInfo.IsNullable, variableCache);
+					EmitGenerator.ReadGenericCollection(prop, field, null, containerType, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.Dictionary:
-					EmitGenerator.ReadDictionary(prop, field, null, il, complexTypeInfo.IsNullable, variableCache);
+					EmitGenerator.ReadDictionary(prop, field, null, containerType, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.UnknownArray:
@@ -912,7 +912,7 @@ namespace Salar.Bois.Types
 					break;
 
 				case EnComplexKnownType.NameValueColl:
-					EmitGenerator.ReadNameValueColl(prop, field, null, il, complexTypeInfo.IsNullable, variableCache);
+					EmitGenerator.ReadNameValueColl(prop, field, null, containerType, il, complexTypeInfo.IsNullable, variableCache);
 					break;
 
 				case EnComplexKnownType.Unknown:

@@ -22,7 +22,6 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			yield return new object[] { new ConsoleKey?[] { null, null, null, ConsoleKey.BrowserStop } };
 			yield return new object[] { new Size[] { new Size(10, 20), new Size(90, 30), } };
 			yield return new object[] { new Guid?[] { Guid.Empty, Guid.NewGuid(), null, Guid.NewGuid() } };
-
 		}
 
 		[Theory]

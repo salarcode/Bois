@@ -101,6 +101,7 @@
     <Compile Include="TestObjects\TestObjectListImplemented.cs" />
     <Compile Include="TestObjects\TestObjectPrimitiveTypes.cs" />
     <Compile Include="TestObjects\TestObjectSelfReferencing.cs" />
+    <Compile Include="TestObjects\TestStructComplex.cs" />
     <Compile Include="TestObjects\TestStructPrimitives.cs" />
     <Compile Include="Tests\Test_BasicTypes_Numbers.cs" />
     <Compile Include="Tests\Test_BasicTypes_Primitive.cs" />

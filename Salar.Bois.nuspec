@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Salar.Bois</id>
-		<version>2.2.2.0</version>
+		<version>3.0-beta2</version>
 		<title>BOIS (Binary Object Indexed Serialization)</title>
 		<authors>Salar Khalilzadeh</authors>
 		<owners>Salar Khalilzadeh</owners>
@@ -10,26 +10,24 @@
 		<projectUrl>https://github.com/salarcode/Bois</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>
-			Salar.Bois is a compact, light and powerful binary serializer for .NET Framework, which produces very small binaries.
-			With Bois you can serialize your existing objects with almost no change.
+			Salar.Bois is the most compact, extermly fast binary serializer for .NET Code and .NET Framework.
 			More info: https://github.com/salarcode/Bois
 		</description>
 		<releaseNotes>
-			+ Bug#8 fixed: Deseriealize problem when child object is null.
-			* Due to bugfix #8, this version is not compatible with previous versions.
+			+ Totaly rewritten to decreate payload size up to 30% and decrease the serialization/deserialization time by 100%
+			+ The specs are changed to introduce more size compression which is the reaseon this version not compatible with previous versions.
+			* Supported more built in .NET types.
+			* The minimum requirement is .NET Framework 4.5 and .NET Core 2.0
+			* Beta2: Bug#10 fixed
 		</releaseNotes>
-		<copyright>Copyright 2016</copyright>
+		<copyright>Copyright 2018</copyright>
 		<tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>
 		<dependencies></dependencies>
 	</metadata>
 	<files>
-		<file src="Salar.Bois.SL\Bin\Release\*.dll" target="lib\sl5" />
-		<file src="Salar.Bois.SL\Bin\Release\*.xml" target="lib\sl5" />
-		<file src="Salar.Bois\Bin\Release\*.dll" target="lib\portable-sl4+wp71+windows8" />
-		<file src="Salar.Bois\Bin\Release\*.xml" target="lib\portable-sl4+wp71+windows8" />
-		<file src="Salar.Bois.Net2\Bin\Release\*.dll" target="lib\net20" />
-		<file src="Salar.Bois.Net2\Bin\Release\*.xml" target="lib\net20" />
-		<file src="Salar.Bois.Net4\Bin\Release\*.dll" target="lib\net40" />
-		<file src="Salar.Bois.Net4\Bin\Release\*.xml" target="lib\net40" />
+		<file src="Salar.Bois.Core\Bin\Release\*.dll" target="lib\netcoreapp2.0" />
+		<file src="Salar.Bois.Core\Bin\Release\*.xml" target="lib\netcoreapp2.0" />
+		<file src="Salar.Bois.NetFx\Bin\Release\*.dll" target="lib\net45" />
+		<file src="Salar.Bois.NetFx\bin\Release\*.xml" target="lib\net45" />
 	</files>
 </package>

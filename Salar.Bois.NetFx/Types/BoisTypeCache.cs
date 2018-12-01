@@ -18,6 +18,9 @@ namespace Salar.Bois.Types
 {
 	static class BoisTypeCache
 	{
+		private static readonly object LockRootType = new object();
+		private static readonly object LocktBasicType = new object();
+
 		private static readonly BoisComputedTypeHashtable<BoisComputedTypeInfo> _computedCache;
 		private static readonly BoisComputedTypeHashtable<BoisBasicTypeInfo> _basicTypeCache;
 		static BoisTypeCache()
@@ -29,8 +32,10 @@ namespace Salar.Bois.Types
 
 		internal static void ClearCache()
 		{
-			_basicTypeCache.Clear();
-			_computedCache.Clear();
+			lock (LocktBasicType)
+				_basicTypeCache.Clear();
+			lock (LockRootType)
+				_computedCache.Clear();
 		}
 
 		internal static BoisComputedTypeInfo GetRootTypeComputed(
@@ -42,27 +47,29 @@ namespace Salar.Bois.Types
 #endif
 			)
 		{
-			BoisComputedTypeInfo result;
-			if (_computedCache.TryGetValue(type, out result))
+			lock (LockRootType)
 			{
-				if ((!generateReader || result.ReaderMethod != null) &&
-					(!generateWriter || result.WriterMethod != null))
-					return result;
-			}
-			else
-			{
-				result = new BoisComputedTypeInfo();
+				BoisComputedTypeInfo result;
+				if (_computedCache.TryGetValue(type, out result))
+				{
+					if ((!generateReader || result.ReaderMethod != null) &&
+						(!generateWriter || result.WriterMethod != null))
+						return result;
+				}
+				else
+				{
+					result = new BoisComputedTypeInfo();
 
-				_computedCache.TryAdd(type, result);
-			}
+					_computedCache.TryAdd(type, result);
+				}
 
-			BoisComplexTypeInfo complexTypeInfo = null;
+				BoisComplexTypeInfo complexTypeInfo = null;
 
-			if (generateWriter && result.WriterDelegate == null)
-			{
-				complexTypeInfo = GetComplexTypeUnCached(type);
-				if (complexTypeInfo == null)
-					return result;
+				if (generateWriter && result.WriterDelegate == null)
+				{
+					complexTypeInfo = GetComplexTypeUnCached(type);
+					if (complexTypeInfo == null)
+						return result;
 #if EmitAssemblyOut
 				var computed = BoisTypeCompiler.ComputeWriterSaveAss(type, complexTypeInfo, outputAssembly,
 					(dynamicMethod) =>
@@ -72,26 +79,26 @@ namespace Salar.Bois.Types
 						result.WriterMethod = dynamicMethod;
 					});
 #else
-				var computed = BoisTypeCompiler.ComputeWriter(type, complexTypeInfo,
-					(dynamicMethod) =>
-					{
-						// this call is usefull for Recursive Methods
+					var computed = BoisTypeCompiler.ComputeWriter(type, complexTypeInfo,
+						(dynamicMethod) =>
+						{
+							// this call is usefull for Recursive Methods
 
-						result.WriterMethod = dynamicMethod;
-					});
+							result.WriterMethod = dynamicMethod;
+						});
 #endif
-				result.WriterDelegate = computed.Delegate;
-				result.WriterMethod = computed.Method;
-			}
-
-			if (generateReader && result.ReaderDelegate == null)
-			{
-				if (complexTypeInfo == null)
-				{
-					complexTypeInfo = GetComplexTypeUnCached(type);
-					if (complexTypeInfo == null)
-						return result;
+					result.WriterDelegate = computed.Delegate;
+					result.WriterMethod = computed.Method;
 				}
+
+				if (generateReader && result.ReaderDelegate == null)
+				{
+					if (complexTypeInfo == null)
+					{
+						complexTypeInfo = GetComplexTypeUnCached(type);
+						if (complexTypeInfo == null)
+							return result;
+					}
 
 #if EmitAssemblyOut
 				var computed = BoisTypeCompiler.ComputeReaderSaveAss(type, complexTypeInfo, outputAssembly,
@@ -102,34 +109,37 @@ namespace Salar.Bois.Types
 						result.ReaderMethod = dynamicMethod;
 					});
 #else
-				var computed = BoisTypeCompiler.ComputeReader(type, complexTypeInfo,
-					(dynamicMethod) =>
-					{
-						// this call is usefull for Recursive Methods
+					var computed = BoisTypeCompiler.ComputeReader(type, complexTypeInfo,
+						(dynamicMethod) =>
+						{
+							// this call is usefull for Recursive Methods
 
-						result.ReaderMethod = dynamicMethod;
-					});
+							result.ReaderMethod = dynamicMethod;
+						});
 #endif
-				result.ReaderDelegate = computed.Delegate;
-				result.ReaderMethod = computed.Method;
+					result.ReaderDelegate = computed.Delegate;
+					result.ReaderMethod = computed.Method;
+				}
+
+				return result;
 			}
-
-
-			return result;
 		}
 
 		internal static BoisBasicTypeInfo GetBasicType(Type type)
 		{
-			BoisBasicTypeInfo result;
-			if (_basicTypeCache.TryGetValue(type, out result))
+			lock (LocktBasicType)
 			{
+				BoisBasicTypeInfo result;
+				if (_basicTypeCache.TryGetValue(type, out result))
+				{
+					return result;
+				}
+
+				result = ReadBasicTypeInfo(type);
+				_basicTypeCache.TryAdd(type, result);
+
 				return result;
 			}
-
-			result = ReadBasicTypeInfo(type);
-			_basicTypeCache.TryAdd(type, result);
-
-			return result;
 		}
 
 		internal static BoisComplexTypeInfo GetComplexTypeUnCached(Type type)

@@ -12,14 +12,14 @@ Some classes have special support, which are listed below:
 * NameValueCollection
 * Version, Color and Guid
 
-##NuGet Package 
+## NuGet Package 
 ```
 PM> Install-Package Salar.Bois
 ```
 
 It is easy to use , just add the reference to your project and voila, you can now use it.
 
-###How to serialize an object:
+### How to serialize an object:
 ```csharp
 var boisSerializer = new BoisSerializer();
 using (var mem = new MemoryStream())
@@ -29,12 +29,12 @@ using (var mem = new MemoryStream())
 	return mem.ToArray();
 }
 ```
-###How to deserialize an object:
+### How to deserialize an object:
 ```csharp
 var boisSerializer = new BoisSerializer();
 return boisSerializer.Deserialize<SampleObject>(dataStream);
 ```
-##Features in progress 
+## Features in progress 
 
 Some features are in progress and will be available as soon as they're completed:
 
@@ -44,7 +44,7 @@ Some features are in progress and will be available as soon as they're completed
 * ~~Use compacted serialize method for all the primitive types.~~
 * ~~Embed cache object inside the serializer.~~
 
-##Benchmarks
+## Benchmarks
 
 The benchmarks sourcecode is available. Every elapsed time is calculated for 5000 iteration (v2.2).
 

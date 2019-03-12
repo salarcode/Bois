@@ -1,56 +1,100 @@
-Salar.Bois is a high compact ratio, fast and powerful binary serializer for .NET Framework.
-With Bois you can serialize your existing objects with almost no change.
+Salar.Bois is the most compact, extermly fast binary serializer for .NET Code and .NET Framework.
 
-BOIS can serialize almost anything as long as they satisfy these conditions.
+* No compression is done, the high compact ratio is the result of Bois format.
+* No configuration.
+* No change to your classes.
 
-* Having parameter-less public constructor.
-* Polymorphous properties have limited support, which only base type mentioned in the property will be serialized/deserialized.
-* Collections/Lists should be generic and implement either of IList<> or IDictionary<>
+## Why Salar.Bois?
+* Because payload size matters. Bois serializer generates the smallest payload size.
+* Because speed matters. Both serialization and deserialization are extermly fast.
+* Easy to use, `Serialize<T>` and `Deserialize<T>` are all you need.
+* No configuration required. No sperate schema required. 
 
-Some classes have special support, which are listed below:
-
-* NameValueCollection
-* Version, Color and Guid
-
-##NuGet Package 
+## NuGet Package
 ```
 PM> Install-Package Salar.Bois
 ```
 
-It is easy to use , just add the reference to your project and voila, you can now use it.
+Access to the latest baked beta builds.
+```
+PM> Install-Package Salar.Bois -version 3
+```
 
-###How to serialize an object:
+### Getting Started:
+It is easy to use , just add the package to your project and voila, you can now use it.
+
+All you need to do is to call `Serialize` method.
 ```csharp
+BoisSerializer.Initialize<Person>();
 var boisSerializer = new BoisSerializer();
+
 using (var mem = new MemoryStream())
 {
-	boisSerializer.Serialize(this, mem);
+	boisSerializer.Serialize(personInstance, mem);
 
 	return mem.ToArray();
 }
 ```
-###How to deserialize an object:
+Note: Calling `BoisSerializer.Initialize` is not required at all, but if the performance of application is important to you, it is better to do it at the begining of your application.
+
+Here is the complete example:
+```csharp
+public class Project
+{
+	public int ID { get; set; }
+	public string Name { get; set; }
+	public string ProjectUrl { get; set; }
+	public Version Version { get; set; }
+}
+
+class Program
+{
+	static void Main()
+	{
+		// Initialize is optional, but recommended for better performance
+		BoisSerializer.Initialize<Project>();
+
+		var projectInstance = new Project()
+		{
+			ID = 1,
+			Name = "Salar.Bois",
+			ProjectUrl = "https://github.com/salarcode/Bois",
+			Version = new Version(3, 0, 0, 0)
+		};
+
+		var boisSerializer = new BoisSerializer();
+
+		using (var file = new FileStream("output.data", FileMode.CreateNew))
+		{
+			boisSerializer.Serialize(projectInstance, file);
+		}
+	}
+}
+```
+### How to deserialize an object:
 ```csharp
 var boisSerializer = new BoisSerializer();
-return boisSerializer.Deserialize<SampleObject>(dataStream);
+return boisSerializer.Deserialize<Project>(dataStream);
 ```
-##Features in progress 
 
-Some features are in progress and will be available as soon as they're completed:
+## Defining objects
+Nothing special is really required. Just these small easy rules.
 
-* Support multidimensional array of simple type
-* Support Multidimensional array of generic object with polymorphic attribute
-* An option to control depth of object serialization.
-* ~~Use compacted serialize method for all the primitive types.~~
-* ~~Embed cache object inside the serializer.~~
+* Having parameter-less public constructor.
+* Collections/Lists should be generic and implement one of ICollection<>, IList<> or IDictionary<>
 
-##Benchmarks
+## Bois Format
+If you are interested to know how Salar.Bois has gain this amazing compact format check out its Bois format wiki page.
+
+[Bois Format Schema.](https://google.com)
+
+## Benchmarks
 
 The benchmarks sourcecode is available. Every elapsed time is calculated for 5000 iteration (v2.2).
 
 -Serialization against: PrimitiveTypes with small data
 
-Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
 Salar.Bois |	**73** |	4 ms |	6 ms |	Binary 	 
 Microsoft.Avro |	77 |	2 ms |	3 ms |	Binary 	 
@@ -62,7 +106,7 @@ NetSerialize |	85 |	4 ms |	6 ms |	Binary
 
 -Serialization against: PrimitiveTypes with big data for 100 iteration
 
-Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
 Salar.Bois |	91 |	4 ms |	7 ms |	Binary 	 
 Microsoft.Avro |	88 |	2 ms |	3 ms |	Binary 	 
@@ -74,7 +118,7 @@ NetSerialize |	95 |	4 ms |	6 ms |	Binary
 
 -Serialization against: ArrayTypes with small data
 
-Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
 Salar.Bois |	**58** |	14 ms |	16 ms |	Binary 	 
 Microsoft.Avro |	81 |	4 ms |	6 ms |	Binary 	 
@@ -86,7 +130,7 @@ NetSerialize |	89 |	4 ms |	6 ms |	Binary
 
 -Serialization against: ArrayTypes with big data for 100 iteration
 
-Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
 Salar.Bois |	**129948** |	464 ms |	476 ms |	Binary 	 
 Microsoft.Avro |	131135 |	126  ms |	146 ms |	Binary 	 
@@ -98,7 +142,7 @@ NetSerialize |	163902 |	107 ms |	80 ms |	Binary
 
 -Serialization against: SimpleCollections with small data
 
-Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
 Salar.Bois |	89 |	17 ms |	16 ms |	Binary 	 
 Microsoft.Avro |	89 |	4 ms |	6 ms |	Binary 	 
@@ -110,7 +154,7 @@ NetSerialize |	- |	- |	- |	Binary |    Failed
 
 -Serialization against: SimpleCollections with big data for 100 iteration
 
-Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
 Salar.Bois |	**41543** |	353 ms |	305 ms |	Binary 	 
 Microsoft.Avro |	**41543** |	80 ms |	97 ms |	Binary 	 
@@ -122,7 +166,7 @@ NetSerialize |	- |	- |	- |	Binary |    Failed
 
 -Serialization against: ComplexCollections
 
-Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
 Salar.Bois |	**93** |	46 ms |	94 ms |	Binary 	 
 Microsoft.Avro | - |	- |	- |	Binary |    Failed
@@ -134,7 +178,7 @@ NetSerialize | - |	- |	- |	Binary |    Failed
 
 -Serialization against: SpecializedCollections
 
-Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
 Salar.Bois |	**29** |	13 ms |	36 ms |	Binary 	 
 Microsoft.Avro | - |	- |	- |	Binary | Failed with invalid result
@@ -146,7 +190,7 @@ NetSerialize | - |	- |	- |	Binary |    Failed
 
 -Serialization against: ComplexContainer object
 
-Serializer | 	Serialized Data Size (byte)  | Serialization | Deserialization | Format | Note
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
 Salar.Bois |	**1292** |	386  ms |	944 ms |	Binary 	 
 Microsoft.Avro | - | - | - | Binary | Failed

@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Salar.Bois</id>
-		<version>3.0-beta2</version>
+		<version>3.0</version>
 		<title>BOIS (Binary Object Indexed Serialization)</title>
 		<authors>Salar Khalilzadeh</authors>
 		<owners>Salar Khalilzadeh</owners>
@@ -18,15 +18,14 @@
 			+ The specs are changed to introduce more size compression which is the reaseon this version not compatible with previous versions.
 			* Supported more built in .NET types.
 			* The minimum requirement is .NET Framework 4.5 and .NET Core 2.0
-			* Beta2: Bug#10 fixed
 		</releaseNotes>
 		<copyright>Copyright 2018</copyright>
 		<tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>
 		<dependencies></dependencies>
 	</metadata>
 	<files>
-		<file src="Salar.Bois.Core\Bin\Release\*.dll" target="lib\netcoreapp2.0" />
-		<file src="Salar.Bois.Core\Bin\Release\*.xml" target="lib\netcoreapp2.0" />
+		<file src="Salar.Bois.Core\Bin\Release\netcoreapp2.0\*.dll" target="lib\netcoreapp2.0" />
+		<file src="Salar.Bois.Core\Bin\Release\netcoreapp2.0\*.xml" target="lib\netcoreapp2.0" />
 		<file src="Salar.Bois.NetFx\Bin\Release\*.dll" target="lib\net45" />
 		<file src="Salar.Bois.NetFx\bin\Release\*.xml" target="lib\net45" />
 	</files>

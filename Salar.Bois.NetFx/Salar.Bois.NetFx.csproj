@@ -51,6 +51,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <!-- Sign only on Release mode -->
     <SignAssembly>true</SignAssembly>
+    <DocumentationFile>bin\Release\Salar.Bois.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>

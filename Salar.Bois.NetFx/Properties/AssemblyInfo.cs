@@ -8,11 +8,11 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDescription("Salar's Serializer for Binary Object Indexed Serialization")]
 [assembly: AssemblyCompany("Salar Khalilzadeh")]
 [assembly: AssemblyProduct("Salar's Binary Object Indexed Serialization")]
-[assembly: AssemblyCopyright("MPLv2 © Salar Khalilzadeh 2018")]
+[assembly: AssemblyCopyright("MPLv2 © Salar Khalilzadeh 2019")]
 [assembly: AssemblyTrademark("")]
 
-[assembly: AssemblyVersion("3.0.0.1")]
-[assembly: AssemblyFileVersion("3.0.0.1")]
+[assembly: AssemblyVersion("3.0.0.2")]
+[assembly: AssemblyFileVersion("3.0.0.2")]
 #if DEBUG
 [assembly: InternalsVisibleTo("Salar.Bois.NetFx.Tests")]
 [assembly: InternalsVisibleTo("Salar.Bois.EmitPlayground")]

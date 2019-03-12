@@ -5,12 +5,12 @@
     <AssemblyName>Salar.Bois.Core</AssemblyName>
     <RootNamespace>Salar.Bois</RootNamespace>
     <Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-    <Version>3.0.0.1</Version>
+    <Version>3.0.0.2</Version>
     <Authors>Salar Khalilzadeh</Authors>
     <Company>Salar Khalilzadeh</Company>
     <Product>Salar.Bois</Product>
     <Description>Salar's Serializer for Binary Object Indexed Serialization</Description>
-    <Copyright>MPLv2 © Salar Khalilzadeh 2018</Copyright>
+    <Copyright>MPLv2 © Salar Khalilzadeh 2019</Copyright>
     <PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/salarcode/Bois/blob/master/LICENSE.md</PackageLicenseUrl>
     <SignAssembly>true</SignAssembly>
@@ -28,6 +28,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;DotNet;NetCore;RELEASE;NETCOREAPP2_0</DefineConstants>
+    <DocumentationFile>\bin\Release\netcoreapp2.0\Salar.Bois.Core.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

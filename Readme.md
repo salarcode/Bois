@@ -10,14 +10,9 @@ Salar.Bois is the most compact, extermly fast binary serializer for .NET Code an
 * Easy to use, `Serialize<T>` and `Deserialize<T>` are all you need.
 * No configuration required. No sperate schema required. 
 
-## NuGet Package
+## [NuGet Package](https://www.nuget.org/packages/Salar.Bois)
 ```
 PM> Install-Package Salar.Bois
-```
-
-Access to the latest baked beta builds.
-```
-PM> Install-Package Salar.Bois -version 3
 ```
 
 ### Getting Started:

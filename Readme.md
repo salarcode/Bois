@@ -86,7 +86,7 @@ Nothing special is really required. Just these small easy rules.
 ## Bois Format
 If you are interested to know how Salar.Bois has gain this amazing compact format check out its Bois format wiki page.
 
-[Bois Format Schema.](https://google.com)
+[Bois Format Schema](https://github.com/salarcode/Bois/wiki/Bois-Schema-Specs).
 
 ## Benchmarks
 
@@ -108,7 +108,7 @@ NetSerialize |	85 |	4 ms |	6 ms |	Binary
 
 Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	91 |	4 ms |	7 ms |	Binary 	 
+Salar.Bois |	**91** |	4 ms |	7 ms |	Binary 	 
 Microsoft.Avro |	88 |	2 ms |	3 ms |	Binary 	 
 MessagePack |	98 |	8 ms |	14 ms |	Binary 	 
 protobuf-net| 	101 |	4 ms |	12 ms |	Binary 	 

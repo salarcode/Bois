@@ -85,112 +85,89 @@ If you are interested to know how Salar.Bois has gain this amazing compact forma
 
 ## Benchmarks
 
-The benchmarks sourcecode is available. Every elapsed time is calculated for 5000 iteration (v2.2).
+The benchmarks sourcecode is available. Every elapsed time is calculated for 5000 iteration (v3.0).
 
--Serialization against: PrimitiveTypes with small data
-
-Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
------------- | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**73** |	4 ms |	6 ms |	Binary 	 
-Microsoft.Avro |	77 |	2 ms |	3 ms |	Binary 	 
-MessagePack |	90 |	8 ms |	14 ms |	Binary 	 
-protobuf-net| 	91 |	4 ms |	12 ms |	Binary 	 
-BinaryFormatter |	651 |	85 ms| 	106 ms |	Binary 	 
-NetSerialize |	85 |	4 ms |	6 ms |	Binary 	 
-
-
--Serialization against: PrimitiveTypes with big data for 100 iteration
-
-Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
------------- | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**91** |	4 ms |	7 ms |	Binary 	 
-Microsoft.Avro |	88 |	2 ms |	3 ms |	Binary 	 
-MessagePack |	98 |	8 ms |	14 ms |	Binary 	 
-protobuf-net| 	101 |	4 ms |	12 ms |	Binary 	 
-BinaryFormatter |	651 |	85 ms| 	106 ms |	Binary 	 
-NetSerialize |	95 |	4 ms |	6 ms |	Binary 	 
-
+Please note that in these tests no configuration required for Bois versus attributes required for Avro, Zero, MsPack and ProtoZBuff. Also Zero required the properties to be virtual.
 
 -Serialization against: ArrayTypes with small data
 
 Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**58** |	14 ms |	16 ms |	Binary 	 
-Microsoft.Avro |	81 |	4 ms |	6 ms |	Binary 	 
-MessagePack |	85 |	4 ms |	12 ms |	Binary 	 
-protobuf-net| 	87 |	4 ms |	15 ms |	Binary 	 
-BinaryFormatter |	414 |	57 ms| 	54 ms |	Binary 	 
-NetSerialize |	89 |	4 ms |	6 ms |	Binary 
+Salar.Bois |	**58** |	10 ms |	10 ms |	Binary 	 
+Microsoft.Avro |	87 |	8 ms |	10 ms |	Binary 	 
+MessagePack |	127 |	4 ms |	5 ms |	Binary 	 
+protobuf-net| 	92 |	6 ms |	12 ms |	Binary 	 
+BinaryFormatter |	458 |	53 ms| 	48 ms |	Binary 	 
+ZeroFormatter |	153 |	4 ms |	2 ms |	Binary 	 
 
 
--Serialization against: ArrayTypes with big data for 100 iteration
-
-Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
------------- | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**129948** |	464 ms |	476 ms |	Binary 	 
-Microsoft.Avro |	131135 |	126  ms |	146 ms |	Binary 	 
-MessagePack |	163902 |	109 ms |	202 ms |	Binary 	 
-protobuf-net| 	163902 |	72 ms |	72 ms |	Binary 	 
-BinaryFormatter |	131466 |	12 ms| 	6 ms |	Binary 	 
-NetSerialize |	163902 |	107 ms |	80 ms |	Binary 
-
-
--Serialization against: SimpleCollections with small data
+-Serialization against: ArrayTypes with big data
 
 Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	89 |	17 ms |	16 ms |	Binary 	 
-Microsoft.Avro |	89 |	4 ms |	6 ms |	Binary 	 
-MessagePack |	83 |	4 ms |	12 ms |	Binary 	 
-protobuf-net| 	122 |	4 ms |	15 ms |	Binary 	 
-BinaryFormatter |	6703 |	57 ms| 	54 ms |	Binary 	 
+Salar.Bois |	**1244** |	152 ms |	184 ms |	Binary 	 
+Microsoft.Avro |	1534 |	86 ms |	121 ms |	Binary 	 
+MessagePack |	1764 |	21 ms |	29 ms |	Binary 	 
+protobuf-net| 	1977 |	62 ms |	79 ms |	Binary 	 
+BinaryFormatter |	2466 |	49 ms| 	52 ms |	Binary 	 
+ZeroFormatter |	2161 |	8 ms |	2 ms |	Binary 	 
+
+
+-Serialization against: PrimitiveTypes with small data
+
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
+------------ | ------------ | ------------ | ------------ | ------------ | ------------
+Salar.Bois |	**76** |	6 ms |	8 ms |	Binary 	 
+Microsoft.Avro |	77 |	4 ms |	4 ms |	Binary 	 
+MessagePack |	161 |	8 ms |	6 ms |	Binary 	 
+protobuf-net| 	91 |	6 ms |	8 ms |	Binary 	 
+BinaryFormatter |	671 |	72 ms| 	83 ms |	Binary 	 
+ZeroFormatter |	134 |	9 ms |	1 ms |	Binary 
+
+
+-Serialization against: ComplexCollections with small data
+
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
+------------ | ------------ | ------------ | ------------ | ------------ | ------------
+Salar.Bois |	**82** |	23 ms |	30 ms |	Binary 	 
+Microsoft.Avro |	- |	- |	- |	Binary 	| Error
+MessagePack |	171 |	28 ms |	21 ms |	Binary 	 
+protobuf-net| 	150 |	19 ms |	35 ms |	Binary 	 
+BinaryFormatter |	10852 |	614 ms| 	590 ms |	Binary 	 
+NetSerialize |	- |	- |	- |	Binary |    Error
+
+
+-Serialization against: ComplexCollections with big data
+
+Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
+------------ | ------------ | ------------ | ------------ | ------------ | ------------
+Salar.Bois |	**10613** |	1s, 527 ms |	1s, 935 ms |	Binary 	 
+Microsoft.Avro |	- |	- |	- |	Binary 	 |   Error
+MessagePack |	11013 |	1s, 792 ms |  1s, 292 ms |	Binary 	 
+protobuf-net| 	14865 |	1s, 142 ms |	2s, 392 ms |	Binary 	 
+BinaryFormatter |	34751 |	14s, 580 ms| 	8s 307 ms |	Binary 	 
 NetSerialize |	- |	- |	- |	Binary |    Failed
 
-
--Serialization against: SimpleCollections with big data for 100 iteration
-
-Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
------------- | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**41543** |	353 ms |	305 ms |	Binary 	 
-Microsoft.Avro |	**41543** |	80 ms |	97 ms |	Binary 	 
-MessagePack |	42380 |	51 ms |	200 ms |	Binary 	 
-protobuf-net| 	77585 |	86 ms |	133 ms |	Binary 	 
-BinaryFormatter |	159756 |	196 ms| 	205 ms |	Binary 	 
-NetSerialize |	- |	- |	- |	Binary |    Failed
-
-
--Serialization against: ComplexCollections
+-Serialization against: ComplexContainer Collections
 
 Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**93** |	46 ms |	94 ms |	Binary 	 
-Microsoft.Avro | - |	- |	- |	Binary |    Failed
-MessagePack |	- |	- |	- |	Binary |    Failed
-protobuf-net| 	150 |	16 ms |	38 ms |	Binary 	 
-BinaryFormatter |	10807 |	885 ms| 783 ms |	Binary 	 
-NetSerialize | - |	- |	- |	Binary |    Failed
+Salar.Bois |	**123** |	15 ms |	21 ms |	Binary 	 
+Microsoft.Avro | - |	- |	- |	Binary | Error
+MessagePack |	- |	- |	- |	Binary |    Error
+protobuf-net| 171 |	18 ms |	28 ms |	Binary 
+BinaryFormatter |	7396 |	384  ms| 	459  ms |	Binary 	 
+NetSerialize | - |	- |	- |	Binary |    Error
 
 
 -Serialization against: SpecializedCollections
 
 Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**29** |	13 ms |	36 ms |	Binary 	 
-Microsoft.Avro | - |	- |	- |	Binary | Failed with invalid result
-MessagePack |	- |	- |	- |	Binary |    Failed
-protobuf-net| - |	- |	- |	Binary |    Failed
-BinaryFormatter |	2505 |	768  ms| 	379  ms |	Binary 	 
-NetSerialize | - |	- |	- |	Binary |    Failed
-
-
--Serialization against: ComplexContainer object
-
-Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
------------- | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois |	**1292** |	386  ms |	944 ms |	Binary 	 
-Microsoft.Avro | - | - | - | Binary | Failed
-MessagePack | - | - | - | Binary | Failed
-protobuf-net| 1550 | 204 ms | 341 ms |	Binary
-BinaryFormatter | 18910 | 3s,297 ms | 3s,595 ms |	Binary 	 
-NetSerialize | 1482 | 143 ms | 189 ms |	Binary
+Salar.Bois |	**28** |	10  ms |	22 ms |	Binary 	 
+Microsoft.Avro | - | - | - | Binary | Invalid Result
+MessagePack | - | - | - | Binary | Error
+protobuf-net| - | - | - |	Binary | Error
+BinaryFormatter | 2515 | 776 ms | 284 ms |	Binary 	 
+NetSerialize | - | - | - |	Binary | Error
 

@@ -98,7 +98,6 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((uint)128)]
 		[InlineData((uint)256)]
 		[InlineData(uint.MaxValue)]
-		[InlineData(uint.MinValue)]
 		[MemberData(nameof(GetUIntBytes))]
 		public void Numbers_UInt_Normal(uint number)
 		{
@@ -123,7 +122,6 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((uint)128)]
 		[InlineData((uint)256)]
 		[InlineData(uint.MaxValue)]
-		[InlineData(uint.MinValue)]
 		public void Numbers_UIntNullable_Normal(uint? number)
 		{
 			ResetBois();
@@ -162,7 +160,6 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((sbyte)64), InlineData((sbyte)-64)]
 		[InlineData((sbyte)65), InlineData((sbyte)-65)]
 		[InlineData((sbyte)127), InlineData((sbyte)-127)]
-		[InlineData(sbyte.MaxValue)]
 		[InlineData(sbyte.MinValue)]
 		[MemberData(nameof(GetSbyteBytes))]
 		public void Numbers_sbyteNullable_Normal(sbyte? number)
@@ -187,9 +184,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((byte)65)]
 		[InlineData((byte)127)]
 		[InlineData((byte)128)]
-		[InlineData((byte)255)]
 		[InlineData(byte.MaxValue)]
-		[InlineData(byte.MinValue)]
 		public void Numbers_byteNullable_Normal(byte? number)
 		{
 			ResetBois();
@@ -288,7 +283,6 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((ushort)128)]
 		[InlineData((ushort)256)]
 		[InlineData(ushort.MaxValue)]
-		[InlineData(ushort.MinValue)]
 		[MemberData(nameof(GetUshortBytes))]
 		public void Numbers_ushort_Normal(ushort number)
 		{
@@ -313,7 +307,6 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((ushort)128)]
 		[InlineData((ushort)256)]
 		[InlineData(ushort.MaxValue)]
-		[InlineData(ushort.MinValue)]
 		public void Numbers_ushortNullable_Normal(ushort? number)
 		{
 			ResetBois();
@@ -421,7 +414,6 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((long)int.MaxValue + 1)]
 		[InlineData((long)uint.MaxValue + 1)]
 		[InlineData(ulong.MaxValue)]
-		[InlineData(ulong.MinValue)]
 		[MemberData(nameof(GetULongBytes))]
 		public void Numbers_ulong_Normal(ulong number)
 		{
@@ -446,7 +438,6 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((ulong)128)]
 		[InlineData((ulong)256)]
 		[InlineData(ulong.MaxValue)]
-		[InlineData(ulong.MinValue)]
 		public void Numbers_ulongNullable_Normal(ulong? number)
 		{
 			ResetBois();
@@ -512,6 +503,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 
 		[Theory]
+		[InlineData(null)]
 		[InlineData((float)0)]
 		[InlineData((float)31), InlineData((float)-31)]
 		[InlineData((float)32), InlineData((float)-32)]
@@ -530,7 +522,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((float)256.44), InlineData((float)-256.66)]
 		[InlineData(float.MaxValue)]
 		[InlineData(float.MinValue)]
-		public void Numbers_floatNullable_Normal(float number)
+		public void Numbers_floatNullable_Normal(float? number)
 		{
 			ResetBois();
 
@@ -594,6 +586,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 
 		[Theory]
+		[InlineData(null)]
 		[InlineData((double)0)]
 		[InlineData((double)31), InlineData((double)-31)]
 		[InlineData((double)32), InlineData((double)-32)]
@@ -612,7 +605,7 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		[InlineData((double)256.44), InlineData((double)-256.66)]
 		[InlineData(double.MaxValue)]
 		[InlineData(double.MinValue)]
-		public void Numbers_doubleNullable_Normal(double number)
+		public void Numbers_doubleNullable_Normal(double? number)
 		{
 			ResetBois();
 

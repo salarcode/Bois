@@ -14,7 +14,7 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteNullValue(BinaryWriter writer)
 		{
-			writer.Write(NumericSerializers.FlagNullable);
+			writer.Write(NumericSerializers.FlagIsNull);
 		}
 
 

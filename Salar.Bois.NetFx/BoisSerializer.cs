@@ -131,7 +131,7 @@ namespace Salar.Bois
 
 
 		/// <summary>
-		/// Deserilizing binary data to a new instance.
+		/// Deserializing binary data to a new instance.
 		/// </summary>
 		/// <param name="objectData">The binary data.</param>
 		/// <typeparam name="T">The object type.</typeparam>
@@ -156,7 +156,7 @@ namespace Salar.Bois
 		}
 
 		/// <summary>
-		/// Deserilizing binary data to a new instance.
+		/// Deserializing binary data to a new instance.
 		/// </summary>
 		/// <param name="objectData">The binary data.</param>
 		/// <param name="type">The object type.</param>

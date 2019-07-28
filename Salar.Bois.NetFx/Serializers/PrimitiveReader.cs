@@ -188,7 +188,7 @@ namespace Salar.Bois.Serializers
 
 		internal static DBNull ReadDbNull(BinaryReader reader)
 		{
-			if (reader.ReadByte() == NumericSerializers.FlagNullable)
+			if (reader.ReadByte() == NumericSerializers.FlagIsNull)
 				return null;
 			return DBNull.Value;
 		}

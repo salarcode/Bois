@@ -2614,7 +2614,7 @@ namespace Salar.Bois.Serializers
 				il.Emit(OpCodes.Ldarg_0); // BinaryReader
 				il.Emit(OpCodes.Call,
 					meth: typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadByte)));
-				il.Emit(OpCodes.Ldc_I4_S, NumericSerializers.FlagNullable);
+				il.Emit(OpCodes.Ldc_I4_S, NumericSerializers.FlagIsNull);
 				il.Emit(OpCodes.Ceq);
 				il.Emit(OpCodes.Brfalse_S, LabelReadValue);
 

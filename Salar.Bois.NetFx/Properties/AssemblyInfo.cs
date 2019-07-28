@@ -14,6 +14,6 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyVersion("3.0.0.2")]
 [assembly: AssemblyFileVersion("3.0.0.2")]
 #if DEBUG
+#endif
 [assembly: InternalsVisibleTo("Salar.Bois.NetFx.Tests")]
 [assembly: InternalsVisibleTo("Salar.Bois.EmitPlayground")]
-#endif

@@ -1,84 +1,105 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Salar.Bois.Serializers
 {
 	internal static class NumericSerializers
 	{
 		/// <summary>
+		/// 0000 0000 = 0 -- No flags enabled
+		/// </summary>
+		internal const byte FlagNone = 0b0_0_0_0_0_0_0_0;
+
+		/// <summary>
 		/// 0100 0000 = 64
 		/// </summary>
-		internal const byte FlagNullable = 0b0_1_0_0_0_0_0_0;
+		internal const byte FlagIsNull = 0b0_1_0_0_0_0_0_0;
 
 		/// <summary>
 		/// 1000 0000 = 128
 		/// </summary>
-		private const byte FlagEmbdedded = 0b1_0_0_0_0_0_0_0;
+		private const byte FlagEmbedded = 0b1_0_0_0_0_0_0_0;
 
 		/// <summary>
-		/// 127
+		/// 0111 1111 = 127
 		/// </summary>
-		private const byte FlagEmbdeddedMask = 0b0_1_1_1_1_1_1_1;
+		private const byte EmbeddedMaxNumInByte = 0b0_1_1_1_1_1_1_1;
 
 		/// <summary>
 		/// 0011 1111 = 63
 		/// </summary>
-		private const byte EmbeddedSignedMaxNumInByte = 0b0_0_1_1_1_1_1_1;// 63;
+		private const byte EmbeddedNullableMaxNumInByte = 0b0_0_1_1_1_1_1_1;
 
 		/// <summary>
-		/// 0100 0000 = 64
+		/// 0111 1111 = 127 
 		/// </summary>
-		private const byte FlagNonullNegativeNum = 0b0_1_0_0_0_0_0_0;
+		private const byte MaskEmbedded = 0b0_1_1_1_1_1_1_1;
 
 		/// <summary>
-		/// 191
+		/// 0011 1111 = 63 
 		/// </summary>
-		private const byte FlagNonullNegativeMask = 0b1_0_1_1_1_1_1_1;
+		private const byte MaskEmbeddedNullable = 0b0_0_1_1_1_1_1_1;
 
-		/// <summary>
-		/// 192
-		/// </summary>
-		private const byte FlagNonullNegativeNumEmbdedded = 0b1_1_0_0_0_0_0_0;
+		///// <summary>
+		///// 0011 1111 = 63
+		///// </summary>
+		//private const byte EmbeddedSignedMaxNumInByte = 0b0_0_1_1_1_1_1_1;// 63;
 
-		/// <summary>
-		/// 63
-		/// </summary>
-		private const byte FlagNonullNegativeNumEmbdeddedMask = 0b0_0_1_1_1_1_1_1;
+		///// <summary>
+		///// 0100 0000 = 64
+		///// </summary>
+		//private const byte FlagNonullNegativeNum = 0b0_1_0_0_0_0_0_0;
 
-		/// <summary>
-		/// 32
-		/// </summary>
-		private const byte FlagNullableNegativeNum = 0b0_0_1_0_0_0_0_0;
+		///// <summary>
+		///// 191
+		///// </summary>
+		//private const byte FlagNonullNegativeMask = 0b1_0_1_1_1_1_1_1;
 
-		/// <summary>
-		/// 223
-		/// </summary>
-		private const byte FlagNullableNegativeMask = 0b1_1_0_1_1_1_1_1;
+		///// <summary>
+		///// 192
+		///// </summary>
+		//private const byte FlagNonullNegativeNumEmbedded = 0b1_1_0_0_0_0_0_0;
 
-		/// <summary>
-		/// 160
-		/// </summary>
-		private const byte FlagNullableNegativeEmbdeddedNum = 0b1_0_1_0_0_0_0_0;
+		///// <summary>
+		///// 63
+		///// </summary>
+		//private const byte FlagNonullNegativeNumEmbeddedMask = 0b0_0_1_1_1_1_1_1;
 
-		/// <summary>
-		/// 95
-		/// </summary>
-		private const byte FlagNullableNegativeEmbdeddedMask = 0b0_1_0_1_1_1_1_1;
+		///// <summary>
+		///// 32
+		///// </summary>
+		//private const byte FlagNullableNegativeNum = 0b0_0_1_0_0_0_0_0;
 
-		/// <summary>
-		/// 127
-		/// </summary>
-		private const byte EmbeddedUnsignedMaxNumInByte = 0b0_1_1_1_1_1_1_1;
+		///// <summary>
+		///// 223
+		///// </summary>
+		//private const byte FlagNullableNegativeMask = 0b1_1_0_1_1_1_1_1;
 
-		/// <summary>
-		/// 31
-		/// </summary>
-		private const byte EmbeddedSignedNullableMaxNumInByte = 0b0_0_0_1_1_1_1_1;
+		///// <summary>
+		///// 160
+		///// </summary>
+		//private const byte FlagNullableNegativeEmbeddedNum = 0b1_0_1_0_0_0_0_0;
 
-		/// <summary>
-		/// 63
-		/// </summary>
-		private const byte EmbeddedUnsignedNullableMaxNumInByte = 0b0_0_1_1_1_1_1_1;
+		///// <summary>
+		///// 95
+		///// </summary>
+		//private const byte FlagNullableNegativeEmbeddedMask = 0b0_1_0_1_1_1_1_1;
+
+		///// <summary>
+		///// 127
+		///// </summary>
+		//private const byte EmbeddedUnsignedMaxNumInByte = 0b0_1_1_1_1_1_1_1;
+
+		/////// <summary>
+		/////// 31
+		/////// </summary>
+		////private const byte EmbeddedSignedNullableMaxNumInByte = 0b0_0_0_1_1_1_1_1;
+
+		///// <summary>
+		///// 63
+		///// </summary>
+		//private const byte EmbeddedUnsignedNullableMaxNumInByte = 0b0_0_1_1_1_1_1_1;
 
 		#region Array Pool
 
@@ -115,436 +136,171 @@ namespace Salar.Bois.Serializers
 
 		#region Readers
 
+		internal static sbyte? ReadVarSByteNullable(BinaryReader reader)
+		{
+			var input = reader.ReadByte();
+			if (input == FlagIsNull)
+				return null;
+
+			if ((input & FlagEmbedded) == FlagEmbedded)
+			{
+				// number is embedded
+				return (sbyte)(input & MaskEmbeddedNullable);
+			}
+			else
+			{
+				return reader.ReadSByte();
+			}
+		}
 
 		internal static short? ReadVarInt16Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == FlagNullable)
+			if (input == FlagIsNull)
 				return null;
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-			var negative = (input & FlagNullableNegativeNum) == FlagNullableNegativeNum;
-
-			if (embedded)
+			if ((input & FlagEmbedded) == FlagEmbedded)
 			{
-				if (negative)
-				{
-					var theNumber = input & FlagNullableNegativeEmbdeddedMask;
-
-					return (short)-theNumber;
-				}
-				else
-				{
-					return (short)(input & FlagEmbdeddedMask);
-				}
+				// number is embedded
+				return (short)(input & MaskEmbeddedNullable);
 			}
 			else
 			{
-				if (negative)
-				{
-					var length = input & FlagNullableNegativeMask;
-
-					var numBuff = reader.ReadBytes(length);
-
-					return (short)-ConvertFromVarBinaryInt16(numBuff);
-				}
-				else
-				{
-					var length = input;
-
-					var numBuff = reader.ReadBytes(length);
-
-					return ConvertFromVarBinaryInt16(numBuff);
-				}
+				return ReadInt16Zigzag(reader);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static short ReadVarInt16(BinaryReader reader)
 		{
-			var input = reader.ReadByte();
-
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-			var negative = (input & FlagNonullNegativeNum) == FlagNonullNegativeNum;
-
-			if (embedded)
-			{
-				if (negative)
-				{
-					var thenumber = input & FlagNonullNegativeNumEmbdeddedMask;
-
-					return (short)-thenumber;
-				}
-				else
-				{
-					return (short)(input & FlagEmbdeddedMask);
-				}
-			}
-			else
-			{
-				if (negative)
-				{
-					var length = input & FlagNonullNegativeMask;
-
-					var numBuff = reader.ReadBytes(length);
-
-					return (short)-ConvertFromVarBinaryInt16(numBuff);
-				}
-				else
-				{
-					var length = input;
-
-					var numBuff = reader.ReadBytes(length);
-
-					return ConvertFromVarBinaryInt16(numBuff);
-				}
-			}
+			return ReadInt16Zigzag(reader);
 		}
 
 		internal static ushort? ReadVarUInt16Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == FlagNullable)
+			if (input == FlagIsNull)
 				return null;
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-
-			if (embedded)
+			if ((input & FlagEmbedded) == FlagEmbedded)
 			{
-				return (ushort)(input & FlagEmbdeddedMask);
+				// number is embedded
+				return (ushort)(input & MaskEmbeddedNullable);
 			}
 			else
 			{
-				var length = input;
-
-				var numBuff = reader.ReadBytes(length);
-
-				return ConvertFromVarBinaryUInt16(numBuff);
+				return ReadUInt16Zigzag(reader);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static ushort ReadVarUInt16(BinaryReader reader)
 		{
-			var input = reader.ReadByte();
-
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-
-			if (embedded)
-			{
-				return (ushort)(input & FlagEmbdeddedMask);
-			}
-			else
-			{
-				var length = input;
-
-				var numBuff = reader.ReadBytes(length);
-
-				return ConvertFromVarBinaryUInt16(numBuff);
-			}
+			return ReadUInt16Zigzag(reader);
 		}
 
 		internal static int? ReadVarInt32Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == FlagNullable)
+			if (input == FlagIsNull)
 				return null;
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-			var negative = (input & FlagNullableNegativeNum) == FlagNullableNegativeNum;
-
-			if (embedded)
+			if ((input & FlagEmbedded) == FlagEmbedded)
 			{
-				if (negative)
-				{
-					var thenumber = input & FlagNullableNegativeEmbdeddedMask;
-
-					return -thenumber;
-				}
-				else
-				{
-					return input & FlagEmbdeddedMask;
-				}
+				// number is embedded
+				return input & MaskEmbeddedNullable;
 			}
 			else
 			{
-				var buff = SharedArray.Get();
-				if (negative)
-				{
-					var length = input & FlagNullableNegativeMask;
-
-					if (length < 4)
-						SharedArray.ClearArray4();
-
-					reader.Read(buff, 0, length);
-
-					return -ConvertFromVarBinaryInt32(buff, length);
-				}
-				else
-				{
-					var length = input;
-
-					if (length < 4)
-						SharedArray.ClearArray4();
-
-					reader.Read(buff, 0, length);
-
-					return ConvertFromVarBinaryInt32(buff, length);
-				}
+				return ReadInt32Zigzag(reader);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static int ReadVarInt32(BinaryReader reader)
 		{
-			var input = reader.ReadByte();
-
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-			var negative = (input & FlagNonullNegativeNum) == FlagNonullNegativeNum;
-
-			if (embedded)
-			{
-				if (negative)
-				{
-					var theNumber = input & FlagNonullNegativeNumEmbdeddedMask;
-
-					return -theNumber;
-				}
-				else
-				{
-					return input & FlagEmbdeddedMask;
-				}
-			}
-			else
-			{
-				var buff = SharedArray.Get();
-
-				if (negative)
-				{
-					int length = input & FlagNonullNegativeMask;
-
-					if (length < 4)
-						SharedArray.ClearArray4();
-
-					reader.Read(buff, 0, length);
-
-					return -ConvertFromVarBinaryInt32(buff, length);
-				}
-				else
-				{
-					int length = input;
-
-					if (length < 4)
-						SharedArray.ClearArray4();
-
-					reader.Read(buff, 0, length);
-
-					return ConvertFromVarBinaryInt32(buff, length);
-				}
-			}
+			return ReadInt32Zigzag(reader);
 		}
 
 		internal static uint? ReadVarUInt32Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == FlagNullable)
+			if (input == FlagIsNull)
 				return null;
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-
-			if (embedded)
+			if ((input & FlagEmbedded) == FlagEmbedded)
 			{
-				return (uint)input & FlagEmbdeddedMask;
+				// number is embedded
+				return (uint)(input & MaskEmbeddedNullable);
 			}
 			else
 			{
-				var buff = SharedArray.Get();
-				int length = input;
-
-				if (length < 4)
-					SharedArray.ClearArray4();
-
-				reader.Read(buff, 0, length);
-
-				return ConvertFromVarBinaryUInt32(buff, length);
+				return ReadUInt32Zigzag(reader);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static uint ReadVarUInt32(BinaryReader reader)
 		{
-			var input = reader.ReadByte();
-
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-
-			if (embedded)
-			{
-				return (uint)input & FlagEmbdeddedMask;
-			}
-			else
-			{
-				var buff = SharedArray.Get();
-				int length = input;
-
-				if (length < 4)
-					SharedArray.ClearArray4();
-
-				reader.Read(buff, 0, length);
-
-				return ConvertFromVarBinaryUInt32(buff, length);
-			}
+			return ReadUInt32Zigzag(reader);
 		}
 
 		internal static long? ReadVarInt64Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == FlagNullable)
+			if (input == FlagIsNull)
 				return null;
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-			var negative = (input & FlagNullableNegativeNum) == FlagNullableNegativeNum;
-
-			if (embedded)
+			if ((input & FlagEmbedded) == FlagEmbedded)
 			{
-				if (negative)
-				{
-					long theNumber = input & FlagNullableNegativeEmbdeddedMask;
-
-					return -theNumber;
-				}
-				else
-				{
-					return input & FlagEmbdeddedMask;
-				}
+				// number is embedded
+				return input & MaskEmbeddedNullable;
 			}
 			else
 			{
-				var buff = SharedArray.Get();
-				if (negative)
-				{
-					int length = input & FlagNullableNegativeMask;
-
-					if (length < 8)
-						SharedArray.ClearArray8();
-
-					reader.Read(buff, 0, length);
-
-					return -ConvertFromVarBinaryInt64(buff);
-				}
-				else
-				{
-					int length = input;
-					if (length < 8)
-						SharedArray.ClearArray8();
-
-					reader.Read(buff, 0, length);
-
-					return ConvertFromVarBinaryInt64(buff);
-				}
+				return ReadInt64Zigzag(reader);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static long ReadVarInt64(BinaryReader reader)
 		{
-			var input = reader.ReadByte();
-
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-			var negative = (input & FlagNonullNegativeNum) == FlagNonullNegativeNum;
-
-			if (embedded)
-			{
-				if (negative)
-				{
-					var thenumber = input & FlagNonullNegativeNumEmbdeddedMask;
-
-					return -thenumber;
-				}
-				return input & FlagEmbdeddedMask;
-			}
-			else
-			{
-				var buff = SharedArray.Get();
-				if (negative)
-				{
-					int length = input & FlagNonullNegativeMask;
-
-					if (length < 8)
-						SharedArray.ClearArray8();
-
-					reader.Read(buff, 0, length);
-
-					return -ConvertFromVarBinaryInt64(buff);
-				}
-				else
-				{
-					int length = input;
-
-					if (length < 8)
-						SharedArray.ClearArray8();
-
-					reader.Read(buff, 0, length);
-
-					return ConvertFromVarBinaryInt64(buff);
-				}
-			}
+			return ReadInt64Zigzag(reader);
 		}
 
 		internal static ulong? ReadVarUInt64Nullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == FlagNullable)
+			if (input == FlagIsNull)
 				return null;
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-
-			if (embedded)
+			if ((input & FlagEmbedded) == FlagEmbedded)
 			{
-				return (uint)input & FlagEmbdeddedMask;
+				// number is embedded
+				return (ulong)(input & MaskEmbeddedNullable);
 			}
 			else
 			{
-				int length = input;
-
-				var buff = SharedArray.Get();
-				if (length < 8)
-					SharedArray.ClearArray8();
-
-				reader.Read(buff, 0, length);
-
-				return ConvertFromVarBinaryUInt64(buff);
+				return ReadUInt64Zigzag(reader);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static ulong ReadVarUInt64(BinaryReader reader)
 		{
-			var input = reader.ReadByte();
-
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-
-			if (embedded)
-			{
-				return (ulong)input & FlagEmbdeddedMask;
-			}
-			else
-			{
-				int length = input;
-
-				var buff = SharedArray.Get();
-				if (length < 8)
-					SharedArray.ClearArray8();
-
-				reader.Read(buff, 0, length);
-
-				return ConvertFromVarBinaryUInt64(buff);
-			}
+			return ReadUInt64Zigzag(reader);
 		}
 
 		internal static decimal? ReadVarDecimalNullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == FlagNullable)
+			if (input == FlagIsNull)
 				return null;
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var embedded = (input & FlagEmbedded) == FlagEmbedded;
 			if (embedded)
 			{
-				return (input & FlagEmbdeddedMask);
+				return (input & MaskEmbeddedNullable);
 			}
 
 			int length = input;
@@ -558,10 +314,10 @@ namespace Salar.Bois.Serializers
 		{
 			var input = reader.ReadByte();
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var embedded = (input & FlagEmbedded) == FlagEmbedded;
 			if (embedded)
 			{
-				return (input & FlagEmbdeddedMask);
+				return (input & MaskEmbedded);
 			}
 
 			int length = input;
@@ -574,18 +330,18 @@ namespace Salar.Bois.Serializers
 		internal static double? ReadVarDoubleNullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == FlagNullable)
+			if (input == FlagIsNull)
 				return null;
 
 			var buff = SharedArray.Get();
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var embedded = (input & FlagEmbedded) == FlagEmbedded;
 			if (embedded)
 			{
 				SharedArray.ClearArray8();
 
 				// last byte
-				buff[7] = (byte)(input & FlagEmbdeddedMask);
+				buff[7] = (byte)(input & MaskEmbeddedNullable);
 				return BitConverter.ToDouble(buff, 0);
 			}
 
@@ -605,13 +361,13 @@ namespace Salar.Bois.Serializers
 
 			var buff = SharedArray.Get();
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var embedded = (input & FlagEmbedded) == FlagEmbedded;
 			if (embedded)
 			{
 				SharedArray.ClearArray8();
 
 				// last byte
-				buff[7] = (byte)(input & FlagEmbdeddedMask);
+				buff[7] = (byte)(input & MaskEmbedded);
 				return BitConverter.ToDouble(buff, 0);
 			}
 
@@ -628,18 +384,18 @@ namespace Salar.Bois.Serializers
 		internal static float? ReadVarSingleNullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == FlagNullable)
+			if (input == FlagIsNull)
 				return null;
 
 			var buff = SharedArray.Get();
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var embedded = (input & FlagEmbedded) == FlagEmbedded;
 			if (embedded)
 			{
 				SharedArray.ClearArray4();
 
 				// last byte
-				buff[3] = (byte)(input & FlagEmbdeddedMask);
+				buff[3] = (byte)(input & MaskEmbeddedNullable);
 				return BitConverter.ToSingle(buff, 0);
 			}
 
@@ -659,13 +415,13 @@ namespace Salar.Bois.Serializers
 
 			var buff = SharedArray.Get();
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var embedded = (input & FlagEmbedded) == FlagEmbedded;
 			if (embedded)
 			{
 				SharedArray.ClearArray4();
 
 				// last byte
-				buff[3] = (byte)(input & FlagEmbdeddedMask);
+				buff[3] = (byte)(input & MaskEmbedded);
 				return BitConverter.ToSingle(buff, 0);
 			}
 
@@ -682,47 +438,16 @@ namespace Salar.Bois.Serializers
 		internal static byte? ReadVarByteNullable(BinaryReader reader)
 		{
 			var input = reader.ReadByte();
-			if (input == FlagNullable)
+			if (input == FlagIsNull)
 				return null;
 
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
+			var embedded = (input & FlagEmbedded) == FlagEmbedded;
 			if (embedded)
 			{
-				return (byte)(input & FlagEmbdeddedMask);
+				return (byte)(input & MaskEmbeddedNullable);
 			}
 
 			return reader.ReadByte();
-		}
-
-		internal static sbyte? ReadVarSByteNullable(BinaryReader reader)
-		{
-			var input = reader.ReadSByte();
-			if (input == FlagNullable)
-				return null;
-
-			var embedded = (input & FlagEmbdedded) == FlagEmbdedded;
-			var negative = (input & FlagNullableNegativeNum) == FlagNullableNegativeNum;
-			if (embedded)
-			{
-				if (negative)
-				{
-					var theNumber = -((sbyte)(input & FlagNullableNegativeEmbdeddedMask));
-
-					return (sbyte)theNumber;
-				}
-				return (sbyte)(input & FlagEmbdeddedMask);
-			}
-			else
-			{
-				if (negative)
-				{
-					var number = -reader.ReadSByte();
-
-					return (sbyte)number;
-				}
-
-				return reader.ReadSByte();
-			}
 		}
 
 		#endregion
@@ -730,160 +455,61 @@ namespace Salar.Bois.Serializers
 		#region Writers
 
 		/// <summary>
-		/// [EmbedIndicator-SignIndicator-0-0-0-0-0-0] [optional data]  0..63 can be embedded
+		/// [int data as zigzag] not embeddable
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteVarInt(BinaryWriter writer, int num)
 		{
-			void WriteAsBigPositive()
-			{
-				var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
-			}
-
-			if (num > EmbeddedSignedMaxNumInByte)
-			{
-				// number is not negative
-				// number is not embedded
-
-				WriteAsBigPositive();
-			}
-			else if (num < 0)
-			{
-				if (num == int.MinValue)
-				{
-					// Very special case, int.minValut cannot be converted
-
-					WriteAsBigPositive();
-					return;
-				}
-				num = -num;
-				if (num > EmbeddedSignedMaxNumInByte)
-				{
-					// number is negative
-					// number is not embedded
-
-					var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-
-					writer.Write((byte)(numLen | FlagNonullNegativeNum));
-					writer.Write(numBuff, 0, numLen);
-				}
-				else
-				{
-					// number is negative
-					// number is embedded
-
-					writer.Write((byte)(num | FlagNonullNegativeNumEmbdedded));
-				}
-			}
-			else
-			{
-				// number is not negative
-				// number is embedded
-
-				writer.Write((byte)(num | FlagEmbdedded));
-			}
+			WriteZigzag(writer, num);
 		}
 
+
 		/// <summary>
-		/// [EmbedIndicator-NullIndicator-SignIndicator-0-0-0-0-0] [optional data]  0..31 can be embedded
+		/// [EmbedIndicator-NullIndicator-0-0-0-0-0-0] [optional data]  0..63 can be embedded
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
 		internal static void WriteVarInt(BinaryWriter writer, int? num)
 		{
-			void WriteAsBigPositive()
-			{
-				var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
-			}
-
 			if (num == null)
 			{
-				// number is null
-
-				writer.Write(FlagNullable);
+				// null flag
+				writer.Write(FlagIsNull);
+				return;
 			}
-			else if (num > EmbeddedSignedNullableMaxNumInByte)
+
+			if (num > EmbeddedNullableMaxNumInByte || num < 0)
 			{
-				// number is not null
-				// number is not negative
-				// number is not embedded
+				// number is not embeddable 
 
-				WriteAsBigPositive();
-			}
-			else if (num < 0)
-			{
-				if (num == int.MinValue)
-				{
-					// Very special case, int.minValut cannot be converted
-
-					WriteAsBigPositive();
-					return;
-				}
-
-				num = -num;
-				if (num > EmbeddedSignedNullableMaxNumInByte)
-				{
-					// number is not null
-					// number is negative
-					// number is not embedded
-
-					var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-
-					writer.Write((byte)(numLen | FlagNullableNegativeNum));
-					writer.Write(numBuff, 0, numLen);
-				}
-				else
-				{
-					// number is not null
-					// number is negative
-					// number is embedded
-
-					writer.Write((byte)(num.Value | FlagNullableNegativeEmbdeddedNum));
-				}
+				writer.Write(FlagNone);
+				WriteZigzag(writer, num.Value);
 			}
 			else
 			{
-				// number is not null
-				// number is not negative
-				// number is embedded
+				byte numByte = (byte)num;
 
-				writer.Write((byte)(num.Value | FlagEmbdedded));
+				// set the flag of inside
+				numByte = (byte)(numByte | FlagEmbedded);
+				writer.Write(numByte);
 			}
 		}
 
 		/// <summary>
-		/// [EmbedIndicator-0-0-0-0-0-0-0] [optional data]  0..127 can be embedded
+		/// [uint data as zigzag] not embeddable
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteVarInt(BinaryWriter writer, uint num)
 		{
-			if (num > EmbeddedUnsignedMaxNumInByte)
-			{
-				// number is not embedded
-
-				var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
-			}
-			else
-			{
-				// number is embedded
-
-				writer.Write((byte)(num | FlagEmbdedded));
-			}
+			WriteZigzag(writer, num);
 		}
 
 		/// <summary>
-		/// [NullIndicator-EmbedIndicator-0-0-0-0-0-0] [optional data]  0..127 can be embedded
+		/// [EmbedIndicator-NullIndicator-0-0-0-0-0-0] [optional data]  0..TODO can be embedded
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
@@ -891,118 +517,67 @@ namespace Salar.Bois.Serializers
 		{
 			if (num == null)
 			{
-				// number is null
-
-				writer.Write(FlagNullable);
+				// null flag
+				writer.Write(FlagIsNull);
+				return;
 			}
-			else if (num > EmbeddedUnsignedNullableMaxNumInByte)
+
+			if (num > EmbeddedNullableMaxNumInByte)
 			{
-				// number is not null
-				// number is not negative
-				// number is not embedded
+				// number is not embeddable 
 
-				var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
+				writer.Write(FlagNone);
+				WriteZigzag(writer, num.Value);
 			}
 			else
 			{
-				// number is not null
-				// number is not negative
-				// number is embedded
+				byte numByte = (byte)num;
 
-				writer.Write((byte)(num.Value | FlagEmbdedded));
+				// set the flag of inside
+				numByte = (byte)(numByte | FlagEmbedded);
+				writer.Write(numByte);
 			}
 		}
 
 		/// <summary>
-		/// Same as "uint?" except that it doesn't store null value, but still preserves null flag
+		/// Same as "uint?" except that it doesn't store null value, but still preserves null flag.
+		/// To be used to store member counts
 		/// </summary>
 		/// <remarks>
 		/// The value stored as member count can be 'null', but since this method is called where it is obvious that 
 		/// the don't have null value, there is no point creating Nullable object to convert it
 		/// </remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteUIntNullableMemberCount(BinaryWriter writer, uint num)
 		{
 			// NOTE:
 			// Member count can be null, but not the place this method is being called
 			// Hence why i'm storing null flag
 
-			if (num > EmbeddedUnsignedNullableMaxNumInByte)
+			if (num > EmbeddedNullableMaxNumInByte)
 			{
-				// number is not null
-				// number is not negative
-				// number is not embedded
+				// number is not embeddable 
 
-				var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
+				writer.Write(FlagNone);
+				WriteZigzag(writer, num);
 			}
 			else
 			{
-				// number is not null
-				// number is not negative
-				// number is embedded
+				byte numByte = (byte)num;
 
-				writer.Write((byte)(num | FlagEmbdedded));
+				// set the flag of inside
+				numByte = (byte)(numByte | FlagEmbedded);
+				writer.Write(numByte);
 			}
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteVarInt(BinaryWriter writer, short num)
 		{
-			void WriteAsBigPositive()
-			{
-				var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
-			}
-
-			if (num > EmbeddedSignedMaxNumInByte)
-			{
-				// number is not negative
-				// number is not embedded
-				WriteAsBigPositive();
-			}
-			else if (num < 0)
-			{
-				if (num == short.MinValue)
-				{
-					WriteAsBigPositive();
-					return;
-				}
-
-				num = (short)-num;
-				if (num > EmbeddedSignedMaxNumInByte)
-				{
-					// number is negative
-					// number is not embedded
-
-					var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-
-					writer.Write((byte)(numLen | FlagNonullNegativeNum));
-					writer.Write(numBuff, 0, numLen);
-				}
-				else
-				{
-					// number is negative
-					// number is embedded
-
-					writer.Write((byte)(num | FlagNonullNegativeNumEmbdedded));
-				}
-			}
-			else
-			{
-				// number is not negative
-				// number is embedded
-
-				writer.Write((byte)(num | FlagEmbdedded));
-			}
+			WriteZigzag(writer, num);
 		}
 
 		/// <summary>
@@ -1010,87 +585,37 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteVarInt(BinaryWriter writer, short? num)
 		{
-			void WriteAsBigPositive()
-			{
-				var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
-			}
-
 			if (num == null)
 			{
-				// number is null
-
-				writer.Write(FlagNullable);
+				// null flag
+				writer.Write(FlagIsNull);
+				return;
 			}
-			else if (num > EmbeddedSignedNullableMaxNumInByte)
+
+			if (num > EmbeddedNullableMaxNumInByte || num < 0)
 			{
-				// number is not null
-				// number is not negative
-				// number is not embedded
+				// number is not embeddable 
 
-				WriteAsBigPositive();
-			}
-			else if (num < 0)
-			{
-				if (num == short.MinValue)
-				{
-					WriteAsBigPositive();
-					return;
-				}
-
-				num = (short)-num;
-				if (num > EmbeddedSignedNullableMaxNumInByte)
-				{
-					// number is not null
-					// number is negative
-					// number is not embedded
-
-					var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-
-					writer.Write((byte)(numLen | FlagNullableNegativeNum));
-					writer.Write(numBuff, 0, numLen);
-				}
-				else
-				{
-					// number is not null
-					// number is negative
-					// number is embedded
-
-					writer.Write((byte)(num.Value | FlagNullableNegativeEmbdeddedNum));
-				}
+				writer.Write(FlagNone);
+				WriteZigzag(writer, num.Value);
 			}
 			else
 			{
-				// number is not null
-				// number is not negative
-				// number is embedded
+				byte numByte = (byte)num;
 
-				writer.Write((byte)(num.Value | FlagEmbdedded));
+				// set the flag of inside
+				numByte = (byte)(numByte | FlagEmbedded);
+				writer.Write(numByte);
 			}
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteVarInt(BinaryWriter writer, ushort num)
 		{
-			if (num > EmbeddedUnsignedMaxNumInByte)
-			{
-				// number is not embedded
-
-				var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
-			}
-			else
-			{
-				// number is embedded
-
-				writer.Write((byte)(num | FlagEmbdedded));
-			}
+			WriteZigzag(writer, num);
 		}
 
 		/// <summary>
@@ -1100,107 +625,35 @@ namespace Salar.Bois.Serializers
 		{
 			if (num == null)
 			{
-				// number is null
-
-				writer.Write(FlagNullable);
+				// null flag
+				writer.Write(FlagIsNull);
+				return;
 			}
-			else if (num > EmbeddedUnsignedNullableMaxNumInByte)
+
+			if (num > EmbeddedNullableMaxNumInByte || num < 0)
 			{
-				// number is not null
-				// number is not negative
-				// number is not embedded
+				// number is not embeddable 
 
-				var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
+				writer.Write(FlagNone);
+				WriteZigzag(writer, num.Value);
 			}
 			else
 			{
-				// number is not null
-				// number is not negative
-				// number is embedded
+				byte numByte = (byte)num;
 
-				writer.Write((byte)(num.Value | FlagEmbdedded));
+				// set the flag of inside
+				numByte = (byte)(numByte | FlagEmbedded);
+				writer.Write(numByte);
 			}
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteVarInt(BinaryWriter writer, long num)
 		{
-			void WriteAsBigPositive()
-			{
-				var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
-			}
-
-			if (num > EmbeddedSignedMaxNumInByte)
-			{
-				// number is not negative
-				// number is not embedded
-
-				WriteAsBigPositive();
-			}
-			else if (num < 0)
-			{
-				if (num == long.MinValue)
-				{
-					WriteAsBigPositive();
-					return;
-				}
-
-				num = -num;
-				if (num > EmbeddedSignedMaxNumInByte)
-				{
-					// number is negative
-					// number is not embedded
-
-					var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-
-					writer.Write((byte)(numLen | FlagNonullNegativeNum));
-					writer.Write(numBuff, 0, numLen);
-				}
-				else
-				{
-					// number is negative
-					// number is embedded
-
-					writer.Write((byte)(num | FlagNonullNegativeNumEmbdedded));
-				}
-			}
-			else
-			{
-				// number is not negative
-				// number is embedded
-
-				writer.Write((byte)(num | FlagEmbdedded));
-			}
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		internal static void WriteVarInt(BinaryWriter writer, ulong num)
-		{
-			if (num > EmbeddedUnsignedMaxNumInByte)
-			{
-				// number is not embedded
-
-				var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
-			}
-			else
-			{
-				// number is embedded
-
-				writer.Write((byte)(num | FlagEmbdedded));
-			}
+			WriteZigzag(writer, num);
 		}
 
 		/// <summary>
@@ -1208,65 +661,37 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteVarInt(BinaryWriter writer, long? num)
 		{
-			void WriteAsBigPositive()
-			{
-				var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
-			}
-
 			if (num == null)
 			{
-				// number is null
-
-				writer.Write(FlagNullable);
+				// null flag
+				writer.Write(FlagIsNull);
+				return;
 			}
-			else if (num > EmbeddedSignedNullableMaxNumInByte)
+
+			if (num > EmbeddedNullableMaxNumInByte || num < 0)
 			{
-				// number is not null
-				// number is not negative
-				// number is not embedded
+				// number is not embeddable 
 
-				WriteAsBigPositive();
-			}
-			else if (num < 0)
-			{
-				if (num == long.MinValue)
-				{
-					WriteAsBigPositive();
-					return;
-				}
-
-				num = -num;
-				if (num > EmbeddedSignedNullableMaxNumInByte)
-				{
-					// number is not null
-					// number is negative
-					// number is not embedded
-
-					var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-
-					writer.Write((byte)(numLen | FlagNullableNegativeNum));
-					writer.Write(numBuff, 0, numLen);
-				}
-				else
-				{
-					// number is not null
-					// number is negative
-					// number is embedded
-
-					writer.Write((byte)(num.Value | FlagNullableNegativeEmbdeddedNum));
-				}
+				writer.Write(FlagNone);
+				WriteZigzag(writer, num.Value);
 			}
 			else
 			{
-				// number is not null
-				// number is not negative
-				// number is embedded
+				byte numByte = (byte)num;
 
-				writer.Write((byte)(num.Value | FlagEmbdedded));
+				// set the flag of inside
+				numByte = (byte)(numByte | FlagEmbedded);
+				writer.Write(numByte);
 			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static void WriteVarInt(BinaryWriter writer, ulong num)
+		{
+			WriteZigzag(writer, num);
 		}
 
 		/// <summary>
@@ -1276,31 +701,27 @@ namespace Salar.Bois.Serializers
 		{
 			if (num == null)
 			{
-				// number is null
-
-				writer.Write(FlagNullable);
+				// null flag
+				writer.Write(FlagIsNull);
+				return;
 			}
-			else if (num > EmbeddedUnsignedNullableMaxNumInByte)
+
+			if (num > EmbeddedNullableMaxNumInByte || num < 0)
 			{
-				// number is not null
-				// number is not negative
-				// number is not embedded
+				// number is not embeddable 
 
-				var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
-
-				writer.Write(numLen);
-				writer.Write(numBuff, 0, numLen);
+				writer.Write(FlagNone);
+				WriteZigzag(writer, num.Value);
 			}
 			else
 			{
-				// number is not null
-				// number is not negative
-				// number is embedded
+				byte numByte = (byte)num;
 
-				writer.Write((byte)(num.Value | FlagEmbdedded));
+				// set the flag of inside
+				numByte = (byte)(numByte | FlagEmbedded);
+				writer.Write(numByte);
 			}
 		}
-
 
 		/// <summary>
 		/// 
@@ -1309,26 +730,25 @@ namespace Salar.Bois.Serializers
 		{
 			if (num == null)
 			{
-				// number is null
-
-				writer.Write(FlagNullable);
+				// null flag
+				writer.Write(FlagIsNull);
+				return;
 			}
-			else if (num > EmbeddedUnsignedNullableMaxNumInByte)
-			{
-				// number is not null
-				// number is not negative
-				// number is not embedded
 
-				writer.Write((byte)1);
+			if (num > EmbeddedNullableMaxNumInByte || num < 0)
+			{
+				// number is not embeddable 
+
+				writer.Write(FlagNone);
 				writer.Write(num.Value);
 			}
 			else
 			{
-				// number is not null
-				// number is not negative
-				// number is embedded
+				byte numByte = (byte)num;
 
-				writer.Write((byte)(num.Value | FlagEmbdedded));
+				// set the flag of inside
+				numByte = (byte)(numByte | FlagEmbedded);
+				writer.Write(numByte);
 			}
 		}
 
@@ -1337,62 +757,27 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteVarInt(BinaryWriter writer, sbyte? num)
 		{
-			void WriteAsBigPositive()
-			{
-				writer.Write((byte)1);
-				writer.Write(num.Value);
-			}
-
 			if (num == null)
 			{
-				// number is null
-
-				writer.Write(FlagNullable);
+				// null flag
+				writer.Write(FlagIsNull);
+				return;
 			}
-			else if (num > EmbeddedSignedNullableMaxNumInByte)
+
+			if (num > EmbeddedNullableMaxNumInByte || num < 0)
 			{
-				// number is not null
-				// number is not negative
-				// number is not embedded
+				// number is not embeddable 
 
-				WriteAsBigPositive();
-			}
-			else if (num < 0)
-			{
-				if (num == sbyte.MinValue)
-				{
-					WriteAsBigPositive();
-					return;
-				}
-
-				num = (sbyte)-num;
-				if (num > EmbeddedSignedNullableMaxNumInByte)
-				{
-					// number is not null
-					// number is negative
-					// number is not embedded
-
-					byte numLen = 1;
-
-					writer.Write((byte)(numLen | FlagNullableNegativeNum));
-					writer.Write(num.Value);
-				}
-				else
-				{
-					// number is not null
-					// number is negative
-					// number is embedded
-
-					writer.Write((sbyte)(num.Value | FlagNullableNegativeEmbdeddedNum));
-				}
+				writer.Write(FlagNone);
+				writer.Write(num.Value);
 			}
 			else
 			{
-				// number is not null
-				// number is not negative
-				// number is embedded
+				byte numByte = (byte)num;
 
-				writer.Write((sbyte)(num.Value | FlagEmbdedded));
+				// set the flag of inside
+				numByte = (byte)(numByte | FlagEmbedded);
+				writer.Write(numByte);
 			}
 		}
 
@@ -1404,11 +789,11 @@ namespace Salar.Bois.Serializers
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen, out var position);
 			var firstByte = numBuff[position];
 
-			if (numLen == 1 && firstByte <= EmbeddedUnsignedMaxNumInByte)
+			if (numLen == 1 && firstByte <= EmbeddedMaxNumInByte)
 			{
 				// number is embedded
 
-				writer.Write((byte)(firstByte | FlagEmbdedded));
+				writer.Write((byte)(firstByte | FlagEmbedded));
 			}
 			else
 			{
@@ -1427,18 +812,18 @@ namespace Salar.Bois.Serializers
 			{
 				// number is null
 
-				writer.Write(FlagNullable);
+				writer.Write(FlagIsNull);
 				return;
 			}
 
 			var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen, out var position);
 			var firstByte = numBuff[position];
 
-			if (numLen == 1 && firstByte <= EmbeddedUnsignedNullableMaxNumInByte)
+			if (numLen == 1 && firstByte <= EmbeddedNullableMaxNumInByte)
 			{
 				// number is embedded
 
-				writer.Write((byte)(firstByte | FlagEmbdedded));
+				writer.Write((byte)(firstByte | FlagEmbedded));
 			}
 			else
 			{
@@ -1456,11 +841,11 @@ namespace Salar.Bois.Serializers
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen, out var position);
 			var firstByte = numBuff[position];
 
-			if (numLen == 1 && firstByte <= EmbeddedUnsignedMaxNumInByte)
+			if (numLen == 1 && firstByte <= EmbeddedMaxNumInByte)
 			{
 				// number is embedded
 
-				writer.Write((byte)(firstByte | FlagEmbdedded));
+				writer.Write((byte)(firstByte | FlagEmbedded));
 			}
 			else
 			{
@@ -1479,18 +864,18 @@ namespace Salar.Bois.Serializers
 			{
 				// number is null
 
-				writer.Write(FlagNullable);
+				writer.Write(FlagIsNull);
 				return;
 			}
 
 			var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen, out var position);
 			var firstByte = numBuff[position];
 
-			if (numLen == 1 && firstByte <= EmbeddedUnsignedNullableMaxNumInByte)
+			if (numLen == 1 && firstByte <= EmbeddedNullableMaxNumInByte)
 			{
 				// number is embedded
 
-				writer.Write((byte)(firstByte | FlagEmbdedded));
+				writer.Write((byte)(firstByte | FlagEmbedded));
 			}
 			else
 			{
@@ -1509,11 +894,11 @@ namespace Salar.Bois.Serializers
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
 			var firstByte = numBuff[0];
 
-			if (numLen == 1 && firstByte <= EmbeddedUnsignedMaxNumInByte)
+			if (numLen == 1 && firstByte <= EmbeddedMaxNumInByte)
 			{
 				// number is embedded
 
-				writer.Write((byte)(firstByte | FlagEmbdedded));
+				writer.Write((byte)(firstByte | FlagEmbedded));
 			}
 			else
 			{
@@ -1532,18 +917,18 @@ namespace Salar.Bois.Serializers
 			{
 				// number is null
 
-				writer.Write(FlagNullable);
+				writer.Write(FlagIsNull);
 				return;
 			}
 
 			var numBuff = NumericSerializers.ConvertToVarBinary(num.Value, out var numLen);
 			var firstByte = numBuff[0];
 
-			if (numLen == 1 && firstByte <= EmbeddedUnsignedNullableMaxNumInByte)
+			if (numLen == 1 && firstByte <= EmbeddedNullableMaxNumInByte)
 			{
 				// number is embedded
 
-				writer.Write((byte)(firstByte | FlagEmbdedded));
+				writer.Write((byte)(firstByte | FlagEmbedded));
 			}
 			else
 			{
@@ -1552,6 +937,195 @@ namespace Salar.Bois.Serializers
 				writer.Write(numBuff, 0, numLen);
 			}
 		}
+		#endregion
+
+		#region Binary Converters & Writers
+
+		private static short ReadInt16Zigzag(BinaryReader reader)
+		{
+			var currentByte = (uint)reader.ReadByte();
+			byte read = 1;
+			uint result = currentByte & 0x7FU;
+			int shift = 7;
+			while ((currentByte & 0x80) != 0)
+			{
+				currentByte = (uint)reader.ReadByte();
+				read++;
+				result |= (currentByte & 0x7FU) << shift;
+				shift += 7;
+				if (read > 5)
+				{
+					throw new Exception("Invalid integer value in the input stream.");
+				}
+			}
+			return (short)((-(result & 1)) ^ ((result >> 1) & (ushort)0x7FFFU));
+		}
+
+		private static ushort ReadUInt16Zigzag(BinaryReader reader)
+		{
+			var currentByte = (ushort)reader.ReadByte();
+			byte read = 1;
+			ushort result = (ushort)(currentByte & 0x7FU);
+			int shift = 7;
+			while ((currentByte & 0x80) != 0)
+			{
+				currentByte = (ushort)reader.ReadByte();
+				read++;
+				result |= (ushort)((currentByte & 0x7FU) << shift);
+				shift += 7;
+				if (read > 5)
+				{
+					throw new Exception("Invalid integer value in the input stream.");
+				}
+			}
+			return result;
+		}
+
+		private static int ReadInt32Zigzag(BinaryReader reader)
+		{
+			var currentByte = (uint)reader.ReadByte();
+			byte read = 1;
+			uint result = currentByte & 0x7FU;
+			int shift = 7;
+			while ((currentByte & 0x80) != 0)
+			{
+				currentByte = (uint)reader.ReadByte();
+				read++;
+				result |= (currentByte & 0x7FU) << shift;
+				shift += 7;
+				if (read > 5)
+				{
+					throw new Exception("Invalid integer value in the input stream.");
+				}
+			}
+			return (int)((-(result & 1)) ^ ((result >> 1) & 0x7FFFFFFFU));
+		}
+
+		private static uint ReadUInt32Zigzag(BinaryReader reader)
+		{
+			var currentByte = (uint)reader.ReadByte();
+			byte read = 1;
+			uint result = currentByte & 0x7FU;
+			int shift = 7;
+			while ((currentByte & 0x80) != 0)
+			{
+				currentByte = (uint)reader.ReadByte();
+				read++;
+				result |= (currentByte & 0x7FU) << shift;
+				shift += 7;
+				if (read > 5)
+				{
+					throw new Exception("Invalid integer value in the input stream.");
+				}
+			}
+			return result;
+		}
+
+		private static long ReadInt64Zigzag(BinaryReader reader)
+		{
+			var value = (uint)reader.ReadByte();
+			byte read = 1;
+			ulong result = value & 0x7FUL;
+			int shift = 7;
+			while ((value & 0x80) != 0)
+			{
+				value = (uint)reader.ReadByte();
+				read++;
+				result |= (value & 0x7FUL) << shift;
+				shift += 7;
+				if (read > 10)
+				{
+					throw new Exception("Invalid integer long in the input stream.");
+				}
+			}
+			var tmp = unchecked((long)result);
+			return (-(tmp & 0x1L)) ^ ((tmp >> 1) & 0x7FFFFFFFFFFFFFFFL);
+		}
+
+		private static ulong ReadUInt64Zigzag(BinaryReader reader)
+		{
+			var value = (uint)reader.ReadByte();
+			byte read = 1;
+			ulong result = value & 0x7FUL;
+			int shift = 7;
+			while ((value & 0x80) != 0)
+			{
+				value = (uint)reader.ReadByte();
+				read++;
+				result |= (value & 0x7FUL) << shift;
+				shift += 7;
+				if (read > 10)
+				{
+					throw new Exception("Invalid integer long in the input stream.");
+				}
+			}
+			return result;
+		}
+
+
+		private static void WriteZigzag(BinaryWriter writer, long num)
+		{
+			var zigZagEncoded = unchecked((ulong)((num << 1) ^ (num >> 63)));
+			while ((zigZagEncoded & ~0x7FUL) != 0)
+			{
+				writer.Write((byte)((zigZagEncoded | 0x80) & 0xFF));
+				zigZagEncoded >>= 7;
+			}
+			writer.Write((byte)zigZagEncoded);
+		}
+
+		private static void WriteZigzag(BinaryWriter writer, ulong num)
+		{
+			while ((num & ~0x7FUL) != 0)
+			{
+				writer.Write((byte)((num | 0x80) & 0xFF));
+				num >>= 7;
+			}
+			writer.Write((byte)num);
+		}
+
+		private static void WriteZigzag(BinaryWriter writer, int num)
+		{
+			var zigZagEncoded = unchecked((uint)((num << 1) ^ (num >> 31)));
+			while ((zigZagEncoded & ~0x7F) != 0)
+			{
+				writer.Write((byte)((zigZagEncoded | 0x80) & 0xFF));
+				zigZagEncoded >>= 7;
+			}
+			writer.Write((byte)zigZagEncoded);
+		}
+
+		private static void WriteZigzag(BinaryWriter writer, uint num)
+		{
+			while ((num & ~0x7F) != 0)
+			{
+				writer.Write((byte)((num | 0x80) & 0xFF));
+				num >>= 7;
+			}
+			writer.Write((byte)num);
+		}
+
+		private static void WriteZigzag(BinaryWriter writer, short num)
+		{
+			var zigZagEncoded = unchecked((ushort)((num << 1) ^ (num >> 15)));
+			while ((zigZagEncoded & ~0x7F) != 0)
+			{
+				writer.Write((byte)((zigZagEncoded | 0x80) & 0xFF));
+				zigZagEncoded >>= 7;
+			}
+			writer.Write((byte)zigZagEncoded);
+		}
+
+		private static void WriteZigzag(BinaryWriter writer, ushort num)
+		{
+			while ((num & ~0x7F) != 0)
+			{
+				writer.Write((byte)((num | 0x80) & 0xFF));
+				num >>= 7;
+			}
+			writer.Write((byte)num);
+		}
+
 		#endregion
 
 		#region Binary Converters
@@ -1727,62 +1301,102 @@ namespace Salar.Bois.Serializers
 			}
 		}
 
-		private static byte[] ConvertToVarBinary(int value, out byte length)
+		/// <summary>
+		/// TODO: is always the result 4 bytes?
+		/// </summary>
+		private static byte[] ConvertToVarBinaryZigzag(int value, out byte length)
 		{
-			if (value < 0)
+			var buff = SharedArray.Get();
+			length = 0;
+
+			var zigZagEncoded = unchecked((uint)((value << 1) ^ (value >> 31)));
+
+			while ((zigZagEncoded & ~0x7F) != 0)
 			{
-				length = 4;
-				var buff = SharedArray.Get();
-				buff[0] = (byte)value;
-				buff[1] = unchecked((byte)(value >> 8));
-				buff[2] = unchecked((byte)(value >> 16));
-				buff[3] = unchecked((byte)(value >> 24));
-				return buff;
+				buff[length++] = (byte)((zigZagEncoded | 0x80) & 0xFF);
+				zigZagEncoded >>= 7;
 			}
-			else
-			{
-				var buff = SharedArray.Get();
-				SharedArray.ClearArray4();
+			buff[length++] = (byte)zigZagEncoded;
 
-				var num1 = (byte)value;
-				var num2 = unchecked((byte)(value >> 8));
-				var num3 = unchecked((byte)(value >> 16));
-				var num4 = unchecked((byte)(value >> 24));
-
-
-				buff[0] = num1;
-
-				if (num2 > 0)
-				{
-					buff[1] = num2;
-				}
-				else if (num3 == 0 && num4 == 0)
-				{
-					length = 1;
-					return buff;
-				}
-
-				if (num3 > 0)
-				{
-					buff[2] = num3;
-				}
-				else if (num4 == 0)
-				{
-					length = 2;
-					return buff;
-				}
-
-				if (num4 > 0)
-					buff[3] = num4;
-				else
-				{
-					length = 3;
-					return buff;
-				}
-				length = 4;
-				return buff;
-			}
+			return buff;
 		}
+
+		/// <summary>
+		/// TODO: is always the result 4 bytes?
+		/// </summary>
+		private static byte[] ConvertToVarBinaryZigzag(long value, out byte length)
+		{
+			var buff = SharedArray.Get();
+			length = 0;
+
+			var zigZagEncoded = unchecked((ulong)((value << 1) ^ (value >> 63)));
+
+			while ((zigZagEncoded & ~0x7FUL) != 0)
+			{
+				buff[length++] = (byte)((zigZagEncoded | 0x80) & 0xFF);
+				zigZagEncoded >>= 7;
+			}
+			buff[length++] = (byte)zigZagEncoded;
+
+			return buff;
+		}
+
+		//private static byte[] ConvertToVarBinary(int value, out byte length)
+		//{
+		//	if (value < 0)
+		//	{
+		//		length = 4;
+		//		var buff = SharedArray.Get();
+		//		buff[0] = (byte)value;
+		//		buff[1] = unchecked((byte)(value >> 8));
+		//		buff[2] = unchecked((byte)(value >> 16));
+		//		buff[3] = unchecked((byte)(value >> 24));
+		//		return buff;
+		//	}
+		//	else
+		//	{
+		//		var buff = SharedArray.Get();
+		//		SharedArray.ClearArray4();
+
+		//		var num1 = (byte)value;
+		//		var num2 = unchecked((byte)(value >> 8));
+		//		var num3 = unchecked((byte)(value >> 16));
+		//		var num4 = unchecked((byte)(value >> 24));
+
+
+		//		buff[0] = num1;
+
+		//		if (num2 > 0)
+		//		{
+		//			buff[1] = num2;
+		//		}
+		//		else if (num3 == 0 && num4 == 0)
+		//		{
+		//			length = 1;
+		//			return buff;
+		//		}
+
+		//		if (num3 > 0)
+		//		{
+		//			buff[2] = num3;
+		//		}
+		//		else if (num4 == 0)
+		//		{
+		//			length = 2;
+		//			return buff;
+		//		}
+
+		//		if (num4 > 0)
+		//			buff[3] = num4;
+		//		else
+		//		{
+		//			length = 3;
+		//			return buff;
+		//		}
+		//		length = 4;
+		//		return buff;
+		//	}
+		//}
 
 		private static byte[] ConvertToVarBinary(uint value, out byte length)
 		{
@@ -1834,32 +1448,32 @@ namespace Salar.Bois.Serializers
 			return buff;
 		}
 
-		private static byte[] ConvertToVarBinary(long value, out byte length)
-		{
-			var buff = SharedArray.Get();
-			buff[0] = (byte)value;
-			buff[1] = unchecked((byte)(value >> 8));
-			buff[2] = unchecked((byte)(value >> 16));
-			buff[3] = unchecked((byte)(value >> 24));
-			buff[4] = unchecked((byte)(value >> 32));
-			buff[5] = unchecked((byte)(value >> 40));
-			buff[6] = unchecked((byte)(value >> 48));
-			buff[7] = unchecked((byte)(value >> 56));
+		//private static byte[] ConvertToVarBinary(long value, out byte length)
+		//{
+		//	var buff = SharedArray.Get();
+		//	buff[0] = (byte)value;
+		//	buff[1] = unchecked((byte)(value >> 8));
+		//	buff[2] = unchecked((byte)(value >> 16));
+		//	buff[3] = unchecked((byte)(value >> 24));
+		//	buff[4] = unchecked((byte)(value >> 32));
+		//	buff[5] = unchecked((byte)(value >> 40));
+		//	buff[6] = unchecked((byte)(value >> 48));
+		//	buff[7] = unchecked((byte)(value >> 56));
 
-			for (int i = 8 - 1; i >= 0; i--)
-			{
-				if (buff[i] > 0)
-				{
-					length = (byte)(i + 1);
-					//if (length != 8)
-					//	Array.Resize(ref buff, length);
-					return buff;
-				}
-			}
+		//	for (int i = 8 - 1; i >= 0; i--)
+		//	{
+		//		if (buff[i] > 0)
+		//		{
+		//			length = (byte)(i + 1);
+		//			//if (length != 8)
+		//			//	Array.Resize(ref buff, length);
+		//			return buff;
+		//		}
+		//	}
 
-			length = 1;
-			return new byte[] { 0 };
-		}
+		//	length = 1;
+		//	return new byte[] { 0 };
+		//}
 
 		private static byte[] ConvertToVarBinary(ulong value, out byte length)
 		{

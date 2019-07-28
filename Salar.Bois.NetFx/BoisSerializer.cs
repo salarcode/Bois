@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Microsoft.IO;
 
 /* 
  * Salar BOIS (Binary Object Indexed Serialization)
@@ -128,7 +129,6 @@ namespace Salar.Bois
 				PrimitiveWriter.WriteRootBasicType(writer, obj, type, typeInfo, Encoding);
 			}
 		}
-
 
 		/// <summary>
 		/// Deserializing binary data to a new instance.

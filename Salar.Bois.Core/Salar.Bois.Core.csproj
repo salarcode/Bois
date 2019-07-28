@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>Salar.Bois.Core</AssemblyName>
     <RootNamespace>Salar.Bois</RootNamespace>
     <Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-    <Version>3.0.0.2</Version>
+    <Version>3.0.0.3</Version>
     <Authors>Salar Khalilzadeh</Authors>
     <Company>Salar Khalilzadeh</Company>
     <Product>Salar.Bois</Product>

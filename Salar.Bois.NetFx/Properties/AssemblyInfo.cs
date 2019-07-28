@@ -11,8 +11,8 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("MPLv2 © Salar Khalilzadeh 2019")]
 [assembly: AssemblyTrademark("")]
 
-[assembly: AssemblyVersion("3.0.0.2")]
-[assembly: AssemblyFileVersion("3.0.0.2")]
+[assembly: AssemblyVersion("3.0.0.3")]
+[assembly: AssemblyFileVersion("3.0.0.3")]
 #if DEBUG
 #endif
 [assembly: InternalsVisibleTo("Salar.Bois.NetFx.Tests")]

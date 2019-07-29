@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using Microsoft.IO;
 
 /* 
  * Salar BOIS (Binary Object Indexed Serialization)

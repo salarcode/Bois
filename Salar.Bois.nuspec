@@ -19,7 +19,7 @@
 			* Supported more built in .NET types.
 			* The minimum requirement is .NET Framework 4.5 and .NET Core 2.0
 		</releaseNotes>
-		<copyright>Copyright 2018</copyright>
+		<copyright>Copyright 2019</copyright>
 		<tags>Binary Serializer Serialization Serialize BOIS JSON BON</tags>
 		<dependencies></dependencies>
 	</metadata>

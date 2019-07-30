@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
+		<TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
 		<AssemblyName>Salar.Bois</AssemblyName>
 		<RootNamespace>Salar.Bois</RootNamespace>
 		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
@@ -9,13 +9,21 @@
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
-		<Description>Salar's Serializer for Binary Object Indexed Serialization</Description>
+		<Description>The most compact, extermly fast binary serializer for .NET Code and .NET Framework.
+More info: https://github.com/salarcode/Bois</Description>
 		<Copyright>MPLv2 © Salar Khalilzadeh 2019</Copyright>
 		<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
-		<PackageLicenseUrl>https://github.com/salarcode/Bois/blob/master/LICENSE.md</PackageLicenseUrl>
+		<PackageLicenseUrl></PackageLicenseUrl>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageReleaseNotes>+ Totaly rewritten to decreate payload size up to 30% and decrease the serialization/deserialization time by 100%
++ The specs are changed to introduce more size compression which is the reaseon this version not compatible with previous versions.
+* Supported more built in .NET types.
+* The minimum requirement is .NET Framework 4.5 and .NET Core 2.0</PackageReleaseNotes>
+		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|netcoreapp2.0|AnyCPU'">
@@ -25,5 +33,20 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|net45|AnyCPU'">
 	  <DefineConstants>TRACE;EmitAssemblyOut</DefineConstants>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
+	  <DocumentationFile>.\bin\Salar.Bois.xml</DocumentationFile>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">
+	  <DocumentationFile>.\bin\Salar.Bois.xml</DocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\LICENSE.md">
+	    <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	  </None>
+	</ItemGroup>
 
 </Project>

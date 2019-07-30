@@ -4,6 +4,9 @@ using K4os.Compression.LZ4;
 
 namespace Salar.Bois.LZ4
 {
+	/// <summary>
+	/// LZ4 compression wrapper for Salar BOIS
+	/// </summary>
 	public class BoisLz4Serializer
 	{
 		private readonly BoisSerializer _serializer;
@@ -28,11 +31,21 @@ namespace Salar.Bois.LZ4
 			BoisSerializer.ClearCache();
 		}
 
+		/// <summary>
+		/// Serializing an object to binary bois format, then compresses it using LZ4 pickle self-contained format. Compression level is set to FAST.
+		/// </summary>
 		public void Pickle<T>(T obj, Stream output)
 		{
 			Pickle(obj, output, LZ4Level.L00_FAST);
 		}
 
+		/// <summary>
+		/// Serializing an object to binary bois format, then compresses it using LZ4 pickle self-contained format.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="obj"></param>
+		/// <param name="output"></param>
+		/// <param name="lz4Level">Compression level</param>
 		public void Pickle<T>(T obj, Stream output, LZ4Level lz4Level)
 		{
 			using (var mem = new MemoryStream())
@@ -47,6 +60,12 @@ namespace Salar.Bois.LZ4
 			}
 		}
 
+		/// <summary>
+		/// Deserializing binary data to a new instance. Decompression is using LZ4 pickle self-contained format.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="objectData">Compressed data expected</param>
+		/// <returns></returns>
 		public T Unpickle<T>(Stream objectData)
 		{
 			int length;

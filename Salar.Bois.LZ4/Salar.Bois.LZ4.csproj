@@ -2,8 +2,31 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
+	<AssemblyName>Salar.Bois.LZ4</AssemblyName>
+	<RootNamespace>Salar.Bois.LZ4</RootNamespace>
+	<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
+	<Version>3.0.0.3</Version>
+	<Authors>Salar Khalilzadeh</Authors>
+	<Company>Salar Khalilzadeh</Company>
+	<Product>Salar.Bois</Product>
+	<Description>Salar's Serializer for Binary Object Indexed Serialization, LZ4 wrapper</Description>
+	<Copyright>MPLv2 © Salar Khalilzadeh 2019</Copyright>
+	<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
+	<PackageLicenseUrl></PackageLicenseUrl>
+	<SignAssembly>true</SignAssembly>
+	<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
+	<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+	<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
+    <DocumentationFile>.\bin\Salar.Bois.LZ4.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">
+    <DocumentationFile>.\bin\Salar.Bois.LZ4.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +35,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Salar.Bois\Salar.Bois.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

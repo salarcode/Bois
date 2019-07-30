@@ -7,23 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Salar.Bois.NetFx\BoisContractAttribute.cs" Link="BoisContractAttribute.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\BoisMemberAttribute.cs" Link="BoisMemberAttribute.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\BoisSerializer.cs" Link="BoisSerializer.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Serializers\EmitGenerator.cs" Link="Serializers\EmitGenerator.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Serializers\NumericSerializers.cs" Link="Serializers\NumericSerializers.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Serializers\PrimitiveReader.cs" Link="Serializers\PrimitiveReader.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Serializers\PrimitiveWriter.cs" Link="Serializers\PrimitiveWriter.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Types\BoisBasicTypeInfo.cs" Link="Types\BoisBasicTypeInfo.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Types\BoisComplexTypeInfo.cs" Link="Types\BoisComplexTypeInfo.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Types\BoisComputedTypeHashtable.cs" Link="Types\BoisComputedTypeHashtable.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Types\BoisComputedTypeInfo.cs" Link="Types\BoisComputedTypeInfo.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Types\BoisTypeCache.cs" Link="Types\BoisTypeCache.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Types\BoisTypeCompiler.cs" Link="Types\BoisTypeCompiler.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Types\EnBasicKnownType.cs" Link="Types\EnBasicKnownType.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Types\EnComplexKnownType.cs" Link="Types\EnComplexKnownType.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Types\ReflectionHelper.cs" Link="Types\ReflectionHelper.cs" />
-    <Compile Include="..\Salar.Bois.NetFx\Types\SharedVariables.cs" Link="Types\SharedVariables.cs" />
+    <Compile Include="..\Salar.Bois\BoisContractAttribute.cs" Link="BoisContractAttribute.cs" />
+    <Compile Include="..\Salar.Bois\BoisMemberAttribute.cs" Link="BoisMemberAttribute.cs" />
+    <Compile Include="..\Salar.Bois\BoisSerializer.cs" Link="BoisSerializer.cs" />
+    <Compile Include="..\Salar.Bois\Serializers\EmitGenerator.cs" Link="Serializers\EmitGenerator.cs" />
+    <Compile Include="..\Salar.Bois\Serializers\NumericSerializers.cs" Link="Serializers\NumericSerializers.cs" />
+    <Compile Include="..\Salar.Bois\Serializers\PrimitiveReader.cs" Link="Serializers\PrimitiveReader.cs" />
+    <Compile Include="..\Salar.Bois\Serializers\PrimitiveWriter.cs" Link="Serializers\PrimitiveWriter.cs" />
+    <Compile Include="..\Salar.Bois\Types\BoisBasicTypeInfo.cs" Link="Types\BoisBasicTypeInfo.cs" />
+    <Compile Include="..\Salar.Bois\Types\BoisComplexTypeInfo.cs" Link="Types\BoisComplexTypeInfo.cs" />
+    <Compile Include="..\Salar.Bois\Types\BoisComputedTypeHashtable.cs" Link="Types\BoisComputedTypeHashtable.cs" />
+    <Compile Include="..\Salar.Bois\Types\BoisComputedTypeInfo.cs" Link="Types\BoisComputedTypeInfo.cs" />
+    <Compile Include="..\Salar.Bois\Types\BoisTypeCache.cs" Link="Types\BoisTypeCache.cs" />
+    <Compile Include="..\Salar.Bois\Types\BoisTypeCompiler.cs" Link="Types\BoisTypeCompiler.cs" />
+    <Compile Include="..\Salar.Bois\Types\EnBasicKnownType.cs" Link="Types\EnBasicKnownType.cs" />
+    <Compile Include="..\Salar.Bois\Types\EnComplexKnownType.cs" Link="Types\EnComplexKnownType.cs" />
+    <Compile Include="..\Salar.Bois\Types\ReflectionHelper.cs" Link="Types\ReflectionHelper.cs" />
+    <Compile Include="..\Salar.Bois\Types\SharedVariables.cs" Link="Types\SharedVariables.cs" />
   </ItemGroup>
 
   <ItemGroup>

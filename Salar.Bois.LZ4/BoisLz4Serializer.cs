@@ -4,11 +4,11 @@ using K4os.Compression.LZ4;
 
 namespace Salar.Bois.LZ4
 {
-	public class Lz4BoisSerializer
+	public class BoisLz4Serializer
 	{
 		private readonly BoisSerializer _serializer;
 
-		public Lz4BoisSerializer()
+		public BoisLz4Serializer()
 		{
 			_serializer = new BoisSerializer();
 		}

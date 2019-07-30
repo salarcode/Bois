@@ -105,8 +105,8 @@ Nothing special is really required. Just these small easy rules.
 * Collections/Lists should be generic and implement one of ICollection<>, IList<> or IDictionary<>
 
 ## Compression
-The `BoisLz4Serializer` in a seperate package `Salar.Bois.LZ4` provided for anyone looking for more compact serialization. Just create a new instance of `BoisLz4Serializer` and to serialize and compress the objects by calling `Pickle` and to deserialize and uncompress call `Unpickle`.
-Please note that `BoisLz4Serializer` for now is implemented as a wrapper around [LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4).
+The `BoisLz4Serializer` class is in a seperate package called `Salar.Bois.LZ4`. It is provided for anyone looking for more compact serialization. To use it just create a new instance of `BoisLz4Serializer` and to serialize and compress the objects call `Pickle` and to deserialize and uncompress call `Unpickle`.
+Please note that `BoisLz4Serializer` -for now- is implemented as a wrapper around [LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4).
 
 
 ## Bois Format

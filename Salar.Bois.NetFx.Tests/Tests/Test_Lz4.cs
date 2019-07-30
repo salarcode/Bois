@@ -21,12 +21,11 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			using (var mem = new MemoryStream())
 			{
 				var boisLz4Serializer = new BoisLz4Serializer();
-				boisLz4Serializer.Serialize(data, mem);
+				boisLz4Serializer.Pickle(data, mem);
 
 				mem.Seek(0, SeekOrigin.Begin);
-				boisLz4Serializer.Deserialize<TestObjectGeneralNumbers>(mem);
+				boisLz4Serializer.Unpickle<TestObjectGeneralNumbers>(mem);
 			}
 		}
-
 	}
 }

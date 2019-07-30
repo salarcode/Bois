@@ -28,12 +28,12 @@ namespace Salar.Bois.LZ4
 			BoisSerializer.ClearCache();
 		}
 
-		public void Serialize<T>(T obj, Stream output)
+		public void Pickle<T>(T obj, Stream output)
 		{
-			Serialize(obj, output, LZ4Level.L00_FAST);
+			Pickle(obj, output, LZ4Level.L00_FAST);
 		}
 
-		public void Serialize<T>(T obj, Stream output, LZ4Level lz4Level)
+		public void Pickle<T>(T obj, Stream output, LZ4Level lz4Level)
 		{
 			using (var mem = new MemoryStream())
 			{
@@ -47,13 +47,24 @@ namespace Salar.Bois.LZ4
 			}
 		}
 
-		public T Deserialize<T>(Stream objectData)
+		public T Unpickle<T>(Stream objectData)
 		{
+			int length;
+			int offset = 0;
 			byte[] compressedBuff = null;
 			MemoryStream mem;
 			using (mem = new MemoryStream())
 			{
 				if (objectData is MemoryStream outMem)
+				{
+#if NETCOREAPP || NETSTANDARD2_1
+					if (outMem.TryGetBuffer(out var arraySegment))
+					{
+						compressedBuff = arraySegment.Array;
+						length = arraySegment.Count;
+						offset = arraySegment.Offset;
+					}
+#else
 					try
 					{
 						compressedBuff = outMem.GetBuffer();
@@ -62,20 +73,22 @@ namespace Salar.Bois.LZ4
 					{
 						// eat the error
 					}
+#endif
+				}
 
-				int length;
 				if (compressedBuff == null)
 				{
 					objectData.CopyTo(mem);
 					compressedBuff = mem.GetBuffer();
 					length = (int)mem.Length;
+					offset = (int)mem.Position;
 				}
 				else
 				{
 					length = compressedBuff.Length;
 				}
 
-				var serializedBuff = LZ4Pickler.Unpickle(compressedBuff, 0, length);
+				var serializedBuff = LZ4Pickler.Unpickle(compressedBuff, offset, length);
 
 				mem.Dispose();
 				mem = new MemoryStream(serializedBuff);

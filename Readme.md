@@ -45,6 +45,7 @@ public class Project
 {
 	public int ID { get; set; }
 	public string Name { get; set; }
+	public string Description { get; set; }
 	public string ProjectUrl { get; set; }
 	public Version Version { get; set; }
 }
@@ -66,7 +67,7 @@ class Program
 
 		var boisSerializer = new BoisSerializer();
 
-		using (var file = new FileStream("output.data", FileMode.CreateNew))
+		using (var file = new FileStream("output.data", FileMode.Create))
 		{
 			boisSerializer.Serialize(projectInstance, file);
 		}
@@ -78,7 +79,7 @@ class Program
 
 		var boisLz4Serializer = new BoisLz4Serializer();
 
-		using (var file = new FileStream("output-compressed.data", FileMode.CreateNew))
+		using (var file = new FileStream("output-compressed.data", FileMode.Create))
 		{
 			boisLz4Serializer.Pickle(projectInstance, file);
 		}

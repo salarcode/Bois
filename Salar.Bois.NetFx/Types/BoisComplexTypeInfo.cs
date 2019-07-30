@@ -19,12 +19,6 @@ namespace Salar.Bois.Types
 		public bool IsNullable;
 		public bool IsGeneric;
 		
-		//public bool IsStringDictionary;
-		//public bool IsDictionary;
-		//public bool IsCollection;
-		//public bool IsArray;
-		////////public bool IsSupportedPrimitive;
-
 		/// <summary>
 		/// IsValueType
 		/// </summary>

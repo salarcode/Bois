@@ -41,66 +41,6 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		private const byte MaskEmbeddedNullable = 0b0_0_1_1_1_1_1_1;
 
-		///// <summary>
-		///// 0011 1111 = 63
-		///// </summary>
-		//private const byte EmbeddedSignedMaxNumInByte = 0b0_0_1_1_1_1_1_1;// 63;
-
-		///// <summary>
-		///// 0100 0000 = 64
-		///// </summary>
-		//private const byte FlagNonullNegativeNum = 0b0_1_0_0_0_0_0_0;
-
-		///// <summary>
-		///// 191
-		///// </summary>
-		//private const byte FlagNonullNegativeMask = 0b1_0_1_1_1_1_1_1;
-
-		///// <summary>
-		///// 192
-		///// </summary>
-		//private const byte FlagNonullNegativeNumEmbedded = 0b1_1_0_0_0_0_0_0;
-
-		///// <summary>
-		///// 63
-		///// </summary>
-		//private const byte FlagNonullNegativeNumEmbeddedMask = 0b0_0_1_1_1_1_1_1;
-
-		///// <summary>
-		///// 32
-		///// </summary>
-		//private const byte FlagNullableNegativeNum = 0b0_0_1_0_0_0_0_0;
-
-		///// <summary>
-		///// 223
-		///// </summary>
-		//private const byte FlagNullableNegativeMask = 0b1_1_0_1_1_1_1_1;
-
-		///// <summary>
-		///// 160
-		///// </summary>
-		//private const byte FlagNullableNegativeEmbeddedNum = 0b1_0_1_0_0_0_0_0;
-
-		///// <summary>
-		///// 95
-		///// </summary>
-		//private const byte FlagNullableNegativeEmbeddedMask = 0b0_1_0_1_1_1_1_1;
-
-		///// <summary>
-		///// 127
-		///// </summary>
-		//private const byte EmbeddedUnsignedMaxNumInByte = 0b0_1_1_1_1_1_1_1;
-
-		/////// <summary>
-		/////// 31
-		/////// </summary>
-		////private const byte EmbeddedSignedNullableMaxNumInByte = 0b0_0_0_1_1_1_1_1;
-
-		///// <summary>
-		///// 63
-		///// </summary>
-		//private const byte EmbeddedUnsignedNullableMaxNumInByte = 0b0_0_1_1_1_1_1_1;
-
 		#region Array Pool
 
 		private static class SharedArray
@@ -1340,63 +1280,6 @@ namespace Salar.Bois.Serializers
 
 			return buff;
 		}
-
-		//private static byte[] ConvertToVarBinary(int value, out byte length)
-		//{
-		//	if (value < 0)
-		//	{
-		//		length = 4;
-		//		var buff = SharedArray.Get();
-		//		buff[0] = (byte)value;
-		//		buff[1] = unchecked((byte)(value >> 8));
-		//		buff[2] = unchecked((byte)(value >> 16));
-		//		buff[3] = unchecked((byte)(value >> 24));
-		//		return buff;
-		//	}
-		//	else
-		//	{
-		//		var buff = SharedArray.Get();
-		//		SharedArray.ClearArray4();
-
-		//		var num1 = (byte)value;
-		//		var num2 = unchecked((byte)(value >> 8));
-		//		var num3 = unchecked((byte)(value >> 16));
-		//		var num4 = unchecked((byte)(value >> 24));
-
-
-		//		buff[0] = num1;
-
-		//		if (num2 > 0)
-		//		{
-		//			buff[1] = num2;
-		//		}
-		//		else if (num3 == 0 && num4 == 0)
-		//		{
-		//			length = 1;
-		//			return buff;
-		//		}
-
-		//		if (num3 > 0)
-		//		{
-		//			buff[2] = num3;
-		//		}
-		//		else if (num4 == 0)
-		//		{
-		//			length = 2;
-		//			return buff;
-		//		}
-
-		//		if (num4 > 0)
-		//			buff[3] = num4;
-		//		else
-		//		{
-		//			length = 3;
-		//			return buff;
-		//		}
-		//		length = 4;
-		//		return buff;
-		//	}
-		//}
 
 		private static byte[] ConvertToVarBinary(uint value, out byte length)
 		{

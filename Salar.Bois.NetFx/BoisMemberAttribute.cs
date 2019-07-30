@@ -10,7 +10,7 @@
 namespace Salar.Bois
 {
 	/// <summary>
-	/// Specifies a field or peroperty settings for serialization.
+	/// Specifies a field or property settings for serialization.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 	public class BoisMemberAttribute : Attribute
@@ -26,7 +26,7 @@ namespace Salar.Bois
 		public bool Included { get; private set; }
 
 		/// <summary>
-		/// Specifies a field or peroperty settings for serialization.
+		/// Specifies a field or property settings for serialization.
 		/// </summary>
 		/// <param name="index">In which order should this member be serialized.</param>
 		/// <param name="included">Specifies that should this member be included in serialization.</param>
@@ -37,14 +37,14 @@ namespace Salar.Bois
 		}
 
 		/// <summary>
-		/// Specifies a field or peroperty settings for serialization.
+		/// Specifies a field or property settings for serialization.
 		/// </summary>
 		public BoisMemberAttribute()
 			: this(-1, true)
 		{ }
 
 		/// <summary>
-		/// Specifies a field or peroperty settings for serialization.
+		/// Specifies a field or property settings for serialization.
 		/// </summary>
 		/// <param name="index">In which order should this member be serialized.</param>
 		public BoisMemberAttribute(int index)
@@ -52,7 +52,7 @@ namespace Salar.Bois
 		{ }
 
 		/// <summary>
-		/// Specifies a field or peroperty settings for serialization.
+		/// Specifies a field or property settings for serialization.
 		/// </summary>
 		/// <param name="included">Specifies that should this member be included in serialization.</param>
 		public BoisMemberAttribute(bool included)

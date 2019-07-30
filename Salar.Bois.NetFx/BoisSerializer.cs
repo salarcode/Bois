@@ -16,7 +16,7 @@ namespace Salar.Bois
 {
 	/// <summary>
 	/// Salar.Bois serializer.
-	/// Which provides binary serialization and deserialzation for .NET objects.
+	/// Which provides binary serialization and deserialization for .NET objects.
 	/// BOIS stands for 'Binary Object Indexed Serialization'.
 	/// </summary>
 	/// <Author>
@@ -31,7 +31,7 @@ namespace Salar.Bois
 		public Encoding Encoding { get; set; }
 
 		/// <summary>
-		/// Initializing a new instance of Bois serializar.
+		/// Initializing a new instance of Bois serializer.
 		/// </summary>
 		public BoisSerializer()
 		{

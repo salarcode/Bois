@@ -74,7 +74,7 @@ namespace Salar.Bois.Types
 				var computed = BoisTypeCompiler.ComputeWriterSaveAss(type, complexTypeInfo, outputAssembly,
 					(dynamicMethod) =>
 					{
-						// this call is usefull for Recursive Methods
+						// this call is useful for Recursive Methods
 
 						result.WriterMethod = dynamicMethod;
 					});
@@ -82,7 +82,7 @@ namespace Salar.Bois.Types
 					var computed = BoisTypeCompiler.ComputeWriter(type, complexTypeInfo,
 						(dynamicMethod) =>
 						{
-							// this call is usefull for Recursive Methods
+							// this call is useful for Recursive Methods
 
 							result.WriterMethod = dynamicMethod;
 						});
@@ -104,7 +104,7 @@ namespace Salar.Bois.Types
 				var computed = BoisTypeCompiler.ComputeReaderSaveAss(type, complexTypeInfo, outputAssembly,
 					(dynamicMethod) =>
 					{
-						// this call is usefull for Recursive Methods
+						// this call is useful for Recursive Methods
 
 						result.ReaderMethod = dynamicMethod;
 					});
@@ -112,7 +112,7 @@ namespace Salar.Bois.Types
 					var computed = BoisTypeCompiler.ComputeReader(type, complexTypeInfo,
 						(dynamicMethod) =>
 						{
-							// this call is usefull for Recursive Methods
+							// this call is useful for Recursive Methods
 
 							result.ReaderMethod = dynamicMethod;
 						});
@@ -526,7 +526,7 @@ namespace Salar.Bois.Types
 			Type[] interfaces = null;
 			if (isGenericType)
 			{
-				//// no more checking for a dictionary with its first argumnet as String
+				//// no more checking for a dictionary with its first argument as String
 				//if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)) &&
 				//	memActualType.GetGenericArguments()[0] == typeof(string))
 				//	return new BoisComplexTypeInfo

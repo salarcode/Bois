@@ -68,7 +68,7 @@ namespace Salar.Bois.LZ4
 		/// <returns></returns>
 		public T Unpickle<T>(Stream objectData)
 		{
-			int length;
+			int length = 0;
 			int offset = 0;
 			byte[] compressedBuff = null;
 			MemoryStream mem;
@@ -87,6 +87,8 @@ namespace Salar.Bois.LZ4
 					try
 					{
 						compressedBuff = outMem.GetBuffer();
+						length = (int)outMem.Length;
+						offset = (int)outMem.Position;
 					}
 					catch (UnauthorizedAccessException)
 					{
@@ -101,10 +103,6 @@ namespace Salar.Bois.LZ4
 					compressedBuff = mem.GetBuffer();
 					length = (int)mem.Length;
 					offset = (int)mem.Position;
-				}
-				else
-				{
-					length = compressedBuff.Length;
 				}
 
 				var serializedBuff = LZ4Pickler.Unpickle(compressedBuff, offset, length);

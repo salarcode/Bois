@@ -5,7 +5,7 @@
 	<AssemblyName>Salar.Bois.LZ4</AssemblyName>
 	<RootNamespace>Salar.Bois.LZ4</RootNamespace>
 	<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-	<Version>3.0.0.5</Version>
+	<Version>3.0.0.6</Version>
 	<Authors>Salar Khalilzadeh</Authors>
 	<Company>Salar Khalilzadeh</Company>
 	<Product>Salar.Bois</Product>
@@ -31,7 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="K4os.Compression.LZ4" Version="1.1.11" />
-    <PackageReference Include="Salar.Bois" Version="3.0.0.3" />
+    <PackageReference Include="Salar.Bois" Version="3.0.0.6" />
   </ItemGroup>
 
   <ItemGroup>

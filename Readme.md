@@ -62,7 +62,8 @@ class Program
 			ID = 1,
 			Name = "Salar.Bois",
 			ProjectUrl = "https://github.com/salarcode/Bois",
-			Version = new Version(3, 0, 0, 0)
+			Version = new Version(3, 0, 0, 0),
+			Description = "Salar.Bois is a compact, fast and powerful binary serializer for .NET Framework."
 		};
 
 		var boisSerializer = new BoisSerializer();

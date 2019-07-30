@@ -24,9 +24,9 @@
 		<dependencies></dependencies>
 	</metadata>
 	<files>
-		<file src="Salar.Bois.Core\Bin\Release\netcoreapp2.0\*.dll" target="lib\netcoreapp2.0" />
-		<file src="Salar.Bois.Core\Bin\Release\netcoreapp2.0\*.xml" target="lib\netcoreapp2.0" />
-		<file src="Salar.Bois.NetFx\Bin\Release\*.dll" target="lib\net45" />
-		<file src="Salar.Bois.NetFx\bin\Release\*.xml" target="lib\net45" />
+		<file src="Salar.Bois\bin\Release\netcoreapp2.0\*.dll" target="lib\netcoreapp2.0" />
+		<file src="Salar.Bois\bin\Release\netcoreapp2.0\*.xml" target="lib\netcoreapp2.0" />
+		<file src="Salar.Bois\bin\Release\net45\*.dll" target="lib\net45" />
+		<file src="Salar.Bois\bin\Release\net45\*.xml" target="lib\net45" />
 	</files>
 </package>

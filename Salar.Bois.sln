@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.LZ4", "Salar.Boi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois", "Salar.Bois\Salar.Bois.csproj", "{86D13782-3128-4BA2-953D-E78BF628467A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.PlayBenchmark", "Salar.Bois.PlayBenchmark\Salar.Bois.PlayBenchmark.csproj", "{506803AE-4607-408B-BA0B-8A7C580E1A7D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,12 +33,6 @@ Global
 		{86D13782-3128-4BA2-953D-E78BF628467A}.Debug+AssemblyOut|Any CPU.Build.0 = Debug|Any CPU
 		{86D13782-3128-4BA2-953D-E78BF628467A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86D13782-3128-4BA2-953D-E78BF628467A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{506803AE-4607-408B-BA0B-8A7C580E1A7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{506803AE-4607-408B-BA0B-8A7C580E1A7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{506803AE-4607-408B-BA0B-8A7C580E1A7D}.Debug+AssemblyOut|Any CPU.ActiveCfg = Debug|Any CPU
-		{506803AE-4607-408B-BA0B-8A7C580E1A7D}.Debug+AssemblyOut|Any CPU.Build.0 = Debug|Any CPU
-		{506803AE-4607-408B-BA0B-8A7C580E1A7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{506803AE-4607-408B-BA0B-8A7C580E1A7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

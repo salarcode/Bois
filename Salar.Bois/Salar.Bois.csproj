@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
+		<AssemblyName>Salar.Bois</AssemblyName>
+		<RootNamespace>Salar.Bois</RootNamespace>
+		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
+		<Version>3.0.0.3</Version>
+		<Authors>Salar Khalilzadeh</Authors>
+		<Company>Salar Khalilzadeh</Company>
+		<Product>Salar.Bois</Product>
+		<Description>Salar's Serializer for Binary Object Indexed Serialization</Description>
+		<Copyright>MPLv2 © Salar Khalilzadeh 2019</Copyright>
+		<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
+		<PackageLicenseUrl>https://github.com/salarcode/Bois/blob/master/LICENSE.md</PackageLicenseUrl>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|netcoreapp2.0|AnyCPU'">
+	  <DefineConstants>TRACE;EmitAssemblyOut</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|net45|AnyCPU'">
+	  <DefineConstants>TRACE;EmitAssemblyOut</DefineConstants>
+	</PropertyGroup>
+
+</Project>

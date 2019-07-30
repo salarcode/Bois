@@ -352,7 +352,6 @@ namespace Salar.Bois.Types
 			}
 
 
-#if !SILVERLIGHT && DotNet
 			if (ReflectionHelper.CompareSubType(memActualType, typeof(DataSet)))
 			{
 				return new BoisBasicTypeInfo
@@ -372,7 +371,6 @@ namespace Salar.Bois.Types
 				};
 			}
 
-#endif
 			// not compatible simple type found
 			// cant be used as root, should be computed
 			return new BoisBasicTypeInfo()

@@ -38,7 +38,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
@@ -99,6 +99,7 @@
     <Compile Include="Tests\Test_Complex_Collections.cs" />
     <Compile Include="Tests\Test_Complex_Objects.cs" />
     <Compile Include="Tests\Test_Complex_Struct.cs" />
+    <Compile Include="Tests\Test_Lz4.cs" />
     <Compile Include="Tests\Test_Multithreading.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -106,13 +107,17 @@
     <None Include="Salar.Bois.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Salar.Bois.NetFx\Salar.Bois.NetFx.csproj">
-      <Project>{F247F38A-8BFA-4B7A-AB4E-12C646402F9C}</Project>
-      <Name>Salar.Bois.NetFx</Name>
-    </ProjectReference>
+    <Analyzer Include="..\packages\xunit.analyzers.0.10.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\xunit.analyzers.0.10.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
+    <ProjectReference Include="..\Salar.Bois.LZ4\Salar.Bois.LZ4.csproj">
+      <Project>{12c9a3d9-c75a-4c44-8599-39eb56e40091}</Project>
+      <Name>Salar.Bois.LZ4</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Salar.Bois\Salar.Bois.csproj">
+      <Project>{86d13782-3128-4ba2-953d-e78bf628467a}</Project>
+      <Name>Salar.Bois</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

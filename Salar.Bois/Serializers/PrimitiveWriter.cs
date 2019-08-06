@@ -87,7 +87,7 @@ namespace Salar.Bois.Serializers
 
 		/// <summary>
 		/// DateTime - Format: (Kind:0-0-0-0-0-0-0-0) (dateTimeTicks:Embedded-0-0-0-0-0-0-0)[if not embedded?0-0-0-0-0-0-0-0]
-		/// Embeddable kind range: always embeded
+		/// Embeddable kind range: always embedded
 		/// Embeddable ticks range: 0..127
 		/// </summary>
 		internal static void WriteValue(BinaryWriter writer, DateTime dateTime)
@@ -116,7 +116,7 @@ namespace Salar.Bois.Serializers
 
 		/// <summary>
 		/// DateTime? - Format: (Kind:Nullable-0-0-0-0-0-0-0) (dateTimeTicks:Embedded-0-0-0-0-0-0-0)[if not embedded?0-0-0-0-0-0-0-0]
-		/// Embeddable kind range: always embeded
+		/// Embeddable kind range: always embedded
 		/// Embeddable ticks range: 0..127
 		/// </summary>
 		internal static void WriteValue(BinaryWriter writer, DateTime? dt)
@@ -359,7 +359,7 @@ namespace Salar.Bois.Serializers
 		}
 
 		/// <summary>
-		/// Obsolete - only background compability
+		/// Obsolete - only backward compatibility
 		/// </summary>
 		internal static void WriteValue(BinaryWriter writer, DataSet ds, Encoding encoding)
 		{
@@ -380,7 +380,7 @@ namespace Salar.Bois.Serializers
 		}
 
 		/// <summary>
-		/// Obsolete - only background compability
+		/// Obsolete - only backward compatibility
 		/// </summary>
 		internal static void WriteValue(BinaryWriter writer, DataTable dt, Encoding encoding)
 		{

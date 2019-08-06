@@ -17,7 +17,6 @@ namespace Salar.Bois.Serializers
 			writer.Write(NumericSerializers.FlagIsNull);
 		}
 
-
 		/// <summary>
 		/// String - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63
@@ -34,7 +33,12 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				var strBytes = encoding.GetBytes(str);
+				byte[] strBytes;
+				if (str.Length > 64)
+					strBytes = GetStringBytes(ref str, encoding);
+				else
+					strBytes = GetStringBytes(str, encoding);
+
 				// Int32
 				NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)strBytes.Length);
 				writer.Write(strBytes);
@@ -630,6 +634,24 @@ namespace Salar.Bois.Serializers
 				WriteRootBasicType(writer, array.GetValue(i), arrayItemType, arrayItemTypeType, encoding);
 			}
 
+		}
+
+		private static byte[] GetStringBytes(string str, Encoding encoding)
+		{
+			var chars = str.ToCharArray();
+			var bytes = new byte[encoding.GetByteCount(chars, 0, chars.Length)];
+			encoding.GetBytes(chars, 0, chars.Length, bytes, 0);
+
+			return bytes;
+		}
+
+		private static byte[] GetStringBytes(ref string str, Encoding encoding)
+		{
+			var chars = str.ToCharArray();
+			var bytes = new byte[encoding.GetByteCount(chars, 0, chars.Length)];
+			encoding.GetBytes(chars, 0, chars.Length, bytes, 0);
+
+			return bytes;
 		}
 	}
 }

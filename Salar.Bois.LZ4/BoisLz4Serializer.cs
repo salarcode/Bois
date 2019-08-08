@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using K4os.Compression.LZ4;
 
 namespace Salar.Bois.LZ4
@@ -16,16 +17,19 @@ namespace Salar.Bois.LZ4
 			_serializer = new BoisSerializer();
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Initialize(params Type[] types)
 		{
 			BoisSerializer.Initialize(types);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Initialize<T>()
 		{
 			BoisSerializer.Initialize<T>();
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void ClearCache()
 		{
 			BoisSerializer.ClearCache();
@@ -34,6 +38,7 @@ namespace Salar.Bois.LZ4
 		/// <summary>
 		/// Serializing an object to binary bois format, then compresses it using LZ4 pickle self-contained format. Compression level is set to FAST.
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Pickle<T>(T obj, Stream output)
 		{
 			Pickle(obj, output, LZ4Level.L00_FAST);

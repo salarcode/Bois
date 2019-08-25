@@ -102,7 +102,7 @@ namespace Salar.Bois.LZ4
 					objectData.CopyTo(mem);
 					compressedBuff = mem.GetBuffer();
 					length = (int)mem.Length;
-					offset = (int)mem.Position;
+					offset = 0;
 				}
 
 				var serializedBuff = LZ4Pickler.Unpickle(compressedBuff, offset, length);

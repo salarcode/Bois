@@ -5,7 +5,7 @@
 	<AssemblyName>Salar.Bois.LZ4</AssemblyName>
 	<RootNamespace>Salar.Bois.LZ4</RootNamespace>
 	<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-	<Version>3.0.0.6</Version>
+	<Version>3.0.0.7</Version>
 	<Authors>Salar Khalilzadeh</Authors>
 	<Company>Salar Khalilzadeh</Company>
 	<Product>Salar.Bois</Product>

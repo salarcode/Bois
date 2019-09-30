@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Salar.Bois.Types
@@ -23,11 +24,13 @@ namespace Salar.Bois.Types
 
 		internal MethodInfo ReaderMethod;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal void InvokeWriter<T>(BinaryWriter writer, T instance, Encoding encoding)
 		{
 			((SerializeDelegate<T>)WriterDelegate).Invoke(writer, instance, encoding);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal T InvokeReader<T>(BinaryReader reader, Encoding encoding)
 		{
 			return ((DeserializeDelegate<T>)ReaderDelegate).Invoke(reader, encoding);

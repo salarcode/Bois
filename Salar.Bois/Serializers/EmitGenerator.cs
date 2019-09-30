@@ -8,6 +8,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text;
 // ReSharper disable InconsistentNaming
 
@@ -20,6 +21,7 @@ namespace Salar.Bois.Serializers
 
 		#region Write Root Complex Types
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteRootUnknownArray(Type containerType, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			WriteUnknownArray(null, null, () =>
@@ -31,6 +33,7 @@ namespace Salar.Bois.Serializers
 				il, typeInfo.IsNullable);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteRootCollection(Type containerType, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			WriteCollection(null, null, () =>
@@ -42,16 +45,19 @@ namespace Salar.Bois.Serializers
 				il, typeInfo.IsNullable);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteRootISet(Type containerType, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			WriteRootCollection(containerType, typeInfo, il);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteRootList(Type containerType, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			WriteRootCollection(containerType, typeInfo, il);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteRootDictionary(Type containerType, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			WriteDictionary(null, null, () =>
@@ -63,6 +69,7 @@ namespace Salar.Bois.Serializers
 				il, typeInfo.IsNullable);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteRootNameValueCol(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			WriteNameValueColl(null, null, () =>
@@ -760,6 +767,7 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Nop);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteKnownTypeArray(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
 			Type containerType, ILGenerator il, bool nullable)
 		{
@@ -1667,6 +1675,7 @@ namespace Salar.Bois.Serializers
 			il.MarkLabel(codeEnds);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteISet(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType, ILGenerator il, bool nullable)
 		{
 			WriteCollection(prop, field, valueLoader, containerType, il, nullable);
@@ -1731,26 +1740,31 @@ namespace Salar.Bois.Serializers
 		#endregion
 
 		#region Read Root Complex Types
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void ReadRootCollection(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			ReadGenericCollection(null, null, type, type, il, typeInfo.IsNullable, new SharedVariables(il));
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void ReadRootDictionary(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			ReadDictionary(null, null, type, type, il, typeInfo.IsNullable, new SharedVariables(il));
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void ReadRootUnknownArray(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			ReadUnknownArray(null, null, type, type, il, typeInfo.IsNullable, new SharedVariables(il));
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void ReadRootNameValueColl(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			ReadNameValueColl(null, null, type, type, il, typeInfo.IsNullable, new SharedVariables(il));
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void ReadRootISet(Type type, BoisComplexTypeInfo typeInfo, ILGenerator il)
 		{
 			ReadRootCollection(type, typeInfo, il);
@@ -3408,6 +3422,7 @@ namespace Salar.Bois.Serializers
 
 	static class TypeExtensions
 	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool IsExplicitStruct(this Type type)
 		{
 			return type.IsValueType

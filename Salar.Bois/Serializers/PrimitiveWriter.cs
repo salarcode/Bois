@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Salar.Bois.Serializers
@@ -12,6 +13,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// there is no data and the value is null
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteNullValue(BinaryWriter writer)
 		{
 			writer.Write(NumericSerializers.FlagIsNull);
@@ -49,6 +51,7 @@ namespace Salar.Bois.Serializers
 		/// char - Format: (Embedded-0-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..127
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteValue(BinaryWriter writer, char c)
 		{
 			writer.Write((ushort)c);
@@ -58,6 +61,7 @@ namespace Salar.Bois.Serializers
 		/// char? - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteValue(BinaryWriter writer, char? c)
 		{
 			NumericSerializers.WriteVarInt(writer, (ushort?)c);
@@ -67,6 +71,7 @@ namespace Salar.Bois.Serializers
 		/// bool - Format: (Embedded=true-0-0-0-0-0-0-0)
 		/// Embeddable range: 0..127
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteValue(BinaryWriter writer, bool b)
 		{
 			writer.Write(b);
@@ -233,6 +238,7 @@ namespace Salar.Bois.Serializers
 		/// TimeSpan - Format: (Embedded-0-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..127
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteValue(BinaryWriter writer, TimeSpan timeSpan)
 		{
 			NumericSerializers.WriteVarInt(writer, timeSpan.Ticks);
@@ -269,6 +275,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// Same as String
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteValue(BinaryWriter writer, Uri uri)
 		{
 			PrimitiveWriter.WriteValue(writer, uri?.ToString(), Encoding.UTF8);
@@ -336,6 +343,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// Same as Int32
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteValue(BinaryWriter writer, Color color)
 		{
 			int argb = color.ToArgb();

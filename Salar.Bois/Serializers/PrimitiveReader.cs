@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Salar.Bois.Serializers
@@ -49,6 +50,7 @@ namespace Salar.Bois.Serializers
 			return value.Value != 0;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool ReadBoolean(BinaryReader reader)
 		{
 			return reader.ReadByte() != 0;
@@ -201,6 +203,7 @@ namespace Salar.Bois.Serializers
 			return Color.FromArgb(argb.Value);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static Color ReadColor(BinaryReader reader)
 		{
 			return Color.FromArgb(NumericSerializers.ReadVarInt32(reader));

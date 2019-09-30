@@ -7,6 +7,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using Xunit;
+using Salar.Bois.NetFx.Tests.TestObjects;
 
 // ReSharper disable InconsistentNaming
 
@@ -97,17 +98,23 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		}
 
 		[Theory]
-		[InlineData(null, typeof(DayOfWeek))]
+		[InlineData(null, typeof(DayOfWeek?))]
+		[InlineData(TestEnumsNormal.Ten, typeof(TestEnumsNormal))]
+		[InlineData(TestEnumsNormal.Ten, typeof(TestEnumsNormal?))]
+		[InlineData(null, typeof(TestEnumsNormal?))]
+		[InlineData(TestsEnumUInt.UInt2, typeof(TestsEnumUInt))]
+		[InlineData(TestsEnumShort.Short2, typeof(TestsEnumShort))]
+		[InlineData(TestsEnumInt64.long2, typeof(TestsEnumInt64))]
 		[InlineData(EnvironmentVariableTarget.Machine, null), InlineData(DayOfWeek.Sunday, null), InlineData(DayOfWeek.Thursday, null)]
 		public void TestingEnum(Enum init, Type enumType)
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
-			ResetStream();
-
 			if (init != null)
 				enumType = init.GetType();
+
+			PrimitiveWriter.WriteValue(Writer, init);
+			ResetStream();
 
 			var final = PrimitiveReader.ReadEnum(Reader, enumType);
 
@@ -415,6 +422,8 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			if (final != null && init != null)
 				final.Should().BeEquivalentTo(init);
+			else
+				Assert.True(init == final);
 		}
 
 		public static IEnumerable<object[]> GetDataSetData()

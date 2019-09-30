@@ -51,13 +51,13 @@ namespace Salar.Bois
 			{
 				if (type != null)
 					BoisTypeCache.GetRootTypeComputed(type, true, true
-#if EmitAssemblyOut
+#if EmitAssemblyOut && !NETCOREAPP
 						, outputAssembly: false
 #endif
 					);
 			}
 
-#if EmitAssemblyOut
+#if EmitAssemblyOut && !NETCOREAPP
 			BoisTypeCompiler.SaveAssemblyOutput_Writer();
 			BoisTypeCompiler.SaveAssemblyOutput_Reader();
 #endif

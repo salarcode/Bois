@@ -28,12 +28,14 @@ namespace Salar.Bois.Serializers
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static char ReadChar(BinaryReader reader)
 		{
 			var charByte = reader.ReadUInt16();
 			return (char)charByte;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static char? ReadCharNullable(BinaryReader reader)
 		{
 			var charByte = NumericSerializers.ReadVarUInt16Nullable(reader);
@@ -42,6 +44,7 @@ namespace Salar.Bois.Serializers
 			return (char)charByte.Value;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static bool? ReadBooleanNullable(BinaryReader reader)
 		{
 			var value = NumericSerializers.ReadVarByteNullable(reader);
@@ -113,6 +116,7 @@ namespace Salar.Bois.Serializers
 			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes));
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static byte[] ReadByteArray(BinaryReader reader)
 		{
 			var length = NumericSerializers.ReadVarUInt32Nullable(reader);
@@ -125,20 +129,253 @@ namespace Salar.Bois.Serializers
 
 		internal static Enum ReadEnum(BinaryReader reader, Type type)
 		{
-			var val = NumericSerializers.ReadVarInt32Nullable(reader);
-			if (val == null)
-				return null;
+			var enumType = BoisTypeCache.GetEnumType(type);
+			if (enumType == null)
+				throw new Exception($"Cannot determine the type of enum '{type.Name}'");
 
-			return (Enum)Enum.ToObject(type, val);
+			switch (enumType.KnownType)
+			{
+				case EnBasicEnumType.Int32:
+					if (enumType.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarInt32Nullable(reader);
+						if (val == null)
+							return null;
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarInt32(reader);
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+
+				case EnBasicEnumType.Byte:
+					if (enumType.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarByteNullable(reader);
+						if (val == null)
+							return null;
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+					else
+					{
+						var val = reader.ReadByte();
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+
+				case EnBasicEnumType.Int16:
+					if (enumType.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarInt16Nullable(reader);
+						if (val == null)
+							return null;
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarInt16(reader);
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+
+				case EnBasicEnumType.Int64:
+					if (enumType.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarInt64Nullable(reader);
+						if (val == null)
+							return null;
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarInt64(reader);
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+
+				case EnBasicEnumType.UInt16:
+					if (enumType.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarUInt16Nullable(reader);
+						if (val == null)
+							return null;
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarUInt16(reader);
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+
+				case EnBasicEnumType.UInt32:
+					if (enumType.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarUInt32Nullable(reader);
+						if (val == null)
+							return null;
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarUInt32(reader);
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+
+				case EnBasicEnumType.UInt64:
+					if (enumType.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarUInt64Nullable(reader);
+						if (val == null)
+							return null;
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarUInt64(reader);
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+
+				case EnBasicEnumType.SByte:
+					if (enumType.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarSByteNullable(reader);
+						if (val == null)
+							return null;
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+					else
+					{
+						var val = reader.ReadSByte();
+						return (Enum)Enum.ToObject(enumType.BareType, val);
+					}
+
+				default:
+					throw new Exception($"Enum type not supported '{type.Name}'. Contact the author please https://github.com/salarcode/Bois/issues ");
+			}
 		}
 
 		internal static T ReadEnumGeneric<T>(BinaryReader reader)
 		{
-			var val = NumericSerializers.ReadVarInt32Nullable(reader);
-			if (val == null)
-				return default(T);
+			var type = typeof(T);
+			var enumTypeInfo = BoisTypeCache.GetEnumType(type);
+			if (enumTypeInfo == null)
+				throw new Exception($"Cannot determine the type of enum '{type.Name}'");
 
-			return (T)Enum.ToObject(typeof(T), val);
+			switch (enumTypeInfo.KnownType)
+			{
+				case EnBasicEnumType.Int32:
+					if (enumTypeInfo.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarInt32Nullable(reader);
+						if (val == null)
+							return default;
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarInt32(reader);
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+
+				case EnBasicEnumType.Byte:
+					if (enumTypeInfo.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarByteNullable(reader);
+						if (val == null)
+							return default;
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+					else
+					{
+						var val = reader.ReadByte();
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+
+				case EnBasicEnumType.Int16:
+					if (enumTypeInfo.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarInt16Nullable(reader);
+						if (val == null)
+							return default;
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarInt16(reader);
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+
+				case EnBasicEnumType.Int64:
+					if (enumTypeInfo.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarInt64Nullable(reader);
+						if (val == null)
+							return default;
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarInt64(reader);
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+
+				case EnBasicEnumType.UInt16:
+					if (enumTypeInfo.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarUInt16Nullable(reader);
+						if (val == null)
+							return default;
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarUInt16(reader);
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+
+				case EnBasicEnumType.UInt32:
+					if (enumTypeInfo.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarUInt32Nullable(reader);
+						if (val == null)
+							return default;
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarUInt32(reader);
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+
+				case EnBasicEnumType.UInt64:
+					if (enumTypeInfo.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarUInt64Nullable(reader);
+						if (val == null)
+							return default;
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+					else
+					{
+						var val = NumericSerializers.ReadVarUInt64(reader);
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+
+				case EnBasicEnumType.SByte:
+					if (enumTypeInfo.IsNullable)
+					{
+						var val = NumericSerializers.ReadVarSByteNullable(reader);
+						if (val == null)
+							return default;
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+					else
+					{
+						var val = reader.ReadSByte();
+						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
+					}
+
+				default:
+					throw new Exception($"Enum type not supported '{enumTypeInfo.BareType}'. Contact the author please https://github.com/salarcode/Bois/issues ");
+			}
 		}
 
 		internal static TimeSpan? ReadTimeSpanNullable(BinaryReader reader)
@@ -150,6 +387,7 @@ namespace Salar.Bois.Serializers
 			return new TimeSpan(ticks.Value);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static TimeSpan ReadTimeSpan(BinaryReader reader)
 		{
 			var ticks = NumericSerializers.ReadVarInt64(reader);
@@ -188,6 +426,7 @@ namespace Salar.Bois.Serializers
 			return new Guid(gbuff);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static DBNull ReadDbNull(BinaryReader reader)
 		{
 			if (reader.ReadByte() == NumericSerializers.FlagIsNull)
@@ -195,6 +434,7 @@ namespace Salar.Bois.Serializers
 			return DBNull.Value;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static Color? ReadColorNullable(BinaryReader reader)
 		{
 			var argb = NumericSerializers.ReadVarInt32Nullable(reader);
@@ -317,7 +557,7 @@ namespace Salar.Bois.Serializers
 					return PrimitiveReader.ReadBoolean(reader);
 
 				case EnBasicKnownType.Enum:
-					return PrimitiveReader.ReadEnum(reader, typeInfo.BareType ?? type);
+					return PrimitiveReader.ReadEnum(reader, type);
 
 				case EnBasicKnownType.DateTime:
 					if (typeInfo.IsNullable)

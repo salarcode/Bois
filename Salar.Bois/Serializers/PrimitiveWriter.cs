@@ -81,6 +81,7 @@ namespace Salar.Bois.Serializers
 		/// bool? - Format: (Embedded=true-Nullable-0-0-0-0-0-0)
 		/// Embeddable range: 0..63
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteValue(BinaryWriter writer, bool? b)
 		{
 			byte? val = null;
@@ -219,7 +220,7 @@ namespace Salar.Bois.Serializers
 		}
 
 		/// <summary>
-		/// String - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
+		/// VarInt - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63
 		/// </summary>
 		internal static void WriteValue(BinaryWriter writer, Enum e)
@@ -229,8 +230,85 @@ namespace Salar.Bois.Serializers
 				WriteNullValue(writer);
 				return;
 			}
-			// Int32
-			NumericSerializers.WriteVarInt(writer, (int?)(int)(object)e);
+			WriteValue(writer, e, e.GetType());
+		}
+
+		/// <summary>
+		/// VarInt - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
+		/// Embeddable range: 0..63
+		/// </summary>
+		internal static void WriteValue(BinaryWriter writer, Enum e, Type type)
+		{
+			if (e == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+			var enumType = BoisTypeCache.GetEnumType(type);
+			if (enumType == null)
+				throw new Exception($"Cannot determine the type of enum '{type.Name}'");
+
+			switch (enumType.KnownType)
+			{
+				case EnBasicEnumType.Int32:
+					if (enumType.IsNullable)
+						NumericSerializers.WriteVarInt(writer, (int?)(int)(object)e);
+					else
+						NumericSerializers.WriteVarInt(writer, (int)(object)e);
+					break;
+
+				case EnBasicEnumType.Byte:
+					if (enumType.IsNullable)
+						NumericSerializers.WriteVarInt(writer, (byte?)(byte)(object)e);
+					else
+						writer.Write((byte)(object)e);
+					break;
+
+				case EnBasicEnumType.Int16:
+					if (enumType.IsNullable)
+						NumericSerializers.WriteVarInt(writer, (short?)(short)(object)e);
+					else
+						NumericSerializers.WriteVarInt(writer, (short)(object)e);
+					break;
+
+				case EnBasicEnumType.Int64:
+					if (enumType.IsNullable)
+						NumericSerializers.WriteVarInt(writer, (long?)(long)(object)e);
+					else
+						NumericSerializers.WriteVarInt(writer, (long)(object)e);
+					break;
+
+				case EnBasicEnumType.UInt16:
+					if (enumType.IsNullable)
+						NumericSerializers.WriteVarInt(writer, (ushort?)(ushort)(object)e);
+					else
+						NumericSerializers.WriteVarInt(writer, (ushort)(object)e);
+					break;
+
+				case EnBasicEnumType.UInt32:
+					if (enumType.IsNullable)
+						NumericSerializers.WriteVarInt(writer, (uint?)(uint)(object)e);
+					else
+						NumericSerializers.WriteVarInt(writer, (uint)(object)e);
+					break;
+
+				case EnBasicEnumType.UInt64:
+					if (enumType.IsNullable)
+						NumericSerializers.WriteVarInt(writer, (ulong?)(ulong)(object)e);
+					else
+						NumericSerializers.WriteVarInt(writer, (ulong)(object)e);
+					break;
+
+				case EnBasicEnumType.SByte:
+					if (enumType.IsNullable)
+						NumericSerializers.WriteVarInt(writer, (sbyte?)(sbyte)(object)e);
+					else
+						writer.Write((sbyte)(object)e);
+					break;
+
+				default:
+					throw new Exception($"Enum type not supported '{type.Name}'. Contact the author please https://github.com/salarcode/Bois/issues ");
+			}
 		}
 
 
@@ -248,6 +326,7 @@ namespace Salar.Bois.Serializers
 		/// TimeSpan? - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteValue(BinaryWriter writer, TimeSpan? timeSpan)
 		{
 			if (timeSpan == null)
@@ -262,6 +341,7 @@ namespace Salar.Bois.Serializers
 		/// Version - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteValue(BinaryWriter writer, Version version)
 		{
 			if (version == null)
@@ -331,6 +411,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// DBNull? - Format: (Embedded=true-Nullable=true-0-0-0-0-0-0)
 		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static void WriteValue(BinaryWriter writer, DBNull dbNull)
 		{
 			if (dbNull == null)
@@ -477,7 +558,10 @@ namespace Salar.Bois.Serializers
 					return;
 
 				case EnBasicKnownType.Enum:
-					PrimitiveWriter.WriteValue(writer, obj as Enum);
+					if (obj == null)
+						PrimitiveWriter.WriteNullValue(writer);
+					else
+						PrimitiveWriter.WriteValue(writer, obj as Enum, type);
 					return;
 
 				case EnBasicKnownType.DateTime:

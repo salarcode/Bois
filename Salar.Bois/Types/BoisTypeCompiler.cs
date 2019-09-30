@@ -26,7 +26,7 @@ namespace Salar.Bois.Types
 			return $"Computed_{type.Name}_{nameExtension}_{rnd.Next()}";
 		}
 
-#if EmitAssemblyOut
+#if EmitAssemblyOut && !NETCOREAPP
 		private static TypeBuilder _outWriterModule = null;
 		private static TypeBuilder _outWriterProgrammClass = null;
 		private static AssemblyBuilder _outWriterAssemblyBuilder = null;
@@ -576,7 +576,7 @@ namespace Salar.Bois.Types
 			il.Emit(OpCodes.Stloc_0);
 		}
 
-#if EmitAssemblyOut
+#if EmitAssemblyOut && !NETCOREAPP
 		private static TypeBuilder _outReaderModule = null;
 		private static string _readerAssemblyName;
 		private static AssemblyBuilder _outReaderAssemblyBuilder = null;

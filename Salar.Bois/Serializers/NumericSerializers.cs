@@ -47,6 +47,7 @@ namespace Salar.Bois.Serializers
 		{
 			[ThreadStatic] private static byte[] _array;
 
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public static byte[] Get()
 			{
 				return _array ?? (_array = new byte[16]);

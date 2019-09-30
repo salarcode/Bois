@@ -18,24 +18,25 @@ namespace Salar.Bois.Types
 {
 	static class BoisTypeCache
 	{
-		private static readonly object LockRootType = new object();
-		private static readonly object LocktBasicType = new object();
-
 		private static readonly BoisComputedTypeHashtable<BoisComputedTypeInfo> _computedCache;
 		private static readonly BoisComputedTypeHashtable<BoisBasicTypeInfo> _basicTypeCache;
+		private static readonly BoisComputedTypeHashtable<BoisBasicEnumTypeInfo> _basicEnumCache;
 		static BoisTypeCache()
 		{
 			_computedCache = new BoisComputedTypeHashtable<BoisComputedTypeInfo>();
 			_basicTypeCache = new BoisComputedTypeHashtable<BoisBasicTypeInfo>();
+			_basicEnumCache = new BoisComputedTypeHashtable<BoisBasicEnumTypeInfo>();
 		}
 
 
 		internal static void ClearCache()
 		{
-			lock (LocktBasicType)
+			lock (_basicTypeCache)
 				_basicTypeCache.Clear();
-			lock (LockRootType)
+			lock (_computedCache)
 				_computedCache.Clear();
+			lock (_basicEnumCache)
+				_basicEnumCache.Clear();
 		}
 
 		internal static BoisComputedTypeInfo GetRootTypeComputed(
@@ -47,7 +48,7 @@ namespace Salar.Bois.Types
 #endif
 			)
 		{
-			lock (LockRootType)
+			lock (_computedCache)
 			{
 				BoisComputedTypeInfo result;
 				if (_computedCache.TryGetValue(type, out result))
@@ -70,7 +71,7 @@ namespace Salar.Bois.Types
 					complexTypeInfo = GetComplexTypeUnCached(type);
 					if (complexTypeInfo == null)
 						return result;
-#if EmitAssemblyOut
+#if EmitAssemblyOut && !NETCOREAPP
 				var computed = BoisTypeCompiler.ComputeWriterSaveAss(type, complexTypeInfo, outputAssembly,
 					(dynamicMethod) =>
 					{
@@ -100,7 +101,7 @@ namespace Salar.Bois.Types
 							return result;
 					}
 
-#if EmitAssemblyOut
+#if EmitAssemblyOut && !NETCOREAPP
 				var computed = BoisTypeCompiler.ComputeReaderSaveAss(type, complexTypeInfo, outputAssembly,
 					(dynamicMethod) =>
 					{
@@ -127,7 +128,7 @@ namespace Salar.Bois.Types
 
 		internal static BoisBasicTypeInfo GetBasicType(Type type)
 		{
-			lock (LocktBasicType)
+			lock (_basicTypeCache)
 			{
 				BoisBasicTypeInfo result;
 				if (_basicTypeCache.TryGetValue(type, out result))
@@ -137,6 +138,23 @@ namespace Salar.Bois.Types
 
 				result = ReadBasicTypeInfo(type);
 				_basicTypeCache.TryAdd(type, result);
+
+				return result;
+			}
+		}
+
+		internal static BoisBasicEnumTypeInfo GetEnumType(Type type)
+		{
+			lock (_basicEnumCache)
+			{
+				BoisBasicEnumTypeInfo result;
+				if (_basicEnumCache.TryGetValue(type, out result))
+				{
+					return result;
+				}
+
+				result = ReadBasicEnumTypeInfo(type);
+				_basicEnumCache.TryAdd(type, result);
 
 				return result;
 			}
@@ -152,6 +170,112 @@ namespace Salar.Bois.Types
 			}
 
 			return ReadComplexType(type);
+		}
+
+		/// <remarks>https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/integral-numeric-types</remarks>
+		private static BoisBasicEnumTypeInfo ReadBasicEnumTypeInfo(Type memType)
+		{
+			Type memActualType = memType;
+			Type bareType;
+			bool isNullable = ReflectionHelper.IsNullable(memType, out bareType);
+
+			// check the underling type
+			if (isNullable && bareType != null)
+			{
+				memActualType = bareType;
+			}
+			else
+			{
+				bareType = memType;
+			}
+			memActualType = Enum.GetUnderlyingType(memActualType);
+
+			if (memActualType.IsClass)
+			{
+				return null;
+			}
+			if (memActualType == typeof(int))
+			{
+				return new BoisBasicEnumTypeInfo
+				{
+					KnownType = EnBasicEnumType.Int32,
+					UnderlyingType = typeof(int),
+					IsNullable = isNullable,
+					BareType = bareType
+				};
+			}
+			else if (memActualType == typeof(long))
+			{
+				return new BoisBasicEnumTypeInfo
+				{
+					KnownType = EnBasicEnumType.Int64,
+					UnderlyingType = typeof(long),
+					IsNullable = isNullable,
+					BareType  = bareType
+				};
+			}
+			else if (memActualType == typeof(short))
+			{
+				return new BoisBasicEnumTypeInfo
+				{
+					KnownType = EnBasicEnumType.Int16,
+					UnderlyingType = typeof(short),
+					IsNullable = isNullable,
+					BareType  = bareType
+				};
+			}
+			else if (memActualType == typeof(byte))
+			{
+				return new BoisBasicEnumTypeInfo
+				{
+					KnownType = EnBasicEnumType.Byte,
+					UnderlyingType = typeof(byte),
+					IsNullable = isNullable,
+					BareType  = bareType
+				};
+			}
+			else if (memActualType == typeof(sbyte))
+			{
+				return new BoisBasicEnumTypeInfo
+				{
+					KnownType = EnBasicEnumType.SByte,
+					UnderlyingType = typeof(sbyte),
+					IsNullable = isNullable,
+					BareType  = bareType
+				};
+			}
+			else if (memActualType == typeof(ushort))
+			{
+				return new BoisBasicEnumTypeInfo
+				{
+					KnownType = EnBasicEnumType.UInt16,
+					UnderlyingType = typeof(ushort),
+					IsNullable = isNullable,
+					BareType  = bareType
+				};
+			}
+			else if (memActualType == typeof(uint))
+			{
+				return new BoisBasicEnumTypeInfo
+				{
+					KnownType = EnBasicEnumType.UInt32,
+					UnderlyingType = typeof(uint),
+					IsNullable = isNullable,
+					BareType  = bareType
+				};
+			}
+			else if (memActualType == typeof(ulong))
+			{
+				return new BoisBasicEnumTypeInfo
+				{
+					KnownType = EnBasicEnumType.UInt64,
+					UnderlyingType = typeof(ulong),
+					IsNullable = isNullable,
+					BareType  = bareType
+				};
+			}
+
+			return null;
 		}
 
 		private static BoisBasicTypeInfo ReadBasicTypeInfo(Type memType)
@@ -523,19 +647,6 @@ namespace Salar.Bois.Types
 			Type[] interfaces = null;
 			if (isGenericType)
 			{
-				//// no more checking for a dictionary with its first argument as String
-				//if (ReflectionHelper.CompareInterface(memActualType, typeof(IDictionary)) &&
-				//	memActualType.GetGenericArguments()[0] == typeof(string))
-				//	return new BoisComplexTypeInfo
-				//	{
-				//		KnownType = EnBasicKnownType.Unknown,
-				//		IsNullable = isNullable,
-				//		IsDictionary = true,
-				//		IsStringDictionary = true,
-				//		IsGeneric = true,
-				//		ComplexKnownType = EnComplexKnownType.UnknownArray,
-				//		NullableUnderlyingType = underlyingTypeNullable,
-				//	};
 
 				interfaces = memActualType.GetInterfaces();
 
@@ -573,22 +684,6 @@ namespace Salar.Bois.Types
 			}
 			if (isGenericType)
 			{
-				//ConcurrentBag<int> a;
-				//ConcurrentStack<int> s;
-
-				//// Concurent ones hould be checked before IList
-				//if (ReflectionHelper.CompareInterface(memActualType, typeof(IProducerConsumerCollection<>)))
-				//{
-				//	return new BoisComplexTypeInfo
-				//	{
-				//		IsNullable = isNullable,
-				//		IsGeneric = memActualType.IsGenericType,
-				//		//IsCollection = true,
-				//		//IsArray = true,
-				//		ComplexKnownType = EnComplexKnownType.Collection,
-				//		BareType = underlyingTypeNullable,
-				//	};
-				//}
 
 				if (ReflectionHelper.CompareInterfaceGenericTypeDefinition(interfaces, typeof(IList<>)) ||
 					ReflectionHelper.CompareInterfaceGenericTypeDefinition(interfaces, typeof(ICollection<>)))
@@ -677,10 +772,6 @@ namespace Salar.Bois.Types
 						index = boisMember.Index;
 					}
 
-					//var info = ReadMemberInfo(f.FieldType);
-					//info.Info = f;
-					//info.MemberType = EnBoisMemberType.Field;
-
 					if (index > -1)
 					{
 						members.Insert(index, f);
@@ -709,13 +800,6 @@ namespace Salar.Bois.Types
 								continue;
 							index = boisMember.Index;
 						}
-
-						//var info = ReadMemberInfo(p.PropertyType);
-						//info.PropertyGetter = GetPropertyGetter(type, p);
-						////info.PropertySetter = CreateSetMethod(p);
-						//info.PropertySetter = GetPropertySetter(type, p);
-						//info.Info = p;
-						//info.MemberType = EnBoisMemberType.Property;
 
 						if (index > -1)
 						{

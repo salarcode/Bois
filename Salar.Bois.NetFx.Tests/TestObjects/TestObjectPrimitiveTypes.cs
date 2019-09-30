@@ -72,10 +72,16 @@ namespace Salar.Bois.NetFx.Tests.TestObjects
 
 		public Version Version { get; set; } = new Version(3, 0);
 
-		public EnvironmentVariableTarget Enum { get; set; } = EnvironmentVariableTarget.User;
+		//public EnvironmentVariableTarget Enum { get; set; } = EnvironmentVariableTarget.User;
+
+		//public EnvironmentVariableTarget? EnumNull1 { get; set; } = null;
+		//public EnvironmentVariableTarget? EnumNull2 { get; set; } = EnvironmentVariableTarget.Machine;
 
 		public EnvironmentVariableTarget[] EnumArray { get; set; } =
 			new[] { EnvironmentVariableTarget.Machine, EnvironmentVariableTarget.User };
+
+		//public TestsEnumShort?[] EnumArrayNull { get; set; } =
+		//	new TestsEnumShort?[] { TestsEnumShort.Short1, null, TestsEnumShort.Short2 };
 
 		public string[] UnknownArray1 { get; set; } = new[] { "This", "Is", "A", "Test" };
 

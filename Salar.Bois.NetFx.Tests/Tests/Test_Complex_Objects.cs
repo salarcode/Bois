@@ -24,7 +24,6 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			SerializeAreEqual(init, final);
 		}
-
 		[Theory]
 		[MemberData(nameof(TestObjectSelfReferencing.GetTestData), MemberType = typeof(TestObjectSelfReferencing))]
 		public void TestingObjectSelfReferencing(TestObjectSelfReferencing init)

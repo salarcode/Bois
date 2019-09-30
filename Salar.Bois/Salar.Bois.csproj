@@ -5,7 +5,7 @@
 		<AssemblyName>Salar.Bois</AssemblyName>
 		<RootNamespace>Salar.Bois</RootNamespace>
 		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-		<Version>3.0.0.6</Version>
+		<Version>3.1.0.0</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
@@ -18,10 +18,8 @@ More info: https://github.com/salarcode/Bois</Description>
 		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-		<PackageReleaseNotes>+ Totaly rewritten to decreate payload size up to 30% and decrease the serialization/deserialization time by 100%
-+ The specs are changed to introduce more size compression which is the reaseon this version not compatible with previous versions.
-* Supported more built in .NET types.
-* The minimum requirement is .NET Framework 4.5 and .NET Core 2.0</PackageReleaseNotes>
+		<PackageReleaseNotes>+ .NET Standard 2.1 support added.
+* Minor bug related to enums fixed.</PackageReleaseNotes>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
@@ -31,7 +29,8 @@ More info: https://github.com/salarcode/Bois</Description>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|net45|AnyCPU'">
-	  <DefineConstants>TRACE;EmitAssemblyOut</DefineConstants>
+	  <DefineConstants>DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
+	  <Optimize>false</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
@@ -40,6 +39,10 @@ More info: https://github.com/salarcode/Bois</Description>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">
 	  <DocumentationFile>.\bin\Salar.Bois.xml</DocumentationFile>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
+	  <DefineConstants>DEBUG;TRACE</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>

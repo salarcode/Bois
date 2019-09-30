@@ -1,4 +1,4 @@
-Salar.Bois is the most compact, extermly fast binary serializer for .NET Code and .NET Framework.
+Salar.Bois is the most compact, extermly fast binary serializer for .Net Standard, .NET Code and .NET Framework.
 
 * No compression is done, the high compact ratio is the result of Bois format.
 * No configuration.
@@ -21,6 +21,7 @@ PM> Install-Package Salar.Bois
 PM> Install-Package Salar.Bois.LZ4
 ```
 
+> Minimum frameworks supported are .Net Core 2.0, .Net Standard 2.1 and .Net Framework 4.5
 
 ### Getting Started:
 It is easy to use , just add the package to your project and voila, you can now use it.
@@ -180,8 +181,8 @@ ZeroFormatter |	- |	- |	- |	Binary |    Not supported
 
 Serializer | 	Payload Size (bytes)  | Serialization | Deserialization | Format | Note
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
-Salar.Bois	|	**10414**	|	837 ms	|	411 ms	|	Binary 
-Salar.Bois.LZ4	|	**7628**	|	356 ms	|	483 ms	|	Binary 
+Salar.Bois	|	**10414**	|	356 ms	|	411 ms	|	Binary 
+Salar.Bois.LZ4	|	**7628**	|	837 ms	|	483 ms	|	Binary 
 Microsoft.Avro |	- |	- |	- |	Binary 	 |   Error
 MessagePack	|	11013	|	796 ms	|	301 ms	|	Binary 
 MessagePackLZ4	|	7636	|	28 ms	|	390 ms	|	Binary 
@@ -214,4 +215,3 @@ MessagePackLZ4 | - | - | - | Binary | Not supported
 protobuf-net| - | - | - |	Binary | Not supported
 BinaryFormatter	|	2515	|	763 ms	|	285 ms	|	Binary 
 ZeroFormatter | - | - | - |	Binary | Not supported
-

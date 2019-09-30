@@ -5,7 +5,7 @@
 	<AssemblyName>Salar.Bois.LZ4</AssemblyName>
 	<RootNamespace>Salar.Bois.LZ4</RootNamespace>
 	<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-	<Version>3.0.0.7</Version>
+	<Version>3.1.0.0</Version>
 	<Authors>Salar Khalilzadeh</Authors>
 	<Company>Salar Khalilzadeh</Company>
 	<Product>Salar.Bois</Product>
@@ -27,6 +27,15 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net45|AnyCPU'">
     <DocumentationFile>.\bin\Salar.Bois.LZ4.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|netcoreapp2.0|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

@@ -144,7 +144,7 @@ namespace Salar.Bois.Types
 				parameterTypes: new[] { typeof(BinaryWriter), type/*typeof(object)*/, typeof(Encoding) },
 				m: module,
 				skipVisibility: true);
-#if NetFX || NETFRAMEWORK
+#if NetFX || NETFRAMEWORK || NETSTANDARD
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "writer");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "instance");
 			ilMethod.DefineParameter(3, ParameterAttributes.None, "encoding");
@@ -698,7 +698,7 @@ namespace Salar.Bois.Types
 			   parameterTypes: new[] { typeof(BinaryReader), typeof(Encoding) },
 			   m: module,
 			   skipVisibility: true);
-#if NetFX || NETFRAMEWORK
+#if NetFX || NETFRAMEWORK || NETSTANDARD
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "reader");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "encoding");
 #endif

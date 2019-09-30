@@ -81,7 +81,7 @@ namespace Salar.Bois.LZ4
 			{
 				if (objectData is MemoryStream outMem)
 				{
-#if NETCOREAPP || NETSTANDARD2_1
+#if NETCOREAPP || NETSTANDARD
 					if (outMem.TryGetBuffer(out var arraySegment))
 					{
 						compressedBuff = arraySegment.Array;

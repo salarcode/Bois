@@ -7,9 +7,9 @@ Salar.Bois is the most compact, extermly fast binary serializer for .Net Standar
 
 ## Why Salar.Bois?
 * Because payload size matters. Bois serializer generates the smallest payload size.
-* Because speed matters. Both serialization and deserialization are extermly fast.
+* Because speed matters. Both serialization and deserialization are extremely fast.
 * Easy to use, `Serialize<T>` and `Deserialize<T>` are all you need.
-* No configuration required. No sperate schema required. 
+* No configuration required. No separate schema required. 
 
 ## [NuGet Package](https://www.nuget.org/packages/Salar.Bois)
 ```
@@ -106,7 +106,7 @@ Nothing special is really required. Just these small easy rules.
 * Collections/Lists should be generic and implement one of ICollection<>, IList<> or IDictionary<>
 
 ## Compression
-The `BoisLz4Serializer` class is in a seperate package called `Salar.Bois.LZ4`. It is provided for anyone looking for more compact serialization. To use it just create a new instance of `BoisLz4Serializer` and to serialize and compress the objects call `Pickle` and to deserialize and uncompress call `Unpickle`.
+The `BoisLz4Serializer` class is in a separate package called `Salar.Bois.LZ4`. It is provided for anyone looking for more compact serialization. To use it just create a new instance of `BoisLz4Serializer` and to serialize and compress the objects call `Pickle` and to deserialize and uncompress call `Unpickle`.
 Please note that `BoisLz4Serializer` -for now- is implemented as a wrapper around [LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4).
 
 

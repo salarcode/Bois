@@ -36,7 +36,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="K4os.Compression.LZ4" Version="1.2.15" />
-		<PackageReference Include="Salar.Bois" Version="3.1.0" />
+		<PackageReference Include="Salar.Bois" Version="3.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>

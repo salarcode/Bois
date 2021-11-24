@@ -104,7 +104,7 @@ namespace Salar.Bois
 		/// <param name="obj">The object to be serialized.</param>
 		/// <param name="type">The object type.</param>
 		/// <param name="output">The output of the serialization in binary.</param>
-		internal void Serialize(object obj, Type type, Stream output)
+		public void Serialize(object obj, Type type, Stream output)
 		{
 			if (obj == null)
 				throw new ArgumentNullException(nameof(obj), "Object cannot be null.");
@@ -160,7 +160,7 @@ namespace Salar.Bois
 		/// <param name="objectData">The binary data.</param>
 		/// <param name="type">The object type.</param>
 		/// <returns>New instance of the deserialized data.</returns>
-		internal object Deserialize(Stream objectData, Type type)
+		public object Deserialize(Stream objectData, Type type)
 		{
 			var reader = new BinaryReader(objectData, Encoding);
 

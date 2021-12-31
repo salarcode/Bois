@@ -538,8 +538,12 @@ namespace Salar.Bois.Serializers
 			}
 
 			il.Emit(OpCodes.Box, itemType);
+			if (nullable)
+				il.Emit(OpCodes.Ldc_I4_1);
+			else
+				il.Emit(OpCodes.Ldc_I4_0);
 
-			var methodArg = new[] { typeof(BinaryWriter), typeof(Enum) };
+			var methodArg = new[] { typeof(BinaryWriter), typeof(Enum), typeof(bool) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);

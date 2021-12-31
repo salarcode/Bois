@@ -90,6 +90,7 @@
     <Compile Include="TestObjects\TestObjectCollectionsPrimitive.cs" />
     <Compile Include="TestObjects\TestObjectGeneralNumbers.cs" />
     <Compile Include="TestObjects\TestObjectListImplemented.cs" />
+    <Compile Include="TestObjects\TestObjectNullableProps.cs" />
     <Compile Include="TestObjects\TestObjectPrimitiveTypes.cs" />
     <Compile Include="TestObjects\TestObjectSelfReferencing.cs" />
     <Compile Include="TestObjects\TestStructComplex.cs" />

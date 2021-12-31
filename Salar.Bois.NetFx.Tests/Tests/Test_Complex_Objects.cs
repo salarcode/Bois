@@ -37,5 +37,19 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			SerializeAreEqual(init, final);
 		}
+
+		[Theory]
+		[MemberData(nameof(TestObjectNullableProps.GetTestData), MemberType = typeof(TestObjectNullableProps))]
+		public void TestingTestObjectNullableProps(TestObjectNullableProps init)
+		{
+			ResetBois();
+
+			Bois.Serialize(init, TestStream);
+			ResetStream();
+
+			var final = Bois.Deserialize<TestObjectNullableProps>(TestStream);
+
+			SerializeAreEqual(init, final);
+		}
 	}
 }

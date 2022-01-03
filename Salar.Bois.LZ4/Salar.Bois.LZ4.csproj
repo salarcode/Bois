@@ -5,12 +5,12 @@
 		<AssemblyName>Salar.Bois.LZ4</AssemblyName>
 		<RootNamespace>Salar.Bois.LZ4</RootNamespace>
 		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-		<Version>3.2.0.0</Version>
+		<Version>3.2.1.0</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
 		<Description>Salar's Serializer for Binary Object Indexed Serialization, LZ4 wrapper</Description>
-		<Copyright>MPLv2 © Salar Khalilzadeh 2019</Copyright>
+		<Copyright>MPLv2 © Salar Khalilzadeh 2022</Copyright>
 		<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
 		<PackageLicenseUrl></PackageLicenseUrl>
 		<SignAssembly>true</SignAssembly>
@@ -35,8 +35,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="K4os.Compression.LZ4" Version="1.2.15" />
-		<PackageReference Include="Salar.Bois" Version="3.2.0" />
+		<PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
+		<PackageReference Include="Salar.Bois" Version="3.2.1" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -260,7 +260,7 @@ namespace Salar.Bois.Serializers
 			}
 			var enumType = BoisTypeCache.GetEnumType(type);
 			if (enumType == null)
-				throw new Exception($"Cannot determine the type of enum '{type.Name}'");
+				throw new InvalidDataException($"Cannot determine the type of enum '{type.Name}'");
 
 			var isNullable = enumType.IsNullable;
 			if (memberIsNullable.HasValue)
@@ -325,7 +325,7 @@ namespace Salar.Bois.Serializers
 					break;
 
 				default:
-					throw new Exception($"Enum type not supported '{type.Name}'. Contact the author please https://github.com/salarcode/Bois/issues ");
+					throw new ArgumentException($"Enum type not supported '{type.Name}'. Contact the author please https://github.com/salarcode/Bois/issues ", nameof(type));
 			}
 		}
 
@@ -527,7 +527,7 @@ namespace Salar.Bois.Serializers
 					var basicTypeInfo = BoisTypeCache.GetBasicType(itemType);
 
 					if (basicTypeInfo.KnownType == EnBasicKnownType.Unknown)
-						throw new Exception($"Serialization of DataTable with item type of '{itemType}' is not supported.");
+						throw new InvalidDataException($"Serialization of DataTable with item type of '{itemType}' is not supported.");
 
 					var itemToWrite = item;
 					if (itemType == typeof(string))
@@ -721,7 +721,7 @@ namespace Salar.Bois.Serializers
 				case EnBasicKnownType.Unknown:
 				default:
 					// should never reach here
-					throw new Exception($"Not supported type '{type}' as root");
+					throw new ArgumentException($"Not supported type '{type}' as root", nameof(type));
 			}
 		}
 

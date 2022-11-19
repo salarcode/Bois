@@ -3561,7 +3561,7 @@ namespace Salar.Bois.Serializers
 				}
 				else
 				{
-					throw new Exception("For index greater than 256 Local variable name is required");
+					throw new ArgumentException("For index greater than 256 Local variable name is required", nameof(index));
 				}
 			}
 			else
@@ -3572,7 +3572,7 @@ namespace Salar.Bois.Serializers
 				}
 				else
 				{
-					throw new Exception("For index greater than 256 Local variable name is required");
+					throw new ArgumentException("For index greater than 256 Local variable name is required", nameof(index));
 				}
 			}
 		}

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
 
 /* 
@@ -363,7 +364,7 @@ namespace Salar.Bois.Types
 				var arrayItemType = memActualType.GetElementType();
 
 				if (arrayItemType == null)
-					throw new Exception($"Unknown array '{memType}' with no element type not suported.");
+					throw new InvalidDataException($"Unknown array '{memType}' with no element type not suported.");
 
 				var arrayItemInfo = ReadBasicTypeInfo(arrayItemType);
 

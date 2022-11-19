@@ -751,7 +751,7 @@ namespace Salar.Bois.Types
 
 					return structVariable;
 				}
-				throw new Exception($"Type '{type}' doesn't have a constructor with empty parameters");
+				throw new InvalidDataException($"Type '{type}' doesn't have a constructor with empty parameters");
 			}
 
 

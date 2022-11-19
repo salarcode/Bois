@@ -896,7 +896,7 @@ namespace Salar.Bois.Serializers
 				shift += 7;
 				if (read > 5)
 				{
-					throw new Exception("Invalid integer value in the input stream.");
+					throw new InvalidDataException("Invalid integer value in the input stream.");
 				}
 			}
 			return (short)((-(result & 1)) ^ ((result >> 1) & (ushort)0x7FFFU));
@@ -916,7 +916,7 @@ namespace Salar.Bois.Serializers
 				shift += 7;
 				if (read > 5)
 				{
-					throw new Exception("Invalid integer value in the input stream.");
+					throw new InvalidDataException("Invalid integer value in the input stream.");
 				}
 			}
 			return result;
@@ -936,7 +936,7 @@ namespace Salar.Bois.Serializers
 				shift += 7;
 				if (read > 5)
 				{
-					throw new Exception("Invalid integer value in the input stream.");
+					throw new InvalidDataException("Invalid integer value in the input stream.");
 				}
 			}
 			return (int)((-(result & 1)) ^ ((result >> 1) & 0x7FFFFFFFU));
@@ -956,7 +956,7 @@ namespace Salar.Bois.Serializers
 				shift += 7;
 				if (read > 5)
 				{
-					throw new Exception("Invalid integer value in the input stream.");
+					throw new InvalidDataException("Invalid integer value in the input stream.");
 				}
 			}
 			return result;
@@ -976,7 +976,7 @@ namespace Salar.Bois.Serializers
 				shift += 7;
 				if (read > 10)
 				{
-					throw new Exception("Invalid integer long in the input stream.");
+					throw new InvalidDataException("Invalid integer long in the input stream.");
 				}
 			}
 			var tmp = unchecked((long)result);
@@ -997,7 +997,7 @@ namespace Salar.Bois.Serializers
 				shift += 7;
 				if (read > 10)
 				{
-					throw new Exception("Invalid integer long in the input stream.");
+					throw new InvalidDataException("Invalid integer long in the input stream.");
 				}
 			}
 			return result;

@@ -49,7 +49,7 @@ namespace Salar.Bois.NetFx.Tests.Base
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Failed to serialize to json, the expected value.", ex);
+				throw new InvalidDataException("Failed to serialize to json, the expected value.", ex);
 			}
 			string actualStr;
 			try
@@ -58,7 +58,7 @@ namespace Salar.Bois.NetFx.Tests.Base
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Failed to serialize to json, the actual value.", ex);
+				throw new InvalidDataException("Failed to serialize to json, the actual value.", ex);
 			}
 			Assert.Equal(expectedStr, actualStr);
 		}

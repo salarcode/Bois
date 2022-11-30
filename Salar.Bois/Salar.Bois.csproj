@@ -6,7 +6,7 @@
 		<RootNamespace>Salar.Bois</RootNamespace>
 		<LangVersion>latest</LangVersion>
 		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-		<Version>3.2.1.0</Version>
+		<Version>3.3.0.0</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
@@ -19,29 +19,22 @@ More info: https://github.com/salarcode/Bois</Description>
 		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-		<PackageReleaseNotes>* Bugfix: Nullable enums would fail.
-+ .NET Core 5.0 support added.
-+ Generic type serialize/deserialize method added</PackageReleaseNotes>
+		<PackageReleaseNotes>
+			* Started using BinaryBuffers for more flexilibity and performance
+			* Added couple of new constructors using BinaryBuffers
+		</PackageReleaseNotes>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|netcoreapp2.0|AnyCPU'">
-	  <DefineConstants>TRACE;EmitAssemblyOut</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|net48|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)'=='Debug+AssemblyOut'">
 	  <DefineConstants>DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
 	  <Optimize>false</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-	  <DocumentationFile>.\bin\Salar.Bois.xml</DocumentationFile>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
-	  <DefineConstants>DEBUG;TRACE</DefineConstants>
+		<DocumentationFile>.\bin\Salar.Bois.xml</DocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>

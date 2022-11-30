@@ -6,7 +6,7 @@
 		<RootNamespace>Salar.Bois.LZ4</RootNamespace>
 		<LangVersion>latest</LangVersion>
 		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-		<Version>3.2.1.0</Version>
+		<Version>3.3.0.0</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
@@ -21,21 +21,17 @@
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)'=='Debug+AssemblyOut'">
+		<DefineConstants>DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
+		<Optimize>false</Optimize>
+	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<DocumentationFile>.\bin\Salar.Bois.LZ4.xml</DocumentationFile>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|netcoreapp2.0|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<Optimize>false</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
-
 	<ItemGroup>
-		<PackageReference Include="K4os.Compression.LZ4" Version="1.2.15" />
+		<PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
 	</ItemGroup>
 
 	<ItemGroup>

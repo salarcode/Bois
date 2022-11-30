@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Salar.BinaryBuffers;
+using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 
@@ -43,6 +44,8 @@ namespace Salar.Bois.Serializers
 
 		#region Array Pool
 
+		private static byte[] ZeroByteArray = new byte[] { 0 };
+
 		private static class SharedArray
 		{
 			[ThreadStatic] private static byte[] _array;
@@ -50,7 +53,7 @@ namespace Salar.Bois.Serializers
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public static byte[] Get()
 			{
-				return _array ?? (_array = new byte[16]);
+				return _array ??= new byte[16];
 			}
 
 			public static void ClearArray4()
@@ -77,7 +80,7 @@ namespace Salar.Bois.Serializers
 
 		#region Readers
 
-		internal static sbyte? ReadVarSByteNullable(BinaryReader reader)
+		internal static sbyte? ReadVarSByteNullable(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -94,7 +97,7 @@ namespace Salar.Bois.Serializers
 			}
 		}
 
-		internal static short? ReadVarInt16Nullable(BinaryReader reader)
+		internal static short? ReadVarInt16Nullable(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -112,12 +115,12 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static short ReadVarInt16(BinaryReader reader)
+		internal static short ReadVarInt16(BufferReaderBase reader)
 		{
 			return ReadInt16Zigzag(reader);
 		}
 
-		internal static ushort? ReadVarUInt16Nullable(BinaryReader reader)
+		internal static ushort? ReadVarUInt16Nullable(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -135,12 +138,12 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static ushort ReadVarUInt16(BinaryReader reader)
+		internal static ushort ReadVarUInt16(BufferReaderBase reader)
 		{
 			return ReadUInt16Zigzag(reader);
 		}
 
-		internal static int? ReadVarInt32Nullable(BinaryReader reader)
+		internal static int? ReadVarInt32Nullable(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -158,12 +161,12 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static int ReadVarInt32(BinaryReader reader)
+		internal static int ReadVarInt32(BufferReaderBase reader)
 		{
 			return ReadInt32Zigzag(reader);
 		}
 
-		internal static uint? ReadVarUInt32Nullable(BinaryReader reader)
+		internal static uint? ReadVarUInt32Nullable(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -181,12 +184,12 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static uint ReadVarUInt32(BinaryReader reader)
+		internal static uint ReadVarUInt32(BufferReaderBase reader)
 		{
 			return ReadUInt32Zigzag(reader);
 		}
 
-		internal static long? ReadVarInt64Nullable(BinaryReader reader)
+		internal static long? ReadVarInt64Nullable(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -204,12 +207,12 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static long ReadVarInt64(BinaryReader reader)
+		internal static long ReadVarInt64(BufferReaderBase reader)
 		{
 			return ReadInt64Zigzag(reader);
 		}
 
-		internal static ulong? ReadVarUInt64Nullable(BinaryReader reader)
+		internal static ulong? ReadVarUInt64Nullable(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -227,12 +230,12 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static ulong ReadVarUInt64(BinaryReader reader)
+		internal static ulong ReadVarUInt64(BufferReaderBase reader)
 		{
 			return ReadUInt64Zigzag(reader);
 		}
 
-		internal static decimal? ReadVarDecimalNullable(BinaryReader reader)
+		internal static decimal? ReadVarDecimalNullable(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -251,7 +254,7 @@ namespace Salar.Bois.Serializers
 			return ConvertFromVarBinaryDecimal(numBuff);
 		}
 
-		internal static decimal ReadVarDecimal(BinaryReader reader)
+		internal static decimal ReadVarDecimal(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 
@@ -268,7 +271,7 @@ namespace Salar.Bois.Serializers
 			return ConvertFromVarBinaryDecimal(numBuff);
 		}
 
-		internal static double? ReadVarDoubleNullable(BinaryReader reader)
+		internal static double? ReadVarDoubleNullable(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -296,7 +299,7 @@ namespace Salar.Bois.Serializers
 			return BitConverter.ToDouble(buff, 0);
 		}
 
-		internal static double ReadVarDouble(BinaryReader reader)
+		internal static double ReadVarDouble(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 
@@ -322,7 +325,7 @@ namespace Salar.Bois.Serializers
 			return BitConverter.ToDouble(buff, 0);
 		}
 
-		internal static float? ReadVarSingleNullable(BinaryReader reader)
+		internal static float? ReadVarSingleNullable(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -350,7 +353,7 @@ namespace Salar.Bois.Serializers
 			return BitConverter.ToSingle(buff, 0);
 		}
 
-		internal static float ReadVarSingle(BinaryReader reader)
+		internal static float ReadVarSingle(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 
@@ -376,7 +379,7 @@ namespace Salar.Bois.Serializers
 			return BitConverter.ToSingle(buff, 0);
 		}
 
-		internal static byte? ReadVarByteNullable(BinaryReader reader)
+		internal static byte? ReadVarByteNullable(BufferReaderBase reader)
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -401,7 +404,7 @@ namespace Salar.Bois.Serializers
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BinaryWriter writer, int num)
+		internal static void WriteVarInt(IBufferWriter writer, int num)
 		{
 			WriteZigzag(writer, num);
 		}
@@ -412,7 +415,7 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
-		internal static void WriteVarInt(BinaryWriter writer, int? num)
+		internal static void WriteVarInt(IBufferWriter writer, int? num)
 		{
 			if (num == null)
 			{
@@ -444,7 +447,7 @@ namespace Salar.Bois.Serializers
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BinaryWriter writer, uint num)
+		internal static void WriteVarInt(IBufferWriter writer, uint num)
 		{
 			WriteZigzag(writer, num);
 		}
@@ -454,7 +457,7 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
-		internal static void WriteVarInt(BinaryWriter writer, uint? num)
+		internal static void WriteVarInt(IBufferWriter writer, uint? num)
 		{
 			if (num == null)
 			{
@@ -489,7 +492,7 @@ namespace Salar.Bois.Serializers
 		/// the don't have null value, there is no point creating Nullable object to convert it
 		/// </remarks>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteUIntNullableMemberCount(BinaryWriter writer, uint num)
+		internal static void WriteUIntNullableMemberCount(IBufferWriter writer, uint num)
 		{
 			// NOTE:
 			// Member count can be null, but not the place this method is being called
@@ -516,7 +519,7 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BinaryWriter writer, short num)
+		internal static void WriteVarInt(IBufferWriter writer, short num)
 		{
 			WriteZigzag(writer, num);
 		}
@@ -524,7 +527,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BinaryWriter writer, short? num)
+		internal static void WriteVarInt(IBufferWriter writer, short? num)
 		{
 			if (num == null)
 			{
@@ -554,7 +557,7 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BinaryWriter writer, ushort num)
+		internal static void WriteVarInt(IBufferWriter writer, ushort num)
 		{
 			WriteZigzag(writer, num);
 		}
@@ -562,7 +565,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BinaryWriter writer, ushort? num)
+		internal static void WriteVarInt(IBufferWriter writer, ushort? num)
 		{
 			if (num == null)
 			{
@@ -592,7 +595,7 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BinaryWriter writer, long num)
+		internal static void WriteVarInt(IBufferWriter writer, long num)
 		{
 			WriteZigzag(writer, num);
 		}
@@ -600,7 +603,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BinaryWriter writer, long? num)
+		internal static void WriteVarInt(IBufferWriter writer, long? num)
 		{
 			if (num == null)
 			{
@@ -630,7 +633,7 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BinaryWriter writer, ulong num)
+		internal static void WriteVarInt(IBufferWriter writer, ulong num)
 		{
 			WriteZigzag(writer, num);
 		}
@@ -638,7 +641,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BinaryWriter writer, ulong? num)
+		internal static void WriteVarInt(IBufferWriter writer, ulong? num)
 		{
 			if (num == null)
 			{
@@ -667,7 +670,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BinaryWriter writer, byte? num)
+		internal static void WriteVarInt(IBufferWriter writer, byte? num)
 		{
 			if (num == null)
 			{
@@ -696,7 +699,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BinaryWriter writer, sbyte? num)
+		internal static void WriteVarInt(IBufferWriter writer, sbyte? num)
 		{
 			if (num == null)
 			{
@@ -725,7 +728,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BinaryWriter writer, float num)
+		internal static void WriteVarDecimal(IBufferWriter writer, float num)
 		{
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen, out var position);
 			var firstByte = numBuff[position];
@@ -747,7 +750,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BinaryWriter writer, float? num)
+		internal static void WriteVarDecimal(IBufferWriter writer, float? num)
 		{
 			if (num == null)
 			{
@@ -777,7 +780,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BinaryWriter writer, double num)
+		internal static void WriteVarDecimal(IBufferWriter writer, double num)
 		{
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen, out var position);
 			var firstByte = numBuff[position];
@@ -799,7 +802,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BinaryWriter writer, double? num)
+		internal static void WriteVarDecimal(IBufferWriter writer, double? num)
 		{
 			if (num == null)
 			{
@@ -830,7 +833,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BinaryWriter writer, decimal num)
+		internal static void WriteVarDecimal(IBufferWriter writer, decimal num)
 		{
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
 			var firstByte = numBuff[0];
@@ -852,7 +855,7 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BinaryWriter writer, decimal? num)
+		internal static void WriteVarDecimal(IBufferWriter writer, decimal? num)
 		{
 			if (num == null)
 			{
@@ -882,7 +885,7 @@ namespace Salar.Bois.Serializers
 
 		#region Binary Converters & Writers
 
-		private static short ReadInt16Zigzag(BinaryReader reader)
+		private static short ReadInt16Zigzag(BufferReaderBase reader)
 		{
 			var currentByte = (uint)reader.ReadByte();
 			byte read = 1;
@@ -902,7 +905,7 @@ namespace Salar.Bois.Serializers
 			return (short)((-(result & 1)) ^ ((result >> 1) & (ushort)0x7FFFU));
 		}
 
-		private static ushort ReadUInt16Zigzag(BinaryReader reader)
+		private static ushort ReadUInt16Zigzag(BufferReaderBase reader)
 		{
 			var currentByte = (ushort)reader.ReadByte();
 			byte read = 1;
@@ -922,7 +925,7 @@ namespace Salar.Bois.Serializers
 			return result;
 		}
 
-		private static int ReadInt32Zigzag(BinaryReader reader)
+		private static int ReadInt32Zigzag(BufferReaderBase reader)
 		{
 			var currentByte = (uint)reader.ReadByte();
 			byte read = 1;
@@ -942,7 +945,7 @@ namespace Salar.Bois.Serializers
 			return (int)((-(result & 1)) ^ ((result >> 1) & 0x7FFFFFFFU));
 		}
 
-		private static uint ReadUInt32Zigzag(BinaryReader reader)
+		private static uint ReadUInt32Zigzag(BufferReaderBase reader)
 		{
 			var currentByte = (uint)reader.ReadByte();
 			byte read = 1;
@@ -962,7 +965,7 @@ namespace Salar.Bois.Serializers
 			return result;
 		}
 
-		private static long ReadInt64Zigzag(BinaryReader reader)
+		private static long ReadInt64Zigzag(BufferReaderBase reader)
 		{
 			var value = (uint)reader.ReadByte();
 			byte read = 1;
@@ -983,7 +986,7 @@ namespace Salar.Bois.Serializers
 			return (-(tmp & 0x1L)) ^ ((tmp >> 1) & 0x7FFFFFFFFFFFFFFFL);
 		}
 
-		private static ulong ReadUInt64Zigzag(BinaryReader reader)
+		private static ulong ReadUInt64Zigzag(BufferReaderBase reader)
 		{
 			var value = (uint)reader.ReadByte();
 			byte read = 1;
@@ -1004,7 +1007,7 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		private static void WriteZigzag(BinaryWriter writer, long num)
+		private static void WriteZigzag(IBufferWriter writer, long num)
 		{
 			var zigZagEncoded = unchecked((ulong)((num << 1) ^ (num >> 63)));
 			while ((zigZagEncoded & ~0x7FUL) != 0)
@@ -1015,7 +1018,7 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)zigZagEncoded);
 		}
 
-		private static void WriteZigzag(BinaryWriter writer, ulong num)
+		private static void WriteZigzag(IBufferWriter writer, ulong num)
 		{
 			while ((num & ~0x7FUL) != 0)
 			{
@@ -1025,7 +1028,7 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)num);
 		}
 
-		private static void WriteZigzag(BinaryWriter writer, int num)
+		private static void WriteZigzag(IBufferWriter writer, int num)
 		{
 			var zigZagEncoded = unchecked((uint)((num << 1) ^ (num >> 31)));
 			while ((zigZagEncoded & ~0x7F) != 0)
@@ -1036,7 +1039,7 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)zigZagEncoded);
 		}
 
-		private static void WriteZigzag(BinaryWriter writer, uint num)
+		private static void WriteZigzag(IBufferWriter writer, uint num)
 		{
 			while ((num & ~0x7F) != 0)
 			{
@@ -1046,7 +1049,7 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)num);
 		}
 
-		private static void WriteZigzag(BinaryWriter writer, short num)
+		private static void WriteZigzag(IBufferWriter writer, short num)
 		{
 			var zigZagEncoded = unchecked((ushort)((num << 1) ^ (num >> 15)));
 			while ((zigZagEncoded & ~0x7F) != 0)
@@ -1057,7 +1060,7 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)zigZagEncoded);
 		}
 
-		private static void WriteZigzag(BinaryWriter writer, ushort num)
+		private static void WriteZigzag(IBufferWriter writer, ushort num)
 		{
 			while ((num & ~0x7F) != 0)
 			{
@@ -1140,7 +1143,8 @@ namespace Salar.Bois.Serializers
 			return result;
 		}
 
-		private static int ConvertFromVarBinaryInt32StartIndex(byte[] numBuff, int startIndex)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static int ConvertFromVarBinaryInt32StartIndex(ReadOnlySpan<byte> numBuff, int startIndex)
 		{
 			return ((numBuff[startIndex + 0] | (numBuff[startIndex + 1] << 8)) | (numBuff[startIndex + 2] << 16)) | (numBuff[startIndex + 3] << 24);
 		}
@@ -1189,7 +1193,41 @@ namespace Salar.Bois.Serializers
 
 		}
 
-		private static decimal ConvertFromVarBinaryDecimal(byte[] numBuff)
+		private unsafe static decimal ConvertFromVarBinaryDecimal(byte[] numBuff)
+		{
+			Span<byte> buff = numBuff.Length < 16 ? // 16 is required
+#if NET6_0_OR_GREATER
+				stackalloc
+#else
+				new
+#endif
+				byte[16] : numBuff;
+			if (numBuff.Length < 16)
+			{
+				// TODO: check why SharedArray.Get() decreases performance by 3x times
+				numBuff.AsSpan().CopyTo(buff);
+			}
+			else
+			{
+				buff = numBuff;
+			}
+			return new decimal(
+#if NET6_0_OR_GREATER
+				stackalloc
+#else
+				new
+#endif
+			int[4]
+			{
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 0),
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 1),
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 2),
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 3)
+			});
+		}
+
+		[Obsolete("Use alternative methods")]
+		private static decimal ConvertFromVarBinaryDecimal_OLD(byte[] numBuff)
 		{
 			byte[] buff;
 			if (numBuff.Length < 16)
@@ -1202,16 +1240,22 @@ namespace Salar.Bois.Serializers
 			{
 				buff = numBuff;
 			}
-
-			var decimalBits = new int[4];
-			decimalBits[0] = ConvertFromVarBinaryInt32StartIndex(buff, 4 * 0);
-			decimalBits[1] = ConvertFromVarBinaryInt32StartIndex(buff, 4 * 1);
-			decimalBits[2] = ConvertFromVarBinaryInt32StartIndex(buff, 4 * 2);
-			decimalBits[3] = ConvertFromVarBinaryInt32StartIndex(buff, 4 * 3);
-
-			return new decimal(decimalBits);
+			return new decimal(
+#if NET6_0_OR_GREATER
+				stackalloc
+#else
+				new
+#endif
+			int[4]
+			{
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 0),
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 1),
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 2),
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 3)
+			});
 		}
 
+		[Obsolete("Use alternative methods")]
 		private static double ConvertFromVarBinaryDouble(byte[] numBuff)
 		{
 			if (numBuff.Length == 8)
@@ -1227,6 +1271,7 @@ namespace Salar.Bois.Serializers
 			}
 		}
 
+		[Obsolete("Use alternative methods")]
 		private static float ConvertFromVarBinarySingle(byte[] numBuff)
 		{
 			if (numBuff.Length == 4)
@@ -1287,7 +1332,7 @@ namespace Salar.Bois.Serializers
 			if (value == 0)
 			{
 				length = 1;
-				return new byte[] { 0 };
+				return ZeroByteArray;
 			}
 
 			var buff = SharedArray.Get();
@@ -1356,7 +1401,7 @@ namespace Salar.Bois.Serializers
 		//	}
 
 		//	length = 1;
-		//	return new byte[] { 0 };
+		//	return ZeroByteArray;
 		//}
 
 		private static byte[] ConvertToVarBinary(ulong value, out byte length)
@@ -1381,9 +1426,10 @@ namespace Salar.Bois.Serializers
 			}
 
 			length = 1;
-			return new byte[] { 0 };
+			return ZeroByteArray;
 		}
 
+		[Obsolete("Use alternative methods")]
 		private static byte[] ConvertToVarBinary(short value, out byte length)
 		{
 			if (value < 0)
@@ -1415,6 +1461,7 @@ namespace Salar.Bois.Serializers
 			}
 		}
 
+		[Obsolete("Use alternative methods")]
 		private static byte[] ConvertToVarBinary(ushort value, out byte length)
 		{
 			var buff = new byte[2];
@@ -1450,7 +1497,7 @@ namespace Salar.Bois.Serializers
 			}
 			length = 1;
 			position = 0;
-			return new byte[] { 0 };
+			return ZeroByteArray;
 		}
 
 		private static byte[] ConvertToVarBinary(float value, out byte length)
@@ -1467,7 +1514,7 @@ namespace Salar.Bois.Serializers
 			if (num4 == 0 && num3 == 0 && num2 == 0 && num1 == 0)
 			{
 				length = 1;
-				return new byte[] { 0 };
+				return ZeroByteArray;
 			}
 
 			if (num3 == 0 && num2 == 0 && num1 == 0)
@@ -1509,9 +1556,10 @@ namespace Salar.Bois.Serializers
 			}
 			length = 1;
 			position = 0;
-			return new byte[] { 0 };
+			return ZeroByteArray;
 		}
 
+		[Obsolete("Use alternative methods")]
 		private static byte[] ConvertToVarBinary(double value, out byte length)
 		{
 			// Float  &double numeric formats stores valuable bytes from right to left
@@ -1530,7 +1578,7 @@ namespace Salar.Bois.Serializers
 			if (num8 == 0 && num7 == 0 && num6 == 0 && num5 == 0 && num4 == 0 && num3 == 0 && num2 == 0 && num1 == 0)
 			{
 				length = 1;
-				return new byte[] { 0 };
+				return ZeroByteArray;
 			}
 
 			if (num7 == 0 && num6 == 0 && num5 == 0 && num4 == 0 && num3 == 0 && num2 == 0 && num1 == 0)
@@ -1603,7 +1651,7 @@ namespace Salar.Bois.Serializers
 				}
 			}
 			length = 1;
-			return new byte[] { 0 };
+			return ZeroByteArray;
 		}
 
 		#endregion

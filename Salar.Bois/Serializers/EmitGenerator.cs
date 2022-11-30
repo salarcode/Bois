@@ -1,4 +1,5 @@
-﻿using Salar.Bois.Types;
+﻿using Salar.BinaryBuffers;
+using Salar.Bois.Types;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -86,7 +87,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteInt16(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -103,7 +104,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(short?) } : new[] { typeof(BinaryWriter), typeof(short) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(short?) } : new[] { typeof(IBufferWriter), typeof(short) };
 			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -112,7 +113,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteInt32(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -130,7 +131,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(int?) } : new[] { typeof(BinaryWriter), typeof(int) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(int?) } : new[] { typeof(IBufferWriter), typeof(int) };
 			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -139,7 +140,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteInt64(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -157,7 +158,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(long?) } : new[] { typeof(BinaryWriter), typeof(long) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(long?) } : new[] { typeof(IBufferWriter), typeof(long) };
 			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -166,7 +167,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteUInt16(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -184,7 +185,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(ushort?) } : new[] { typeof(BinaryWriter), typeof(ushort) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(ushort?) } : new[] { typeof(IBufferWriter), typeof(ushort) };
 			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -193,7 +194,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteUInt32(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -211,7 +212,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(uint?) } : new[] { typeof(BinaryWriter), typeof(uint) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(uint?) } : new[] { typeof(IBufferWriter), typeof(uint) };
 			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -220,7 +221,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteUInt64(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -238,7 +239,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(ulong?) } : new[] { typeof(BinaryWriter), typeof(ulong) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(ulong?) } : new[] { typeof(IBufferWriter), typeof(ulong) };
 			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -247,7 +248,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteDouble(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -265,7 +266,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(double?) } : new[] { typeof(BinaryWriter), typeof(double) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(double?) } : new[] { typeof(IBufferWriter), typeof(double) };
 			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarDecimal),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -274,7 +275,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteDecimal(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
 			Type containerType, ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -292,7 +293,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(decimal?) } : new[] { typeof(BinaryWriter), typeof(decimal) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(decimal?) } : new[] { typeof(IBufferWriter), typeof(decimal) };
 			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarDecimal),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -301,7 +302,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteFloat(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -319,7 +320,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(float?) } : new[] { typeof(BinaryWriter), typeof(float) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(float?) } : new[] { typeof(IBufferWriter), typeof(float) };
 			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarDecimal),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -329,7 +330,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteByte(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -349,14 +350,14 @@ namespace Salar.Bois.Serializers
 
 			if (nullable)
 			{
-				var methodArg = new[] { typeof(BinaryWriter), typeof(byte?) };
+				var methodArg = new[] { typeof(IBufferWriter), typeof(byte?) };
 				il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
 					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			}
 			else
 			{
 				il.Emit(OpCodes.Callvirt,
-					meth: typeof(BinaryWriter).GetMethod(nameof(BinaryWriter.Write),
+					meth: typeof(IBufferWriter).GetMethod(nameof(IBufferWriter.Write),
 						BindingFlags.Instance | BindingFlags.Public, Type.DefaultBinder, new[] { typeof(byte) }, null));
 			}
 			il.Emit(OpCodes.Nop);
@@ -366,7 +367,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteSByte(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -387,14 +388,14 @@ namespace Salar.Bois.Serializers
 
 			if (nullable)
 			{
-				var methodArg = new[] { typeof(BinaryWriter), typeof(sbyte?) };
+				var methodArg = new[] { typeof(IBufferWriter), typeof(sbyte?) };
 				il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteVarInt),
 					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			}
 			else
 			{
 				il.Emit(OpCodes.Callvirt,
-					meth: typeof(BinaryWriter).GetMethod(nameof(BinaryWriter.Write),
+					meth: typeof(IBufferWriter).GetMethod(nameof(IBufferWriter.Write),
 						BindingFlags.Instance | BindingFlags.Public, Type.DefaultBinder, new[] { typeof(sbyte) }, null));
 			}
 			il.Emit(OpCodes.Nop);
@@ -403,7 +404,7 @@ namespace Salar.Bois.Serializers
 
 		internal static void WriteString(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType, ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -422,7 +423,7 @@ namespace Salar.Bois.Serializers
 			}
 
 			il.Emit(OpCodes.Ldarg_2); // Encoding
-			var methodArg = new[] { typeof(BinaryWriter), typeof(string), typeof(Encoding) };
+			var methodArg = new[] { typeof(IBufferWriter), typeof(string), typeof(Encoding) };
 			il.Emit(OpCodes.Call,
 				meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
@@ -432,7 +433,7 @@ namespace Salar.Bois.Serializers
 
 		internal static void WriteBool(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType, ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -450,7 +451,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(bool?) } : new[] { typeof(BinaryWriter), typeof(bool) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(bool?) } : new[] { typeof(IBufferWriter), typeof(bool) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -459,7 +460,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteDateTime(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
 			Type containerType, ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -477,7 +478,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(DateTime?) } : new[] { typeof(BinaryWriter), typeof(DateTime) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(DateTime?) } : new[] { typeof(IBufferWriter), typeof(DateTime) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -487,7 +488,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteDateTimeOffset(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
 			Type containerType, ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -505,7 +506,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(DateTimeOffset?) } : new[] { typeof(BinaryWriter), typeof(DateTimeOffset) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(DateTimeOffset?) } : new[] { typeof(IBufferWriter), typeof(DateTimeOffset) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -517,7 +518,7 @@ namespace Salar.Bois.Serializers
 		{
 			Type itemType;
 
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				itemType = prop.PropertyType;
@@ -543,7 +544,7 @@ namespace Salar.Bois.Serializers
 			else
 				il.Emit(OpCodes.Ldc_I4_0);
 
-			var methodArg = new[] { typeof(BinaryWriter), typeof(Enum), typeof(bool) };
+			var methodArg = new[] { typeof(IBufferWriter), typeof(Enum), typeof(bool) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -553,7 +554,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteTimeSpan(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
 			Type containerType, ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -571,7 +572,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(TimeSpan?) } : new[] { typeof(BinaryWriter), typeof(TimeSpan) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(TimeSpan?) } : new[] { typeof(IBufferWriter), typeof(TimeSpan) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -581,7 +582,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteChar(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -599,7 +600,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(char?) } : new[] { typeof(BinaryWriter), typeof(char) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(char?) } : new[] { typeof(IBufferWriter), typeof(char) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -608,7 +609,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteGuid(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -626,7 +627,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(Guid?) } : new[] { typeof(BinaryWriter), typeof(Guid) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(Guid?) } : new[] { typeof(IBufferWriter), typeof(Guid) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -635,7 +636,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteColor(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -653,7 +654,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = nullable ? new[] { typeof(BinaryWriter), typeof(Color?) } : new[] { typeof(BinaryWriter), typeof(Color) };
+			var methodArg = nullable ? new[] { typeof(IBufferWriter), typeof(Color?) } : new[] { typeof(IBufferWriter), typeof(Color) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -663,7 +664,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteDbNull(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -681,7 +682,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = new[] { typeof(BinaryWriter), typeof(DBNull) };
+			var methodArg = new[] { typeof(IBufferWriter), typeof(DBNull) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -691,7 +692,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteUri(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -709,7 +710,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = new[] { typeof(BinaryWriter), typeof(Uri) };
+			var methodArg = new[] { typeof(IBufferWriter), typeof(Uri) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -719,7 +720,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteVersion(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
 			Type containerType, ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -737,7 +738,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = new[] { typeof(BinaryWriter), typeof(Version) };
+			var methodArg = new[] { typeof(IBufferWriter), typeof(Version) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -747,7 +748,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteByteArray(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
 			Type containerType, ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -765,7 +766,7 @@ namespace Salar.Bois.Serializers
 				valueLoader();
 			}
 
-			var methodArg = new[] { typeof(BinaryWriter), typeof(byte[]) };
+			var methodArg = new[] { typeof(IBufferWriter), typeof(byte[]) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -828,10 +829,10 @@ namespace Salar.Bois.Serializers
 
 				// IMPORTANT: because we need to detect whether the object is null or not we need this byte
 				// CODE-FOR: writer.Write((byte)0);
-				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 				il.Emit(OpCodes.Ldc_I4_0);
 				il.Emit(OpCodes.Call,
-					meth: typeof(BinaryWriter).GetMethod(nameof(BinaryWriter.Write),
+					meth: typeof(IBufferWriter).GetMethod(nameof(IBufferWriter.Write),
 						BindingFlags.Instance | BindingFlags.Public,
 						Type.DefaultBinder, new[] { typeof(byte) }, null));
 				il.Emit(OpCodes.Nop);
@@ -842,7 +843,7 @@ namespace Salar.Bois.Serializers
 
 
 					// CODE-FOR: computed_function_name(tempValueCheck.Value);
-					il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+					il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 					il.LoadLocalAddress(tempValueCheck);
 
 					// int value = num.Value;
@@ -884,10 +885,10 @@ namespace Salar.Bois.Serializers
 
 					// IMPORTANT: because we need to detect whether the object is null or not we need this byte
 					// CODE-FOR: writer.Write((byte)0);
-					il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+					il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 					il.Emit(OpCodes.Ldc_I4_0);
 					il.Emit(OpCodes.Call,
-						meth: typeof(BinaryWriter).GetMethod(nameof(BinaryWriter.Write),
+						meth: typeof(IBufferWriter).GetMethod(nameof(IBufferWriter.Write),
 							BindingFlags.Instance | BindingFlags.Public,
 							Type.DefaultBinder, new[] { typeof(byte) }, null));
 					il.Emit(OpCodes.Nop);
@@ -895,7 +896,7 @@ namespace Salar.Bois.Serializers
 					// write value
 					{
 						// CODE-FOR: Calling the emitted writer
-						il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+						il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 						if (prop != null)
 						{
 							var getter = prop.GetGetMethod(true);
@@ -926,7 +927,7 @@ namespace Salar.Bois.Serializers
 					il.MarkLabel(LabelWriteNull);
 
 					// CODE-FOR: PrimitiveWriter.WriteNullValue(writer);
-					il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+					il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 					il.Emit(OpCodes.Call,
 						typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
 							BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
@@ -995,7 +996,7 @@ namespace Salar.Bois.Serializers
 
 			// PrimitiveWriter.WriteNullValue(writer);
 			{
-				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 				il.Emit(OpCodes.Call,
 					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
@@ -1005,14 +1006,14 @@ namespace Salar.Bois.Serializers
 			// NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)coll.Count);
 			il.MarkLabel(actualCode);
 
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			il.LoadLocalValue(instanceVar); // instance coll
 			il.Emit(OpCodes.Callvirt,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: collectionType.GetProperty(nameof(ICollection.Count)).GetGetMethod());
 			il.Emit(OpCodes.Call,
 				meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteUIntNullableMemberCount),
-					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(uint) }, null));
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(IBufferWriter), typeof(uint) }, null));
 			il.Emit(OpCodes.Nop);
 
 
@@ -1124,7 +1125,7 @@ namespace Salar.Bois.Serializers
 					// for complex types, a method is generated
 					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(valueType, false, true);
 
-					il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+					il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 					il.LoadLocalValue(dicItemVar);
 					il.Emit(OpCodes.Ldarg_2); // Encoding
 					il.Emit(OpCodes.Call, meth: valueTypeInfo.WriterMethod);
@@ -1216,7 +1217,7 @@ namespace Salar.Bois.Serializers
 
 			// PrimitiveWriter.WriteNullValue(writer);
 			{
-				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 				il.Emit(OpCodes.Call,
 					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
@@ -1226,14 +1227,14 @@ namespace Salar.Bois.Serializers
 			// NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)coll.Count);
 			il.MarkLabel(actualCode);
 
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			il.LoadLocalValue(instanceVar); // instance coll
 			il.Emit(OpCodes.Callvirt,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: dictionaryType.GetProperty(nameof(IDictionary.Count)).GetGetMethod());
 			il.Emit(OpCodes.Call,
 				meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteUIntNullableMemberCount),
-					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(uint) }, null));
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(IBufferWriter), typeof(uint) }, null));
 			il.Emit(OpCodes.Nop);
 
 
@@ -1321,7 +1322,7 @@ namespace Salar.Bois.Serializers
 					// for complex types, a method is generated
 					var keyTypeInfo = BoisTypeCache.GetRootTypeComputed(keyType, false, true);
 
-					il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+					il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 					il.LoadLocalAuto(dicItemVar);
 					il.Emit(OpCodes.Call,
 						// ReSharper disable once PossibleNullReferenceException
@@ -1351,7 +1352,7 @@ namespace Salar.Bois.Serializers
 					// for complex types, a method is generated
 					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(valueType, false, true);
 
-					il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+					il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 					il.LoadLocalAuto(dicItemVar);
 					il.Emit(OpCodes.Call,
 						// ReSharper disable once PossibleNullReferenceException
@@ -1447,7 +1448,7 @@ namespace Salar.Bois.Serializers
 
 			// PrimitiveWriter.WriteNullValue(writer);
 			{
-				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 				il.Emit(OpCodes.Call,
 					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
@@ -1460,13 +1461,13 @@ namespace Salar.Bois.Serializers
 			// NumericSerializers.WriteUIntNullableMemberCount(writer,(uint) arr.Length);
 			il.MarkLabel(actualCode);
 
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			il.LoadLocalValue(instanceVar); // instance arr
 			il.Emit(OpCodes.Ldlen); // array length
 			il.Emit(OpCodes.Conv_I4);
 			il.Emit(OpCodes.Call,
 				meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteUIntNullableMemberCount),
-					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(uint) }, null));
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(IBufferWriter), typeof(uint) }, null));
 			il.Emit(OpCodes.Nop);
 
 
@@ -1509,7 +1510,7 @@ namespace Salar.Bois.Serializers
 					// for complex types, a method is generated
 					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(arrItemType, false, true);
 
-					il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+					il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 
 					// CODE-FOR: array[index]
 					il.LoadLocalValue(instanceVar); // instance arr
@@ -1596,7 +1597,7 @@ namespace Salar.Bois.Serializers
 
 			// PrimitiveWriter.WriteNullValue(writer);
 			{
-				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 				il.Emit(OpCodes.Call,
 					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
@@ -1609,14 +1610,14 @@ namespace Salar.Bois.Serializers
 			// NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)coll.Count);
 			il.MarkLabel(actualCode);
 
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			il.LoadLocalValue(instanceVar); // instance coll
 			il.Emit(OpCodes.Callvirt,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: typeof(NameValueCollection).GetProperty(nameof(NameValueCollection.Count)).GetGetMethod());
 			il.Emit(OpCodes.Call,
 				meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteUIntNullableMemberCount),
-					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryWriter), typeof(uint) }, null));
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(IBufferWriter), typeof(uint) }, null));
 			il.Emit(OpCodes.Nop);
 
 
@@ -1652,17 +1653,17 @@ namespace Salar.Bois.Serializers
 				il.Emit(OpCodes.Nop);
 
 				// PrimitiveWriter.WriteValue(writer, item, encoding);
-				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 				il.LoadLocalValue(itemKeyVar); // item
 				il.Emit(OpCodes.Ldarg_2); // Encoding
 				il.Emit(OpCodes.Call,
 					meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 						BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder,
-						new[] { typeof(BinaryWriter), typeof(string), typeof(Encoding) }, null));
+						new[] { typeof(IBufferWriter), typeof(string), typeof(Encoding) }, null));
 				il.Emit(OpCodes.Nop);
 
 				// PrimitiveWriter.WriteValue(writer, coll[item], encoding);
-				il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+				il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 				il.LoadLocalValue(instanceVar); // instance coll
 				il.LoadLocalValue(itemKeyVar); // item
 				il.Emit(OpCodes.Callvirt,
@@ -1672,7 +1673,7 @@ namespace Salar.Bois.Serializers
 				il.Emit(OpCodes.Call,
 					meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 						BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder,
-						new[] { typeof(BinaryWriter), typeof(string), typeof(Encoding) }, null));
+						new[] { typeof(IBufferWriter), typeof(string), typeof(Encoding) }, null));
 				il.Emit(OpCodes.Nop);
 				il.Emit(OpCodes.Br_S, loopStart);
 			}
@@ -1688,7 +1689,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteDataSet(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
 			Type containerType, ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -1707,7 +1708,7 @@ namespace Salar.Bois.Serializers
 			}
 			il.Emit(OpCodes.Ldarg_2); // Encoding
 
-			var methodArg = new[] { typeof(BinaryWriter), typeof(DataSet), typeof(Encoding) };
+			var methodArg = new[] { typeof(IBufferWriter), typeof(DataSet), typeof(Encoding) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 
@@ -1717,7 +1718,7 @@ namespace Salar.Bois.Serializers
 		internal static void WriteDataTable(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
 			Type containerType, ILGenerator il, bool nullable)
 		{
-			il.Emit(OpCodes.Ldarg_0); // BinaryWriter
+			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
 			if (prop != null)
 			{
 				var getter = prop.GetGetMethod(true);
@@ -1736,7 +1737,7 @@ namespace Salar.Bois.Serializers
 			}
 			il.Emit(OpCodes.Ldarg_2); // Encoding
 
-			var methodArg = new[] { typeof(BinaryWriter), typeof(DataTable), typeof(Encoding) };
+			var methodArg = new[] { typeof(IBufferWriter), typeof(DataTable), typeof(Encoding) };
 			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
 				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
 			il.Emit(OpCodes.Nop);
@@ -1783,16 +1784,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt16Nullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt16),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -1816,16 +1817,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt32Nullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt32),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -1849,16 +1850,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt64Nullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarInt64),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -1882,16 +1883,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt16Nullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt16),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -1915,16 +1916,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt32),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -1948,16 +1949,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt64Nullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt64),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -1981,16 +1982,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDoubleNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDouble),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2014,16 +2015,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDecimalNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarDecimal),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2047,16 +2048,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarSingleNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarSingle),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2080,19 +2081,19 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			if (isNullable)
 			{
 				il.Emit(OpCodes.Call,
 					meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarByteNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null));
+						new[] { typeof(BufferReaderBase) }, null));
 			}
 			else
 			{
 				il.Emit(OpCodes.Callvirt,
-					meth: typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadByte)));
+					meth: typeof(BufferReaderBase).GetMethod(nameof(BufferReaderBase.ReadByte)));
 			}
 
 			if (prop != null)
@@ -2116,19 +2117,19 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			if (isNullable)
 			{
 				il.Emit(OpCodes.Call,
 					meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarSByteNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null));
+						new[] { typeof(BufferReaderBase) }, null));
 			}
 			else
 			{
 				il.Emit(OpCodes.Callvirt,
-					meth: typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadSByte)));
+					meth: typeof(BufferReaderBase).GetMethod(nameof(BufferReaderBase.ReadSByte)));
 			}
 
 			if (prop != null)
@@ -2151,10 +2152,10 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 			il.Emit(OpCodes.Ldarg_1); // Encoding
 
-			var methodArg = new[] { typeof(BinaryReader), typeof(Encoding) };
+			var methodArg = new[] { typeof(BufferReaderBase), typeof(Encoding) };
 			il.Emit(OpCodes.Call,
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadString),
 					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
@@ -2179,16 +2180,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadBooleanNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadBoolean),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2212,16 +2213,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateTimeNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateTime),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2245,16 +2246,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateTimeOffsetNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateTimeOffset),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2278,7 +2279,7 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			if (prop != null)
 			{
@@ -2293,7 +2294,7 @@ namespace Salar.Bois.Serializers
 				// not needed. memberType = memberType;
 			}
 
-			var methodArg = new[] { typeof(BinaryReader) };
+			var methodArg = new[] { typeof(BufferReaderBase) };
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadEnumGeneric),
@@ -2321,16 +2322,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadTimeSpanNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadTimeSpan),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2354,16 +2355,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadCharNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadChar),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2387,16 +2388,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadGuidNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadGuid),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2421,16 +2422,16 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
 			var method =
 				isNullable
 					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadColorNullable),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null)
+						new[] { typeof(BufferReaderBase) }, null)
 					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadColor),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-						new[] { typeof(BinaryReader) }, null);
+						new[] { typeof(BufferReaderBase) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2454,9 +2455,9 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
-			var methodArg = new[] { typeof(BinaryReader) };
+			var methodArg = new[] { typeof(BufferReaderBase) };
 			il.Emit(OpCodes.Call,
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDbNull),
 					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
@@ -2482,9 +2483,9 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
-			var methodArg = new[] { typeof(BinaryReader) };
+			var methodArg = new[] { typeof(BufferReaderBase) };
 			il.Emit(OpCodes.Call,
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadUri),
 					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
@@ -2509,9 +2510,9 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
-			var methodArg = new[] { typeof(BinaryReader) };
+			var methodArg = new[] { typeof(BufferReaderBase) };
 			il.Emit(OpCodes.Call,
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadVersion),
 					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
@@ -2536,12 +2537,12 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 			il.Emit(OpCodes.Ldarg_1); // Encoding
 
 			var method = typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataSet),
 				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-				new[] { typeof(BinaryReader), typeof(Encoding) }, null);
+				new[] { typeof(BufferReaderBase), typeof(Encoding) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2566,12 +2567,12 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 			il.Emit(OpCodes.Ldarg_1); // Encoding
 
 			var method = typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDataTable),
 				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-				new[] { typeof(BinaryReader), typeof(Encoding) }, null);
+				new[] { typeof(BufferReaderBase), typeof(Encoding) }, null);
 
 			il.Emit(OpCodes.Call, meth: method);
 			if (prop != null)
@@ -2594,9 +2595,9 @@ namespace Salar.Bois.Serializers
 		{
 			if (valueSetter == null)
 				il.LoadLocalAuto(0, containerType); // instance
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
-			var methodArg = new[] { typeof(BinaryReader) };
+			var methodArg = new[] { typeof(BufferReaderBase) };
 			il.Emit(OpCodes.Call,
 				meth: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadByteArray),
 					BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder, methodArg, null));
@@ -2629,9 +2630,9 @@ namespace Salar.Bois.Serializers
 			if (nullableBareType != null || !memberIsStruct)
 			{
 				// CODE-FOR: if (reader.ReadByte() == NumericSerializers.FlagNullable)
-				il.Emit(OpCodes.Ldarg_0); // BinaryReader
+				il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 				il.Emit(OpCodes.Call,
-					meth: typeof(BinaryReader).GetMethod(nameof(BinaryReader.ReadByte)));
+					meth: typeof(BufferReaderBase).GetMethod(nameof(BufferReaderBase.ReadByte)));
 				il.Emit(OpCodes.Ldc_I4_S, NumericSerializers.FlagIsNull);
 				il.Emit(OpCodes.Ceq);
 				il.Emit(OpCodes.Brfalse_S, LabelReadValue);
@@ -2675,7 +2676,7 @@ namespace Salar.Bois.Serializers
 				// CODE-FOR: Set value
 
 				il.LoadLocalAuto(0, containerType); // instance
-				il.Emit(OpCodes.Ldarg_0); // BinaryReader
+				il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 				il.Emit(OpCodes.Ldarg_1); // Encoding
 				il.Emit(OpCodes.Call, meth: valueTypeInfo.ReaderMethod);
 
@@ -2710,7 +2711,7 @@ namespace Salar.Bois.Serializers
 
 					// CODE-FOR: Set value
 					il.LoadLocalAuto(0, containerType); // instance
-					il.Emit(OpCodes.Ldarg_0); // BinaryReader
+					il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 					il.Emit(OpCodes.Ldarg_1); // Encoding
 					il.Emit(OpCodes.Call, meth: valueTypeInfo.ReaderMethod);
 
@@ -2767,10 +2768,10 @@ namespace Salar.Bois.Serializers
 			}
 			var methodReadVarInt32Nullable = typeof(NumericSerializers)
 				.GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
-					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryReader) }, null);
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BufferReaderBase) }, null);
 
 			// var num = NumericSerializers.ReadVarUInt32Nullable(reader);
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 			il.Emit(OpCodes.Call, meth: methodReadVarInt32Nullable);
 			var itemCountNullableVar_shared = variableCache.GetOrAdd(methodReadVarInt32Nullable.ReturnType);
 			var itemCountVar_shared = variableCache.GetOrAdd(ReflectionHelper.FindUnderlyingGenericElementType(methodReadVarInt32Nullable.ReturnType));
@@ -2842,7 +2843,7 @@ namespace Salar.Bois.Serializers
 					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(valueType, true, false);
 
 					il.LoadLocalValue(collectionInstance);
-					il.Emit(OpCodes.Ldarg_0); // BinaryReader
+					il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 					il.Emit(OpCodes.Ldarg_1); // Encoding
 					il.Emit(OpCodes.Call, meth: valueTypeInfo.ReaderMethod);
 
@@ -2946,7 +2947,7 @@ namespace Salar.Bois.Serializers
 			}
 			var methodReadVarInt32Nullable = typeof(NumericSerializers)
 				.GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
-					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryReader) }, null);
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BufferReaderBase) }, null);
 
 
 			// ReSharper disable once PossibleNullReferenceException
@@ -2954,7 +2955,7 @@ namespace Salar.Bois.Serializers
 			var itemCountVar_shared = variableCache.GetOrAdd(ReflectionHelper.FindUnderlyingGenericElementType(methodReadVarInt32Nullable.ReturnType));
 
 			// var num = NumericSerializers.ReadVarInt32Nullable(reader);
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 			il.Emit(OpCodes.Call, meth: methodReadVarInt32Nullable);
 			il.StoreLocal(itemCountNullableVar_shared);
 
@@ -3018,7 +3019,7 @@ namespace Salar.Bois.Serializers
 					// for complex types, a method is generated
 					var keyTypeInfo = BoisTypeCache.GetRootTypeComputed(keyType, true, false);
 
-					il.Emit(OpCodes.Ldarg_0); // BinaryReader
+					il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 					il.Emit(OpCodes.Ldarg_1); // Encoding
 					il.Emit(OpCodes.Call, meth: keyTypeInfo.ReaderMethod);
 
@@ -3041,7 +3042,7 @@ namespace Salar.Bois.Serializers
 					// for complex types, a method is generated
 					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(valueType, true, false);
 
-					il.Emit(OpCodes.Ldarg_0); // BinaryReader
+					il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 					il.Emit(OpCodes.Ldarg_1); // Encoding
 					il.Emit(OpCodes.Call, meth: valueTypeInfo.ReaderMethod);
 
@@ -3150,7 +3151,7 @@ namespace Salar.Bois.Serializers
 			}
 			var methodReadVarInt32Nullable = typeof(NumericSerializers)
 				.GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
-					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryReader) }, null);
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BufferReaderBase) }, null);
 
 
 			// ReSharper disable once PossibleNullReferenceException
@@ -3158,7 +3159,7 @@ namespace Salar.Bois.Serializers
 			var itemCountVar_shared = variableCache.GetOrAdd(ReflectionHelper.FindUnderlyingGenericElementType(methodReadVarInt32Nullable.ReturnType));
 
 			// var num = NumericSerializers.ReadVarInt32Nullable(reader);
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 			il.Emit(OpCodes.Call, meth: methodReadVarInt32Nullable);
 			il.StoreLocal(itemCountNullableVar_shared);
 
@@ -3299,10 +3300,10 @@ namespace Salar.Bois.Serializers
 			}
 			var methodReadVarInt32Nullable = typeof(NumericSerializers)
 				.GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
-					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BinaryReader) }, null);
+					BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BufferReaderBase) }, null);
 
 			// var num = NumericSerializers.ReadVarInt32Nullable(reader);
-			il.Emit(OpCodes.Ldarg_0); // BinaryReader
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 			il.Emit(OpCodes.Call, meth: methodReadVarInt32Nullable);
 			var itemCountNullableVar_shared = variableCache.GetOrAdd(methodReadVarInt32Nullable.ReturnType);
 			var itemCountVar_shared = variableCache.GetOrAdd(ReflectionHelper.FindUnderlyingGenericElementType(methodReadVarInt32Nullable.ReturnType));
@@ -3361,7 +3362,7 @@ namespace Salar.Bois.Serializers
 
 					il.LoadLocalValue(arrInstance);
 					il.Emit(OpCodes.Ldloc, forIndexVar);
-					il.Emit(OpCodes.Ldarg_0); // BinaryReader
+					il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 					il.Emit(OpCodes.Ldarg_1); // Encoding
 					il.Emit(OpCodes.Call, meth: valueTypeInfo.ReaderMethod);
 

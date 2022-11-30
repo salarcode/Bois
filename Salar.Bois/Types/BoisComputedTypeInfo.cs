@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Salar.BinaryBuffers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -9,9 +10,9 @@ using System.Text;
 
 namespace Salar.Bois.Types
 {
-	delegate void SerializeDelegate<T>(BinaryWriter writer, T instance, Encoding encoding);
+	delegate void SerializeDelegate<T>(IBufferWriter writer, T instance, Encoding encoding);
 
-	delegate T DeserializeDelegate<T>(BinaryReader reader, Encoding encoding);
+	delegate T DeserializeDelegate<T>(BufferReaderBase reader, Encoding encoding);
 
 
 	class BoisComputedTypeInfo
@@ -25,13 +26,13 @@ namespace Salar.Bois.Types
 		internal MethodInfo ReaderMethod;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal void InvokeWriter<T>(BinaryWriter writer, T instance, Encoding encoding)
+		internal void InvokeWriter<T>(IBufferWriter writer, T instance, Encoding encoding)
 		{
 			((SerializeDelegate<T>)WriterDelegate).Invoke(writer, instance, encoding);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal T InvokeReader<T>(BinaryReader reader, Encoding encoding)
+		internal T InvokeReader<T>(BufferReaderBase reader, Encoding encoding)
 		{
 			return ((DeserializeDelegate<T>)ReaderDelegate).Invoke(reader, encoding);
 		}

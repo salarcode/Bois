@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netcoreapp3.0;net45;net5.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net6.0;net48;netstandard2.1</TargetFrameworks>
 		<AssemblyName>Salar.Bois</AssemblyName>
 		<RootNamespace>Salar.Bois</RootNamespace>
+		<LangVersion>latest</LangVersion>
 		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
 		<Version>3.2.1.0</Version>
 		<Authors>Salar Khalilzadeh</Authors>
@@ -23,26 +24,23 @@ More info: https://github.com/salarcode/Bois</Description>
 + Generic type serialize/deserialize method added</PackageReleaseNotes>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|netcoreapp2.0|AnyCPU'">
 	  <DefineConstants>TRACE;EmitAssemblyOut</DefineConstants>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|net45|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug+AssemblyOut|net48|AnyCPU'">
 	  <DefineConstants>DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
 	  <Optimize>false</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
-	  <DocumentationFile>.\bin\Salar.Bois.xml</DocumentationFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 	  <DocumentationFile>.\bin\Salar.Bois.xml</DocumentationFile>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
 	  <DefineConstants>DEBUG;TRACE</DefineConstants>
 	</PropertyGroup>
 
@@ -51,6 +49,10 @@ More info: https://github.com/salarcode/Bois</Description>
 	    <Pack>True</Pack>
 	    <PackagePath></PackagePath>
 	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Salar.BinaryBuffers" Version="3.1.0" />
 	</ItemGroup>
 
 </Project>

@@ -1,4 +1,6 @@
-﻿using Salar.Bois.Serializers;
+﻿using Salar.BinaryBuffers;
+using Salar.BinaryBuffers.Compatibility;
+using Salar.Bois.Serializers;
 using Salar.Bois.Types;
 using System;
 using System.IO;
@@ -79,10 +81,21 @@ namespace Salar.Bois
 		/// <typeparam name="T">The object type.</typeparam>
 		public void Serialize<T>(T obj, Stream output)
 		{
+			var writer = new StreamBufferWriter(output);
+
+			Serialize(obj, writer);
+		}
+
+		/// <summary>
+		/// Serializing an object to binary bois format.
+		/// </summary>
+		/// <param name="obj">The object to be serialized.</param>
+		/// <param name="bufferWriter"></param>
+		/// <typeparam name="T">The object type.</typeparam>
+		public void Serialize<T>(T obj, IBufferWriter bufferWriter)
+		{
 			if (obj == null)
 				throw new ArgumentNullException(nameof(obj), "Object cannot be null.");
-			//_serializeDepth = 0;
-			var writer = new BinaryWriter(output, Encoding);
 
 			var type = typeof(T);
 			var typeInfo = BoisTypeCache.GetBasicType(type);
@@ -90,14 +103,13 @@ namespace Salar.Bois
 			{
 				var computedType = BoisTypeCache.GetRootTypeComputed(type, false, true);
 
-				computedType.InvokeWriter(writer, obj, Encoding);
+				computedType.InvokeWriter(bufferWriter, obj, Encoding);
 			}
 			else
 			{
-				PrimitiveWriter.WriteRootBasicType(writer, obj, type, typeInfo, Encoding);
+				PrimitiveWriter.WriteRootBasicType(bufferWriter, obj, type, typeInfo, Encoding);
 			}
 		}
-
 		/// <summary>
 		/// Serializing an object to binary bois format.
 		/// </summary>
@@ -106,10 +118,21 @@ namespace Salar.Bois
 		/// <param name="output">The output of the serialization in binary.</param>
 		public void Serialize(object obj, Type type, Stream output)
 		{
+			var writer = new StreamBufferWriter(output);
+
+			Serialize(obj, type, writer);
+		}
+
+		/// <summary>
+		/// Serializing an object to binary bois format.
+		/// </summary>
+		/// <param name="obj">The object to be serialized.</param>
+		/// <param name="type">The object type.</param>
+		/// <param name="bufferWriter">The writer to output of the serialization</param>
+		public void Serialize(object obj, Type type, IBufferWriter bufferWriter)
+		{
 			if (obj == null)
 				throw new ArgumentNullException(nameof(obj), "Object cannot be null.");
-			//_serializeDepth = 0;
-			var writer = new BinaryWriter(output, Encoding);
 
 			var typeInfo = BoisTypeCache.GetBasicType(type);
 			if (typeInfo.AsRootNeedsCompute)
@@ -121,12 +144,27 @@ namespace Salar.Bois
 						BindingFlags.Instance | BindingFlags.NonPublic)
 					.MakeGenericMethod(type);
 
-				invokeMethod.Invoke(computedType, new object[] { writer, obj, Encoding });
+				invokeMethod.Invoke(computedType, new object[] { bufferWriter, obj, Encoding });
 			}
 			else
 			{
-				PrimitiveWriter.WriteRootBasicType(writer, obj, type, typeInfo, Encoding);
+				PrimitiveWriter.WriteRootBasicType(bufferWriter, obj, type, typeInfo, Encoding);
 			}
+		}
+
+		/// <summary>
+		/// Deserializing binary data to a new instance.
+		/// </summary>
+		/// <param name="buffer">The binary data.</param>
+		/// <param name="position"></param>
+		/// <param name="length"></param>
+		/// <typeparam name="T">The object type.</typeparam>
+		/// <returns>New instance of the deserialized data.</returns>
+		public T Deserialize<T>(byte[] buffer, int position, int length)
+		{
+			var reader = new BinaryBufferReader(buffer, position, length);
+
+			return Deserialize<T>(reader);
 		}
 
 		/// <summary>
@@ -137,8 +175,25 @@ namespace Salar.Bois
 		/// <returns>New instance of the deserialized data.</returns>
 		public T Deserialize<T>(Stream objectData)
 		{
-			var reader = new BinaryReader(objectData, Encoding);
+			BufferReaderBase reader = null;
+			if (objectData is MemoryStream memoryStream)
+			{
+				if (memoryStream.TryGetBuffer(out var buffer))
+					reader = new BinaryBufferReader(buffer);
+			}
+			reader ??= new StreamBufferReader(objectData);
 
+			return Deserialize<T>(reader);
+		}
+
+		/// <summary>
+		/// Deserializing binary data to a new instance.
+		/// </summary>
+		/// <param name="bufferReader"></param>
+		/// <typeparam name="T">The object type.</typeparam>
+		/// <returns>New instance of the deserialized data.</returns>
+		public T Deserialize<T>(BufferReaderBase bufferReader)
+		{
 			var type = typeof(T);
 			var typeInfo = BoisTypeCache.GetBasicType(type);
 
@@ -146,11 +201,11 @@ namespace Salar.Bois
 			{
 				var computedType = BoisTypeCache.GetRootTypeComputed(type, true, false);
 
-				return computedType.InvokeReader<T>(reader, Encoding);
+				return computedType.InvokeReader<T>(bufferReader, Encoding);
 			}
 			else
 			{
-				return (T)PrimitiveReader.ReadRootBasicType(reader, type, typeInfo, Encoding);
+				return (T)PrimitiveReader.ReadRootBasicType(bufferReader, type, typeInfo, Encoding);
 			}
 		}
 
@@ -162,8 +217,25 @@ namespace Salar.Bois
 		/// <returns>New instance of the deserialized data.</returns>
 		public object Deserialize(Stream objectData, Type type)
 		{
-			var reader = new BinaryReader(objectData, Encoding);
+			BufferReaderBase reader = null;
+			if (objectData is MemoryStream memoryStream)
+			{
+				if (memoryStream.TryGetBuffer(out var buffer))
+					reader = new BinaryBufferReader(buffer);
+			}
+			reader ??= new StreamBufferReader(objectData);
 
+			return Deserialize(reader, type);
+		}
+
+		/// <summary>
+		/// Deserializing binary data to a new instance.
+		/// </summary>
+		/// <param name="objectData">The binary data.</param>
+		/// <param name="type">The object type.</param>
+		/// <returns>New instance of the deserialized data.</returns>
+		public object Deserialize(BufferReaderBase bufferReader, Type type)
+		{
 			var typeInfo = BoisTypeCache.GetBasicType(type);
 
 			if (typeInfo.AsRootNeedsCompute)
@@ -175,11 +247,11 @@ namespace Salar.Bois
 					BindingFlags.Instance | BindingFlags.NonPublic)
 					.MakeGenericMethod(type);
 
-				return invokeMethod.Invoke(computedType, new object[] { reader, Encoding });
+				return invokeMethod.Invoke(computedType, new object[] { bufferReader, Encoding });
 			}
 			else
 			{
-				return PrimitiveReader.ReadRootBasicType(reader, type, typeInfo, Encoding);
+				return PrimitiveReader.ReadRootBasicType(bufferReader, type, typeInfo, Encoding);
 			}
 		}
 	}

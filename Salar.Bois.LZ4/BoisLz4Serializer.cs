@@ -112,10 +112,7 @@ namespace Salar.Bois.LZ4
 
 				var serializedBuff = LZ4Pickler.Unpickle(compressedBuff, offset, length);
 
-				mem.Dispose();
-				mem = new MemoryStream(serializedBuff);
-
-				return _serializer.Deserialize<T>(mem);
+				return _serializer.Deserialize<T>(serializedBuff, 0, serializedBuff.Length);
 			}
 		}
 	}

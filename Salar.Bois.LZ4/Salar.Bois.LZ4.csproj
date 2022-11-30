@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netcoreapp3.0;net45;net5.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net6.0;net48;netstandard2.1</TargetFrameworks>
 		<AssemblyName>Salar.Bois.LZ4</AssemblyName>
 		<RootNamespace>Salar.Bois.LZ4</RootNamespace>
+		<LangVersion>latest</LangVersion>
 		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
 		<Version>3.2.1.0</Version>
 		<Authors>Salar Khalilzadeh</Authors>
@@ -17,7 +18,6 @@
 		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
 	</PropertyGroup>
 
@@ -35,15 +35,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
-		<PackageReference Include="Salar.Bois" Version="3.2.1" />
+		<PackageReference Include="K4os.Compression.LZ4" Version="1.2.15" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\LICENSE.md">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
+	  <ProjectReference Include="..\Salar.Bois\Salar.Bois.csproj" />
 	</ItemGroup>
 
 </Project>

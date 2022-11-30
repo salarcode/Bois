@@ -1,4 +1,5 @@
-﻿using Salar.Bois.Types;
+﻿using Salar.BinaryBuffers;
+using Salar.Bois.Types;
 using System;
 using System.Data;
 using System.Drawing;
@@ -10,7 +11,7 @@ namespace Salar.Bois.Serializers
 {
 	internal static class PrimitiveReader
 	{
-		internal static string ReadString(BinaryReader reader, Encoding encoding)
+		internal static string ReadString(BufferReaderBase reader, Encoding encoding)
 		{
 			uint? length = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (length == null)
@@ -29,14 +30,14 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static char ReadChar(BinaryReader reader)
+		internal static char ReadChar(BufferReaderBase reader)
 		{
 			var charByte = reader.ReadUInt16();
 			return (char)charByte;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static char? ReadCharNullable(BinaryReader reader)
+		internal static char? ReadCharNullable(BufferReaderBase reader)
 		{
 			var charByte = NumericSerializers.ReadVarUInt16Nullable(reader);
 			if (charByte == null)
@@ -45,7 +46,7 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static bool? ReadBooleanNullable(BinaryReader reader)
+		internal static bool? ReadBooleanNullable(BufferReaderBase reader)
 		{
 			var value = NumericSerializers.ReadVarByteNullable(reader);
 			if (value == null)
@@ -54,12 +55,12 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static bool ReadBoolean(BinaryReader reader)
+		internal static bool ReadBoolean(BufferReaderBase reader)
 		{
 			return reader.ReadByte() != 0;
 		}
 
-		internal static DateTime? ReadDateTimeNullable(BinaryReader reader)
+		internal static DateTime? ReadDateTimeNullable(BufferReaderBase reader)
 		{
 			var kind = NumericSerializers.ReadVarByteNullable(reader);
 			if (kind == null)
@@ -78,7 +79,7 @@ namespace Salar.Bois.Serializers
 			return new DateTime(ticks, (DateTimeKind)kind.Value);
 		}
 
-		internal static DateTime ReadDateTime(BinaryReader reader)
+		internal static DateTime ReadDateTime(BufferReaderBase reader)
 		{
 			var kind = reader.ReadByte();
 			var ticks = NumericSerializers.ReadVarInt64(reader);
@@ -94,7 +95,7 @@ namespace Salar.Bois.Serializers
 			return new DateTime(ticks, (DateTimeKind)kind);
 		}
 
-		internal static DateTimeOffset? ReadDateTimeOffsetNullable(BinaryReader reader)
+		internal static DateTimeOffset? ReadDateTimeOffsetNullable(BufferReaderBase reader)
 		{
 			var offsetMinutes = NumericSerializers.ReadVarInt16Nullable(reader);
 			if (offsetMinutes == null)
@@ -107,7 +108,7 @@ namespace Salar.Bois.Serializers
 			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes.Value));
 		}
 
-		internal static DateTimeOffset ReadDateTimeOffset(BinaryReader reader)
+		internal static DateTimeOffset ReadDateTimeOffset(BufferReaderBase reader)
 		{
 			var offsetMinutes = NumericSerializers.ReadVarInt16(reader);
 
@@ -117,7 +118,7 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static byte[] ReadByteArray(BinaryReader reader)
+		internal static byte[] ReadByteArray(BufferReaderBase reader)
 		{
 			var length = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (length == null)
@@ -127,7 +128,7 @@ namespace Salar.Bois.Serializers
 			return reader.ReadBytes((int)length.Value);
 		}
 
-		internal static Enum ReadEnum(BinaryReader reader, Type type)
+		internal static Enum ReadEnum(BufferReaderBase reader, Type type)
 		{
 			var enumType = BoisTypeCache.GetEnumType(type);
 			if (enumType == null)
@@ -248,11 +249,11 @@ namespace Salar.Bois.Serializers
 					}
 
 				default:
-					throw new InvalidDataException($"Enum type not supported '{type.Name}'. Contact the author please https://github.com/salarcode/Bois/issues ");
+					throw new InvalidDataException($"Enum type not supported '{type.Name}'. Please raise an issue here https://github.com/salarcode/Bois/issues ");
 			}
 		}
 
-		internal static T ReadEnumGeneric<T>(BinaryReader reader)
+		internal static T ReadEnumGeneric<T>(BufferReaderBase reader)
 		{
 			var type = typeof(T);
 			var enumTypeInfo = BoisTypeCache.GetEnumType(type);
@@ -374,11 +375,11 @@ namespace Salar.Bois.Serializers
 					}
 
 				default:
-					throw new Exception($"Enum type not supported '{enumTypeInfo.BareType}'. Contact the author please https://github.com/salarcode/Bois/issues ");
+					throw new InvalidDataException($"Enum type not supported '{type.Name}'. Please raise an issue here https://github.com/salarcode/Bois/issues ");
 			}
 		}
 
-		internal static TimeSpan? ReadTimeSpanNullable(BinaryReader reader)
+		internal static TimeSpan? ReadTimeSpanNullable(BufferReaderBase reader)
 		{
 			var ticks = NumericSerializers.ReadVarInt64Nullable(reader);
 			if (ticks == null)
@@ -388,13 +389,13 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static TimeSpan ReadTimeSpan(BinaryReader reader)
+		internal static TimeSpan ReadTimeSpan(BufferReaderBase reader)
 		{
 			var ticks = NumericSerializers.ReadVarInt64(reader);
 			return new TimeSpan(ticks);
 		}
 
-		internal static Version ReadVersion(BinaryReader reader)
+		internal static Version ReadVersion(BufferReaderBase reader)
 		{
 			var version = ReadString(reader, Encoding.ASCII);
 			if (version == null)
@@ -402,7 +403,7 @@ namespace Salar.Bois.Serializers
 			return new Version(version);
 		}
 
-		internal static Guid? ReadGuidNullable(BinaryReader reader)
+		internal static Guid? ReadGuidNullable(BufferReaderBase reader)
 		{
 			uint? len = NumericSerializers.ReadVarUInt32Nullable(reader);
 
@@ -416,7 +417,7 @@ namespace Salar.Bois.Serializers
 			return new Guid(gbuff);
 		}
 
-		internal static Guid ReadGuid(BinaryReader reader)
+		internal static Guid ReadGuid(BufferReaderBase reader)
 		{
 			uint len = NumericSerializers.ReadVarUInt32(reader);
 			if (len == 0)
@@ -427,7 +428,7 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static DBNull ReadDbNull(BinaryReader reader)
+		internal static DBNull ReadDbNull(BufferReaderBase reader)
 		{
 			if (reader.ReadByte() == NumericSerializers.FlagIsNull)
 				return null;
@@ -435,7 +436,7 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static Color? ReadColorNullable(BinaryReader reader)
+		internal static Color? ReadColorNullable(BufferReaderBase reader)
 		{
 			var argb = NumericSerializers.ReadVarInt32Nullable(reader);
 			if (argb == null)
@@ -444,12 +445,12 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static Color ReadColor(BinaryReader reader)
+		internal static Color ReadColor(BufferReaderBase reader)
 		{
 			return Color.FromArgb(NumericSerializers.ReadVarInt32(reader));
 		}
 
-		internal static Uri ReadUri(BinaryReader reader)
+		internal static Uri ReadUri(BufferReaderBase reader)
 		{
 			var uri = ReadString(reader, Encoding.UTF8);
 			if (uri == null)
@@ -457,7 +458,7 @@ namespace Salar.Bois.Serializers
 			return new Uri(uri, UriKind.RelativeOrAbsolute);
 		}
 
-		internal static DataTable ReadDataTable(BinaryReader reader, Encoding encoding)
+		internal static DataTable ReadDataTable(BufferReaderBase reader, Encoding encoding)
 		{
 			var columnCount = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (columnCount == null)
@@ -513,7 +514,7 @@ namespace Salar.Bois.Serializers
 			return dt;
 		}
 
-		internal static DataSet ReadDataSet(BinaryReader reader, Encoding encoding)
+		internal static DataSet ReadDataSet(BufferReaderBase reader, Encoding encoding)
 		{
 			var tablesCount = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (tablesCount == null)
@@ -534,7 +535,7 @@ namespace Salar.Bois.Serializers
 
 
 
-		internal static object ReadRootBasicType(BinaryReader reader, Type type, BoisBasicTypeInfo typeInfo, Encoding encoding)
+		internal static object ReadRootBasicType(BufferReaderBase reader, Type type, BoisBasicTypeInfo typeInfo, Encoding encoding)
 		{
 			switch (typeInfo.KnownType)
 			{
@@ -663,7 +664,7 @@ namespace Salar.Bois.Serializers
 			throw new ArgumentException($"Not supported basic type '{type}' as root", nameof(type));
 		}
 
-		internal static Array ReadRootBasicTypedArray(BinaryReader reader, BoisBasicTypeInfo typeInfo, Encoding encoding)
+		internal static Array ReadRootBasicTypedArray(BufferReaderBase reader, BoisBasicTypeInfo typeInfo, Encoding encoding)
 		{
 			var length = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (length == null)

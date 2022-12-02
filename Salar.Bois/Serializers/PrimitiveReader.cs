@@ -24,8 +24,13 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
+#if NETFRAMEWORK
 				var strBuff = reader.ReadBytes((int)length.Value);
-				return encoding.GetString(strBuff, 0, strBuff.Length);
+				return encoding.GetString(strBuff);
+#else
+				var strBuff = reader.ReadSpan((int)length.Value);
+				return encoding.GetString(strBuff);
+#endif
 			}
 		}
 
@@ -413,8 +418,13 @@ namespace Salar.Bois.Serializers
 			if (len == 0)
 				return Guid.Empty;
 
+#if NETFRAMEWORK
 			var gbuff = reader.ReadBytes((int)len.Value);
 			return new Guid(gbuff);
+#else
+			var gbuff = reader.ReadSpan((int)len.Value);
+			return new Guid(gbuff);
+#endif
 		}
 
 		internal static Guid ReadGuid(BufferReaderBase reader)
@@ -423,8 +433,13 @@ namespace Salar.Bois.Serializers
 			if (len == 0)
 				return Guid.Empty;
 
+#if NETFRAMEWORK
 			var gbuff = reader.ReadBytes((int)len);
 			return new Guid(gbuff);
+#else
+			var gbuff = reader.ReadSpan((int)len);
+			return new Guid(gbuff);
+#endif
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

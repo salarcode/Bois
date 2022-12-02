@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Salar.Bois.Serializers
 {
@@ -249,9 +250,13 @@ namespace Salar.Bois.Serializers
 
 			int length = input;
 
+#if NETFRAMEWORK
 			var numBuff = reader.ReadBytes(length);
-
 			return ConvertFromVarBinaryDecimal(numBuff);
+#else
+			var numBuff = reader.ReadSpan(length);
+			return ConvertFromVarBinaryDecimal(numBuff);
+#endif
 		}
 
 		internal static decimal ReadVarDecimal(BufferReaderBase reader)
@@ -266,9 +271,13 @@ namespace Salar.Bois.Serializers
 
 			int length = input;
 
+#if NETFRAMEWORK
 			var numBuff = reader.ReadBytes(length);
-
 			return ConvertFromVarBinaryDecimal(numBuff);
+#else
+			var numBuff = reader.ReadSpan(length);
+			return ConvertFromVarBinaryDecimal(numBuff);
+#endif
 		}
 
 		internal static double? ReadVarDoubleNullable(BufferReaderBase reader)
@@ -286,7 +295,7 @@ namespace Salar.Bois.Serializers
 
 				// last byte
 				buff[7] = (byte)(input & MaskEmbeddedNullable);
-				return BitConverter.ToDouble(buff, 0);
+				return Unsafe.ReadUnaligned<double>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 8)));
 			}
 
 			int length = input;
@@ -296,7 +305,7 @@ namespace Salar.Bois.Serializers
 
 			reader.Read(buff, 8 - length, length);
 
-			return BitConverter.ToDouble(buff, 0);
+			return Unsafe.ReadUnaligned<double>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 8)));
 		}
 
 		internal static double ReadVarDouble(BufferReaderBase reader)
@@ -312,7 +321,7 @@ namespace Salar.Bois.Serializers
 
 				// last byte
 				buff[7] = (byte)(input & MaskEmbedded);
-				return BitConverter.ToDouble(buff, 0);
+				return Unsafe.ReadUnaligned<double>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 8)));
 			}
 
 			int length = input;
@@ -321,8 +330,7 @@ namespace Salar.Bois.Serializers
 				SharedArray.ClearArray8();
 
 			reader.Read(buff, 8 - length, length);
-
-			return BitConverter.ToDouble(buff, 0);
+			return Unsafe.ReadUnaligned<double>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 8)));
 		}
 
 		internal static float? ReadVarSingleNullable(BufferReaderBase reader)
@@ -340,7 +348,7 @@ namespace Salar.Bois.Serializers
 
 				// last byte
 				buff[3] = (byte)(input & MaskEmbeddedNullable);
-				return BitConverter.ToSingle(buff, 0);
+				return Unsafe.ReadUnaligned<float>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 4)));
 			}
 
 			int length = input;
@@ -349,8 +357,7 @@ namespace Salar.Bois.Serializers
 				SharedArray.ClearArray4();
 
 			reader.Read(buff, 4 - length, length);
-
-			return BitConverter.ToSingle(buff, 0);
+			return Unsafe.ReadUnaligned<float>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 4)));
 		}
 
 		internal static float ReadVarSingle(BufferReaderBase reader)
@@ -366,7 +373,7 @@ namespace Salar.Bois.Serializers
 
 				// last byte
 				buff[3] = (byte)(input & MaskEmbedded);
-				return BitConverter.ToSingle(buff, 0);
+				return Unsafe.ReadUnaligned<float>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 4)));
 			}
 
 			int length = input;
@@ -375,8 +382,7 @@ namespace Salar.Bois.Serializers
 				SharedArray.ClearArray4();
 
 			reader.Read(buff, 4 - length, length);
-
-			return BitConverter.ToSingle(buff, 0);
+			return Unsafe.ReadUnaligned<float>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 4)));
 		}
 
 		internal static byte? ReadVarByteNullable(BufferReaderBase reader)
@@ -473,14 +479,14 @@ namespace Salar.Bois.Serializers
 				writer.Write(FlagNone);
 				WriteZigzag(writer, num.Value);
 			}
-			else
-			{
-				byte numByte = (byte)num;
+			else unchecked
+				{
+					byte numByte = (byte)num;
 
-				// set the flag of inside
-				numByte = (byte)(numByte | FlagEmbedded);
-				writer.Write(numByte);
-			}
+					// set the flag of inside
+					numByte = (byte)(numByte | FlagEmbedded);
+					writer.Write(numByte);
+				}
 		}
 
 		/// <summary>
@@ -1193,7 +1199,53 @@ namespace Salar.Bois.Serializers
 
 		}
 
-		private unsafe static decimal ConvertFromVarBinaryDecimal(byte[] numBuff)
+		private static decimal ConvertFromVarBinaryDecimal(ReadOnlySpan<byte> numBuff)
+		{
+			if (numBuff.Length == 16)
+			{
+				return new decimal(
+#if NET6_0_OR_GREATER
+					stackalloc
+#else
+					new
+#endif
+				int[4]
+				{
+					ConvertFromVarBinaryInt32StartIndex(numBuff, 4 * 0),
+					ConvertFromVarBinaryInt32StartIndex(numBuff, 4 * 1),
+					ConvertFromVarBinaryInt32StartIndex(numBuff, 4 * 2),
+					ConvertFromVarBinaryInt32StartIndex(numBuff, 4 * 3)
+				});
+			}
+
+			// when the stored size is smaller than 16 bytes
+
+			Span<byte> buff =
+#if NET6_0_OR_GREATER
+					stackalloc
+#else
+					new
+#endif
+				byte[16];
+
+			numBuff.CopyTo(buff);
+
+			return new decimal(
+#if NET6_0_OR_GREATER
+				stackalloc
+#else
+				new
+#endif
+			int[4]
+			{
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 0),
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 1),
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 2),
+				ConvertFromVarBinaryInt32StartIndex(buff, 4 * 3)
+			});
+		}
+
+		private static decimal ConvertFromVarBinaryDecimal(byte[] numBuff)
 		{
 			Span<byte> buff = numBuff.Length < 16 ? // 16 is required
 #if NET6_0_OR_GREATER

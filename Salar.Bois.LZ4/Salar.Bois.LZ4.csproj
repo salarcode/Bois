@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net48;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net7.0;net6.0;net48;netstandard2.1</TargetFrameworks>
 		<AssemblyName>Salar.Bois.LZ4</AssemblyName>
 		<RootNamespace>Salar.Bois.LZ4</RootNamespace>
 		<LangVersion>latest</LangVersion>
@@ -22,7 +22,12 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug+AssemblyOut'">
-		<DefineConstants>DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
+		<DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+		<Optimize>false</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug+AssemblyOut|net48'">
+		<DefineConstants>$(DefineConstants);DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
 		<Optimize>false</Optimize>
 	</PropertyGroup>
 
@@ -32,6 +37,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
+		<PackageReference Include="Salar.Bois" Version="[3.3, )"/>
 	</ItemGroup>
 
 	<ItemGroup>

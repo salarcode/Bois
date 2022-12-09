@@ -45,7 +45,8 @@ namespace Salar.Bois.Types
 			bool generateReader,
 			bool generateWriter
 #if EmitAssemblyOut
-			,bool outputAssembly = true
+			, 
+			bool outputAssembly = true
 #endif
 			)
 		{
@@ -73,13 +74,13 @@ namespace Salar.Bois.Types
 					if (complexTypeInfo == null)
 						return result;
 #if EmitAssemblyOut && !NETCOREAPP
-				var computed = BoisTypeCompiler.ComputeWriterSaveAss(type, complexTypeInfo, outputAssembly,
-					(dynamicMethod) =>
-					{
-						// this call is useful for Recursive Methods
+					var computed = BoisTypeCompiler.ComputeWriterSaveAss(type, complexTypeInfo, outputAssembly,
+						(dynamicMethod) =>
+						{
+							// this call is useful for Recursive Methods
 
-						result.WriterMethod = dynamicMethod;
-					});
+							result.WriterMethod = dynamicMethod;
+						});
 #else
 					var computed = BoisTypeCompiler.ComputeWriter(type, complexTypeInfo,
 						(dynamicMethod) =>
@@ -103,13 +104,13 @@ namespace Salar.Bois.Types
 					}
 
 #if EmitAssemblyOut && !NETCOREAPP
-				var computed = BoisTypeCompiler.ComputeReaderSaveAss(type, complexTypeInfo, outputAssembly,
-					(dynamicMethod) =>
-					{
-						// this call is useful for Recursive Methods
+					var computed = BoisTypeCompiler.ComputeReaderSaveAss(type, complexTypeInfo, outputAssembly,
+						(dynamicMethod) =>
+						{
+							// this call is useful for Recursive Methods
 
-						result.ReaderMethod = dynamicMethod;
-					});
+							result.ReaderMethod = dynamicMethod;
+						});
 #else
 					var computed = BoisTypeCompiler.ComputeReader(type, complexTypeInfo,
 						(dynamicMethod) =>
@@ -212,7 +213,7 @@ namespace Salar.Bois.Types
 					KnownType = EnBasicEnumType.Int64,
 					UnderlyingType = typeof(long),
 					IsNullable = isNullable,
-					BareType  = bareType
+					BareType = bareType
 				};
 			}
 			else if (memActualType == typeof(short))
@@ -222,7 +223,7 @@ namespace Salar.Bois.Types
 					KnownType = EnBasicEnumType.Int16,
 					UnderlyingType = typeof(short),
 					IsNullable = isNullable,
-					BareType  = bareType
+					BareType = bareType
 				};
 			}
 			else if (memActualType == typeof(byte))
@@ -232,7 +233,7 @@ namespace Salar.Bois.Types
 					KnownType = EnBasicEnumType.Byte,
 					UnderlyingType = typeof(byte),
 					IsNullable = isNullable,
-					BareType  = bareType
+					BareType = bareType
 				};
 			}
 			else if (memActualType == typeof(sbyte))
@@ -242,7 +243,7 @@ namespace Salar.Bois.Types
 					KnownType = EnBasicEnumType.SByte,
 					UnderlyingType = typeof(sbyte),
 					IsNullable = isNullable,
-					BareType  = bareType
+					BareType = bareType
 				};
 			}
 			else if (memActualType == typeof(ushort))
@@ -252,7 +253,7 @@ namespace Salar.Bois.Types
 					KnownType = EnBasicEnumType.UInt16,
 					UnderlyingType = typeof(ushort),
 					IsNullable = isNullable,
-					BareType  = bareType
+					BareType = bareType
 				};
 			}
 			else if (memActualType == typeof(uint))
@@ -262,7 +263,7 @@ namespace Salar.Bois.Types
 					KnownType = EnBasicEnumType.UInt32,
 					UnderlyingType = typeof(uint),
 					IsNullable = isNullable,
-					BareType  = bareType
+					BareType = bareType
 				};
 			}
 			else if (memActualType == typeof(ulong))
@@ -272,7 +273,7 @@ namespace Salar.Bois.Types
 					KnownType = EnBasicEnumType.UInt64,
 					UnderlyingType = typeof(ulong),
 					IsNullable = isNullable,
-					BareType  = bareType
+					BareType = bareType
 				};
 			}
 

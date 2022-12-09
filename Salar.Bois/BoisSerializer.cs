@@ -92,7 +92,7 @@ namespace Salar.Bois
 		/// <param name="obj">The object to be serialized.</param>
 		/// <param name="bufferWriter"></param>
 		/// <typeparam name="T">The object type.</typeparam>
-		public void Serialize<T>(T obj, IBufferWriter bufferWriter)
+		public void Serialize<T>(T obj, BufferWriterBase bufferWriter)
 		{
 			if (obj == null)
 				throw new ArgumentNullException(nameof(obj), "Object cannot be null.");
@@ -129,7 +129,7 @@ namespace Salar.Bois
 		/// <param name="obj">The object to be serialized.</param>
 		/// <param name="type">The object type.</param>
 		/// <param name="bufferWriter">The writer to output of the serialization</param>
-		public void Serialize(object obj, Type type, IBufferWriter bufferWriter)
+		public void Serialize(object obj, Type type, BufferWriterBase bufferWriter)
 		{
 			if (obj == null)
 				throw new ArgumentNullException(nameof(obj), "Object cannot be null.");

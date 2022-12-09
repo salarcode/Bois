@@ -10,7 +10,7 @@ public abstract class TestBase : IDisposable
 	private dynamic _boisDynamic;
 	private BoisSerializer _bois;
 	private MemoryStream _mem;
-	private IBufferWriter _writer;
+	private BufferWriterBase _writer;
 	private BufferReaderBase _reader;
 
 	protected TestBase()
@@ -24,7 +24,7 @@ public abstract class TestBase : IDisposable
 
 	public MemoryStream TestStream => _mem ??= new MemoryStream();
 
-	public IBufferWriter Writer => _writer ??= new StreamBufferWriter(TestStream);
+	public BufferWriterBase Writer => _writer ??= new StreamBufferWriter(TestStream);
 
 	public BufferReaderBase Reader => _reader ??= new StreamBufferReader(TestStream);
 

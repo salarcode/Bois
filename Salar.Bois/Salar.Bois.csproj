@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net48;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net7.0;net6.0;net48;netstandard2.1</TargetFrameworks>
 		<AssemblyName>Salar.Bois</AssemblyName>
 		<RootNamespace>Salar.Bois</RootNamespace>
 		<LangVersion>latest</LangVersion>
@@ -27,12 +27,17 @@ More info: https://github.com/salarcode/Bois</Description>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
-
+	
 	<PropertyGroup Condition="'$(Configuration)'=='Debug+AssemblyOut'">
-	  <DefineConstants>DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
+	  <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
 	  <Optimize>false</Optimize>
 	</PropertyGroup>
-
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug+AssemblyOut|net48'">
+	  <DefineConstants>$(DefineConstants);DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
+	  <Optimize>false</Optimize>
+	</PropertyGroup>
+	
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<DocumentationFile>.\bin\Salar.Bois.xml</DocumentationFile>
 	</PropertyGroup>
@@ -45,7 +50,7 @@ More info: https://github.com/salarcode/Bois</Description>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Salar.BinaryBuffers" Version="3.1.0" />
+	  <PackageReference Include="Salar.BinaryBuffers" Version="3.2.0" />
 	</ItemGroup>
 
 </Project>

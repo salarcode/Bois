@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Salar.Bois.Types
 {
-	delegate void SerializeDelegate<T>(IBufferWriter writer, T instance, Encoding encoding);
+	delegate void SerializeDelegate<T>(BufferWriterBase writer, T instance, Encoding encoding);
 
 	delegate T DeserializeDelegate<T>(BufferReaderBase reader, Encoding encoding);
 
@@ -26,7 +26,7 @@ namespace Salar.Bois.Types
 		internal MethodInfo ReaderMethod;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal void InvokeWriter<T>(IBufferWriter writer, T instance, Encoding encoding)
+		internal void InvokeWriter<T>(BufferWriterBase writer, T instance, Encoding encoding)
 		{
 			((SerializeDelegate<T>)WriterDelegate).Invoke(writer, instance, encoding);
 		}

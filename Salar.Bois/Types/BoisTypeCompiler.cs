@@ -83,8 +83,8 @@ namespace Salar.Bois.Types
 				name: GetTypeMethodName(type, serialize: true),
 				attributes: MethodAttributes.Public | MethodAttributes.Static,
 				returnType: null,
-				// Arg0: IBufferWriter, Arg1: instance, Arg2: Encoding
-				parameterTypes: new[] { typeof(IBufferWriter), type/*typeof(object)*/, typeof(Encoding) });
+				// Arg0: BufferWriterBase, Arg1: instance, Arg2: Encoding
+				parameterTypes: new[] { typeof(BufferWriterBase), type/*typeof(object)*/, typeof(Encoding) });
 
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "writer");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "instance");
@@ -141,8 +141,8 @@ namespace Salar.Bois.Types
 			var ilMethod = new DynamicMethod(
 				name: GetTypeMethodName(type, serialize: true),
 				returnType: null,
-				// Arg0: IBufferWriter, Arg1: instance, Arg2: Encoding
-				parameterTypes: new[] { typeof(IBufferWriter), type/*typeof(object)*/, typeof(Encoding) },
+				// Arg0: BufferWriterBase, Arg1: instance, Arg2: Encoding
+				parameterTypes: new[] { typeof(BufferWriterBase), type/*typeof(object)*/, typeof(Encoding) },
 				m: module,
 				skipVisibility: true);
 #if NetFX || NETFRAMEWORK || NETSTANDARD || NET5_0_OR_GREATER || NETCOREAPP2_2_OR_GREATER
@@ -239,7 +239,7 @@ namespace Salar.Bois.Types
 				il.Emit(OpCodes.Brtrue_S, labelWriteCount);
 
 				// CODE-FOR: PrimitiveWriter.WriteNullValue(writer);
-				il.Emit(OpCodes.Ldarg_0); // IBufferWriter
+				il.Emit(OpCodes.Ldarg_0); // BufferWriterBase
 				il.Emit(OpCodes.Call,
 					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
 						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
@@ -257,10 +257,10 @@ namespace Salar.Bois.Types
 
 			var memberCount = typeInfo.Members.Length;
 
-			il.Emit(OpCodes.Ldarg_0); // IBufferWriter
+			il.Emit(OpCodes.Ldarg_0); // BufferWriterBase
 			il.Emit(OpCodes.Ldc_I4_S, memberCount);
 			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteUIntNullableMemberCount),
-				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(IBufferWriter), typeof(uint) }, null));
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BufferWriterBase), typeof(uint) }, null));
 			il.Emit(OpCodes.Nop);
 
 			il.MarkLabel(labelEndOfCode);
@@ -627,7 +627,7 @@ namespace Salar.Bois.Types
 				name: GetTypeMethodName(type, serialize: false),
 				attributes: MethodAttributes.Public | MethodAttributes.Static,
 				returnType: type,
-				// Arg0: IBufferWriter, Arg1: Encoding
+				// Arg0: BufferWriterBase, Arg1: Encoding
 				parameterTypes: new[] { typeof(BufferReaderBase), typeof(Encoding) });
 
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "reader");
@@ -695,7 +695,7 @@ namespace Salar.Bois.Types
 			var ilMethod = new DynamicMethod(
 			   name: GetTypeMethodName(type, serialize: false),
 			   returnType: type,
-			   // Arg0: IBufferWriter, Arg1: Encoding
+			   // Arg0: BufferWriterBase, Arg1: Encoding
 			   parameterTypes: new[] { typeof(BufferReaderBase), typeof(Encoding) },
 			   m: module,
 			   skipVisibility: true);

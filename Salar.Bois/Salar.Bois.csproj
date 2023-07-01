@@ -10,9 +10,11 @@
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
-		<Description>The most compact, extermly fast binary serializer for .NET Code and .NET Framework.
-More info: https://github.com/salarcode/Bois</Description>
-		<Copyright>MPLv2 © Salar Khalilzadeh 2022</Copyright>
+		<Description>
+			The most compact, extermly fast binary serializer for .NET Code and .NET Framework.
+			More info: https://github.com/salarcode/Bois
+		</Description>
+		<Copyright>MPLv2 © Salar Khalilzadeh 2023</Copyright>
 		<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
 		<PackageLicenseUrl></PackageLicenseUrl>
 		<SignAssembly>true</SignAssembly>

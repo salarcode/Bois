@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net7.0;net6.0;net48;netstandard2.1</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MessagePack.Annotations" Version="2.5.124" />
+		<PackageReference Include="protobuf-net" Version="3.2.26" />
+		<PackageReference Include="MemoryPack" Version="1.9.16" />
+	</ItemGroup>
+
+</Project>

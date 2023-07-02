@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net7.0;net6.0;net48;netstandard2.1</TargetFrameworks>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="protobuf-net" Version="3.2.26" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Salar.Bois.BenchmarksBase\Salar.Bois.BenchmarksBase.csproj" />
+	</ItemGroup>
+
+</Project>

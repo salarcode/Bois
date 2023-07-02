@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFrameworks>net7.0;net6.0;net48;netstandard2.1</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Salar.Bois.BenchBois\Salar.Bois.BenchBois.csproj" />
+	  <ProjectReference Include="..\Salar.Bois.BenchGroBuf\Salar.Bois.BenchGroBuf.csproj" />
+	  <ProjectReference Include="..\Salar.Bois.BenchmarksBase\Salar.Bois.BenchmarksBase.csproj" />
+	  <ProjectReference Include="..\Salar.Bois.BenchMemoryPack\Salar.Bois.BenchMemoryPack.csproj" />
+	  <ProjectReference Include="..\Salar.Bois.BenchMessagePack\Salar.Bois.BenchMessagePack.csproj" />
+	  <ProjectReference Include="..\Salar.Bois.BenchProtobufNet\Salar.Bois.BenchProtobufNet.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -3421,8 +3421,6 @@ namespace Salar.Bois.Serializers
 
 		#endregion
 
-
-
 	}
 
 	static class TypeExtensions

@@ -21,10 +21,24 @@ namespace Salar.Bois.Types
 
 		internal static string GetTypeMethodName(Type type, bool serialize)
 		{
-			var rnd = new Random();
+#if NET
+			var rnd = Random.Shared.Next();
+#else
+			var rnd = new Random().Next();
+#endif
 			var nameExtension = serialize ? "Writer" : "Reader";
 
-			return $"Computed_{type.Name}_{nameExtension}_{rnd.Next()}";
+			return $"Computed_{type.Name}_{nameExtension}_{rnd}";
+		}
+
+		internal static string GetTypeMethodName(string name)
+		{
+#if NET
+			var rnd = Random.Shared.Next();
+#else
+			var rnd = new Random().Next();
+#endif
+			return $"Computed_{name}_{rnd}";
 		}
 
 #if EmitAssemblyOut && !NETCOREAPP
@@ -1159,5 +1173,48 @@ namespace Salar.Bois.Types
 			}
 		}
 
+
+		#region MemoryStream
+		internal delegate BinaryBufferReader GetBufferReaderFromMemoryStream(MemoryStream mem);
+
+		internal static GetBufferReaderFromMemoryStream ComputeBufferReaderFromMemoryStream()
+		{
+			var module = typeof(BoisSerializer).Module;
+
+			var ilMethod = new DynamicMethod(
+				name: GetTypeMethodName("memstreamreader"),
+				returnType: typeof(BinaryBufferReader),
+				// Arg0: MemoryStream
+				parameterTypes: new[] { typeof(MemoryStream) },
+				m: module,
+				skipVisibility: true);
+			ilMethod.DefineParameter(1, ParameterAttributes.None, "mem");
+
+			// the il generator
+			var il = ilMethod.GetILGenerator();
+
+			ComputeGetBufferReaderForMemoryStream(il);
+
+			// the serializer method is ready
+			return (GetBufferReaderFromMemoryStream)ilMethod.CreateDelegate(typeof(GetBufferReaderFromMemoryStream));
+
+			static void ComputeGetBufferReaderForMemoryStream(ILGenerator il)
+			{
+				var memType = typeof(MemoryStream);
+				il.Emit(OpCodes.Ldarg_0);
+				il.Emit(OpCodes.Ldfld, memType.GetField("_buffer", BindingFlags.NonPublic | BindingFlags.Instance));
+				il.Emit(OpCodes.Ldarg_0);
+				il.Emit(OpCodes.Ldfld, memType.GetField("_origin", BindingFlags.NonPublic | BindingFlags.Instance));
+				il.Emit(OpCodes.Ldarg_0);
+				il.Emit(OpCodes.Ldfld, memType.GetField("_length", BindingFlags.NonPublic | BindingFlags.Instance));
+				il.Emit(OpCodes.Ldarg_0);
+				il.Emit(OpCodes.Ldfld, memType.GetField("_origin", BindingFlags.NonPublic | BindingFlags.Instance));
+				il.Emit(OpCodes.Sub);
+				il.Emit(OpCodes.Newobj, typeof(BinaryBufferReader).GetConstructor(new[] { typeof(byte[]), typeof(int), typeof(int) }));
+				// never forget
+				il.Emit(OpCodes.Ret);
+			}
+		}
+		#endregion
 	}
 }

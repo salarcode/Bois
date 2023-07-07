@@ -26,6 +26,7 @@ namespace Salar.Bois
 	/// </Author>
 	public class BoisSerializer
 	{
+		static BoisTypeCompiler.GetBufferReaderFromMemoryStream _getBufferReaderFromMemoryStream;
 
 		/// <summary>
 		/// Character encoding for strings.
@@ -38,6 +39,11 @@ namespace Salar.Bois
 		public BoisSerializer()
 		{
 			Encoding = Encoding.UTF8;
+		}
+
+		static BoisSerializer()
+		{
+			_getBufferReaderFromMemoryStream = BoisTypeCompiler.ComputeBufferReaderFromMemoryStream();
 		}
 
 		public static void Initialize<T>()
@@ -87,7 +93,7 @@ namespace Salar.Bois
 
 			Serialize<T>(obj, writer);
 		}
-		
+
 		/// <summary>
 		/// Serializing an object to binary bois format.
 		/// </summary>
@@ -193,10 +199,12 @@ namespace Salar.Bois
 			BufferReaderBase reader = null;
 			if (objectData is MemoryStream memoryStream)
 			{
-				if (memoryStream.TryGetBuffer(out var buffer))
-					reader = new BinaryBufferReader(buffer);
+				reader = _getBufferReaderFromMemoryStream(memoryStream);
 			}
-			reader ??= new StreamBufferReader(objectData);
+			else
+			{
+				reader ??= new StreamBufferReader(objectData);
+			}
 
 			return Deserialize<T>(reader);
 		}

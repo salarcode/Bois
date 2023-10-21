@@ -188,26 +188,26 @@ namespace Salar.Bois
 			return Deserialize<T>(reader);
 		}
 
-		/// <summary>
-		/// Deserializing binary data to a new instance.
-		/// </summary>
-		/// <param name="objectData">The binary data.</param>
-		/// <typeparam name="T">The object type.</typeparam>
-		/// <returns>New instance of the deserialized data.</returns>
-		public T Deserialize<T>(Stream objectData)
-		{
-			BufferReaderBase reader = null;
-			if (objectData is MemoryStream memoryStream)
-			{
-				reader = _getBufferReaderFromMemoryStream(memoryStream);
-			}
-			else
-			{
-				reader ??= new StreamBufferReader(objectData);
-			}
+		/////// <summary>
+		/////// Deserializing binary data to a new instance.
+		/////// </summary>
+		/////// <param name="objectData">The binary data.</param>
+		/////// <typeparam name="T">The object type.</typeparam>
+		/////// <returns>New instance of the deserialized data.</returns>
+		////public T Deserialize<T>(Stream objectData)
+		////{
+		////	BinaryBufferReader reader = null;
+		////	if (objectData is MemoryStream memoryStream)
+		////	{
+		////		reader = _getBufferReaderFromMemoryStream(memoryStream);
+		////	}
+		////	else
+		////	{
+		////		reader ??= new StreamBufferReader(objectData);
+		////	}
 
-			return Deserialize<T>(reader);
-		}
+		////	return Deserialize<T>(reader);
+		////}
 
 		/// <summary>
 		/// Deserializing binary data to a new instance.
@@ -215,7 +215,7 @@ namespace Salar.Bois
 		/// <param name="bufferReader"></param>
 		/// <typeparam name="T">The object type.</typeparam>
 		/// <returns>New instance of the deserialized data.</returns>
-		public T Deserialize<T>(BufferReaderBase bufferReader)
+		public T Deserialize<T>(BinaryBufferReader bufferReader)
 		{
 			var type = typeof(T);
 			var typeInfo = BoisTypeCache.GetBasicType(type);
@@ -232,32 +232,32 @@ namespace Salar.Bois
 			}
 		}
 
+		/////// <summary>
+		/////// Deserializing binary data to a new instance.
+		/////// </summary>
+		/////// <param name="objectData">The binary data.</param>
+		/////// <param name="type">The object type.</param>
+		/////// <returns>New instance of the deserialized data.</returns>
+		////public object Deserialize(Stream objectData, Type type)
+		////{
+		////	BinaryBufferReader reader = null;
+		////	if (objectData is MemoryStream memoryStream)
+		////	{
+		////		if (memoryStream.TryGetBuffer(out var buffer))
+		////			reader = new BinaryBufferReader(buffer);
+		////	}
+		////	reader ??= new StreamBufferReader(objectData);
+
+		////	return Deserialize(reader, type);
+		////}
+
 		/// <summary>
 		/// Deserializing binary data to a new instance.
 		/// </summary>
 		/// <param name="objectData">The binary data.</param>
 		/// <param name="type">The object type.</param>
 		/// <returns>New instance of the deserialized data.</returns>
-		public object Deserialize(Stream objectData, Type type)
-		{
-			BufferReaderBase reader = null;
-			if (objectData is MemoryStream memoryStream)
-			{
-				if (memoryStream.TryGetBuffer(out var buffer))
-					reader = new BinaryBufferReader(buffer);
-			}
-			reader ??= new StreamBufferReader(objectData);
-
-			return Deserialize(reader, type);
-		}
-
-		/// <summary>
-		/// Deserializing binary data to a new instance.
-		/// </summary>
-		/// <param name="objectData">The binary data.</param>
-		/// <param name="type">The object type.</param>
-		/// <returns>New instance of the deserialized data.</returns>
-		public object Deserialize(BufferReaderBase bufferReader, Type type)
+		public object Deserialize(BinaryBufferReader bufferReader, Type type)
 		{
 			var typeInfo = BoisTypeCache.GetBasicType(type);
 

@@ -220,6 +220,32 @@ namespace Salar.Bois.Serializers
 			writer.Write(bytes);
 		}
 
+		///// <summary>
+		///// byte[] - Format: (Array Length:Embedded-Nullable-0-0-0-0-0-0) [if array length not embedded?0-0-0-0-0-0-0-0] (data:0-0-0-0-0-0-0-0)
+		///// Embeddable Array Length range: 0..63
+		///// </summary>
+		//internal static void WriteValue(BufferWriterBase writer, ReadOnlySpan<byte> bytes)
+		//{
+		//	if (bytes == null)
+		//	{
+		//		WriteNullValue(writer);
+		//		return;
+		//	}
+
+		//	// uint doesn't deal with negative numbers
+		//	NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)bytes.Length);
+		//	writer.Write(bytes);
+		//}
+
+		///// <summary>
+		///// </summary>
+		//internal static void WriteValue(BufferWriterBase writer, ReadOnlyMemory<byte> bytes)
+		//{
+		//	// uint doesn't deal with negative numbers
+		//	NumericSerializers.WriteVarInt(writer, (uint)bytes.Length);
+		//	writer.Write(bytes.Span);
+		//}
+
 		/// <summary>
 		/// VarInt - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63

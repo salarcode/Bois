@@ -10,7 +10,7 @@ namespace Salar.Bois.BenchmarksBase;
 public abstract class BenchmarkBase<T> : IDisposable, IBenchmark
 	where T : class, IBenchmarkTestObject, new()
 {
-	protected int IterationCount = 10_000;
+	public int IterationCount = 1000;
 
 	protected MemoryStream TestStream { get; } = new MemoryStream();
 

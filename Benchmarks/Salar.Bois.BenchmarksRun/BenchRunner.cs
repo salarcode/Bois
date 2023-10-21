@@ -21,11 +21,11 @@ public class BenchRunner
 	private void SetupBenchmarks()
 	{
 		// benchmark
-		_engine.AddBenchmark(typeof(BoisBenchmark<>));
+		//_engine.AddBenchmark(typeof(BoisBenchmark<>));
 		_engine.AddBenchmark(typeof(BoisBufferBenchmark<>));
 		_engine.AddBenchmark(typeof(BoisLz4Benchmark<>));
 		_engine.AddBenchmark(typeof(MessagePackBenchmark<>));
-		_engine.AddBenchmark(typeof(MessagePackLz4Benchmark<>));
+		//_engine.AddBenchmark(typeof(MessagePackLz4Benchmark<>));
 		_engine.AddBenchmark(typeof(ProtobufNetBenchmark<>));
 #if NET
 		_engine.AddBenchmark(typeof(BenchMemoryPack.MemoryPackBenchmark<>));

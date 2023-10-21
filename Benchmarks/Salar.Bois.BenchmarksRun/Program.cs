@@ -66,7 +66,7 @@ internal class Program
 	{
 		// Code to debug, uncomment
 #if NET
-		var bench = new ProtobufNetBenchmark<Test1_Arrays_Big>();
+		var bench = new BoisBufferBenchmark<Test1_Arrays_Big>();
 		bench.GlobalSetup();
 		bench.Serialize();
 		bench.Deserialize();

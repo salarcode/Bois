@@ -12,7 +12,7 @@ namespace Salar.Bois.Types
 {
 	delegate void SerializeDelegate<T>(BufferWriterBase writer, T instance, Encoding encoding);
 
-	delegate T DeserializeDelegate<T>(BufferReaderBase reader, Encoding encoding);
+	delegate T DeserializeDelegate<T>(BinaryBufferReader reader, Encoding encoding);
 
 
 	class BoisComputedTypeInfo
@@ -32,7 +32,7 @@ namespace Salar.Bois.Types
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal T InvokeReader<T>(BufferReaderBase reader, Encoding encoding)
+		internal T InvokeReader<T>(BinaryBufferReader reader, Encoding encoding)
 		{
 			return ((DeserializeDelegate<T>)ReaderDelegate).Invoke(reader, encoding);
 		}

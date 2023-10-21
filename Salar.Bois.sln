@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois", "Salar.Bois\Sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.Tests", "Salar.Bois.Tests\Salar.Bois.Tests.csproj", "{4A7F4E21-7E86-452A-86EE-66F4BE4AFE52}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.PlayBenchmark", "Salar.Bois.PlayBenchmark\Salar.Bois.PlayBenchmark.csproj", "{34E69531-7DB3-4D56-96A2-D8A6525ABA74}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.Generator", "Salar.Bois.Generator\Salar.Bois.Generator.csproj", "{AC226EF6-DFEF-42B6-985C-C99259F5966C}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{C667B6AE-DD4B-47F1-B347-1E39CB284872}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.BenchmarksBase", "Benchmarks\Salar.Bois.BenchmarksBase\Salar.Bois.BenchmarksBase.csproj", "{28E84A1A-1A2F-48EA-A66E-3D2BC33C0826}"
@@ -27,7 +31,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.BenchProtobufNet
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.BenchmarksObjects", "Benchmarks\Salar.Bois.BenchmarksObjects\Salar.Bois.BenchmarksObjects.csproj", "{0FA261FD-2639-4320-B9D4-A4AA5234B64B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.BenchGroBuf", "Benchmarks\Salar.Bois.BenchGroBuf\Salar.Bois.BenchGroBuf.csproj", "{66912805-8480-4B44-8794-17054248EDFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.BenchGroBuf", "Benchmarks\Salar.Bois.BenchGroBuf\Salar.Bois.BenchGroBuf.csproj", "{66912805-8480-4B44-8794-17054248EDFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleGen", "ConsoleGen\ConsoleGen.csproj", "{A0902CAE-EB30-44A3-8B4D-0EE40DE399B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroBenchmarks", "MicroBenchmarks\MicroBenchmarks.csproj", "{2A0E71E3-DFEE-4B46-9FB2-1E8C4DDED71C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -112,6 +120,18 @@ Global
 		{66912805-8480-4B44-8794-17054248EDFA}.Debug+AssemblyOut|Any CPU.Build.0 = Debug|Any CPU
 		{66912805-8480-4B44-8794-17054248EDFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66912805-8480-4B44-8794-17054248EDFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0902CAE-EB30-44A3-8B4D-0EE40DE399B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0902CAE-EB30-44A3-8B4D-0EE40DE399B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0902CAE-EB30-44A3-8B4D-0EE40DE399B5}.Debug+AssemblyOut|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0902CAE-EB30-44A3-8B4D-0EE40DE399B5}.Debug+AssemblyOut|Any CPU.Build.0 = Debug|Any CPU
+		{A0902CAE-EB30-44A3-8B4D-0EE40DE399B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0902CAE-EB30-44A3-8B4D-0EE40DE399B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A0E71E3-DFEE-4B46-9FB2-1E8C4DDED71C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A0E71E3-DFEE-4B46-9FB2-1E8C4DDED71C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A0E71E3-DFEE-4B46-9FB2-1E8C4DDED71C}.Debug+AssemblyOut|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A0E71E3-DFEE-4B46-9FB2-1E8C4DDED71C}.Debug+AssemblyOut|Any CPU.Build.0 = Debug|Any CPU
+		{2A0E71E3-DFEE-4B46-9FB2-1E8C4DDED71C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A0E71E3-DFEE-4B46-9FB2-1E8C4DDED71C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

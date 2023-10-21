@@ -29,30 +29,34 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
-	
+
 	<PropertyGroup Condition="'$(Configuration)'=='Debug+AssemblyOut'">
-	  <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
-	  <Optimize>false</Optimize>
+		<DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+		<Optimize>false</Optimize>
 	</PropertyGroup>
-	
+
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug+AssemblyOut|net48'">
-	  <DefineConstants>$(DefineConstants);DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
-	  <Optimize>false</Optimize>
+		<DefineConstants>$(DefineConstants);DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
+		<Optimize>false</Optimize>
 	</PropertyGroup>
-	
+
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<DocumentationFile>.\bin\Salar.Bois.xml</DocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="..\LICENSE.md">
-	    <Pack>True</Pack>
-	    <PackagePath></PackagePath>
-	  </None>
+		<None Include="..\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Salar.BinaryBuffers" Version="3.2.0" />
+		<InternalsVisibleTo Include="Salar.Bois.Generator,PublicKey=00240000048000009400000006020000002400005253413100040000010001008d0208f4a63105792422c5b67cd6cf537d9a56f4d82e060dcae4dd9a01e6c5c7946dfb6c7dbfe7d021486ac6e955ea4719b74d78f7d625d5d602ffcdb85bca08175d982e3cdecbbadc833e599b8e8338f08abf47deef8b1e0dd67917dcf39345659d546e42e11c3a1157eb3e27dfd8de2cb33baf7872d0bf106c79c668e340a5" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Salar.BinaryBuffers" Version="3.3.0" />
 	</ItemGroup>
 
 </Project>

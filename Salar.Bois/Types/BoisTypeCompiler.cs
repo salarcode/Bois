@@ -642,7 +642,7 @@ namespace Salar.Bois.Types
 				attributes: MethodAttributes.Public | MethodAttributes.Static,
 				returnType: type,
 				// Arg0: BufferWriterBase, Arg1: Encoding
-				parameterTypes: new[] { typeof(BufferReaderBase), typeof(Encoding) });
+				parameterTypes: new[] { typeof(BinaryBufferReader), typeof(Encoding) });
 
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "reader");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "encoding");
@@ -710,7 +710,7 @@ namespace Salar.Bois.Types
 			   name: GetTypeMethodName(type, serialize: false),
 			   returnType: type,
 			   // Arg0: BufferWriterBase, Arg1: Encoding
-			   parameterTypes: new[] { typeof(BufferReaderBase), typeof(Encoding) },
+			   parameterTypes: new[] { typeof(BinaryBufferReader), typeof(Encoding) },
 			   m: module,
 			   skipVisibility: true);
 #if NetFX || NETFRAMEWORK || NETSTANDARD || NET5_0_OR_GREATER || NETCOREAPP2_2_OR_GREATER
@@ -842,10 +842,10 @@ namespace Salar.Bois.Types
 
 			var readCountMethod = typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
 				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-				new[] { typeof(BufferReaderBase) }, null);
+				new[] { typeof(BinaryBufferReader) }, null);
 
 			var memberCount_shared = variableCache.GetOrAdd(typeof(uint?));
-			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
+			il.Emit(OpCodes.Ldarg_0); // BinaryBufferReader
 			il.Emit(OpCodes.Call, readCountMethod);
 			il.StoreLocal(memberCount_shared);
 

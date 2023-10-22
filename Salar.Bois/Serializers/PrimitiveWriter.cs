@@ -201,13 +201,122 @@ namespace Salar.Bois.Serializers
 
 			// int64
 			NumericSerializers.WriteVarInt(writer, dateTimeOffset.Ticks);
-		}
+        }
 
+#if NET6_0_OR_GREATER
 		/// <summary>
-		/// byte[] - Format: (Array Length:Embedded-Nullable-0-0-0-0-0-0) [if array length not embedded?0-0-0-0-0-0-0-0] (data:0-0-0-0-0-0-0-0)
-		/// Embeddable Array Length range: 0..63
+		/// DateOnly - Format: 
+		/// Embeddable day-number range: 
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, byte[] bytes)
+		internal static void WriteValue(BufferWriterBase writer, DateOnly dateOnly)
+        {
+            if (dateOnly == DateOnly.MinValue)
+            {
+                // min dateOnly indicator
+                NumericSerializers.WriteVarInt(writer, 0);
+            }
+            else if (dateOnly == DateOnly.MaxValue)
+            {
+                // max dateOnly indicator
+                NumericSerializers.WriteVarInt(writer, 1);
+            }
+            else
+            {
+                //Int32
+                NumericSerializers.WriteVarInt(writer, dateOnly.DayNumber);
+            }
+        }
+
+        /// <summary>
+        /// DateOnly? - Format:
+		/// Embeddable day-number range: 
+        /// </summary>
+        internal static void WriteValue(BufferWriterBase writer, DateOnly? dto)
+        {
+            if (dto == null)
+            {
+                WriteNullValue(writer);
+                return;
+            }
+            var dateOnly = dto.Value;
+
+            if (dateOnly == DateOnly.MinValue)
+            {
+                // min dateOnly indicator
+                NumericSerializers.WriteVarInt(writer, (int?)0);
+            }
+            else if (dateOnly == DateOnly.MaxValue)
+            {
+                // max dateOnly indicator
+                NumericSerializers.WriteVarInt(writer, (int?)1);
+            }
+            else
+            {
+                //Int32
+                NumericSerializers.WriteVarInt(writer, (int?)dateOnly.DayNumber);
+            }
+        }
+
+
+        /// <summary>
+        /// DateOnly - Format: 
+        /// Embeddable ticks range: 
+        /// </summary>
+        internal static void WriteValue(BufferWriterBase writer, TimeOnly timeOnly)
+        {
+            if (timeOnly == TimeOnly.MinValue)
+            {
+                // min dateOnly indicator
+                NumericSerializers.WriteVarInt(writer, 0L);
+            }
+            else if (timeOnly == TimeOnly.MaxValue)
+            {
+                // max dateOnly indicator
+                NumericSerializers.WriteVarInt(writer, 1L);
+            }
+            else
+            {
+                //Int64
+                NumericSerializers.WriteVarInt(writer, timeOnly.Ticks);
+            }
+        }
+
+        /// <summary>
+        /// TimeOnly? - Format: 
+        /// Embeddable ticks range: 
+        /// </summary>
+        internal static void WriteValue(BufferWriterBase writer, TimeOnly? dto)
+        {
+            if (dto == null)
+            {
+                WriteNullValue(writer);
+                return;
+            }
+            var timeOnly = dto.Value;
+
+            if (timeOnly == TimeOnly.MinValue)
+            {
+                // min timeOnly indicator
+                NumericSerializers.WriteVarInt(writer, (long?)0L);
+            }
+            else if (timeOnly == TimeOnly.MaxValue)
+            {
+                // max timeOnly indicator
+                NumericSerializers.WriteVarInt(writer, (long?)1L);
+            }
+            else
+            {
+                //Int64
+                NumericSerializers.WriteVarInt(writer, (long?)timeOnly.Ticks);
+            }
+        }
+#endif
+
+        /// <summary>
+        /// byte[] - Format: (Array Length:Embedded-Nullable-0-0-0-0-0-0) [if array length not embedded?0-0-0-0-0-0-0-0] (data:0-0-0-0-0-0-0-0)
+        /// Embeddable Array Length range: 0..63
+        /// </summary>
+        internal static void WriteValue(BufferWriterBase writer, byte[] bytes)
 		{
 			if (bytes == null)
 			{
@@ -590,12 +699,28 @@ namespace Salar.Bois.Serializers
 						PrimitiveWriter.WriteValue(writer, (DateTime)obj);
 					return;
 
-				case EnBasicKnownType.DateTimeOffset:
-					if (typeInfo.IsNullable)
-						PrimitiveWriter.WriteValue(writer, obj as DateTimeOffset?);
-					else
-						PrimitiveWriter.WriteValue(writer, (DateTimeOffset)obj);
-					return;
+                case EnBasicKnownType.DateTimeOffset:
+                    if (typeInfo.IsNullable)
+                        PrimitiveWriter.WriteValue(writer, obj as DateTimeOffset?);
+                    else
+                        PrimitiveWriter.WriteValue(writer, (DateTimeOffset)obj);
+                    return;
+
+#if NET6_0_OR_GREATER
+                case EnBasicKnownType.DateOnly:
+                    if (typeInfo.IsNullable)
+                        PrimitiveWriter.WriteValue(writer, obj as DateOnly?);
+                    else
+                        PrimitiveWriter.WriteValue(writer, (DateOnly)obj);
+                    return;
+
+                case EnBasicKnownType.TimeOnly:
+                    if (typeInfo.IsNullable)
+                        PrimitiveWriter.WriteValue(writer, obj as TimeOnly?);
+                    else
+                        PrimitiveWriter.WriteValue(writer, (TimeOnly)obj);
+                    return;
+#endif
 
 				case EnBasicKnownType.TimeSpan:
 					if (typeInfo.IsNullable)

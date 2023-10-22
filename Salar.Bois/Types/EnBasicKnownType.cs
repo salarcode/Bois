@@ -31,6 +31,8 @@
 		Uri = 24,
 		Version = 25,
 		DataSet = 26,
-		DataTable = 27
-	}
+		DataTable = 27,
+        DateOnly = 28,
+        TimeOnly = 29
+    }
 }

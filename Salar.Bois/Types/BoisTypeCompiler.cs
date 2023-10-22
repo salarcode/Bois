@@ -402,9 +402,19 @@ namespace Salar.Bois.Types
 					EmitGenerator.WriteDateTime(prop, field, null, containerType, il, basicInfo.IsNullable);
 					break;
 
-				case EnBasicKnownType.DateTimeOffset:
-					EmitGenerator.WriteDateTimeOffset(prop, field, null, containerType, il, basicInfo.IsNullable);
-					break;
+                case EnBasicKnownType.DateTimeOffset:
+                    EmitGenerator.WriteDateTimeOffset(prop, field, null, containerType, il, basicInfo.IsNullable);
+                    break;
+
+#if NET6_0_OR_GREATER
+				case EnBasicKnownType.DateOnly:
+                    EmitGenerator.WriteDateOnly(prop, field, null, containerType, il, basicInfo.IsNullable);
+                    break;
+
+                case EnBasicKnownType.TimeOnly:
+                    EmitGenerator.WriteTimeOnly(prop, field, null, containerType, il, basicInfo.IsNullable);
+                    break;
+#endif
 
 				case EnBasicKnownType.ByteArray:
 					EmitGenerator.WriteByteArray(prop, field, null, containerType, il, basicInfo.IsNullable);
@@ -520,11 +530,19 @@ namespace Salar.Bois.Types
 					EmitGenerator.WriteDateTime(null, null, valueLoader, containerType, il, keyTypeBasicInfo.IsNullable);
 					break;
 
-				case EnBasicKnownType.DateTimeOffset:
-					EmitGenerator.WriteDateTimeOffset(null, null, valueLoader, containerType, il, keyTypeBasicInfo.IsNullable);
-					break;
+                case EnBasicKnownType.DateTimeOffset:
+                    EmitGenerator.WriteDateTimeOffset(null, null, valueLoader, containerType, il, keyTypeBasicInfo.IsNullable);
+                    break;
 
-				case EnBasicKnownType.KnownTypeArray:
+                case EnBasicKnownType.DateOnly:
+                    EmitGenerator.WriteDateTimeOffset(null, null, valueLoader, containerType, il, keyTypeBasicInfo.IsNullable);
+                    break;
+
+                case EnBasicKnownType.TimeOnly:
+                    EmitGenerator.WriteDateTimeOffset(null, null, valueLoader, containerType, il, keyTypeBasicInfo.IsNullable);
+                    break;
+
+                case EnBasicKnownType.KnownTypeArray:
 					EmitGenerator.WriteKnownTypeArray(null, null, valueLoader, containerType, il, keyTypeBasicInfo.IsNullable);
 					break;
 
@@ -997,11 +1015,21 @@ namespace Salar.Bois.Types
 					EmitGenerator.ReadDateTime(prop, field, null, containerType, il, basicInfo.IsNullable);
 					break;
 
-				case EnBasicKnownType.DateTimeOffset:
-					EmitGenerator.ReadDateTimeOffset(prop, field, null, containerType, il, basicInfo.IsNullable);
-					break;
+                case EnBasicKnownType.DateTimeOffset:
+                    EmitGenerator.ReadDateTimeOffset(prop, field, null, containerType, il, basicInfo.IsNullable);
+                    break;
 
-				case EnBasicKnownType.KnownTypeArray:
+#if NET6_0_OR_GREATER
+                case EnBasicKnownType.DateOnly:
+                    EmitGenerator.ReadDateOnly(prop, field, null, containerType, il, basicInfo.IsNullable);
+                    break;
+
+                case EnBasicKnownType.TimeOnly:
+                    EmitGenerator.ReadTimeOnly(prop, field, null, containerType, il, basicInfo.IsNullable);
+                    break;
+#endif
+
+                case EnBasicKnownType.KnownTypeArray:
 					EmitGenerator.ReadUnknownArray(prop, field, null, containerType, il, basicInfo.IsNullable, variableCache);
 					break;
 
@@ -1115,11 +1143,19 @@ namespace Salar.Bois.Types
 					EmitGenerator.ReadDateTime(null, null, valueSetter, containerType, il, keyTypeBasicInfo.IsNullable);
 					break;
 
-				case EnBasicKnownType.DateTimeOffset:
-					EmitGenerator.ReadDateTimeOffset(null, null, valueSetter, containerType, il, keyTypeBasicInfo.IsNullable);
-					break;
+                case EnBasicKnownType.DateTimeOffset:
+                    EmitGenerator.ReadDateTimeOffset(null, null, valueSetter, containerType, il, keyTypeBasicInfo.IsNullable);
+                    break;
 
-				case EnBasicKnownType.KnownTypeArray:
+                case EnBasicKnownType.DateOnly:
+                    EmitGenerator.ReadDateTimeOffset(null, null, valueSetter, containerType, il, keyTypeBasicInfo.IsNullable);
+                    break;
+
+                case EnBasicKnownType.TimeOnly:
+                    EmitGenerator.ReadDateTimeOffset(null, null, valueSetter, containerType, il, keyTypeBasicInfo.IsNullable);
+                    break;
+
+                case EnBasicKnownType.KnownTypeArray:
 					//EmitGenerator.ReadKnownTypeArray(null, null, valueSetter, il, keyTypeBasicInfo.IsNullable);
 					break;
 

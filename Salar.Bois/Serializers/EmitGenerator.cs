@@ -485,90 +485,90 @@ namespace Salar.Bois.Serializers
 		}
 
 
-        internal static void WriteDateTimeOffset(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
-            Type containerType, ILGenerator il, bool nullable)
-        {
-            il.Emit(OpCodes.Ldarg_0); // BufferWriterBase
-            if (prop != null)
-            {
-                var getter = prop.GetGetMethod(true);
+		internal static void WriteDateTimeOffset(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
+		{
+			il.Emit(OpCodes.Ldarg_0); // BufferWriterBase
+			if (prop != null)
+			{
+				var getter = prop.GetGetMethod(true);
 
-                il.LoadArgAuto(1, containerType); // instance
-                il.Emit(OpCodes.Callvirt, meth: getter);
-            }
-            else if (field != null)
-            {
-                il.LoadArgAuto(1, containerType); // instance
-                il.Emit(OpCodes.Ldfld, field: field);
-            }
-            else
-            {
-                valueLoader();
-            }
+				il.LoadArgAuto(1, containerType); // instance
+				il.Emit(OpCodes.Callvirt, meth: getter);
+			}
+			else if (field != null)
+			{
+				il.LoadArgAuto(1, containerType); // instance
+				il.Emit(OpCodes.Ldfld, field: field);
+			}
+			else
+			{
+				valueLoader();
+			}
 
-            var methodArg = nullable ? new[] { typeof(BufferWriterBase), typeof(DateTimeOffset?) } : new[] { typeof(BufferWriterBase), typeof(DateTimeOffset) };
-            il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
-                BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
-            il.Emit(OpCodes.Nop);
-        }
+			var methodArg = nullable ? new[] { typeof(BufferWriterBase), typeof(DateTimeOffset?) } : new[] { typeof(BufferWriterBase), typeof(DateTimeOffset) };
+			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
+			il.Emit(OpCodes.Nop);
+		}
 
 #if NET6_0_OR_GREATER
-        internal static void WriteDateOnly(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
-            Type containerType, ILGenerator il, bool nullable)
-        {
-            il.Emit(OpCodes.Ldarg_0); // BufferWriterBase
-            if (prop != null)
-            {
-                var getter = prop.GetGetMethod(true);
+		internal static void WriteDateOnly(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
+		{
+			il.Emit(OpCodes.Ldarg_0); // BufferWriterBase
+			if (prop != null)
+			{
+				var getter = prop.GetGetMethod(true);
 
-                il.LoadArgAuto(1, containerType); // instance
-                il.Emit(OpCodes.Callvirt, meth: getter);
-            }
-            else if (field != null)
-            {
-                il.LoadArgAuto(1, containerType); // instance
-                il.Emit(OpCodes.Ldfld, field: field);
-            }
-            else
-            {
-                valueLoader();
-            }
+				il.LoadArgAuto(1, containerType); // instance
+				il.Emit(OpCodes.Callvirt, meth: getter);
+			}
+			else if (field != null)
+			{
+				il.LoadArgAuto(1, containerType); // instance
+				il.Emit(OpCodes.Ldfld, field: field);
+			}
+			else
+			{
+				valueLoader();
+			}
 
-            var methodArg = nullable ? new[] { typeof(BufferWriterBase), typeof(DateOnly?) } : new[] { typeof(BufferWriterBase), typeof(DateOnly) };
-            il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
-                BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
-            il.Emit(OpCodes.Nop);
-        }
+			var methodArg = nullable ? new[] { typeof(BufferWriterBase), typeof(DateOnly?) } : new[] { typeof(BufferWriterBase), typeof(DateOnly) };
+			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
+			il.Emit(OpCodes.Nop);
+		}
 
-        internal static void WriteTimeOnly(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
-            Type containerType, ILGenerator il, bool nullable)
-        {
-            il.Emit(OpCodes.Ldarg_0); // BufferWriterBase
-            if (prop != null)
-            {
-                var getter = prop.GetGetMethod(true);
+		internal static void WriteTimeOnly(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader,
+			Type containerType, ILGenerator il, bool nullable)
+		{
+			il.Emit(OpCodes.Ldarg_0); // BufferWriterBase
+			if (prop != null)
+			{
+				var getter = prop.GetGetMethod(true);
 
-                il.LoadArgAuto(1, containerType); // instance
-                il.Emit(OpCodes.Callvirt, meth: getter);
-            }
-            else if (field != null)
-            {
-                il.LoadArgAuto(1, containerType); // instance
-                il.Emit(OpCodes.Ldfld, field: field);
-            }
-            else
-            {
-                valueLoader();
-            }
+				il.LoadArgAuto(1, containerType); // instance
+				il.Emit(OpCodes.Callvirt, meth: getter);
+			}
+			else if (field != null)
+			{
+				il.LoadArgAuto(1, containerType); // instance
+				il.Emit(OpCodes.Ldfld, field: field);
+			}
+			else
+			{
+				valueLoader();
+			}
 
-            var methodArg = nullable ? new[] { typeof(BufferWriterBase), typeof(TimeOnly?) } : new[] { typeof(BufferWriterBase), typeof(TimeOnly) };
-            il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
-                BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
-            il.Emit(OpCodes.Nop);
-        }
+			var methodArg = nullable ? new[] { typeof(BufferWriterBase), typeof(TimeOnly?) } : new[] { typeof(BufferWriterBase), typeof(TimeOnly) };
+			il.Emit(OpCodes.Call, meth: typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteValue),
+				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, methodArg, null));
+			il.Emit(OpCodes.Nop);
+		}
 #endif
 
-        internal static void WriteEnum(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
+		internal static void WriteEnum(PropertyInfo prop, FieldInfo field, Func<Type> valueLoader, Type containerType,
 			ILGenerator il, bool nullable)
 		{
 			Type itemType;
@@ -2330,75 +2330,75 @@ namespace Salar.Bois.Serializers
 		}
 
 #if NET6_0_OR_GREATER
-        internal static void ReadDateOnly(PropertyInfo prop, FieldInfo field, Action valueSetter,
-            Type containerType, ILGenerator il, bool isNullable)
-        {
-            if (valueSetter == null)
-                il.LoadLocalAuto(0, containerType); // instance
-            il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
+		internal static void ReadDateOnly(PropertyInfo prop, FieldInfo field, Action valueSetter,
+			Type containerType, ILGenerator il, bool isNullable)
+		{
+			if (valueSetter == null)
+				il.LoadLocalAuto(0, containerType); // instance
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
-            var method =
-                isNullable
-                    ? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateOnlyNullable),
-                        BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-                        new[] { typeof(BufferReaderBase) }, null)
-                    : typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateOnly),
-                        BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-                        new[] { typeof(BufferReaderBase) }, null);
+			var method =
+				isNullable
+					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateOnlyNullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BufferReaderBase) }, null)
+					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadDateOnly),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BufferReaderBase) }, null);
 
-            il.Emit(OpCodes.Call, meth: method);
-            if (prop != null)
-            {
-                var setter = prop.GetSetMethod(true);
-                il.Emit(OpCodes.Callvirt, meth: setter); // property value
-            }
-            else if (field != null)
-            {
-                il.Emit(OpCodes.Stfld, field: field); // field value
-            }
-            else
-            {
-                valueSetter?.Invoke();
-            }
-            il.Emit(OpCodes.Nop);
-        }
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter?.Invoke();
+			}
+			il.Emit(OpCodes.Nop);
+		}
 
-        internal static void ReadTimeOnly(PropertyInfo prop, FieldInfo field, Action valueSetter,
-            Type containerType, ILGenerator il, bool isNullable)
-        {
-            if (valueSetter == null)
-                il.LoadLocalAuto(0, containerType); // instance
-            il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
+		internal static void ReadTimeOnly(PropertyInfo prop, FieldInfo field, Action valueSetter,
+			Type containerType, ILGenerator il, bool isNullable)
+		{
+			if (valueSetter == null)
+				il.LoadLocalAuto(0, containerType); // instance
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 
-            var method =
-                isNullable
-                    ? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadTimeOnlyNullable),
-                        BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-                        new[] { typeof(BufferReaderBase) }, null)
-                    : typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadTimeOnly),
-                        BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-                        new[] { typeof(BufferReaderBase) }, null);
+			var method =
+				isNullable
+					? typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadTimeOnlyNullable),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BufferReaderBase) }, null)
+					: typeof(PrimitiveReader).GetMethod(nameof(PrimitiveReader.ReadTimeOnly),
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
+						new[] { typeof(BufferReaderBase) }, null);
 
-            il.Emit(OpCodes.Call, meth: method);
-            if (prop != null)
-            {
-                var setter = prop.GetSetMethod(true);
-                il.Emit(OpCodes.Callvirt, meth: setter); // property value
-            }
-            else if (field != null)
-            {
-                il.Emit(OpCodes.Stfld, field: field); // field value
-            }
-            else
-            {
-                valueSetter?.Invoke();
-            }
-            il.Emit(OpCodes.Nop);
-        }
+			il.Emit(OpCodes.Call, meth: method);
+			if (prop != null)
+			{
+				var setter = prop.GetSetMethod(true);
+				il.Emit(OpCodes.Callvirt, meth: setter); // property value
+			}
+			else if (field != null)
+			{
+				il.Emit(OpCodes.Stfld, field: field); // field value
+			}
+			else
+			{
+				valueSetter?.Invoke();
+			}
+			il.Emit(OpCodes.Nop);
+		}
 
 #endif
 
-        internal static void ReadEnum(PropertyInfo prop, FieldInfo field, Action valueSetter, Type memberType,
+		internal static void ReadEnum(PropertyInfo prop, FieldInfo field, Action valueSetter, Type memberType,
 			Type containerType, ILGenerator il, bool isNullable)
 		{
 			if (valueSetter == null)

@@ -5,145 +5,145 @@ using System.Drawing;
 
 namespace Salar.Bois.NetFx.Tests.TestObjects
 {
-    public struct TestStructSimple
-    {
-        public int Id { get; set; }
+	public struct TestStructSimple
+	{
+		public int Id { get; set; }
 
-        public string Name { get; set; }
+		public string Name { get; set; }
 
-        public static IEnumerable<object[]> GetTestData()
-        {
-            yield return new object[]
-            {
-                new TestStructSimple
-                {
-                    Id = 1024,
-                    Name = "Salar"
-                }
-            };
-        }
-    }
+		public static IEnumerable<object[]> GetTestData()
+		{
+			yield return new object[]
+			{
+				new TestStructSimple
+				{
+					Id = 1024,
+					Name = "Salar"
+				}
+			};
+		}
+	}
 
-    public struct TestStructPrimitives
-    {
-        public bool Boolean { get; set; }
+	public struct TestStructPrimitives
+	{
+		public bool Boolean { get; set; }
 
-        public bool? BooleanNullable { get; set; }
+		public bool? BooleanNullable { get; set; }
 
-        public bool BooleanF;
+		public bool BooleanF;
 
-        public bool? BooleanNullableF;
+		public bool? BooleanNullableF;
 
-        public int Int32 { get; set; }
+		public int Int32 { get; set; }
 
-        public short Int16 { get; set; }
+		public short Int16 { get; set; }
 
-        public short? Int16Nullable { get; set; }
+		public short? Int16Nullable { get; set; }
 
-        public short Int16F;
+		public short Int16F;
 
-        public short? Int16NullableF;
+		public short? Int16NullableF;
 
-        public long Int64 { get; set; }
+		public long Int64 { get; set; }
 
-        public uint UInt32 { get; set; }
+		public uint UInt32 { get; set; }
 
-        public ushort UInt16 { get; set; }
+		public ushort UInt16 { get; set; }
 
-        public ulong UInt64 { get; set; }
+		public ulong UInt64 { get; set; }
 
-        public float Float { get; set; }
+		public float Float { get; set; }
 
-        public double Double { get; set; }
+		public double Double { get; set; }
 
-        public decimal Decimal { get; set; }
+		public decimal Decimal { get; set; }
 
-        public string String { get; set; }
+		public string String { get; set; }
 
-        public string StringF;
+		public string StringF;
 
-        public char Char { get; set; }
+		public char Char { get; set; }
 
-        public byte Byte { get; set; }
+		public byte Byte { get; set; }
 
-        public byte? ByteNullable { get; set; }
+		public byte? ByteNullable { get; set; }
 
-        public sbyte SByte { get; set; }
+		public sbyte SByte { get; set; }
 
-        public sbyte? SByteNullable { get; set; }
+		public sbyte? SByteNullable { get; set; }
 
-        public DateTime DateTime { get; set; }
+		public DateTime DateTime { get; set; }
 
-        public DateTimeOffset DateTimeOffset { get; set; }
+		public DateTimeOffset DateTimeOffset { get; set; }
 
 #if NET6_0_OR_GREATER
-        public DateOnly DateOnly { get; set; }
+		public DateOnly DateOnly { get; set; }
 
-        public TimeOnly TimeOnly { get; set; }
+		public TimeOnly TimeOnly { get; set; }
 #endif
 
-        public TimeSpan TimeSpan { get; set; }
+		public TimeSpan TimeSpan { get; set; }
 
-        public byte[] ByteArray { get; set; }
+		public byte[] ByteArray { get; set; }
 
-        public Guid Guid { get; set; }
+		public Guid Guid { get; set; }
 
-        public Guid Guid2 { get; set; }
+		public Guid Guid2 { get; set; }
 
-        public Color Color { get; set; }
+		public Color Color { get; set; }
 
-        public DBNull DbNull { get; set; }
+		public DBNull DbNull { get; set; }
 
-        public Uri Uri { get; set; }
+		public Uri Uri { get; set; }
 
-        public Version Version { get; set; }
+		public Version Version { get; set; }
 
-        public EnvironmentVariableTarget Enum { get; set; }
+		public EnvironmentVariableTarget Enum { get; set; }
 
-        public EnvironmentVariableTarget[] EnumArray { get; set; }
+		public EnvironmentVariableTarget[] EnumArray { get; set; }
 
-        public string[] UnknownArray1 { get; set; }
+		public string[] UnknownArray1 { get; set; }
 
-        public Guid[] UnknownArray2 { get; set; }
+		public Guid[] UnknownArray2 { get; set; }
 
-        public DataTable DataTable { get; set; }
+		public DataTable DataTable { get; set; }
 
-        public DataSet DataSet { get; set; }
+		public DataSet DataSet { get; set; }
 
-        public static IEnumerable<object[]> GetTestData()
-        {
+		public static IEnumerable<object[]> GetTestData()
+		{
 
-            yield return new object[]
-            {
-                new TestStructPrimitives
-                {
-                    Guid = Guid.NewGuid(),
-                    Color = System.Drawing.Color.FromArgb(10,10,20,30),
-                    Boolean = true,
-                    DateTimeOffset = DateTimeOffset.UtcNow,
+			yield return new object[]
+			{
+				new TestStructPrimitives
+				{
+					Guid = Guid.NewGuid(),
+					Color = System.Drawing.Color.FromArgb(10,10,20,30),
+					Boolean = true,
+					DateTimeOffset = DateTimeOffset.UtcNow,
 #if NET6_0_OR_GREATER
                     DateOnly = DateOnly.FromDateTime(DateTime.UtcNow),
-                    TimeOnly = TimeOnly.FromDateTime(DateTime.UtcNow),
+					TimeOnly = TimeOnly.FromDateTime(DateTime.UtcNow),
 #endif
 					Int16NullableF = 90
-                }
-            };
-            yield return new object[]
-            {
-                new TestStructPrimitives
-                {
-                    Color = System.Drawing.Color.FromArgb(50,20,20,30),
-                    Int16 = 90,
-                    Int16NullableF = 123,
-                    TimeSpan = System.DateTime.Now.TimeOfDay,
-                    EnumArray = new []
-                    {
-                        EnvironmentVariableTarget.Machine,
-                        EnvironmentVariableTarget.Process
-                    },
-                    ByteArray = new byte[]{90,90,10,13}
-                }
-            };
-        }
-    }
+				}
+			};
+			yield return new object[]
+			{
+				new TestStructPrimitives
+				{
+					Color = System.Drawing.Color.FromArgb(50,20,20,30),
+					Int16 = 90,
+					Int16NullableF = 123,
+					TimeSpan = System.DateTime.Now.TimeOfDay,
+					EnumArray = new []
+					{
+						EnvironmentVariableTarget.Machine,
+						EnvironmentVariableTarget.Process
+					},
+					ByteArray = new byte[]{90,90,10,13}
+				}
+			};
+		}
+	}
 }

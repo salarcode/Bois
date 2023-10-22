@@ -6,7 +6,7 @@
 		<RootNamespace>Salar.Bois</RootNamespace>
 		<LangVersion>latest</LangVersion>
 		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-		<Version>3.3.0.0</Version>
+		<Version>3.4.0</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
@@ -24,6 +24,7 @@
 		<PackageReleaseNotes>
 			* Started using BinaryBuffers for more flexilibity and performance
 			* Added couple of new constructors using BinaryBuffers
+			* Added support for DateOnly and TimeOnly
 		</PackageReleaseNotes>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

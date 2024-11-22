@@ -98,7 +98,8 @@ namespace Salar.Bois.NetFx.Tests.TestObjects
 				new TestObjectPrimitiveTypes
 				{
 					Guid = Guid.NewGuid(),
-					Color = System.Drawing.Color.FromArgb(100,50,30)
+					Color = System.Drawing.Color.FromArgb(100,50,30),
+					ByteArray = new byte[0], // trigger error ...
 				}
 			};
 		}

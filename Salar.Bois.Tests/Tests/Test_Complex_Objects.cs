@@ -24,7 +24,36 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			SerializeAreEqual(init, final);
 		}
-		[Theory]
+
+        /// <summary>
+        /// Executes same tests as <see cref="TestingObjectPrimitiveTypes(TestObjectPrimitiveTypes)"/>, but
+		/// triggers a StreamBufferReader to be used instead of a BinaryBufferReader in <see cref="BoisSerializer.Deserialize(BinaryBuffers.BufferReaderBase, Type)"/>
+		/// by passing in a MemoryStream there TryGetBuffer() will return false.
+		/// This will cause <see cref="PrimitiveReader.ReadByteArray(BinaryBuffers.BufferReaderBase)"/> cause to re-throw an
+		/// <see cref="EndOfStreamException"/> when trying to read a zero-length byte array.
+        /// </summary>
+        /// <param name="init">Test data</param>
+        [Theory]
+        [MemberData(nameof(TestObjectPrimitiveTypes.GetTestData), MemberType = typeof(TestObjectPrimitiveTypes))]
+        public void TestingObjectPrimitiveTypesTyped(TestObjectPrimitiveTypes init)
+        {
+            ResetBois();
+
+            //BoisSerializer.Initialize<TestObjectPrimitiveTypes>();
+
+            Bois.Serialize(init, TestStream);
+
+            var type = init.GetType();
+            var data = TestStream.ToArray();
+
+            using (var stream = new MemoryStream(data))
+            {
+                var final = Bois.Deserialize(stream, type);
+
+                SerializeAreEqual(init, final);
+            }
+        }
+        [Theory]
 		[MemberData(nameof(TestObjectSelfReferencing.GetTestData), MemberType = typeof(TestObjectSelfReferencing))]
 		public void TestingObjectSelfReferencing(TestObjectSelfReferencing init)
 		{

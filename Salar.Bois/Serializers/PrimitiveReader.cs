@@ -199,6 +199,9 @@ namespace Salar.Bois.Serializers
 			{
 				return null;
 			}
+
+			if (length.Value == 0) return [];
+
 			return reader.ReadBytes((int)length.Value);
 		}
 

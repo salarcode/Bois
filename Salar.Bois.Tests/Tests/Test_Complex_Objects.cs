@@ -15,8 +15,6 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			//BoisSerializer.Initialize<TestObjectPrimitiveTypes>();
-
 			Bois.Serialize(init, TestStream);
 			ResetStream();
 
@@ -24,7 +22,22 @@ namespace Salar.Bois.NetFx.Tests.Tests
 
 			SerializeAreEqual(init, final);
 		}
+
 		[Theory]
+        [MemberData(nameof(TestObjectPrimitiveTypes.GetTestData), MemberType = typeof(TestObjectPrimitiveTypes))]
+        public void TestingObjectPrimitiveTypesTyped(TestObjectPrimitiveTypes init)
+        {
+            ResetBois();
+
+			Bois.Serialize(init, TestStream);
+			ResetStream();
+
+			var final = Bois.Deserialize(TestStream, init.GetType());
+			
+			SerializeAreEqual(init, final);
+		}
+
+        [Theory]
 		[MemberData(nameof(TestObjectSelfReferencing.GetTestData), MemberType = typeof(TestObjectSelfReferencing))]
 		public void TestingObjectSelfReferencing(TestObjectSelfReferencing init)
 		{

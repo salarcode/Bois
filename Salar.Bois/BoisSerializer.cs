@@ -243,11 +243,12 @@ namespace Salar.Bois
 			BufferReaderBase reader = null;
 			if (objectData is MemoryStream memoryStream)
 			{
-				if (memoryStream.TryGetBuffer(out var buffer))
-					reader = new BinaryBufferReader(buffer);
+				reader = _getBufferReaderFromMemoryStream(memoryStream);
 			}
-			reader ??= new StreamBufferReader(objectData);
-
+			else
+			{
+				reader ??= new StreamBufferReader(objectData);
+			}
 			return Deserialize(reader, type);
 		}
 

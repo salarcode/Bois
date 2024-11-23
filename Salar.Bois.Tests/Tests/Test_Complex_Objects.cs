@@ -24,20 +24,20 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		}
 
 		[Theory]
-        [MemberData(nameof(TestObjectPrimitiveTypes.GetTestData), MemberType = typeof(TestObjectPrimitiveTypes))]
-        public void TestingObjectPrimitiveTypesTyped(TestObjectPrimitiveTypes init)
-        {
-            ResetBois();
+		[MemberData(nameof(TestObjectPrimitiveTypes.GetTestData), MemberType = typeof(TestObjectPrimitiveTypes))]
+		public void TestingObjectPrimitiveTypesTyped(TestObjectPrimitiveTypes init)
+		{
+			ResetBois();
 
 			Bois.Serialize(init, TestStream);
 			ResetStream();
 
 			var final = Bois.Deserialize(TestStream, init.GetType());
-			
+
 			SerializeAreEqual(init, final);
 		}
 
-        [Theory]
+		[Theory]
 		[MemberData(nameof(TestObjectSelfReferencing.GetTestData), MemberType = typeof(TestObjectSelfReferencing))]
 		public void TestingObjectSelfReferencing(TestObjectSelfReferencing init)
 		{

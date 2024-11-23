@@ -200,7 +200,7 @@ namespace Salar.Bois.Serializers
 				return null;
 			}
 
-			if (length.Value == 0) return new byte[0]; // fixes issue #33
+			if (length.Value == 0) return [];
 
 			return reader.ReadBytes((int)length.Value);
 		}

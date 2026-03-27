@@ -397,6 +397,28 @@ namespace Salar.Bois.Types
 				};
 			}
 
+#if NET6_0_OR_GREATER
+			if (memActualType == typeof(DateOnly))
+			{
+				return new BoisBasicTypeInfo
+				{
+					KnownType = EnBasicKnownType.DateOnly,
+					IsNullable = isNullable,
+					AsRootNeedsCompute = false,
+					BareType = underlyingTypeNullable,
+				};
+			}
+			if (memActualType == typeof(TimeOnly))
+			{
+				return new BoisBasicTypeInfo
+				{
+					KnownType = EnBasicKnownType.TimeOnly,
+					IsNullable = isNullable,
+					AsRootNeedsCompute = false,
+					BareType = underlyingTypeNullable,
+				};
+			}
+#endif
 
 			if (memActualType == typeof(TimeSpan))
 			{

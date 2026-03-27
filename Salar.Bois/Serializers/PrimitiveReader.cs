@@ -122,6 +122,75 @@ namespace Salar.Bois.Serializers
 			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes));
 		}
 
+#if NET6_0_OR_GREATER
+
+		internal static DateOnly ReadDateOnly(BufferReaderBase reader)
+		{
+			var dayNumber = NumericSerializers.ReadVarInt32(reader);
+			if (dayNumber == 0L)
+			{
+				return DateOnly.MinValue;
+			}
+			if (dayNumber == 1L)
+			{
+				return DateOnly.MaxValue;
+			}
+
+			return DateOnly.FromDayNumber(dayNumber);
+		}
+
+		internal static DateOnly? ReadDateOnlyNullable(BufferReaderBase reader)
+		{
+			var dayNumber = NumericSerializers.ReadVarInt32Nullable(reader);
+			if (dayNumber is null)
+				return null;
+
+			if (dayNumber == 0)
+			{
+				return DateOnly.MinValue;
+			}
+			if (dayNumber == 1)
+			{
+				return DateOnly.MaxValue;
+			}
+
+			return DateOnly.FromDayNumber(dayNumber.Value);
+		}
+
+		internal static TimeOnly ReadTimeOnly(BufferReaderBase reader)
+		{
+			var ticks = NumericSerializers.ReadVarInt64(reader);
+			if (ticks == 0L)
+			{
+				return TimeOnly.MinValue;
+			}
+			if (ticks == 1L)
+			{
+				return TimeOnly.MaxValue;
+			}
+
+			return new TimeOnly(ticks);
+		}
+
+		internal static TimeOnly? ReadTimeOnlyNullable(BufferReaderBase reader)
+		{
+			var ticks = NumericSerializers.ReadVarInt64Nullable(reader);
+			if (ticks is null)
+				return null;
+
+			if (ticks == 0L)
+			{
+				return TimeOnly.MinValue;
+			}
+			if (ticks == 1L)
+			{
+				return TimeOnly.MaxValue;
+			}
+
+			return new TimeOnly(ticks.Value);
+		}
+#endif
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal static byte[] ReadByteArray(BinaryBufferReader reader)
 		{
@@ -130,6 +199,9 @@ namespace Salar.Bois.Serializers
 			{
 				return null;
 			}
+
+			if (length.Value == 0) return [];
+
 			return reader.ReadBytes((int)length.Value);
 		}
 
@@ -584,6 +656,18 @@ namespace Salar.Bois.Serializers
 					if (typeInfo.IsNullable)
 						return PrimitiveReader.ReadDateTimeOffsetNullable(reader);
 					return PrimitiveReader.ReadDateTimeOffset(reader);
+
+#if NET6_0_OR_GREATER
+				case EnBasicKnownType.DateOnly:
+					if (typeInfo.IsNullable)
+						return PrimitiveReader.ReadDateOnlyNullable(reader);
+					return PrimitiveReader.ReadDateOnly(reader);
+
+				case EnBasicKnownType.TimeOnly:
+					if (typeInfo.IsNullable)
+						return PrimitiveReader.ReadTimeOnlyNullable(reader);
+					return PrimitiveReader.ReadTimeOnly(reader);
+#endif
 
 				case EnBasicKnownType.TimeSpan:
 					if (typeInfo.IsNullable)

@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0;net6.0;net48;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net9.0;net8.0;net6.0;net48;netstandard2.1</TargetFrameworks>
 		<AssemblyName>Salar.Bois</AssemblyName>
 		<RootNamespace>Salar.Bois</RootNamespace>
 		<LangVersion>latest</LangVersion>
 		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-		<Version>3.3.0.0</Version>
+		<Version>3.4.1</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
@@ -14,7 +14,7 @@
 			The most compact, extermly fast binary serializer for .NET Code and .NET Framework.
 			More info: https://github.com/salarcode/Bois
 		</Description>
-		<Copyright>MPLv2 © Salar Khalilzadeh 2023</Copyright>
+		<Copyright>MPLv2 © Salar Khalilzadeh 2026</Copyright>
 		<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
 		<PackageLicenseUrl></PackageLicenseUrl>
 		<SignAssembly>true</SignAssembly>
@@ -22,8 +22,7 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageReleaseNotes>
-			* Started using BinaryBuffers for more flexilibity and performance
-			* Added couple of new constructors using BinaryBuffers
+            * Fixed deserializing a zero-length byte with dynamic type that would throw an exception.
 		</PackageReleaseNotes>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

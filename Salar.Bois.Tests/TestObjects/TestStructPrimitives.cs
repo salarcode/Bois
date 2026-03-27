@@ -76,11 +76,18 @@ namespace Salar.Bois.NetFx.Tests.TestObjects
 
 		public DateTimeOffset DateTimeOffset { get; set; }
 
+#if NET6_0_OR_GREATER
+		public DateOnly DateOnly { get; set; }
+
+		public TimeOnly TimeOnly { get; set; }
+#endif
+
 		public TimeSpan TimeSpan { get; set; }
 
 		public byte[] ByteArray { get; set; }
 
 		public Guid Guid { get; set; }
+
 		public Guid Guid2 { get; set; }
 
 		public Color Color { get; set; }
@@ -114,6 +121,10 @@ namespace Salar.Bois.NetFx.Tests.TestObjects
 					Color = System.Drawing.Color.FromArgb(10,10,20,30),
 					Boolean = true,
 					DateTimeOffset = DateTimeOffset.UtcNow,
+#if NET6_0_OR_GREATER
+                    DateOnly = DateOnly.FromDateTime(DateTime.UtcNow),
+					TimeOnly = TimeOnly.FromDateTime(DateTime.UtcNow),
+#endif
 					Int16NullableF = 90
 				}
 			};

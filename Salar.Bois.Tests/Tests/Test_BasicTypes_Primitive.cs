@@ -396,6 +396,82 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			final.Should().Be(init);
 		}
 
+#if NET6_0_OR_GREATER
+		public static IEnumerable<object[]> GetDateOnlyData()
+		{
+			yield return new object[] { DateOnly.MinValue };
+			yield return new object[] { DateOnly.MaxValue };
+			yield return new object[] { DateOnly.FromDateTime(DateTime.Now) };
+			yield return new object[] { new DateOnly(2023, 10, 22) };
+		}
+
+		[Theory]
+		[MemberData(nameof(GetDateOnlyData))]
+		public void TestingDateOnly(DateOnly init)
+		{
+			ResetBois();
+
+			PrimitiveWriter.WriteValue(Writer, init);
+			ResetStream();
+
+			var final = PrimitiveReader.ReadDateOnly(Reader);
+
+			final.Should().Be(init);
+		}
+
+		[Theory]
+		[InlineData(null)]
+		[MemberData(nameof(GetDateOnlyData))]
+		public void TestingDateOnlyNullable(DateOnly? init)
+		{
+			ResetBois();
+
+			PrimitiveWriter.WriteValue(Writer, init);
+			ResetStream();
+
+			var final = PrimitiveReader.ReadDateOnlyNullable(Reader);
+
+			final.Should().Be(init);
+		}
+
+		public static IEnumerable<object[]> GetTimeOnlyData()
+		{
+			yield return new object[] { TimeOnly.MinValue };
+			yield return new object[] { TimeOnly.MaxValue };
+			yield return new object[] { TimeOnly.FromDateTime(DateTime.Now) };
+			yield return new object[] { TimeOnly.FromDateTime(DateTime.UtcNow) };
+			yield return new object[] { new TimeOnly(23, 10, 22, 615) };
+		}
+
+		[Theory]
+		[MemberData(nameof(GetTimeOnlyData))]
+		public void TestingTimeOnly(TimeOnly init)
+		{
+			ResetBois();
+
+			PrimitiveWriter.WriteValue(Writer, init);
+			ResetStream();
+
+			var final = PrimitiveReader.ReadTimeOnly(Reader);
+
+			final.Should().Be(init);
+		}
+
+		[Theory]
+		[InlineData(null)]
+		[MemberData(nameof(GetTimeOnlyData))]
+		public void TestingTimeOnlyNullable(TimeOnly? init)
+		{
+			ResetBois();
+
+			PrimitiveWriter.WriteValue(Writer, init);
+			ResetStream();
+
+			var final = PrimitiveReader.ReadTimeOnlyNullable(Reader);
+
+			final.Should().Be(init);
+		}
+#endif
 
 		public static IEnumerable<object[]> GetByteArrayData()
 		{

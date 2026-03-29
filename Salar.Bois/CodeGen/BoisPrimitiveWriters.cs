@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Salar.Bois.Generator.Serializers;
+namespace Salar.Bois.CodeGen;
 
 public static class BoisPrimitiveWriters
 {

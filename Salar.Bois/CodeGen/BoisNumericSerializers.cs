@@ -2,7 +2,7 @@
 using Salar.Bois.Serializers;
 using System.Runtime.CompilerServices;
 
-namespace Salar.Bois.Generator.Serializers;
+namespace Salar.Bois.CodeGen;
 
 public static class BoisNumericSerializers
 {

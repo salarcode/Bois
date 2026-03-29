@@ -1,4 +1,6 @@
-namespace Salar.Bois.Generator.Attributes;
+using System;
+
+namespace Salar.Bois;
 
 /// <summary>
 /// Marks a partial method as the target for generated BOIS reader implementation.

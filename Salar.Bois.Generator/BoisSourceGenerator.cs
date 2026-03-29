@@ -106,23 +106,21 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
         if (operation == OperationKind.Reader)
         {
-            if (method.ReturnsVoid || method.Parameters.Length != 1 || !IsStream(method.Parameters[0].Type))
+            if (!TryCreateReaderGenerationMethod(method, containingType, out generationMethod))
             {
-                context.ReportDiagnostic(Diagnostic.Create(InvalidMethodSignature, method.Locations.FirstOrDefault(), $"Reader method '{method.Name}' must have the signature 'static partial T Method(System.IO.Stream source)'."));
+                context.ReportDiagnostic(Diagnostic.Create(InvalidMethodSignature, method.Locations.FirstOrDefault(), $"Reader method '{method.Name}' must have one of the supported signatures: {GetSupportedReaderSignatures()}."));
                 return false;
             }
 
-            generationMethod = new GenerationMethod(method, containingType, operation, method.ReturnType);
             return true;
         }
 
-        if (!method.ReturnsVoid || method.Parameters.Length != 2 || !IsStream(method.Parameters[0].Type))
+        if (!TryCreateWriterGenerationMethod(method, containingType, out generationMethod))
         {
-            context.ReportDiagnostic(Diagnostic.Create(InvalidMethodSignature, method.Locations.FirstOrDefault(), $"Writer method '{method.Name}' must have the signature 'static partial void Method(System.IO.Stream output, T model)'."));
+            context.ReportDiagnostic(Diagnostic.Create(InvalidMethodSignature, method.Locations.FirstOrDefault(), $"Writer method '{method.Name}' must have one of the supported signatures: {GetSupportedWriterSignatures()}."));
             return false;
         }
 
-        generationMethod = new GenerationMethod(method, containingType, operation, method.Parameters[1].Type);
         return true;
     }
 
@@ -137,6 +135,134 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
     private static bool IsStream(ITypeSymbol type)
         => type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.IO.Stream";
+
+    private static bool IsBufferReader(ITypeSymbol type)
+        => type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::Salar.BinaryBuffers.BufferReaderBase";
+
+    private static bool IsBufferWriter(ITypeSymbol type)
+        => type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::Salar.BinaryBuffers.BufferWriterBase";
+
+    private static bool IsEncoding(ITypeSymbol type)
+        => type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.Text.Encoding";
+
+    private static bool IsByteArray(ITypeSymbol type)
+        => type is IArrayTypeSymbol arrayType && arrayType.ElementType.SpecialType == SpecialType.System_Byte;
+
+    private static bool IsInt32(ITypeSymbol type)
+        => type.SpecialType == SpecialType.System_Int32;
+
+    private static bool TryCreateReaderGenerationMethod(IMethodSymbol method, INamedTypeSymbol containingType, out GenerationMethod generationMethod)
+    {
+        generationMethod = default!;
+
+        if (method.ReturnsVoid)
+            return false;
+
+        var parameters = method.Parameters;
+        var encodingParameterIndex = TryGetTrailingEncodingParameterIndex(parameters);
+        var parameterCount = encodingParameterIndex is null ? parameters.Length : parameters.Length - 1;
+
+        ReaderSignature? signature = null;
+
+        if (parameterCount == 1)
+        {
+            if (IsStream(parameters[0].Type))
+            {
+                signature = new ReaderSignature(ReaderInputKind.Stream, 0, -1, -1, encodingParameterIndex);
+            }
+            else if (IsBufferReader(parameters[0].Type))
+            {
+                signature = new ReaderSignature(ReaderInputKind.BufferReader, 0, -1, -1, encodingParameterIndex);
+            }
+        }
+        else if (parameterCount == 3 &&
+                 IsByteArray(parameters[0].Type) &&
+                 IsInt32(parameters[1].Type) &&
+                 IsInt32(parameters[2].Type))
+        {
+            signature = new ReaderSignature(ReaderInputKind.ByteArray, 0, 1, 2, encodingParameterIndex);
+        }
+
+        if (signature is null)
+            return false;
+
+        generationMethod = new GenerationMethod(method, containingType, OperationKind.Reader, method.ReturnType, signature);
+        return true;
+    }
+
+    private static bool TryCreateWriterGenerationMethod(IMethodSymbol method, INamedTypeSymbol containingType, out GenerationMethod generationMethod)
+    {
+        generationMethod = default!;
+
+        if (!method.ReturnsVoid)
+            return false;
+
+        var parameters = method.Parameters;
+        var encodingParameterIndex = TryGetTrailingEncodingParameterIndex(parameters);
+        var parameterCount = encodingParameterIndex is null ? parameters.Length : parameters.Length - 1;
+
+        WriterSignature? signature = null;
+
+        if (parameterCount == 2)
+        {
+            if (IsStream(parameters[0].Type) || IsBufferWriter(parameters[0].Type))
+            {
+                signature = new WriterSignature(
+                    IsStream(parameters[0].Type) ? WriterOutputKind.Stream : WriterOutputKind.BufferWriter,
+                    1,
+                    0,
+                    -1,
+                    -1,
+                    encodingParameterIndex);
+            }
+            else if (IsStream(parameters[1].Type) || IsBufferWriter(parameters[1].Type))
+            {
+                signature = new WriterSignature(
+                    IsStream(parameters[1].Type) ? WriterOutputKind.Stream : WriterOutputKind.BufferWriter,
+                    0,
+                    1,
+                    -1,
+                    -1,
+                    encodingParameterIndex);
+            }
+        }
+        else if (parameterCount == 4)
+        {
+            if (IsByteArray(parameters[0].Type) &&
+                IsInt32(parameters[1].Type) &&
+                IsInt32(parameters[2].Type))
+            {
+                signature = new WriterSignature(WriterOutputKind.ByteArray, 3, 0, 1, 2, encodingParameterIndex);
+            }
+            else if (IsByteArray(parameters[1].Type) &&
+                     IsInt32(parameters[2].Type) &&
+                     IsInt32(parameters[3].Type))
+            {
+                signature = new WriterSignature(WriterOutputKind.ByteArray, 0, 1, 2, 3, encodingParameterIndex);
+            }
+        }
+
+        if (signature is null)
+            return false;
+
+        generationMethod = new GenerationMethod(method, containingType, OperationKind.Writer, parameters[signature.ModelParameterIndex].Type, signature);
+        return true;
+    }
+
+    private static int? TryGetTrailingEncodingParameterIndex(ImmutableArray<IParameterSymbol> parameters)
+    {
+        if (parameters.Length == 0)
+            return null;
+
+        var lastIndex = parameters.Length - 1;
+        return IsEncoding(parameters[lastIndex].Type) ? lastIndex : null;
+    }
+
+    private static string GetSupportedReaderSignatures()
+        => "'static partial T Method(System.IO.Stream source)', 'static partial T Method(System.IO.Stream source, System.Text.Encoding encoding)', 'static partial T Method(Salar.BinaryBuffers.BufferReaderBase reader)', 'static partial T Method(Salar.BinaryBuffers.BufferReaderBase reader, System.Text.Encoding encoding)', 'static partial T Method(byte[] buffer, int position, int length)', or 'static partial T Method(byte[] buffer, int position, int length, System.Text.Encoding encoding)'";
+
+    private static string GetSupportedWriterSignatures()
+        => "'static partial void Method(T model, System.IO.Stream output)', 'static partial void Method(System.IO.Stream output, T model)', 'static partial void Method(T model, Salar.BinaryBuffers.BufferWriterBase writer)', 'static partial void Method(Salar.BinaryBuffers.BufferWriterBase writer, T model)', 'static partial void Method(T model, byte[] output, int position, int length)', 'static partial void Method(byte[] output, int position, int length, T model)', and those same signatures with an optional trailing System.Text.Encoding parameter";
 
     private static string GetFileName(ITypeSymbol type)
     {
@@ -154,9 +280,25 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
-            if (syntaxNode is MethodDeclarationSyntax method && method.AttributeLists.Count > 0 && method.Modifiers.Any(SyntaxKind.PartialKeyword))
+            if (syntaxNode is MethodDeclarationSyntax method &&
+                method.Modifiers.Any(SyntaxKind.PartialKeyword) &&
+                HasBoisAttribute(method))
+            {
                 Candidates.Add(method);
+            }
         }
+
+        private static bool HasBoisAttribute(MethodDeclarationSyntax method)
+            => method.AttributeLists.SelectMany(static list => list.Attributes).Any(static attribute => GetAttributeName(attribute.Name) is "BoisReader" or "BoisReaderAttribute" or "BoisWriter" or "BoisWriterAttribute");
+
+        private static string GetAttributeName(NameSyntax name)
+            => name switch
+            {
+                IdentifierNameSyntax identifier => identifier.Identifier.ValueText,
+                QualifiedNameSyntax qualified => GetAttributeName(qualified.Right),
+                AliasQualifiedNameSyntax aliasQualified => aliasQualified.Name.Identifier.ValueText,
+                _ => name.ToString()
+            };
     }
 
     private sealed class ContainingTypeEmitter
@@ -214,6 +356,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             builder.Line("// <auto-generated />");
             builder.Line("#nullable enable");
             builder.Line("using global::System;");
+            builder.Line("using global::Salar.BinaryBuffers;");
             builder.Line("using global::Salar.Bois.Generator.Serializers;");
             builder.Line("using global::Salar.BinaryBuffers.Compatibility;");
             builder.Line();
@@ -282,8 +425,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 if (_method.Operation == OperationKind.Reader)
                 {
-                    var sourceName = Escape(_method.Method.Parameters[0].Name);
-                    builder.Line($"var reader = new StreamBufferReader({sourceName});");
+                    EmitReaderSetup(builder);
                     if (!TryEmitRead(_method.RootType, builder, out error))
                     {
                         _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
@@ -292,10 +434,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 }
                 else
                 {
-                    var outputName = Escape(_method.Method.Parameters[0].Name);
-                    var valueName = Escape(_method.Method.Parameters[1].Name);
-                    builder.Line($"var writer = new StreamBufferWriter({outputName});");
-                    builder.Line($"var value = {valueName};");
+                    EmitWriterSetup(builder);
                     if (!TryEmitWrite(_method.RootType, builder, out error))
                     {
                         _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
@@ -355,7 +494,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             private void EmitReadLocalFunction(CodeBuilder builder, LocalFunctionModel function)
             {
                 builder.Line();
-                builder.Line($"static {TypeName(function.Type)} {function.Name}(global::Salar.BinaryBuffers.BufferReaderBase reader)");
+                builder.Line($"static {TypeName(function.Type)} {function.Name}(global::Salar.BinaryBuffers.BufferReaderBase reader, global::System.Text.Encoding encoding)");
                 builder.Line("{");
                 builder.Indent();
 
@@ -372,7 +511,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             private void EmitWriteLocalFunction(CodeBuilder builder, LocalFunctionModel function)
             {
                 builder.Line();
-                builder.Line($"static void {function.Name}(global::Salar.BinaryBuffers.BufferWriterBase writer, {TypeName(function.Type)} value)");
+                builder.Line($"static void {function.Name}(global::Salar.BinaryBuffers.BufferWriterBase writer, {TypeName(function.Type)} value, global::System.Text.Encoding encoding)");
                 builder.Line("{");
                 builder.Indent();
 
@@ -384,6 +523,66 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 builder.Unindent();
                 builder.Line("}");
+            }
+
+            private void EmitReaderSetup(CodeBuilder builder)
+            {
+                var signature = (ReaderSignature)_method.Signature;
+                builder.Line($"var encoding = {GetEncodingExpression(signature.EncodingParameterIndex)};");
+
+                var sourceName = Escape(_method.Method.Parameters[signature.SourceParameterIndex].Name);
+                switch (signature.InputKind)
+                {
+                    case ReaderInputKind.Stream:
+                        builder.Line($"var reader = new StreamBufferReader({sourceName});");
+                        break;
+                    case ReaderInputKind.BufferReader:
+                        builder.Line($"var reader = {sourceName};");
+                        break;
+                    case ReaderInputKind.ByteArray:
+                        var positionName = Escape(_method.Method.Parameters[signature.PositionParameterIndex].Name);
+                        var lengthName = Escape(_method.Method.Parameters[signature.LengthParameterIndex].Name);
+                        builder.Line($"var reader = new BinaryBufferReader({sourceName}, {positionName}, {lengthName});");
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+
+            private void EmitWriterSetup(CodeBuilder builder)
+            {
+                var signature = (WriterSignature)_method.Signature;
+                builder.Line($"var encoding = {GetEncodingExpression(signature.EncodingParameterIndex)};");
+
+                var valueName = Escape(_method.Method.Parameters[signature.ModelParameterIndex].Name);
+                builder.Line($"var value = {valueName};");
+
+                var outputName = Escape(_method.Method.Parameters[signature.OutputParameterIndex].Name);
+                switch (signature.OutputKind)
+                {
+                    case WriterOutputKind.Stream:
+                        builder.Line($"var writer = new StreamBufferWriter({outputName});");
+                        break;
+                    case WriterOutputKind.BufferWriter:
+                        builder.Line($"var writer = {outputName};");
+                        break;
+                    case WriterOutputKind.ByteArray:
+                        var positionName = Escape(_method.Method.Parameters[signature.PositionParameterIndex].Name);
+                        var lengthName = Escape(_method.Method.Parameters[signature.LengthParameterIndex].Name);
+                        builder.Line($"var writer = new BinaryBufferWriter({outputName}, {positionName}, {lengthName});");
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+
+            private string GetEncodingExpression(int? encodingParameterIndex)
+            {
+                if (encodingParameterIndex is null)
+                    return "global::Salar.Bois.BoisSerializer.DefaultEncoding";
+
+                var encodingName = Escape(_method.Method.Parameters[encodingParameterIndex.Value].Name);
+                return $"{encodingName} ?? global::Salar.Bois.BoisSerializer.DefaultEncoding";
             }
 
             private bool TryEmitWrite(ITypeSymbol type, CodeBuilder builder, out string error)
@@ -526,7 +725,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 if (_owner.IsNameValueCollection(member.Type))
                     return EmitWriteNestedNameValue(access, builder, out error);
 
-                builder.Line($"{EnsureWriteFunction(member.Type)}(writer, {access});");
+                builder.Line($"{EnsureWriteFunction(member.Type)}(writer, {access}, encoding);");
                 error = string.Empty;
                 return true;
             }
@@ -572,7 +771,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     }
                 }
 
-                builder.Line($"{target} = {EnsureReadFunction(member.Type)}(reader);");
+                builder.Line($"{target} = {EnsureReadFunction(member.Type)}(reader, encoding);");
                 error = string.Empty;
                 return true;
             }
@@ -759,21 +958,21 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private bool EmitWriteNestedNameValue(string expression, CodeBuilder builder, out string error)
             {
-                builder.Line($"if ({expression} is null)");
-                builder.Line("{");
-                builder.Indent();
-                builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
-                builder.Unindent();
-                builder.Line("}");
-                builder.Line("else");
-                builder.Line("{");
+                builder.MultiLine($$"""
+                if ({{expression}} is null)
+                {
+                    BoisPrimitiveWriters.WriteNullValue(writer);
+                }
+                else
+                {
+                """);
                 builder.Indent();
                 builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(writer, (uint){expression}.Count);");
                 builder.Line($"foreach (var key in {expression}.AllKeys)");
                 builder.Line("{");
                 builder.Indent();
-                builder.Line("BoisPrimitiveWriters.WriteValue(writer, key, global::System.Text.Encoding.UTF8);");
-                builder.Line($"BoisPrimitiveWriters.WriteValue(writer, {expression}[key], global::System.Text.Encoding.UTF8);");
+                builder.Line("BoisPrimitiveWriters.WriteValue(writer, key, encoding);");
+                builder.Line($"BoisPrimitiveWriters.WriteValue(writer, {expression}[key], encoding);");
                 builder.Unindent();
                 builder.Line("}");
                 builder.Unindent();
@@ -814,8 +1013,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line($"for (var i = 0; i < {countExpression}; i++)");
                 builder.Line("{");
                 builder.Indent();
-                builder.Line("var key = BoisPrimitiveReaders.ReadString(reader, global::System.Text.Encoding.UTF8);");
-                builder.Line("var value = BoisPrimitiveReaders.ReadString(reader, global::System.Text.Encoding.UTF8);");
+                builder.Line("var key = BoisPrimitiveReaders.ReadString(reader, encoding);");
+                builder.Line("var value = BoisPrimitiveReaders.ReadString(reader, encoding);");
                 builder.Line($"{target}.Add(key, value);");
                 builder.Unindent();
                 builder.Line("}");
@@ -827,7 +1026,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     return _owner.GetWriteStatement(type, basicType, expression);
                 if (_owner.IsEnum(type))
                     return _owner.GetEnumWriteStatement(type, expression);
-                return $"{EnsureWriteFunction(type)}(writer, {expression});";
+                return $"{EnsureWriteFunction(type)}(writer, {expression}, encoding);";
             }
 
             private string GetReadValueExpression(ITypeSymbol type)
@@ -836,7 +1035,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     return _owner.GetReadExpression(type, basicType);
                 if (_owner.IsEnum(type))
                     return $"BoisPrimitiveReaders.ReadEnumGeneric<{TypeName(type)}>(reader)";
-                return $"{EnsureReadFunction(type)}(reader)";
+                return $"{EnsureReadFunction(type)}(reader, encoding)";
             }
 
             private string BuildSignature(IMethodSymbol method)
@@ -1029,74 +1228,205 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 basicType = nullableValue ? BasicType.BoolNullable : BasicType.Bool;
                 return true;
             }
-            if (bare.SpecialType == SpecialType.System_Char) { basicType = nullableValue ? BasicType.CharNullable : BasicType.Char; return true; }
-            if (bare.SpecialType == SpecialType.System_Int16) { basicType = nullableValue ? BasicType.Int16Nullable : BasicType.Int16; return true; }
-            if (bare.SpecialType == SpecialType.System_Int32) { basicType = nullableValue ? BasicType.Int32Nullable : BasicType.Int32; return true; }
-            if (bare.SpecialType == SpecialType.System_Int64) { basicType = nullableValue ? BasicType.Int64Nullable : BasicType.Int64; return true; }
-            if (bare.SpecialType == SpecialType.System_UInt16) { basicType = nullableValue ? BasicType.UInt16Nullable : BasicType.UInt16; return true; }
-            if (bare.SpecialType == SpecialType.System_UInt32) { basicType = nullableValue ? BasicType.UInt32Nullable : BasicType.UInt32; return true; }
-            if (bare.SpecialType == SpecialType.System_UInt64) { basicType = nullableValue ? BasicType.UInt64Nullable : BasicType.UInt64; return true; }
-            if (bare.SpecialType == SpecialType.System_Single) { basicType = nullableValue ? BasicType.SingleNullable : BasicType.Single; return true; }
-            if (bare.SpecialType == SpecialType.System_Double) { basicType = nullableValue ? BasicType.DoubleNullable : BasicType.Double; return true; }
-            if (bare.SpecialType == SpecialType.System_Decimal) { basicType = nullableValue ? BasicType.DecimalNullable : BasicType.Decimal; return true; }
-            if (bare.SpecialType == SpecialType.System_Byte) { basicType = nullableValue ? BasicType.ByteNullable : BasicType.Byte; return true; }
-            if (bare.SpecialType == SpecialType.System_SByte) { basicType = nullableValue ? BasicType.SByteNullable : BasicType.SByte; return true; }
-            if (bare.SpecialType == SpecialType.System_DateTime) { basicType = nullableValue ? BasicType.DateTimeNullable : BasicType.DateTime; return true; }
-            if (Equal(bare, _dateTimeOffsetType)) { basicType = nullableValue ? BasicType.DateTimeOffsetNullable : BasicType.DateTimeOffset; return true; }
-            if (Equal(bare, _dateOnlyType)) { basicType = nullableValue ? BasicType.DateOnlyNullable : BasicType.DateOnly; return true; }
-            if (Equal(bare, _timeOnlyType)) { basicType = nullableValue ? BasicType.TimeOnlyNullable : BasicType.TimeOnly; return true; }
-            if (bare is IArrayTypeSymbol arrayType && arrayType.ElementType.SpecialType == SpecialType.System_Byte) { basicType = BasicType.ByteArray; return true; }
-            if (Equal(bare, _timeSpanType)) { basicType = nullableValue ? BasicType.TimeSpanNullable : BasicType.TimeSpan; return true; }
-            if (Equal(bare, _guidType)) { basicType = nullableValue ? BasicType.GuidNullable : BasicType.Guid; return true; }
-            if (Equal(bare, _colorType)) { basicType = nullableValue ? BasicType.ColorNullable : BasicType.Color; return true; }
-            if (Equal(bare, _dbNullType)) { basicType = BasicType.DbNull; return true; }
-            if (Equal(bare, _uriType)) { basicType = BasicType.Uri; return true; }
-            if (Equal(bare, _versionType)) { basicType = BasicType.Version; return true; }
-            if (Equal(bare, _dataTableType)) { basicType = BasicType.DataTable; return true; }
-            if (Equal(bare, _dataSetType)) { basicType = BasicType.DataSet; return true; }
+            if (bare.SpecialType == SpecialType.System_Char)
+            {
+                basicType = nullableValue ? BasicType.CharNullable : BasicType.Char;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_Int16)
+            {
+                basicType = nullableValue ? BasicType.Int16Nullable : BasicType.Int16;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_Int32)
+            {
+                basicType = nullableValue ? BasicType.Int32Nullable : BasicType.Int32;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_Int64)
+            {
+                basicType = nullableValue ? BasicType.Int64Nullable : BasicType.Int64;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_UInt16)
+            {
+                basicType = nullableValue ? BasicType.UInt16Nullable : BasicType.UInt16;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_UInt32)
+            {
+                basicType = nullableValue ? BasicType.UInt32Nullable : BasicType.UInt32;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_UInt64)
+            {
+                basicType = nullableValue ? BasicType.UInt64Nullable : BasicType.UInt64;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_Single)
+            {
+                basicType = nullableValue ? BasicType.SingleNullable : BasicType.Single;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_Double)
+            {
+                basicType = nullableValue ? BasicType.DoubleNullable : BasicType.Double;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_Decimal)
+            {
+                basicType = nullableValue ? BasicType.DecimalNullable : BasicType.Decimal;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_Byte)
+            {
+                basicType = nullableValue ? BasicType.ByteNullable : BasicType.Byte;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_SByte)
+            {
+                basicType = nullableValue ? BasicType.SByteNullable : BasicType.SByte;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_DateTime)
+            {
+                basicType = nullableValue ? BasicType.DateTimeNullable : BasicType.DateTime;
+                return true;
+            }
+            if (Equal(bare, _dateTimeOffsetType))
+            {
+                basicType = nullableValue ? BasicType.DateTimeOffsetNullable : BasicType.DateTimeOffset;
+                return true;
+            }
+            if (Equal(bare, _dateOnlyType))
+            {
+                basicType = nullableValue ? BasicType.DateOnlyNullable : BasicType.DateOnly;
+                return true;
+            }
+            if (Equal(bare, _timeOnlyType))
+            {
+                basicType = nullableValue ? BasicType.TimeOnlyNullable : BasicType.TimeOnly;
+                return true;
+            }
+            if (bare is IArrayTypeSymbol arrayType && arrayType.ElementType.SpecialType == SpecialType.System_Byte)
+            {
+                basicType = BasicType.ByteArray;
+                return true;
+            }
+            if (Equal(bare, _timeSpanType))
+            {
+                basicType = nullableValue ? BasicType.TimeSpanNullable : BasicType.TimeSpan;
+                return true;
+            }
+            if (Equal(bare, _guidType))
+            {
+                basicType = nullableValue ? BasicType.GuidNullable : BasicType.Guid;
+                return true;
+            }
+            if (Equal(bare, _colorType))
+            {
+                basicType = nullableValue ? BasicType.ColorNullable : BasicType.Color;
+                return true;
+            }
+            if (Equal(bare, _dbNullType))
+            {
+                basicType = BasicType.DbNull;
+                return true;
+            }
+            if (Equal(bare, _uriType))
+            {
+                basicType = BasicType.Uri;
+                return true;
+            }
+            if (Equal(bare, _versionType))
+            {
+                basicType = BasicType.Version;
+                return true;
+            }
+            if (Equal(bare, _dataTableType))
+            {
+                basicType = BasicType.DataTable;
+                return true;
+            }
+            if (Equal(bare, _dataSetType))
+            {
+                basicType = BasicType.DataSet;
+                return true;
+            }
 
             basicType = default;
             return false;
         }
 
-        public string GetWriteStatement(ITypeSymbol type, BasicType basicType, string expression) => basicType switch
+        public string GetWriteStatement(ITypeSymbol type, BasicType basicType, string expression)
         {
-            BasicType.String => $"BoisPrimitiveWriters.WriteValue(writer, {expression}, global::System.Text.Encoding.UTF8);",
-            BasicType.Bool or 
-                BasicType.BoolNullable or 
-                BasicType.Char or 
-                BasicType.CharNullable or 
-                BasicType.DateTime or 
-                BasicType.DateTimeNullable or 
-                BasicType.DateTimeOffset or 
-                BasicType.DateTimeOffsetNullable or 
-                BasicType.TimeSpan or 
-                BasicType.TimeSpanNullable or 
-                BasicType.Guid or 
-                BasicType.GuidNullable or
-                BasicType.Color or 
-                BasicType.ColorNullable or
-                BasicType.DbNull or
-                BasicType.Uri or
-                BasicType.Version or
-                BasicType.DateOnly or
-                BasicType.DateOnlyNullable or
-                BasicType.TimeOnly or
-                BasicType.TimeOnlyNullable or
-                BasicType.ByteArray => $"BoisPrimitiveWriters.WriteValue(writer, {expression});",
-            BasicType.Int16 or 
-                BasicType.Int16Nullable or 
-                BasicType.Int32 or 
-                BasicType.Int32Nullable or 
-                BasicType.Int64 or 
-                BasicType.Int64Nullable or BasicType.UInt16 or BasicType.UInt16Nullable or BasicType.UInt32 or BasicType.UInt32Nullable or BasicType.UInt64 or BasicType.UInt64Nullable or BasicType.ByteNullable or 
-                BasicType.SByteNullable => $"BoisNumericSerializers.WriteVarInt(writer, {expression});",
-            BasicType.Single or BasicType.SingleNullable or BasicType.Double or BasicType.DoubleNullable or BasicType.Decimal or BasicType.DecimalNullable => $"BoisNumericSerializers.WriteVarDecimal(writer, {expression});",
-            BasicType.Byte => $"BoisNumericSerializers.WriteByte(writer, {expression});",
-            BasicType.SByte => $"BoisNumericSerializers.WriteSByte(writer, {expression});",
-            BasicType.DataTable or BasicType.DataSet => $"BoisPrimitiveWriters.WriteValue(writer, {expression}, global::System.Text.Encoding.UTF8);",
-            _ => throw new InvalidOperationException()
-        };
+            switch (basicType)
+            {
+                case BasicType.String:
+                    return $"BoisPrimitiveWriters.WriteValue(writer, {expression}, encoding);";
+
+                case BasicType.Bool:
+                case BasicType.BoolNullable:
+                case BasicType.Char:
+                case BasicType.CharNullable:
+                case BasicType.DateTime:
+                case BasicType.DateTimeNullable:
+                case BasicType.DateTimeOffset:
+                case BasicType.DateTimeOffsetNullable:
+                case BasicType.TimeSpan:
+                case BasicType.TimeSpanNullable:
+                case BasicType.Guid:
+                case BasicType.GuidNullable:
+                case BasicType.Color:
+                case BasicType.ColorNullable:
+                case BasicType.DbNull:
+                case BasicType.Uri:
+                case BasicType.Version:
+                case BasicType.DateOnly:
+                case BasicType.DateOnlyNullable:
+                case BasicType.TimeOnly:
+                case BasicType.TimeOnlyNullable:
+                case BasicType.ByteArray:
+                    return $"BoisPrimitiveWriters.WriteValue(writer, {expression});";
+
+                case BasicType.Int16:
+                case BasicType.Int16Nullable:
+                case BasicType.Int32:
+                case BasicType.Int32Nullable:
+                case BasicType.Int64:
+                case BasicType.Int64Nullable:
+                case BasicType.UInt16:
+                case BasicType.UInt16Nullable:
+                case BasicType.UInt32:
+                case BasicType.UInt32Nullable:
+                case BasicType.UInt64:
+                case BasicType.UInt64Nullable:
+                case BasicType.ByteNullable:
+                case BasicType.SByteNullable:
+                    return $"BoisNumericSerializers.WriteVarInt(writer, {expression});";
+
+                case BasicType.Single:
+                case BasicType.SingleNullable:
+                case BasicType.Double:
+                case BasicType.DoubleNullable:
+                case BasicType.Decimal:
+                case BasicType.DecimalNullable:
+                    return $"BoisNumericSerializers.WriteVarDecimal(writer, {expression});";
+
+                case BasicType.Byte:
+                    return $"BoisNumericSerializers.WriteByte(writer, {expression});";
+
+                case BasicType.SByte:
+                    return $"BoisNumericSerializers.WriteSByte(writer, {expression});";
+
+                case BasicType.DataTable:
+                case BasicType.DataSet:
+                    return $"BoisPrimitiveWriters.WriteValue(writer, {expression}, encoding);";
+
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
 
         public string GetEnumWriteStatement(ITypeSymbol type, string expression)
         {
@@ -1109,7 +1439,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
         public string GetReadExpression(ITypeSymbol type, BasicType basicType) => basicType switch
         {
-            BasicType.String => "BoisPrimitiveReaders.ReadString(reader, global::System.Text.Encoding.UTF8)",
+            BasicType.String => "BoisPrimitiveReaders.ReadString(reader, encoding)",
             BasicType.Bool => "BoisPrimitiveReaders.ReadBoolean(reader)",
             BasicType.BoolNullable => "BoisPrimitiveReaders.ReadBooleanNullable(reader)",
             BasicType.Char => "BoisPrimitiveReaders.ReadChar(reader)",
@@ -1154,8 +1484,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             BasicType.DbNull => "BoisPrimitiveReaders.ReadDbNull(reader)",
             BasicType.Uri => "BoisPrimitiveReaders.ReadUri(reader)",
             BasicType.Version => "BoisPrimitiveReaders.ReadVersion(reader)",
-            BasicType.DataTable => "BoisPrimitiveReaders.ReadDataTable(reader, global::System.Text.Encoding.UTF8)",
-            BasicType.DataSet => "BoisPrimitiveReaders.ReadDataSet(reader, global::System.Text.Encoding.UTF8)",
+            BasicType.DataTable => "BoisPrimitiveReaders.ReadDataTable(reader, encoding)",
+            BasicType.DataSet => "BoisPrimitiveReaders.ReadDataSet(reader, encoding)",
             _ => throw new InvalidOperationException()
         };
 
@@ -1207,13 +1537,18 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             => HashCode.Combine(SymbolEqualityComparer.Default.GetHashCode(obj.ContainingType), obj.FileName);
     }
 
-    private sealed record GenerationMethod(IMethodSymbol Method, INamedTypeSymbol ContainingType, OperationKind Operation, ITypeSymbol RootType);
+    private sealed record GenerationMethod(IMethodSymbol Method, INamedTypeSymbol ContainingType, OperationKind Operation, ITypeSymbol RootType, MethodSignature Signature);
     private sealed record LocalFunctionModel(OperationKind Operation, ITypeSymbol Type, string Name);
     private sealed record MemberModel(ISymbol Symbol, ITypeSymbol Type, int Index, bool IsGetterOnlyMutableCollection);
     private sealed record CollectionInfo(ITypeSymbol Type, ITypeSymbol ElementType);
     private sealed record DictionaryInfo(ITypeSymbol Type, ITypeSymbol KeyType, ITypeSymbol ValueType);
+    private abstract record MethodSignature(int? EncodingParameterIndex);
+    private sealed record ReaderSignature(ReaderInputKind InputKind, int SourceParameterIndex, int PositionParameterIndex, int LengthParameterIndex, int? EncodingParameterIndex) : MethodSignature(EncodingParameterIndex);
+    private sealed record WriterSignature(WriterOutputKind OutputKind, int ModelParameterIndex, int OutputParameterIndex, int PositionParameterIndex, int LengthParameterIndex, int? EncodingParameterIndex) : MethodSignature(EncodingParameterIndex);
 
     private enum OperationKind { Reader, Writer }
+    private enum ReaderInputKind { Stream, BufferReader, ByteArray }
+    private enum WriterOutputKind { Stream, BufferWriter, ByteArray }
 
     private enum BasicType
     {

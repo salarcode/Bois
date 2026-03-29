@@ -571,9 +571,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             }
 
             private bool EmitWriteArray(IArrayTypeSymbol arrayType, CodeBuilder builder, out string error)
-                => EmitWriteNestedArray(arrayType, "value", builder, out error, root:true);
+                => EmitWriteNestedArray(arrayType, "value", builder, out error);
 
-            private bool EmitWriteNestedArray(IArrayTypeSymbol arrayType, string expression, CodeBuilder builder, out string error, bool root=false)
+            private bool EmitWriteNestedArray(IArrayTypeSymbol arrayType, string expression, CodeBuilder builder, out string error)
             {
                 builder.Line($"if ({expression} is null)");
                 builder.Line("{");
@@ -617,9 +617,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             }
 
             private bool EmitWriteCollection(CollectionInfo collectionInfo, CodeBuilder builder, out string error)
-                => EmitWriteNestedCollection(collectionInfo, "value", builder, out error, root:true);
+                => EmitWriteNestedCollection(collectionInfo, "value", builder, out error);
 
-            private bool EmitWriteNestedCollection(CollectionInfo collectionInfo, string expression, CodeBuilder builder, out string error, bool root=false)
+            private bool EmitWriteNestedCollection(CollectionInfo collectionInfo, string expression, CodeBuilder builder, out string error)
             {
                 builder.Line($"if ({expression} is null)");
                 builder.Line("{");
@@ -681,9 +681,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             }
 
             private bool EmitWriteDictionary(DictionaryInfo dictionaryInfo, CodeBuilder builder, out string error)
-                => EmitWriteNestedDictionary(dictionaryInfo, "value", builder, out error, root:true);
+                => EmitWriteNestedDictionary(dictionaryInfo, "value", builder, out error);
 
-            private bool EmitWriteNestedDictionary(DictionaryInfo dictionaryInfo, string expression, CodeBuilder builder, out string error, bool root=false)
+            private bool EmitWriteNestedDictionary(DictionaryInfo dictionaryInfo, string expression, CodeBuilder builder, out string error)
             {
                 builder.Line($"if ({expression} is null)");
                 builder.Line("{");
@@ -748,9 +748,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             }
 
             private bool EmitWriteNameValueCollection(CodeBuilder builder, out string error)
-                => EmitWriteNestedNameValue("value", builder, out error, root:true);
+                => EmitWriteNestedNameValue("value", builder, out error);
 
-            private bool EmitWriteNestedNameValue(string expression, CodeBuilder builder, out string error, bool root=false)
+            private bool EmitWriteNestedNameValue(string expression, CodeBuilder builder, out string error)
             {
                 builder.Line($"if ({expression} is null)");
                 builder.Line("{");
@@ -902,7 +902,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                         continue;
 
                     var getterOnlyMutable = property.SetMethod is null && (TryGetCollectionInfo(property.Type, out _) || TryGetDictionaryInfo(property.Type, out _) || IsNameValueCollection(property.Type));
-                    if (property.SetMethod is not null && property.SetMethod.DeclaredAccessibility == Accessibility.Public || getterOnlyMutable)
+                    if ((property.SetMethod is not null && property.SetMethod.DeclaredAccessibility == Accessibility.Public) || getterOnlyMutable)
                     {
                         Insert(ordered, new MemberModel(property, property.Type, index, getterOnlyMutable));
                     }

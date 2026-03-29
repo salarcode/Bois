@@ -259,10 +259,29 @@ public sealed class BoisSourceGenerator : ISourceGenerator
     }
 
     private static string GetSupportedReaderSignatures()
-        => "'static partial T Method(System.IO.Stream source)', 'static partial T Method(System.IO.Stream source, System.Text.Encoding encoding)', 'static partial T Method(Salar.BinaryBuffers.BufferReaderBase reader)', 'static partial T Method(Salar.BinaryBuffers.BufferReaderBase reader, System.Text.Encoding encoding)', 'static partial T Method(byte[] buffer, int position, int length)', or 'static partial T Method(byte[] buffer, int position, int length, System.Text.Encoding encoding)'";
+        => string.Join(
+            ", ",
+            [
+                "'static partial T Method(System.IO.Stream source)'",
+                "'static partial T Method(System.IO.Stream source, System.Text.Encoding encoding)'",
+                "'static partial T Method(Salar.BinaryBuffers.BufferReaderBase reader)'",
+                "'static partial T Method(Salar.BinaryBuffers.BufferReaderBase reader, System.Text.Encoding encoding)'",
+                "'static partial T Method(byte[] buffer, int position, int length)'",
+                "or 'static partial T Method(byte[] buffer, int position, int length, System.Text.Encoding encoding)'"
+            ]);
 
     private static string GetSupportedWriterSignatures()
-        => "'static partial void Method(T model, System.IO.Stream output)', 'static partial void Method(System.IO.Stream output, T model)', 'static partial void Method(T model, Salar.BinaryBuffers.BufferWriterBase writer)', 'static partial void Method(Salar.BinaryBuffers.BufferWriterBase writer, T model)', 'static partial void Method(T model, byte[] output, int position, int length)', 'static partial void Method(byte[] output, int position, int length, T model)', and those same signatures with an optional trailing System.Text.Encoding parameter";
+        => string.Join(
+            ", ",
+            [
+                "'static partial void Method(T model, System.IO.Stream output)'",
+                "'static partial void Method(System.IO.Stream output, T model)'",
+                "'static partial void Method(T model, Salar.BinaryBuffers.BufferWriterBase writer)'",
+                "'static partial void Method(Salar.BinaryBuffers.BufferWriterBase writer, T model)'",
+                "'static partial void Method(T model, byte[] output, int position, int length)'",
+                "'static partial void Method(byte[] output, int position, int length, T model)'",
+                "and those same signatures with an optional trailing System.Text.Encoding parameter"
+            ]);
 
     private static string GetFileName(ITypeSymbol type)
     {
@@ -289,7 +308,12 @@ public sealed class BoisSourceGenerator : ISourceGenerator
         }
 
         private static bool HasBoisAttribute(MethodDeclarationSyntax method)
-            => method.AttributeLists.SelectMany(static list => list.Attributes).Any(static attribute => GetAttributeName(attribute.Name) is "BoisReader" or "BoisReaderAttribute" or "BoisWriter" or "BoisWriterAttribute");
+            => method.AttributeLists
+                .SelectMany(static list => list.Attributes)
+                .Any(static attribute => IsBoisAttributeName(GetAttributeName(attribute.Name)));
+
+        private static bool IsBoisAttributeName(string attributeName)
+            => attributeName is "BoisReader" or "BoisReaderAttribute" or "BoisWriter" or "BoisWriterAttribute";
 
         private static string GetAttributeName(NameSyntax name)
             => name switch

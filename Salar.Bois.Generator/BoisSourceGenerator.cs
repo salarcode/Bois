@@ -905,10 +905,17 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 if (symbol is IPropertySymbol property)
                 {
-                    if (property.IsStatic || property.DeclaredAccessibility != Accessibility.Public || property.IsIndexer || property.GetMethod is null || property.GetMethod.DeclaredAccessibility != Accessibility.Public)
+                    if (property.IsStatic ||
+                        property.DeclaredAccessibility != Accessibility.Public ||
+                        property.IsIndexer ||
+                        property.GetMethod is null ||
+                        property.GetMethod.DeclaredAccessibility != Accessibility.Public)
                         continue;
 
-                    var getterOnlyMutable = property.SetMethod is null && (TryGetCollectionInfo(property.Type, out _) || TryGetDictionaryInfo(property.Type, out _) || IsNameValueCollection(property.Type));
+                    var getterOnlyMutable = property.SetMethod is null &&
+                        (TryGetCollectionInfo(property.Type, out _) ||
+                        TryGetDictionaryInfo(property.Type, out _) ||
+                        IsNameValueCollection(property.Type));
                     if ((property.SetMethod is not null && property.SetMethod.DeclaredAccessibility == Accessibility.Public) || getterOnlyMutable)
                     {
                         Insert(ordered, new MemberModel(property, property.Type, index, getterOnlyMutable));
@@ -1012,8 +1019,16 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             var bare = Bare(type);
             var nullableValue = IsNullableValueType(type);
 
-            if (bare.SpecialType == SpecialType.System_String) { basicType = BasicType.String; return true; }
-            if (bare.SpecialType == SpecialType.System_Boolean) { basicType = nullableValue ? BasicType.BoolNullable : BasicType.Bool; return true; }
+            if (bare.SpecialType == SpecialType.System_String)
+            {
+                basicType = BasicType.String;
+                return true;
+            }
+            if (bare.SpecialType == SpecialType.System_Boolean)
+            {
+                basicType = nullableValue ? BasicType.BoolNullable : BasicType.Bool;
+                return true;
+            }
             if (bare.SpecialType == SpecialType.System_Char) { basicType = nullableValue ? BasicType.CharNullable : BasicType.Char; return true; }
             if (bare.SpecialType == SpecialType.System_Int16) { basicType = nullableValue ? BasicType.Int16Nullable : BasicType.Int16; return true; }
             if (bare.SpecialType == SpecialType.System_Int32) { basicType = nullableValue ? BasicType.Int32Nullable : BasicType.Int32; return true; }
@@ -1047,8 +1062,35 @@ public sealed class BoisSourceGenerator : ISourceGenerator
         public string GetWriteStatement(ITypeSymbol type, BasicType basicType, string expression) => basicType switch
         {
             BasicType.String => $"BoisPrimitiveWriters.WriteValue(writer, {expression}, global::System.Text.Encoding.UTF8);",
-            BasicType.Bool or BasicType.BoolNullable or BasicType.Char or BasicType.CharNullable or BasicType.DateTime or BasicType.DateTimeNullable or BasicType.DateTimeOffset or BasicType.DateTimeOffsetNullable or BasicType.TimeSpan or BasicType.TimeSpanNullable or BasicType.Guid or BasicType.GuidNullable or BasicType.Color or BasicType.ColorNullable or BasicType.DbNull or BasicType.Uri or BasicType.Version or BasicType.DateOnly or BasicType.DateOnlyNullable or BasicType.TimeOnly or BasicType.TimeOnlyNullable or BasicType.ByteArray => $"BoisPrimitiveWriters.WriteValue(writer, {expression});",
-            BasicType.Int16 or BasicType.Int16Nullable or BasicType.Int32 or BasicType.Int32Nullable or BasicType.Int64 or BasicType.Int64Nullable or BasicType.UInt16 or BasicType.UInt16Nullable or BasicType.UInt32 or BasicType.UInt32Nullable or BasicType.UInt64 or BasicType.UInt64Nullable or BasicType.ByteNullable or BasicType.SByteNullable => $"BoisNumericSerializers.WriteVarInt(writer, {expression});",
+            BasicType.Bool or 
+                BasicType.BoolNullable or 
+                BasicType.Char or 
+                BasicType.CharNullable or 
+                BasicType.DateTime or 
+                BasicType.DateTimeNullable or 
+                BasicType.DateTimeOffset or 
+                BasicType.DateTimeOffsetNullable or 
+                BasicType.TimeSpan or 
+                BasicType.TimeSpanNullable or 
+                BasicType.Guid or 
+                BasicType.GuidNullable or
+                BasicType.Color or 
+                BasicType.ColorNullable or
+                BasicType.DbNull or
+                BasicType.Uri or
+                BasicType.Version or
+                BasicType.DateOnly or
+                BasicType.DateOnlyNullable or
+                BasicType.TimeOnly or
+                BasicType.TimeOnlyNullable or
+                BasicType.ByteArray => $"BoisPrimitiveWriters.WriteValue(writer, {expression});",
+            BasicType.Int16 or 
+                BasicType.Int16Nullable or 
+                BasicType.Int32 or 
+                BasicType.Int32Nullable or 
+                BasicType.Int64 or 
+                BasicType.Int64Nullable or BasicType.UInt16 or BasicType.UInt16Nullable or BasicType.UInt32 or BasicType.UInt32Nullable or BasicType.UInt64 or BasicType.UInt64Nullable or BasicType.ByteNullable or 
+                BasicType.SByteNullable => $"BoisNumericSerializers.WriteVarInt(writer, {expression});",
             BasicType.Single or BasicType.SingleNullable or BasicType.Double or BasicType.DoubleNullable or BasicType.Decimal or BasicType.DecimalNullable => $"BoisNumericSerializers.WriteVarDecimal(writer, {expression});",
             BasicType.Byte => $"BoisNumericSerializers.WriteByte(writer, {expression});",
             BasicType.SByte => $"BoisNumericSerializers.WriteSByte(writer, {expression});",
@@ -1172,6 +1214,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
     private sealed record DictionaryInfo(ITypeSymbol Type, ITypeSymbol KeyType, ITypeSymbol ValueType);
 
     private enum OperationKind { Reader, Writer }
+
     private enum BasicType
     {
         String,
@@ -1235,8 +1278,25 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             _builder.AppendLine(text);
         }
 
+        public void MultiLine(string text)
+        {
+            if (text.Length == 0)
+                return;
+
+            var indentText = new string(' ', _indent * 4);
+            var lines = text.ReplaceLineEndings("\n").Split('\n');
+
+            foreach (var line in lines)
+            {
+                _builder.Append(indentText);
+                _builder.AppendLine(line);
+            }
+        }
+
         public void Indent() => _indent++;
+
         public void Unindent() => _indent--;
+
         public override string ToString() => _builder.ToString();
     }
 }

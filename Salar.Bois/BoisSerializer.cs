@@ -33,12 +33,14 @@ namespace Salar.Bois
 		/// </summary>
 		public Encoding Encoding { get; set; }
 
-		/// <summary>
-		/// Initializing a new instance of Bois serializer.
-		/// </summary>
-		public BoisSerializer()
+		public static Encoding DefaultEncoding { get; set; } = Encoding.UTF8;
+
+        /// <summary>
+        /// Initializing a new instance of Bois serializer.
+        /// </summary>
+        public BoisSerializer()
 		{
-			Encoding = Encoding.UTF8;
+			Encoding = DefaultEncoding;
 		}
 
 		static BoisSerializer()

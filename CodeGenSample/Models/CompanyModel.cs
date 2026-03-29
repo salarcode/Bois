@@ -1,6 +1,8 @@
-﻿using Salar.Bois.Generator.Attributes;
+﻿using Salar.BinaryBuffers;
+using Salar.Bois.Generator.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace CodeGenSample.Models;
 
@@ -78,6 +80,26 @@ public static partial class CompanyModelBois
     [BoisReader]
     public static partial CompanyModel? ReadCompanyModel(Stream source);
 
+    [BoisReader]
+    public static partial CompanyModel? ReadCompanyModel(BufferReaderBase reader);
+
+    [BoisReader]
+    public static partial CompanyModel? ReadCompanyModel(BufferReaderBase reader, Encoding encoding);
+
+    [BoisReader]
+    public static partial CompanyModel? ReadCompanyModel(byte[] buffer, int position, int length);
+
     [BoisWriter]
-    public static partial void WriteCompanyModel(Stream output, CompanyModel? model);
+    public static partial void WriteCompanyModel(CompanyModel? model, Stream output);
+
+    [BoisWriter]
+    public static partial void WriteCompanyModel(CompanyModel? model, BufferWriterBase writer);
+
+    [BoisWriter]
+    public static partial void WriteCompanyModel(CompanyModel? model, BufferWriterBase writer, Encoding encoding);
+
+    [BoisWriter]
+    public static partial void WriteCompanyModel(CompanyModel? model, byte[] output, int position, int length);
+
+
 }

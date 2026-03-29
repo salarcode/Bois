@@ -10,8 +10,8 @@ namespace Salar.Bois.Generator;
 [Generator]
 public sealed class BoisSourceGenerator : ISourceGenerator
 {
-    private const string ReaderAttributeName = "Salar.Bois.Generator.Attributes.BoisReaderAttribute";
-    private const string WriterAttributeName = "Salar.Bois.Generator.Attributes.BoisWriterAttribute";
+    private const string ReaderAttributeName = "Salar.Bois.BoisReaderAttribute";
+    private const string WriterAttributeName = "Salar.Bois.BoisWriterAttribute";
 
     private static readonly DiagnosticDescriptor InvalidMethodSignature = new(
         "BOISGEN001",
@@ -381,7 +381,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             builder.Line("#nullable enable");
             builder.Line("using global::System;");
             builder.Line("using global::Salar.BinaryBuffers;");
-            builder.Line("using global::Salar.Bois.Generator.Serializers;");
+            builder.Line("using global::Salar.Bois.CodeGen;");
             builder.Line("using global::Salar.BinaryBuffers.Compatibility;");
             builder.Line();
 
@@ -1570,7 +1570,14 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             => SymbolEqualityComparer.Default.Equals(x.ContainingType, y.ContainingType) && x.FileName == y.FileName;
 
         public int GetHashCode((INamedTypeSymbol ContainingType, string FileName) obj)
-            => HashCode.Combine(SymbolEqualityComparer.Default.GetHashCode(obj.ContainingType), obj.FileName);
+        {
+            unchecked
+            {
+                var hash = SymbolEqualityComparer.Default.GetHashCode(obj.ContainingType);
+                hash = (hash * 397) ^ StringComparer.Ordinal.GetHashCode(obj.FileName);
+                return hash;
+            }
+        }
     }
 
     private sealed record GenerationMethod(IMethodSymbol Method, INamedTypeSymbol ContainingType, OperationKind Operation, ITypeSymbol RootType, MethodSignature Signature);
@@ -1655,7 +1662,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return;
 
             var indentText = new string(' ', _indent * 4);
-            var lines = text.ReplaceLineEndings("\n").Split('\n');
+            var normalizedText = text.Replace("\r\n", "\n").Replace('\r', '\n');
+            var lines = normalizedText.Split('\n');
 
             foreach (var line in lines)
             {

@@ -10,7 +10,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Salar.Bois.Generator\Salar.Bois.Generator.csproj"
                       OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="true" />
+                      ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Salar.Bois\Salar.Bois.csproj" />
   </ItemGroup>
 
 </Project>

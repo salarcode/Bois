@@ -1,5 +1,5 @@
-﻿using Salar.BinaryBuffers;
-using Salar.Bois.Generator.Attributes;
+using Salar.BinaryBuffers;
+using Salar.Bois;
 using System;
 using System.Collections.Generic;
 using System.Text;

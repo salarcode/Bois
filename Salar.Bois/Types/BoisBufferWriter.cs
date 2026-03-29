@@ -1,8 +1,8 @@
 ﻿using Salar.BinaryBuffers;
 using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Salar.Bois.Types
 {
@@ -156,47 +156,65 @@ namespace Salar.Bois.Types
 
 		public override void Write(decimal value)
 		{
-			WriteValue(value);
+			var span = GetFixedWriteSpan(16);
+			var bits = decimal.GetBits(value);
+			BinaryPrimitives.WriteInt32LittleEndian(span, bits[0]);
+			BinaryPrimitives.WriteInt32LittleEndian(span.Slice(4), bits[1]);
+			BinaryPrimitives.WriteInt32LittleEndian(span.Slice(8), bits[2]);
+			BinaryPrimitives.WriteInt32LittleEndian(span.Slice(12), bits[3]);
+			CompleteFixedWrite(16);
 		}
 
 		public override void Write(double value)
 		{
-			WriteValue(value);
+			Write(DoubleToUInt64Bits(value));
 		}
 
 		public override void Write(float value)
 		{
-			WriteValue(value);
+			Write(SingleToUInt32Bits(value));
 		}
 
 		public override void Write(short value)
 		{
-			WriteValue(value);
+			var span = GetFixedWriteSpan(2);
+			BinaryPrimitives.WriteInt16LittleEndian(span, value);
+			CompleteFixedWrite(2);
 		}
 
 		public override void Write(ushort value)
 		{
-			WriteValue(value);
+			var span = GetFixedWriteSpan(2);
+			BinaryPrimitives.WriteUInt16LittleEndian(span, value);
+			CompleteFixedWrite(2);
 		}
 
 		public override void Write(int value)
 		{
-			WriteValue(value);
+			var span = GetFixedWriteSpan(4);
+			BinaryPrimitives.WriteInt32LittleEndian(span, value);
+			CompleteFixedWrite(4);
 		}
 
 		public override void Write(uint value)
 		{
-			WriteValue(value);
+			var span = GetFixedWriteSpan(4);
+			BinaryPrimitives.WriteUInt32LittleEndian(span, value);
+			CompleteFixedWrite(4);
 		}
 
 		public override void Write(long value)
 		{
-			WriteValue(value);
+			var span = GetFixedWriteSpan(8);
+			BinaryPrimitives.WriteInt64LittleEndian(span, value);
+			CompleteFixedWrite(8);
 		}
 
 		public override void Write(ulong value)
 		{
-			WriteValue(value);
+			var span = GetFixedWriteSpan(8);
+			BinaryPrimitives.WriteUInt64LittleEndian(span, value);
+			CompleteFixedWrite(8);
 		}
 
 		public override void Write(ReadOnlySpan<byte> buffer)
@@ -273,6 +291,34 @@ namespace Salar.Bois.Types
 				throw new EndOfStreamException("Reached to end of data");
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private Span<byte> GetFixedWriteSpan(int size)
+		{
+			EnsureWritable(size);
+
+			if (_cachePosition == 0)
+			{
+				_cacheStartPosition = _position;
+			}
+			else if (_cachePosition + size > InternalCacheSize)
+			{
+				FlushCore();
+				_cacheStartPosition = _position;
+			}
+
+			return new Span<byte>(_cache, _cachePosition, size);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void CompleteFixedWrite(int size)
+		{
+			_cachePosition += size;
+			Advance(size);
+
+			if (_cachePosition == InternalCacheSize)
+				FlushCore();
+		}
+
 		private void FlushCore()
 		{
 			if (_cachePosition == 0)
@@ -319,6 +365,18 @@ namespace Salar.Bois.Types
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static unsafe uint SingleToUInt32Bits(float value)
+		{
+			return *(uint*)&value;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static unsafe ulong DoubleToUInt64Bits(double value)
+		{
+			return *(ulong*)&value;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void SetPosition(int value)
 		{
 			if (value < 0)
@@ -343,14 +401,6 @@ namespace Salar.Bois.Types
 
 			FlushCore();
 			_position = value;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void WriteValue<T>(T value)
-			where T : struct
-		{
-			var span = MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref value, 1));
-			Write(span);
 		}
 	}
 }

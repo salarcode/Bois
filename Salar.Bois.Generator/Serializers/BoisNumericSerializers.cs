@@ -127,6 +127,18 @@ public static class BoisNumericSerializers
 		return NumericSerializers.ReadVarByteNullable(reader);
 	}
 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static byte ReadByte(BufferReaderBase reader)
+	{
+		return reader.ReadByte();
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static sbyte ReadSByte(BufferReaderBase reader)
+	{
+		return reader.ReadSByte();
+	}
+
 	#endregion
 
 	#region Writers
@@ -278,6 +290,18 @@ public static class BoisNumericSerializers
 	public static void WriteVarInt(BufferWriterBase writer, sbyte? num)
 	{
 		NumericSerializers.WriteVarInt(writer, num);
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void WriteByte(BufferWriterBase writer, byte num)
+	{
+		writer.Write(num);
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void WriteSByte(BufferWriterBase writer, sbyte num)
+	{
+		writer.Write(num);
 	}
 
 	/// <summary>

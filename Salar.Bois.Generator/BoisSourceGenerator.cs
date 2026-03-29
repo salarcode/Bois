@@ -528,7 +528,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             private void EmitReaderSetup(CodeBuilder builder)
             {
                 var signature = (ReaderSignature)_method.Signature;
-                builder.Line($"var encoding = {GetEncodingExpression(signature.EncodingParameterIndex)};");
+                EmitEncodingSetup(builder, signature.EncodingParameterIndex);
 
                 var sourceName = Escape(_method.Method.Parameters[signature.SourceParameterIndex].Name);
                 switch (signature.InputKind)
@@ -537,7 +537,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                         builder.Line($"var reader = new StreamBufferReader({sourceName});");
                         break;
                     case ReaderInputKind.BufferReader:
-                        builder.Line($"var reader = {sourceName};");
+                        if (_method.Method.Parameters[signature.SourceParameterIndex].Name != "reader")
+                            builder.Line($"var reader = {sourceName};");
                         break;
                     case ReaderInputKind.ByteArray:
                         var positionName = Escape(_method.Method.Parameters[signature.PositionParameterIndex].Name);
@@ -552,10 +553,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             private void EmitWriterSetup(CodeBuilder builder)
             {
                 var signature = (WriterSignature)_method.Signature;
-                builder.Line($"var encoding = {GetEncodingExpression(signature.EncodingParameterIndex)};");
+                EmitEncodingSetup(builder, signature.EncodingParameterIndex);
 
                 var valueName = Escape(_method.Method.Parameters[signature.ModelParameterIndex].Name);
-                builder.Line($"var value = {valueName};");
+                if (_method.Method.Parameters[signature.ModelParameterIndex].Name != "value")
+                    builder.Line($"var value = {valueName};");
 
                 var outputName = Escape(_method.Method.Parameters[signature.OutputParameterIndex].Name);
                 switch (signature.OutputKind)
@@ -564,7 +566,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                         builder.Line($"var writer = new StreamBufferWriter({outputName});");
                         break;
                     case WriterOutputKind.BufferWriter:
-                        builder.Line($"var writer = {outputName};");
+                        if (_method.Method.Parameters[signature.OutputParameterIndex].Name != "writer")
+                            builder.Line($"var writer = {outputName};");
                         break;
                     case WriterOutputKind.ByteArray:
                         var positionName = Escape(_method.Method.Parameters[signature.PositionParameterIndex].Name);
@@ -576,13 +579,22 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 }
             }
 
-            private string GetEncodingExpression(int? encodingParameterIndex)
+            private void EmitEncodingSetup(CodeBuilder builder, int? encodingParameterIndex)
             {
                 if (encodingParameterIndex is null)
-                    return "global::Salar.Bois.BoisSerializer.DefaultEncoding";
+                {
+                    builder.Line("var encoding = global::Salar.Bois.BoisSerializer.DefaultEncoding;");
+                    return;
+                }
+
+                if (_method.Method.Parameters[encodingParameterIndex.Value].Name == "encoding")
+                {
+                    builder.Line("encoding ??= global::Salar.Bois.BoisSerializer.DefaultEncoding;");
+                    return;
+                }
 
                 var encodingName = Escape(_method.Method.Parameters[encodingParameterIndex.Value].Name);
-                return $"{encodingName} ?? global::Salar.Bois.BoisSerializer.DefaultEncoding";
+                builder.Line($"var encoding = {encodingName} ?? global::Salar.Bois.BoisSerializer.DefaultEncoding;");
             }
 
             private bool TryEmitWrite(ITypeSymbol type, CodeBuilder builder, out string error)
@@ -749,7 +761,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 if (member.IsGetterOnlyMutableCollection)
                 {
                     var localName = Escape(member.Symbol.Name) + "Target";
-                    builder.Line($"var {localName} = {target} ?? throw new global::InvalidOperationException({Literal($"Property '{member.Symbol.Name}' returned null during deserialization.")});");
+                    builder.Line($"var {localName} = {target} ?? throw new global::System.InvalidOperationException({Literal($"Property '{member.Symbol.Name}' returned null during deserialization.")});");
                     builder.Line($"{localName}.Clear();");
                     if (_owner.TryGetDictionaryInfo(member.Type, out var dict))
                     {

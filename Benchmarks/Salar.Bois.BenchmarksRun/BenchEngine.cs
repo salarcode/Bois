@@ -43,7 +43,10 @@ public class BenchEngine
 		{
 			foreach (var benchmarkType in _benchmarks)
 			{
-				yield return benchmarkType.MakeGenericType(testObjectType);
+				if (benchmarkType.IsGenericType)
+					yield return benchmarkType.MakeGenericType(testObjectType);
+				else
+					yield return benchmarkType;
 			}
 		}
 	}

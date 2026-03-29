@@ -24,6 +24,8 @@ public class BenchRunner
 		_engine.AddBenchmark(typeof(BoisBenchmark<>));
 		_engine.AddBenchmark(typeof(BoisBufferBenchmark<>));
 		_engine.AddBenchmark(typeof(BoisLz4Benchmark<>));
+		_engine.AddBenchmark(typeof(BoisBenchmark_Test1_Arrays_Big));
+		_engine.AddBenchmark(typeof(BoisBenchmark_Test1_Arrays_Small));
 		_engine.AddBenchmark(typeof(MessagePackBenchmark<>));
 		_engine.AddBenchmark(typeof(MessagePackLz4Benchmark<>));
 		_engine.AddBenchmark(typeof(ProtobufNetBenchmark<>));

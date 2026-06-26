@@ -1,4 +1,5 @@
-﻿using Salar.BinaryBuffers;
+﻿#nullable enable
+using Salar.BinaryBuffers;
 using Salar.Bois.Serializers;
 using System;
 using System.Data;

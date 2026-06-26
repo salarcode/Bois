@@ -458,8 +458,10 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 }
                 else
                 {
+                    EmitWriterValueSetup(builder);
+                    EmitRootWriterNullGuard(builder);
                     EmitWriterSetup(builder);
-                    if (!TryEmitWrite(_method.RootType, builder, out error))
+                    if (!TryEmitWrite(_method.RootType, builder, out error, suppressNullCheck: true))
                     {
                         _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
                         builder.Line($"throw new global::NotSupportedException({Literal(error)});");
@@ -574,14 +576,33 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 }
             }
 
+            private void EmitWriterValueSetup(CodeBuilder builder)
+            {
+                var signature = (WriterSignature)_method.Signature;
+                var valueName = Escape(_method.Method.Parameters[signature.ModelParameterIndex].Name);
+                if (_method.Method.Parameters[signature.ModelParameterIndex].Name != "value")
+                    builder.Line($"var value = {valueName};");
+            }
+
+            private void EmitRootWriterNullGuard(CodeBuilder builder)
+            {
+                if (!_owner.IsNullable(_method.RootType))
+                    return;
+
+                var signature = (WriterSignature)_method.Signature;
+                var modelParameterName = Escape(_method.Method.Parameters[signature.ModelParameterIndex].Name);
+                builder.Line("if (value is null)");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line($"throw new global::System.ArgumentNullException(nameof({modelParameterName}), \"Object cannot be null.\");");
+                builder.Unindent();
+                builder.Line("}");
+            }
+
             private void EmitWriterSetup(CodeBuilder builder)
             {
                 var signature = (WriterSignature)_method.Signature;
                 EmitEncodingSetup(builder, signature.EncodingParameterIndex);
-
-                var valueName = Escape(_method.Method.Parameters[signature.ModelParameterIndex].Name);
-                if (_method.Method.Parameters[signature.ModelParameterIndex].Name != "value")
-                    builder.Line($"var value = {valueName};");
 
                 var outputName = Escape(_method.Method.Parameters[signature.OutputParameterIndex].Name);
                 switch (signature.OutputKind)
@@ -621,7 +642,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line($"var encoding = {encodingName} ?? global::Salar.Bois.BoisSerializer.DefaultEncoding;");
             }
 
-            private bool TryEmitWrite(ITypeSymbol type, CodeBuilder builder, out string error)
+            private bool TryEmitWrite(ITypeSymbol type, CodeBuilder builder, out string error, bool suppressNullCheck = false)
             {
                 if (_owner.TryGetBasicType(type, out var basicType))
                 {
@@ -638,18 +659,18 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 }
 
                 if (type is IArrayTypeSymbol arrayType)
-                    return EmitWriteArray(arrayType, builder, out error);
+                    return EmitWriteArray(arrayType, builder, out error, suppressNullCheck);
 
                 if (_owner.TryGetDictionaryInfo(type, out var dict))
-                    return EmitWriteDictionary(dict, builder, out error);
+                    return EmitWriteDictionary(dict, builder, out error, suppressNullCheck);
 
                 if (_owner.TryGetCollectionInfo(type, out var coll))
-                    return EmitWriteCollection(coll, builder, out error);
+                    return EmitWriteCollection(coll, builder, out error, suppressNullCheck);
 
                 if (_owner.IsNameValueCollection(type))
-                    return EmitWriteNameValueCollection(builder, out error);
+                    return EmitWriteNameValueCollection(builder, out error, suppressNullCheck);
 
-                return EmitWriteObject(type, builder, out error);
+                return EmitWriteObject(type, builder, out error, suppressNullCheck);
             }
 
             private bool TryEmitRead(ITypeSymbol type, CodeBuilder builder, out string error)
@@ -683,20 +704,23 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return EmitReadObject(type, builder, out error);
             }
 
-            private bool EmitWriteObject(ITypeSymbol type, CodeBuilder builder, out string error)
+            private bool EmitWriteObject(ITypeSymbol type, CodeBuilder builder, out string error, bool suppressNullCheck = false)
             {
                 if (!_owner.TryGetMembers(type, out var members, out error))
                     return false;
 
                 if (!_owner.IsExplicitStruct(type))
                 {
-                    builder.Line("if (value is null)");
-                    builder.Line("{");
-                    builder.Indent();
-                    builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
-                    builder.Line("return;");
-                    builder.Unindent();
-                    builder.Line("}");
+                    if (!suppressNullCheck)
+                    {
+                        builder.Line("if (value is null)");
+                        builder.Line("{");
+                        builder.Indent();
+                        builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                        builder.Line("return;");
+                        builder.Unindent();
+                        builder.Line("}");
+                    }
                     builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(writer, {members.Length}u);");
                 }
 
@@ -812,20 +836,23 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitWriteArray(IArrayTypeSymbol arrayType, CodeBuilder builder, out string error)
-                => EmitWriteNestedArray(arrayType, "value", builder, out error);
+            private bool EmitWriteArray(IArrayTypeSymbol arrayType, CodeBuilder builder, out string error, bool suppressNullCheck = false)
+                => EmitWriteNestedArray(arrayType, "value", builder, out error, suppressNullCheck);
 
-            private bool EmitWriteNestedArray(IArrayTypeSymbol arrayType, string expression, CodeBuilder builder, out string error)
+            private bool EmitWriteNestedArray(IArrayTypeSymbol arrayType, string expression, CodeBuilder builder, out string error, bool suppressNullCheck = false)
             {
-                builder.Line($"if ({expression} is null)");
-                builder.Line("{");
-                builder.Indent();
-                builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
-                builder.Unindent();
-                builder.Line("}");
-                builder.Line("else");
-                builder.Line("{");
-                builder.Indent();
+                if (!suppressNullCheck)
+                {
+                    builder.Line($"if ({expression} is null)");
+                    builder.Line("{");
+                    builder.Indent();
+                    builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                    builder.Unindent();
+                    builder.Line("}");
+                    builder.Line("else");
+                    builder.Line("{");
+                    builder.Indent();
+                }
                 builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(writer, (uint){expression}.Length);");
                 builder.Line($"foreach (var item in {expression})");
                 builder.Line("{");
@@ -833,8 +860,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line(GetWriteElementStatement(arrayType.ElementType, "item"));
                 builder.Unindent();
                 builder.Line("}");
-                builder.Unindent();
-                builder.Line("}");
+                if (!suppressNullCheck)
+                {
+                    builder.Unindent();
+                    builder.Line("}");
+                }
                 error = string.Empty;
                 return true;
             }
@@ -858,20 +888,23 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitWriteCollection(CollectionInfo collectionInfo, CodeBuilder builder, out string error)
-                => EmitWriteNestedCollection(collectionInfo, "value", builder, out error);
+            private bool EmitWriteCollection(CollectionInfo collectionInfo, CodeBuilder builder, out string error, bool suppressNullCheck = false)
+                => EmitWriteNestedCollection(collectionInfo, "value", builder, out error, suppressNullCheck);
 
-            private bool EmitWriteNestedCollection(CollectionInfo collectionInfo, string expression, CodeBuilder builder, out string error)
+            private bool EmitWriteNestedCollection(CollectionInfo collectionInfo, string expression, CodeBuilder builder, out string error, bool suppressNullCheck = false)
             {
-                builder.Line($"if ({expression} is null)");
-                builder.Line("{");
-                builder.Indent();
-                builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
-                builder.Unindent();
-                builder.Line("}");
-                builder.Line("else");
-                builder.Line("{");
-                builder.Indent();
+                if (!suppressNullCheck)
+                {
+                    builder.Line($"if ({expression} is null)");
+                    builder.Line("{");
+                    builder.Indent();
+                    builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                    builder.Unindent();
+                    builder.Line("}");
+                    builder.Line("else");
+                    builder.Line("{");
+                    builder.Indent();
+                }
                 builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(writer, (uint){expression}.Count);");
                 builder.Line($"foreach (var item in {expression})");
                 builder.Line("{");
@@ -879,8 +912,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line(GetWriteElementStatement(collectionInfo.ElementType, "item"));
                 builder.Unindent();
                 builder.Line("}");
-                builder.Unindent();
-                builder.Line("}");
+                if (!suppressNullCheck)
+                {
+                    builder.Unindent();
+                    builder.Line("}");
+                }
                 error = string.Empty;
                 return true;
             }
@@ -922,20 +958,23 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line("}");
             }
 
-            private bool EmitWriteDictionary(DictionaryInfo dictionaryInfo, CodeBuilder builder, out string error)
-                => EmitWriteNestedDictionary(dictionaryInfo, "value", builder, out error);
+            private bool EmitWriteDictionary(DictionaryInfo dictionaryInfo, CodeBuilder builder, out string error, bool suppressNullCheck = false)
+                => EmitWriteNestedDictionary(dictionaryInfo, "value", builder, out error, suppressNullCheck);
 
-            private bool EmitWriteNestedDictionary(DictionaryInfo dictionaryInfo, string expression, CodeBuilder builder, out string error)
+            private bool EmitWriteNestedDictionary(DictionaryInfo dictionaryInfo, string expression, CodeBuilder builder, out string error, bool suppressNullCheck = false)
             {
-                builder.Line($"if ({expression} is null)");
-                builder.Line("{");
-                builder.Indent();
-                builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
-                builder.Unindent();
-                builder.Line("}");
-                builder.Line("else");
-                builder.Line("{");
-                builder.Indent();
+                if (!suppressNullCheck)
+                {
+                    builder.Line($"if ({expression} is null)");
+                    builder.Line("{");
+                    builder.Indent();
+                    builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                    builder.Unindent();
+                    builder.Line("}");
+                    builder.Line("else");
+                    builder.Line("{");
+                    builder.Indent();
+                }
                 builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(writer, (uint){expression}.Count);");
                 builder.Line($"foreach (var item in {expression})");
                 builder.Line("{");
@@ -944,8 +983,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line(GetWriteElementStatement(dictionaryInfo.ValueType, "item.Value"));
                 builder.Unindent();
                 builder.Line("}");
-                builder.Unindent();
-                builder.Line("}");
+                if (!suppressNullCheck)
+                {
+                    builder.Unindent();
+                    builder.Line("}");
+                }
                 error = string.Empty;
                 return true;
             }
@@ -989,20 +1031,23 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line("}");
             }
 
-            private bool EmitWriteNameValueCollection(CodeBuilder builder, out string error)
-                => EmitWriteNestedNameValue("value", builder, out error);
+            private bool EmitWriteNameValueCollection(CodeBuilder builder, out string error, bool suppressNullCheck = false)
+                => EmitWriteNestedNameValue("value", builder, out error, suppressNullCheck);
 
-            private bool EmitWriteNestedNameValue(string expression, CodeBuilder builder, out string error)
+            private bool EmitWriteNestedNameValue(string expression, CodeBuilder builder, out string error, bool suppressNullCheck = false)
             {
-                builder.MultiLine($$"""
-                if ({{expression}} is null)
+                if (!suppressNullCheck)
                 {
-                    BoisPrimitiveWriters.WriteNullValue(writer);
+                    builder.MultiLine($$"""
+                    if ({{expression}} is null)
+                    {
+                        BoisPrimitiveWriters.WriteNullValue(writer);
+                    }
+                    else
+                    {
+                    """);
+                    builder.Indent();
                 }
-                else
-                {
-                """);
-                builder.Indent();
                 builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(writer, (uint){expression}.Count);");
                 builder.Line($"foreach (var key in {expression}.AllKeys)");
                 builder.Line("{");
@@ -1011,8 +1056,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line($"BoisPrimitiveWriters.WriteValue(writer, {expression}[key], encoding);");
                 builder.Unindent();
                 builder.Line("}");
-                builder.Unindent();
-                builder.Line("}");
+                if (!suppressNullCheck)
+                {
+                    builder.Unindent();
+                    builder.Line("}");
+                }
                 error = string.Empty;
                 return true;
             }

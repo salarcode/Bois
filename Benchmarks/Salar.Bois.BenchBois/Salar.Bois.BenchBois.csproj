@@ -7,7 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Salar.Bois.LZ4" Version="3.2.1" />
+		<PackageReference Include="Salar.Bois.LZ4" Version="3.4.1" />
 	</ItemGroup>
 
 	<ItemGroup>

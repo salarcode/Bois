@@ -104,9 +104,10 @@ namespace Salar.Bois
 		/// <typeparam name="T">The object type.</typeparam>
 		public void Serialize<T>(T obj, Stream output)
 		{
-			var writer = new StreamBufferWriter(output);
+			var writer = new BoisBufferWriter(output);
 
 			Serialize(obj, writer);
+			writer.Flush();
 		}
 
 		/// <summary>
@@ -141,9 +142,10 @@ namespace Salar.Bois
 		/// <param name="output">The output of the serialization in binary.</param>
 		public void Serialize(object obj, Type type, Stream output)
 		{
-			var writer = new StreamBufferWriter(output);
+			var writer = new BoisBufferWriter(output);
 
 			Serialize(obj, type, writer);
+			writer.Flush();
 		}
 
 		/// <summary>

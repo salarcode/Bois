@@ -6,6 +6,20 @@
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
 		<IsRoslynComponent>true</IsRoslynComponent>
+		<AssemblyName>Salar.Bois.Generator</AssemblyName>
+		<RootNamespace>Salar.Bois.Generator</RootNamespace>
+		<Version>3.4.1</Version>
+		<Authors>Salar Khalilzadeh</Authors>
+		<Company>Salar Khalilzadeh</Company>
+		<Product>Salar.Bois</Product>
+		<Description>Salar's Serializer for Binary Object Indexed Serialization, source generator</Description>
+		<Copyright>MPLv2 © Salar Khalilzadeh 2026</Copyright>
+		<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS SourceGenerator Analyzer</PackageTags>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<DevelopmentDependency>true</DevelopmentDependency>
 		<PrivateAssets>all</PrivateAssets>
 		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,6 +30,11 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\LICENSE.md" Pack="true" PackagePath="" />
+		<None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 </Project>

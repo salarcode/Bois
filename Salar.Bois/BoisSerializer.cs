@@ -89,10 +89,9 @@ namespace Salar.Bois
 		/// <typeparam name="T">The object type.</typeparam>
 		public void Serialize<T>(T obj, byte[] output, int position, int length)
 		{
-			var writer = new BoisBufferWriter(output, position, length);
+			var writer = new BinaryBufferWriter(output, position, length);
 
 			Serialize<T>(obj, writer);
-			writer.Flush();
 		}
 
 		/// <summary>

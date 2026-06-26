@@ -39,7 +39,6 @@ namespace Salar.Bois.Types
 			_buffer = buffer;
 			_offset = position;
 			_length = length;
-			_cache = new byte[InternalCacheSize];
 		}
 
 		public BoisBufferWriter(Stream output)
@@ -115,6 +114,13 @@ namespace Salar.Bois.Types
 		public override void Write(byte value)
 		{
 			EnsureWritable(1);
+
+			if (!_useStream)
+			{
+				_buffer[_offset + _position] = value;
+				Advance(1);
+				return;
+			}
 
 			if (_cachePosition == 0)
 				_cacheStartPosition = _position;
@@ -225,6 +231,13 @@ namespace Salar.Bois.Types
 
 			EnsureWritable(length);
 
+			if (!_useStream)
+			{
+				buffer.CopyTo(new Span<byte>(_buffer, _offset + _position, length));
+				Advance(length);
+				return;
+			}
+
 			if (length >= InternalCacheSize)
 			{
 				FlushCore();
@@ -296,6 +309,9 @@ namespace Salar.Bois.Types
 		{
 			EnsureWritable(size);
 
+			if (!_useStream)
+				return new Span<byte>(_buffer, _offset + _position, size);
+
 			if (_cachePosition == 0)
 			{
 				_cacheStartPosition = _position;
@@ -312,6 +328,12 @@ namespace Salar.Bois.Types
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void CompleteFixedWrite(int size)
 		{
+			if (!_useStream)
+			{
+				Advance(size);
+				return;
+			}
+
 			_cachePosition += size;
 			Advance(size);
 
@@ -349,6 +371,11 @@ namespace Salar.Bois.Types
 				if (_stream.CanSeek && _stream.Position != position)
 					_stream.Position = position;
 
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+				_stream.Write(buffer);
+				return;
+#else
+
 				var remaining = buffer;
 				while (!remaining.IsEmpty)
 				{
@@ -359,6 +386,7 @@ namespace Salar.Bois.Types
 				}
 
 				return;
+#endif
 			}
 
 			buffer.CopyTo(new Span<byte>(_buffer, _offset + position, buffer.Length));

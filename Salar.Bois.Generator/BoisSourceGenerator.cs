@@ -424,6 +424,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             private readonly GenerationMethod _method;
             private readonly Dictionary<string, LocalFunctionModel> _readFunctions = new(StringComparer.Ordinal);
             private readonly Dictionary<string, LocalFunctionModel> _writeFunctions = new(StringComparer.Ordinal);
+            private readonly Dictionary<string, int> _nestedFunctionUseCounts = new(StringComparer.Ordinal);
             private readonly Queue<LocalFunctionModel> _pending = new();
             private int _id;
 
@@ -431,6 +432,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             {
                 _owner = owner;
                 _method = method;
+                CountNestedFunctionUses(method.RootType);
             }
 
             public void Emit(CodeBuilder builder)
@@ -449,8 +451,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 if (_method.Operation == OperationKind.Reader)
                 {
-                    EmitReaderSetup(builder);
-                    if (!TryEmitRead(_method.RootType, builder, out error))
+                    EmitReaderSourceSetup(builder);
+                    if (!TryEmitRead(_method.RootType, builder, out error, setupEncoding: true))
                     {
                         _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
                         builder.Line($"throw new global::NotSupportedException({Literal(error)});");
@@ -487,6 +489,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private string EnsureReadFunction(ITypeSymbol type)
             {
+                type = _owner.LocalFunctionType(type);
                 var key = _owner.TypeKey(type);
                 if (_readFunctions.TryGetValue(key, out var existing))
                     return existing.Name;
@@ -499,6 +502,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private string EnsureWriteFunction(ITypeSymbol type)
             {
+                type = _owner.LocalFunctionType(type);
                 var key = _owner.TypeKey(type);
                 if (_writeFunctions.TryGetValue(key, out var existing))
                     return existing.Name;
@@ -507,6 +511,62 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 _writeFunctions.Add(key, function);
                 _pending.Enqueue(function);
                 return function.Name;
+            }
+
+            private bool ShouldUseNestedFunction(ITypeSymbol type)
+            {
+                var key = _owner.TypeKey(_owner.LocalFunctionType(type));
+                return _nestedFunctionUseCounts.TryGetValue(key, out var count) && count > 1;
+            }
+
+            private void CountNestedFunctionUses(ITypeSymbol type)
+            {
+                if (!_owner.TryGetMembers(type, out var members, out _))
+                    return;
+
+                foreach (var member in members)
+                    CountNestedFunctionUse(member.Type);
+            }
+
+            private void CountNestedFunctionUse(ITypeSymbol type)
+            {
+                if (_owner.TryGetBasicType(type, out _) || _owner.IsEnum(type))
+                    return;
+
+                if (type is IArrayTypeSymbol arrayType)
+                {
+                    CountNestedElementFunctionUse(arrayType.ElementType);
+                    return;
+                }
+                if (_owner.TryGetDictionaryInfo(type, out var dictionaryInfo))
+                {
+                    CountNestedElementFunctionUse(dictionaryInfo.KeyType);
+                    CountNestedElementFunctionUse(dictionaryInfo.ValueType);
+                    return;
+                }
+                if (_owner.TryGetCollectionInfo(type, out var collectionInfo))
+                {
+                    CountNestedElementFunctionUse(collectionInfo.ElementType);
+                    return;
+                }
+                if (_owner.IsNameValueCollection(type))
+                    return;
+
+                AddNestedFunctionUse(type);
+            }
+
+            private void CountNestedElementFunctionUse(ITypeSymbol type)
+            {
+                if (_owner.TryGetBasicType(type, out _) || _owner.IsEnum(type))
+                    return;
+
+                AddNestedFunctionUse(type);
+            }
+
+            private void AddNestedFunctionUse(ITypeSymbol type)
+            {
+                var key = _owner.TypeKey(_owner.LocalFunctionType(type));
+                _nestedFunctionUseCounts[key] = _nestedFunctionUseCounts.TryGetValue(key, out var count) ? count + 1 : 1;
             }
 
             private void EmitLocalFunction(CodeBuilder builder, LocalFunctionModel function)
@@ -551,11 +611,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line("}");
             }
 
-            private void EmitReaderSetup(CodeBuilder builder)
+            private void EmitReaderSourceSetup(CodeBuilder builder)
             {
                 var signature = (ReaderSignature)_method.Signature;
-                EmitEncodingSetup(builder, signature.EncodingParameterIndex);
-
                 var sourceName = Escape(_method.Method.Parameters[signature.SourceParameterIndex].Name);
                 switch (signature.InputKind)
                 {
@@ -673,10 +731,12 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return EmitWriteObject(type, builder, out error, suppressNullCheck);
             }
 
-            private bool TryEmitRead(ITypeSymbol type, CodeBuilder builder, out string error)
+            private bool TryEmitRead(ITypeSymbol type, CodeBuilder builder, out string error, bool setupEncoding = false)
             {
                 if (_owner.TryGetBasicType(type, out var basicType))
                 {
+                    if (setupEncoding)
+                        EmitReaderEncodingSetup(builder);
                     builder.Line($"return {_owner.GetReadExpression(type, basicType)};");
                     error = string.Empty;
                     return true;
@@ -690,30 +750,42 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 }
 
                 if (type is IArrayTypeSymbol arrayType)
-                    return EmitReadArray(arrayType, builder, out error);
+                    return EmitReadArray(arrayType, builder, out error, setupEncoding);
 
                 if (_owner.TryGetDictionaryInfo(type, out var dict))
-                    return EmitReadDictionary(type, dict, builder, out error);
+                    return EmitReadDictionary(type, dict, builder, out error, setupEncoding);
 
                 if (_owner.TryGetCollectionInfo(type, out var coll))
-                    return EmitReadCollection(type, coll, builder, out error);
+                    return EmitReadCollection(type, coll, builder, out error, setupEncoding);
 
                 if (_owner.IsNameValueCollection(type))
-                    return EmitReadNameValueCollection(type, builder, out error);
+                    return EmitReadNameValueCollection(type, builder, out error, setupEncoding);
 
-                return EmitReadObject(type, builder, out error);
+                return EmitReadObject(type, builder, out error, setupEncoding);
             }
 
-            private bool EmitWriteObject(ITypeSymbol type, CodeBuilder builder, out string error, bool suppressNullCheck = false)
+            private void EmitReaderEncodingSetup(CodeBuilder builder)
+            {
+                var signature = (ReaderSignature)_method.Signature;
+                EmitEncodingSetup(builder, signature.EncodingParameterIndex);
+            }
+
+            private bool EmitWriteObject(ITypeSymbol type, CodeBuilder builder, out string error, bool suppressNullCheck = false, string expression = "value")
             {
                 if (!_owner.TryGetMembers(type, out var members, out error))
                     return false;
+
+                if (members.Length == 0)
+                {
+                    error = string.Empty;
+                    return true;
+                }
 
                 if (!_owner.IsExplicitStruct(type))
                 {
                     if (!suppressNullCheck)
                     {
-                        builder.Line("if (value is null)");
+                        builder.Line($"if ({expression} is null)");
                         builder.Line("{");
                         builder.Indent();
                         builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
@@ -726,7 +798,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 foreach (var member in members)
                 {
-                    if (!EmitWriteMember(member, builder, out error))
+                    if (!EmitWriteMember(member, builder, out error, expression))
                         return false;
                 }
 
@@ -734,9 +806,22 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitReadObject(ITypeSymbol type, CodeBuilder builder, out string error)
+            private bool EmitReadObject(ITypeSymbol type, CodeBuilder builder, out string error, bool setupEncoding = false)
             {
                 if (!_owner.TryGetMembers(type, out var members, out error))
+                    return false;
+
+                if (members.Length == 0)
+                {
+                    if (!_owner.TryGetCreationExpression(type, out var emptyCreationExpression, out error))
+                        return false;
+
+                    builder.Line($"return {emptyCreationExpression};");
+                    error = string.Empty;
+                    return true;
+                }
+
+                if (!_owner.TryGetCreationExpression(type, out var creationExpression, out error))
                     return false;
 
                 if (!_owner.IsExplicitStruct(type))
@@ -747,10 +832,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     builder.Line("return null!;");
                     builder.Unindent();
                 }
-
-                if (!_owner.TryGetCreationExpression(type, out var creationExpression, out error))
-                    return false;
-
+                if (setupEncoding)
+                    EmitReaderEncodingSetup(builder);
                 builder.Line($"var instance = {creationExpression};");
                 foreach (var member in members)
                 {
@@ -761,9 +844,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitWriteMember(MemberModel member, CodeBuilder builder, out string error)
+            private bool EmitWriteMember(MemberModel member, CodeBuilder builder, out string error, string ownerExpression = "value")
             {
-                var access = $"value.{Escape(member.Symbol.Name)}";
+                var access = $"{ownerExpression}.{Escape(member.Symbol.Name)}";
                 if (_owner.TryGetBasicType(member.Type, out var basicType))
                 {
                     builder.Line(_owner.GetWriteStatement(member.Type, basicType, access));
@@ -785,14 +868,70 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 if (_owner.IsNameValueCollection(member.Type))
                     return EmitWriteNestedNameValue(access, builder, out error);
 
-                builder.Line($"{EnsureWriteFunction(member.Type)}(writer, {access}, encoding);");
+                return EmitWriteNestedComplex(member.Type, access, builder, out error);
+            }
+
+            private bool EmitWriteNestedComplex(ITypeSymbol type, string expression, CodeBuilder builder, out string error)
+            {
+                if (ShouldUseNestedFunction(type))
+                {
+                    EmitWriteNestedComplexFunctionCall(type, expression, builder);
+                    error = string.Empty;
+                    return true;
+                }
+
+                if (_owner.IsExplicitStruct(type))
+                {
+                    return EmitWriteObject(type, builder, out error, suppressNullCheck: true, expression);
+                }
+
+                builder.Line($"if ({expression} is null)");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                builder.Unindent();
+                builder.Line("}");
+                builder.Line("else");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line("writer.Write((byte)0);");
+                if (!EmitWriteObject(type, builder, out error, suppressNullCheck: true, expression))
+                    return false;
+                builder.Unindent();
+                builder.Line("}");
                 error = string.Empty;
                 return true;
             }
 
-            private bool EmitReadMember(MemberModel member, CodeBuilder builder, out string error)
+            private void EmitWriteNestedComplexFunctionCall(ITypeSymbol type, string expression, CodeBuilder builder)
             {
-                var target = $"instance.{Escape(member.Symbol.Name)}";
+                if (_owner.IsExplicitStruct(type))
+                {
+                    builder.Line($"{EnsureWriteFunction(type)}(writer, {expression}, encoding);");
+                    return;
+                }
+
+                builder.Line($"if ({expression} is null)");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                builder.Unindent();
+                builder.Line("}");
+                builder.Line("else");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line("writer.Write((byte)0);");
+                builder.Line($"{EnsureWriteFunction(type)}(writer, {expression}, encoding);");
+                builder.Unindent();
+                builder.Line("}");
+            }
+
+            private bool EmitReadMember(MemberModel member, CodeBuilder builder, out string error)
+                => EmitReadMemberInto(member, "instance", builder, out error);
+
+            private bool EmitReadMemberInto(MemberModel member, string instanceExpression, CodeBuilder builder, out string error)
+            {
+                var target = $"{instanceExpression}.{Escape(member.Symbol.Name)}";
                 if (_owner.TryGetBasicType(member.Type, out var basicType))
                 {
                     builder.Line($"{target} = {_owner.GetReadExpression(member.Type, basicType)};");
@@ -808,32 +947,240 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 if (member.IsGetterOnlyMutableCollection)
                 {
-                    var localName = Escape(member.Symbol.Name) + "Target";
-                    builder.Line($"var {localName} = {target} ?? throw new global::System.InvalidOperationException({Literal($"Property '{member.Symbol.Name}' returned null during deserialization.")});");
-                    builder.Line($"{localName}.Clear();");
+                    var mutableTargetName = Escape(member.Symbol.Name) + "Target";
+                    builder.Line($"var {mutableTargetName} = {target} ?? throw new global::System.InvalidOperationException({Literal($"Property '{member.Symbol.Name}' returned null during deserialization.")});");
+                    builder.Line($"{mutableTargetName}.Clear();");
                     if (_owner.TryGetDictionaryInfo(member.Type, out var dict))
                     {
-                        EmitReadIntoDictionary(dict, localName, builder);
+                        EmitReadIntoDictionary(dict, mutableTargetName, builder);
                         error = string.Empty;
                         return true;
                     }
                     if (_owner.TryGetCollectionInfo(member.Type, out var coll))
                     {
-                        EmitReadIntoCollection(coll, localName, builder);
+                        EmitReadIntoCollection(coll, mutableTargetName, builder);
                         error = string.Empty;
                         return true;
                     }
                     if (_owner.IsNameValueCollection(member.Type))
                     {
-                        EmitReadIntoNameValue(localName, builder);
+                        EmitReadIntoNameValue(mutableTargetName, builder);
                         error = string.Empty;
                         return true;
                     }
                 }
 
-                builder.Line($"{target} = {EnsureReadFunction(member.Type)}(reader, encoding);");
+                var localName = Escape(member.Symbol.Name) + "Items";
+                if (member.Type is IArrayTypeSymbol memberArrayType)
+                {
+                    EmitReadNestedArray(memberArrayType, target, localName, builder);
+                    error = string.Empty;
+                    return true;
+                }
+                if (_owner.TryGetDictionaryInfo(member.Type, out var memberDictionary))
+                {
+                    EmitReadNestedDictionary(memberDictionary, target, localName, builder);
+                    error = string.Empty;
+                    return true;
+                }
+                if (_owner.TryGetCollectionInfo(member.Type, out var memberCollection))
+                {
+                    EmitReadNestedCollection(memberCollection, target, localName, builder);
+                    error = string.Empty;
+                    return true;
+                }
+                if (_owner.IsNameValueCollection(member.Type))
+                {
+                    EmitReadNestedNameValue(target, localName, builder);
+                    error = string.Empty;
+                    return true;
+                }
+
+                var nestedValueName = Escape(member.Symbol.Name) + "Value";
+                if (!EmitReadNestedComplex(member.Type, target, nestedValueName, builder, out error))
+                    return false;
                 error = string.Empty;
                 return true;
+            }
+
+            private bool EmitReadNestedComplex(ITypeSymbol type, string target, string localName, CodeBuilder builder, out string error)
+            {
+                if (ShouldUseNestedFunction(type))
+                {
+                    EmitReadNestedComplexFunctionCall(type, target, builder);
+                    error = string.Empty;
+                    return true;
+                }
+
+                if (_owner.IsExplicitStruct(type))
+                {
+                    return EmitReadObjectInto(type, target, localName, builder, out error, hasNullMarker: false);
+                }
+
+                builder.Line("if (reader.ReadByte() == 0b01000000)");
+                builder.Indent();
+                builder.Line($"{target} = null!;");
+                builder.Unindent();
+                builder.Line("else");
+                builder.Line("{");
+                builder.Indent();
+                if (!EmitReadObjectInto(type, target, localName, builder, out error, hasNullMarker: true))
+                    return false;
+                builder.Unindent();
+                builder.Line("}");
+                error = string.Empty;
+                return true;
+            }
+
+            private void EmitReadNestedComplexFunctionCall(ITypeSymbol type, string target, CodeBuilder builder)
+            {
+                if (_owner.IsExplicitStruct(type))
+                {
+                    builder.Line($"{target} = {EnsureReadFunction(type)}(reader, encoding);");
+                    return;
+                }
+
+                builder.Line("if (reader.ReadByte() == 0b01000000)");
+                builder.Indent();
+                builder.Line($"{target} = null!;");
+                builder.Unindent();
+                builder.Line("else");
+                builder.Indent();
+                builder.Line($"{target} = {EnsureReadFunction(type)}(reader, encoding);");
+                builder.Unindent();
+            }
+
+            private bool EmitReadObjectInto(ITypeSymbol type, string target, string localName, CodeBuilder builder, out string error, bool hasNullMarker)
+            {
+                if (!_owner.TryGetMembers(type, out var members, out error))
+                    return false;
+
+                if (members.Length == 0)
+                {
+                    if (!_owner.TryGetCreationExpression(type, out var emptyCreationExpression, out error))
+                        return false;
+
+                    builder.Line($"{target} = {emptyCreationExpression};");
+                    error = string.Empty;
+                    return true;
+                }
+
+                if (!_owner.TryGetCreationExpression(type, out var creationExpression, out error))
+                    return false;
+
+                if (!_owner.IsExplicitStruct(type))
+                {
+                    builder.Line("var memberCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                    builder.Line("if (memberCount is null)");
+                    builder.Indent();
+                    builder.Line($"{target} = null!;");
+                    builder.Unindent();
+                    builder.Line("else");
+                    builder.Line("{");
+                    builder.Indent();
+                }
+
+                builder.Line($"var {localName} = {creationExpression};");
+                foreach (var member in members)
+                {
+                    if (!EmitReadMemberInto(member, localName, builder, out error))
+                        return false;
+                }
+                builder.Line($"{target} = {localName};");
+
+                if (!_owner.IsExplicitStruct(type))
+                {
+                    builder.Unindent();
+                    builder.Line("}");
+                }
+
+                error = string.Empty;
+                return true;
+            }
+
+            private void EmitReadNestedArray(IArrayTypeSymbol arrayType, string target, string localName, CodeBuilder builder)
+            {
+                var countName = localName + "Count";
+                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line($"if ({countName} is null)");
+                builder.Indent();
+                builder.Line($"{target} = null!;");
+                builder.Unindent();
+                builder.Line("else");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line($"var {localName} = new {TypeName(arrayType.ElementType)}[(int){countName}.Value];");
+                builder.Line($"for (var i = 0; i < {localName}.Length; i++)");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line($"{localName}[i] = {GetReadValueExpression(arrayType.ElementType)};");
+                builder.Unindent();
+                builder.Line("}");
+                builder.Line($"{target} = {localName};");
+                builder.Unindent();
+                builder.Line("}");
+            }
+
+            private void EmitReadNestedCollection(CollectionInfo collectionInfo, string target, string localName, CodeBuilder builder)
+            {
+                var countName = localName + "Count";
+                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line($"if ({countName} is null)");
+                builder.Indent();
+                builder.Line($"{target} = null!;");
+                builder.Unindent();
+                builder.Line("else");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line($"var {localName} = {GetCreationExpressionOrThrow(collectionInfo.Type)};");
+                EmitReadIntoCollectionBody(collectionInfo, localName, countName + ".Value", builder);
+                builder.Line($"{target} = {localName};");
+                builder.Unindent();
+                builder.Line("}");
+            }
+
+            private void EmitReadNestedDictionary(DictionaryInfo dictionaryInfo, string target, string localName, CodeBuilder builder)
+            {
+                var countName = localName + "Count";
+                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line($"if ({countName} is null)");
+                builder.Indent();
+                builder.Line($"{target} = null!;");
+                builder.Unindent();
+                builder.Line("else");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line($"var {localName} = {GetCreationExpressionOrThrow(dictionaryInfo.Type)};");
+                EmitReadIntoDictionaryBody(dictionaryInfo, localName, countName + ".Value", builder);
+                builder.Line($"{target} = {localName};");
+                builder.Unindent();
+                builder.Line("}");
+            }
+
+            private void EmitReadNestedNameValue(string target, string localName, CodeBuilder builder)
+            {
+                var countName = localName + "Count";
+                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line($"if ({countName} is null)");
+                builder.Indent();
+                builder.Line($"{target} = null!;");
+                builder.Unindent();
+                builder.Line("else");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line($"var {localName} = new global::System.Collections.Specialized.NameValueCollection();");
+                EmitReadIntoNameValueBody(localName, countName + ".Value", builder);
+                builder.Line($"{target} = {localName};");
+                builder.Unindent();
+                builder.Line("}");
+            }
+
+            private string GetCreationExpressionOrThrow(ITypeSymbol type)
+            {
+                if (_owner.TryGetCreationExpression(type, out var expression, out var error))
+                    return expression;
+
+                throw new global::System.InvalidOperationException(error);
             }
 
             private bool EmitWriteArray(IArrayTypeSymbol arrayType, CodeBuilder builder, out string error, bool suppressNullCheck = false)
@@ -869,13 +1216,15 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitReadArray(IArrayTypeSymbol arrayType, CodeBuilder builder, out string error)
+            private bool EmitReadArray(IArrayTypeSymbol arrayType, CodeBuilder builder, out string error, bool setupEncoding = false)
             {
                 builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
                 builder.Line("if (itemCount is null)");
                 builder.Indent();
                 builder.Line("return null!;");
                 builder.Unindent();
+                if (setupEncoding)
+                    EmitReaderEncodingSetup(builder);
                 builder.Line($"var items = new {TypeName(arrayType.ElementType)}[(int)itemCount.Value];");
                 builder.Line("for (var i = 0; i < items.Length; i++)");
                 builder.Line("{");
@@ -921,7 +1270,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitReadCollection(ITypeSymbol type, CollectionInfo collectionInfo, CodeBuilder builder, out string error)
+            private bool EmitReadCollection(ITypeSymbol type, CollectionInfo collectionInfo, CodeBuilder builder, out string error, bool setupEncoding = false)
             {
                 if (!_owner.TryGetCreationExpression(type, out var create, out error))
                     return false;
@@ -930,6 +1279,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Indent();
                 builder.Line("return null!;");
                 builder.Unindent();
+                if (setupEncoding)
+                    EmitReaderEncodingSetup(builder);
                 builder.Line($"var items = {create};");
                 EmitReadIntoCollectionBody(collectionInfo, "items", "itemCount.Value", builder);
                 builder.Line("return items;");
@@ -992,7 +1343,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitReadDictionary(ITypeSymbol type, DictionaryInfo dictionaryInfo, CodeBuilder builder, out string error)
+            private bool EmitReadDictionary(ITypeSymbol type, DictionaryInfo dictionaryInfo, CodeBuilder builder, out string error, bool setupEncoding = false)
             {
                 if (!_owner.TryGetCreationExpression(type, out var create, out error))
                     return false;
@@ -1001,6 +1352,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Indent();
                 builder.Line("return null!;");
                 builder.Unindent();
+                if (setupEncoding)
+                    EmitReaderEncodingSetup(builder);
                 builder.Line($"var items = {create};");
                 EmitReadIntoDictionaryBody(dictionaryInfo, "items", "itemCount.Value", builder);
                 builder.Line("return items;");
@@ -1065,7 +1418,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitReadNameValueCollection(ITypeSymbol type, CodeBuilder builder, out string error)
+            private bool EmitReadNameValueCollection(ITypeSymbol type, CodeBuilder builder, out string error, bool setupEncoding = false)
             {
                 if (!_owner.TryGetCreationExpression(type, out var create, out error))
                     return false;
@@ -1074,6 +1427,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Indent();
                 builder.Line("return null!;");
                 builder.Unindent();
+                if (setupEncoding)
+                    EmitReaderEncodingSetup(builder);
                 builder.Line($"var items = {create};");
                 EmitReadIntoNameValueBody("items", "itemCount.Value", builder);
                 builder.Line("return items;");
@@ -1145,6 +1500,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
         public string TypeKey(ITypeSymbol type) => type.ToDisplayString(QualifiedTypeFormat);
 
+        public ITypeSymbol LocalFunctionType(ITypeSymbol type) => Bare(type).WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+
         public bool ValidateRootType(ITypeSymbol type, out string error)
         {
             if (IsNullableComplex(type))
@@ -1195,13 +1552,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                         property.GetMethod.DeclaredAccessibility != Accessibility.Public)
                         continue;
 
-                    var getterOnlyMutable = property.SetMethod is null &&
-                        (TryGetCollectionInfo(property.Type, out _) ||
-                        TryGetDictionaryInfo(property.Type, out _) ||
-                        IsNameValueCollection(property.Type));
-                    if ((property.SetMethod is not null && property.SetMethod.DeclaredAccessibility == Accessibility.Public) || getterOnlyMutable)
+                    if (property.SetMethod is not null && property.SetMethod.DeclaredAccessibility == Accessibility.Public)
                     {
-                        Insert(ordered, new MemberModel(property, property.Type, index, getterOnlyMutable));
+                        Insert(ordered, new MemberModel(property, property.Type, index, false));
                     }
                 }
             }
@@ -1427,12 +1780,12 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 basicType = BasicType.Version;
                 return true;
             }
-            if (Equal(bare, _dataTableType))
+            if (EqualOrDerivedFrom(bare, _dataTableType))
             {
                 basicType = BasicType.DataTable;
                 return true;
             }
-            if (Equal(bare, _dataSetType))
+            if (EqualOrDerivedFrom(bare, _dataSetType))
             {
                 basicType = BasicType.DataSet;
                 return true;
@@ -1515,8 +1868,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
         public string GetEnumWriteStatement(ITypeSymbol type, string expression)
         {
             var enumExpression = IsNullableValueType(type)
-                ? $"({expression}.HasValue ? (global::Enum)(object){expression}.Value : null)"
-                : $"({expression} is null ? null : (global::Enum)(object){expression})";
+                ? $"({expression}.HasValue ? (global::System.Enum)(object){expression}.Value : null)"
+                : $"((global::System.Enum)(object){expression})";
             var isNullable = IsNullable(type) ? "true" : "false";
             return $"BoisPrimitiveWriters.WriteValue(writer, {enumExpression}, typeof({Bare(type).ToDisplayString(QualifiedTypeFormat)}), {isNullable});";
         }
@@ -1601,13 +1954,22 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             return true;
         }
 
-        public bool IsNameValueCollection(ITypeSymbol type) => Equal(Bare(type), _nameValueCollectionType);
+        public bool IsNameValueCollection(ITypeSymbol type) => EqualOrDerivedFrom(Bare(type), _nameValueCollectionType);
         public bool IsEnum(ITypeSymbol type) => Bare(type).TypeKind == TypeKind.Enum;
         public bool IsExplicitStruct(ITypeSymbol type) => Bare(type).IsValueType && Bare(type).TypeKind != TypeKind.Enum && Bare(type).SpecialType == SpecialType.None;
         public bool IsNullable(ITypeSymbol type) => !Bare(type).IsValueType || IsNullableValueType(type);
         private bool IsNullableValueType(ITypeSymbol type) => type is INamedTypeSymbol named && Equal(named.OriginalDefinition, _nullableType);
         private bool IsNullableComplex(ITypeSymbol type) => IsNullableValueType(type) && !TryGetBasicType(type, out _) && !IsEnum(type);
         private ITypeSymbol Bare(ITypeSymbol type) => type is INamedTypeSymbol named && named.IsGenericType && named.ConstructedFrom.SpecialType == SpecialType.System_Nullable_T ? named.TypeArguments[0] : type;
+        private bool EqualOrDerivedFrom(ITypeSymbol type, ITypeSymbol? baseType)
+        {
+            for (var current = type as INamedTypeSymbol; current is not null; current = current.BaseType)
+            {
+                if (Equal(current, baseType))
+                    return true;
+            }
+            return false;
+        }
         private bool Equal(ITypeSymbol? left, ITypeSymbol? right) => left is not null && right is not null && SymbolEqualityComparer.Default.Equals(left, right);
         private static string Literal(string value) => SymbolDisplay.FormatLiteral(value, true);
     }

@@ -14,7 +14,7 @@
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois.CodeGen</Product>
-		<Description>Source-code-generation version of Salar's Binary Object Indexed Serialization (BOIS) serializer.</Description>
+		<Description>Salar's Serializer for Binary Object Indexed Serialization, the source-code-generator version.</Description>
 		<Copyright>MPLv2 © Salar Khalilzadeh 2026</Copyright>
 		<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/salarcode/Bois</RepositoryUrl>

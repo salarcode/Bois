@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>net10.0;net6.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
 		<IsRoslynComponent>true</IsRoslynComponent>
-		<AssemblyName>Salar.Bois.Generator</AssemblyName>
-		<RootNamespace>Salar.Bois.Generator</RootNamespace>
+		<AssemblyName>Salar.Bois.CodeGen</AssemblyName>
+		<RootNamespace>Salar.Bois.CodeGen</RootNamespace>
 		<Version>3.4.1</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
@@ -26,15 +26,28 @@
 		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Include="..\Salar.Bois\BoisContractAttribute.cs" Link="BoisContractAttribute.cs" />
+	  <Compile Include="..\Salar.Bois\BoisMemberAttribute.cs" Link="BoisMemberAttribute.cs" />
+	  <Compile Include="..\Salar.Bois\Serializers\NumericSerializers.cs" Link="Serializers\NumericSerializers.cs" />
+	  <Compile Include="..\Salar.Bois\Serializers\PrimitiveReader.cs" Link="Serializers\PrimitiveReader.cs" />
+	  <Compile Include="..\Salar.Bois\Serializers\PrimitiveWriter.cs" Link="Serializers\PrimitiveWriter.cs" />
+	  <Compile Include="..\Salar.Bois\Types\EnBasicEnumType.cs" Link="Types\EnBasicEnumType.cs" />
+	  <Compile Include="..\Salar.Bois\Types\EnBasicKnownType.cs" Link="Types\EnBasicKnownType.cs" />
+	  <Compile Include="..\Salar.Bois\Types\EnComplexKnownType.cs" Link="Types\EnComplexKnownType.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
+		<PackageReference Include="Salar.BinaryBuffers" Version="3.4.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="..\LICENSE.md" Pack="true" PackagePath="" />
-		<None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="$(OutputPath)$(TargetFramework)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" Condition="'$(TargetFramework)' != ''" />
 	</ItemGroup>
 
 </Project>

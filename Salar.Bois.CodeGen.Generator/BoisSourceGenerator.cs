@@ -686,18 +686,18 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             {
                 if (encodingParameterIndex is null)
                 {
-                    builder.Line("var encoding = global::Salar.Bois.BoisSerializer.DefaultEncoding;");
+                    builder.Line("var encoding = BoisCodeGen.DefaultEncoding;");
                     return;
                 }
 
                 if (_method.Method.Parameters[encodingParameterIndex.Value].Name == "encoding")
                 {
-                    builder.Line("encoding ??= global::Salar.Bois.BoisSerializer.DefaultEncoding;");
+                    builder.Line("encoding ??= BoisCodeGen.DefaultEncoding;");
                     return;
                 }
 
                 var encodingName = Escape(_method.Method.Parameters[encodingParameterIndex.Value].Name);
-                builder.Line($"var encoding = {encodingName} ?? global::Salar.Bois.BoisSerializer.DefaultEncoding;");
+                builder.Line($"var encoding = {encodingName} ?? BoisCodeGen.DefaultEncoding;");
             }
 
             private bool TryEmitWrite(ITypeSymbol type, CodeBuilder builder, out string error, bool suppressNullCheck = false)
@@ -744,7 +744,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 if (_owner.IsEnum(type))
                 {
-                    builder.Line($"return BoisPrimitiveReaders.ReadEnumGeneric<{TypeName(type)}>(reader);");
+                    builder.Line($"return {_owner.GetEnumReadExpression(type)};");
                     error = string.Empty;
                     return true;
                 }
@@ -940,7 +940,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 }
                 if (_owner.IsEnum(member.Type))
                 {
-                    builder.Line($"{target} = BoisPrimitiveReaders.ReadEnumGeneric<{TypeName(member.Type)}>(reader);");
+                    builder.Line($"{target} = {_owner.GetEnumReadExpression(member.Type)};");
                     error = string.Empty;
                     return true;
                 }
@@ -1473,7 +1473,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 if (_owner.TryGetBasicType(type, out var basicType))
                     return _owner.GetReadExpression(type, basicType);
                 if (_owner.IsEnum(type))
-                    return $"BoisPrimitiveReaders.ReadEnumGeneric<{TypeName(type)}>(reader)";
+                    return _owner.GetEnumReadExpression(type);
                 return $"{EnsureReadFunction(type)}(reader, encoding)";
             }
 
@@ -1871,7 +1871,33 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 ? $"({expression}.HasValue ? (global::System.Enum)(object){expression}.Value : null)"
                 : $"((global::System.Enum)(object){expression})";
             var isNullable = IsNullable(type) ? "true" : "false";
-            return $"BoisPrimitiveWriters.WriteValue(writer, {enumExpression}, typeof({Bare(type).ToDisplayString(QualifiedTypeFormat)}), {isNullable});";
+            return $"BoisPrimitiveWriters.{GetEnumHelperName(type, "WriteEnum")}(writer, {enumExpression}, {isNullable});";
+        }
+
+        private string GetEnumHelperName(ITypeSymbol type, string prefix)
+        {
+            var underlyingType = (Bare(type) as INamedTypeSymbol)?.EnumUnderlyingType;
+            return underlyingType?.SpecialType switch
+            {
+                SpecialType.System_Int32 => prefix + "Int32",
+                SpecialType.System_Int64 => prefix + "Int64",
+                SpecialType.System_Int16 => prefix + "Int16",
+                SpecialType.System_UInt16 => prefix + "UInt16",
+                SpecialType.System_UInt32 => prefix + "UInt32",
+                SpecialType.System_UInt64 => prefix + "UInt64",
+                SpecialType.System_Byte => prefix + "Byte",
+                SpecialType.System_SByte => prefix + "SByte",
+                _ => throw new InvalidOperationException($"Enum type '{type.ToDisplayString()}' has an unsupported underlying type.")
+            };
+        }
+
+        public string GetEnumReadExpression(ITypeSymbol type)
+        {
+            var enumType = Bare(type).ToDisplayString(QualifiedTypeFormat);
+            var helperName = GetEnumHelperName(type, "ReadEnum");
+            if (IsNullable(type))
+                return $"({enumType}?)BoisPrimitiveReaders.{helperName}Nullable(reader)";
+            return $"({enumType})BoisPrimitiveReaders.{helperName}(reader)";
         }
 
         public string GetReadExpression(ITypeSymbol type, BasicType basicType) => basicType switch

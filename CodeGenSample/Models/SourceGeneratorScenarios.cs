@@ -102,6 +102,33 @@ public sealed class ReusedNestedScenario
 	public PrimitiveScenario? Optional { get; set; }
 }
 
+public sealed class SameTypeCastingScenario
+{
+	public int FirstInt32 { get; set; }
+	public int SecondInt32 { get; set; }
+	public int? OptionalInt32 { get; set; }
+	public string FirstText { get; set; } = string.Empty;
+	public string SecondText { get; set; } = string.Empty;
+	public string? OptionalText1 { get; set; }
+	public string? OptionalText2 { get; set; }
+	public ScenarioStatus FirstStatus { get; set; }
+	public ScenarioStatus SecondStatus { get; set; }
+	public ScenarioStatus ThirdStatus { get; set; }
+	public ScenarioStatus? OptionalStatus1 { get; set; }
+	public ScenarioStatus? OptionalStatus2 { get; set; }
+	public ScenarioStatus? OptionalStatus3 { get; set; }
+	public ScenarioStruct FirstLocation { get; set; }
+	public ScenarioStruct SecondLocation { get; set; }
+	public PrimitiveScenario FirstPrimitive { get; set; } = new();
+	public PrimitiveScenario SecondPrimitive { get; set; } = new();
+	public PrimitiveScenario? OptionalPrimitive1 { get; set; }
+	public PrimitiveScenario? OptionalPrimitive2 { get; set; }
+	public List<ScenarioStatus> StatusHistory1 { get; set; } = [];
+	public List<ScenarioStatus> StatusHistory2 { get; set; } = [];
+	public Dictionary<ScenarioStatus, PrimitiveScenario> StatusValues1 { get; set; } = [];
+	public Dictionary<ScenarioStatus, PrimitiveScenario> StatusValues2 { get; set; } = [];
+}
+
 public sealed class ContractScenario
 {
 	[BoisMember(0)]
@@ -172,6 +199,12 @@ public static partial class SourceGeneratorScenariosBois
 
 	[BoisWriter]
 	public static partial void WriteReusedNestedScenario(ReusedNestedScenario? model, Stream output);
+
+	[BoisReader]
+	public static partial SameTypeCastingScenario? ReadSameTypeCastingScenario(Stream source);
+
+	[BoisWriter]
+	public static partial void WriteSameTypeCastingScenario(SameTypeCastingScenario? model, Stream output);
 
 	[BoisReader]
 	public static partial ContractScenario? ReadContractScenario(Stream source);

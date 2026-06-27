@@ -104,21 +104,51 @@ public static class BoisPrimitiveWriters
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, Enum? e)
+	public static void WriteEnumInt32(BufferWriterBase writer, Enum? e, bool nullable)
 	{
-		PrimitiveWriter.WriteValue(writer, e);
+		PrimitiveWriter.WriteEnumInt32(writer, e, nullable);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, Enum? e, bool nullable)
+	public static void WriteEnumInt64(BufferWriterBase writer, Enum? e, bool nullable)
 	{
-		PrimitiveWriter.WriteValue(writer, e, nullable);
+		PrimitiveWriter.WriteEnumInt64(writer, e, nullable);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, Enum? e, Type type, bool? memberIsNullable)
+	public static void WriteEnumInt16(BufferWriterBase writer, Enum? e, bool nullable)
 	{
-		PrimitiveWriter.WriteValue(writer, e, type, memberIsNullable);
+		PrimitiveWriter.WriteEnumInt16(writer, e, nullable);
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void WriteEnumUInt16(BufferWriterBase writer, Enum? e, bool nullable)
+	{
+		PrimitiveWriter.WriteEnumUInt16(writer, e, nullable);
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void WriteEnumUInt32(BufferWriterBase writer, Enum? e, bool nullable)
+	{
+		PrimitiveWriter.WriteEnumUInt32(writer, e, nullable);
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void WriteEnumUInt64(BufferWriterBase writer, Enum? e, bool nullable)
+	{
+		PrimitiveWriter.WriteEnumUInt64(writer, e, nullable);
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void WriteEnumByte(BufferWriterBase writer, Enum? e, bool nullable)
+	{
+		PrimitiveWriter.WriteEnumByte(writer, e, nullable);
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void WriteEnumSByte(BufferWriterBase writer, Enum? e, bool nullable)
+	{
+		PrimitiveWriter.WriteEnumSByte(writer, e, nullable);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

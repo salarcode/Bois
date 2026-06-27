@@ -2,6 +2,7 @@
 using Salar.Bois.Types;
 using System;
 using System.Data;
+using System.Data.SqlTypes;
 using System.Drawing;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -329,6 +330,7 @@ namespace Salar.Bois.Serializers
 			writer.Write(bytes);
 		}
 
+#if SupportsEmit
 		/// <summary>
 		/// VarInt - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63
@@ -356,6 +358,7 @@ namespace Salar.Bois.Serializers
 			}
 			WriteValue(writer, e, e.GetType(), nullable);
 		}
+
 
 		/// <summary>
 		/// VarInt - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
@@ -438,6 +441,111 @@ namespace Salar.Bois.Serializers
 					throw new ArgumentException($"Enum type not supported '{type.Name}'. Contact the author please https://github.com/salarcode/Bois/issues ", nameof(type));
 			}
 		}
+#else
+		internal static void WriteEnumInt32(BufferWriterBase writer, Enum e, bool nullable)
+		{
+			if (e == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+			if (nullable)
+				NumericSerializers.WriteVarInt(writer, (int?)(int)(object)e);
+			else
+				NumericSerializers.WriteVarInt(writer, (int)(object)e);
+		}
+
+		internal static void WriteEnumInt64(BufferWriterBase writer, Enum e, bool nullable)
+		{
+			if (e == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+			if (nullable)
+				NumericSerializers.WriteVarInt(writer, (long?)(long)(object)e);
+			else
+				NumericSerializers.WriteVarInt(writer, (long)(object)e);
+		}
+
+		internal static void WriteEnumInt16(BufferWriterBase writer, Enum e, bool nullable)
+		{
+			if (e == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+			if (nullable)
+				NumericSerializers.WriteVarInt(writer, (short?)(short)(object)e);
+			else
+				NumericSerializers.WriteVarInt(writer, (short)(object)e);
+		}
+
+		internal static void WriteEnumUInt16(BufferWriterBase writer, Enum e, bool nullable)
+		{
+			if (e == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+			if (nullable)
+				NumericSerializers.WriteVarInt(writer, (ushort?)(ushort)(object)e);
+			else
+				NumericSerializers.WriteVarInt(writer, (ushort)(object)e);
+		}
+
+		internal static void WriteEnumUInt32(BufferWriterBase writer, Enum e, bool nullable)
+		{
+			if (e == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+			if (nullable)
+				NumericSerializers.WriteVarInt(writer, (uint?)(uint)(object)e);
+			else
+				NumericSerializers.WriteVarInt(writer, (uint)(object)e);
+		}
+
+		internal static void WriteEnumUInt64(BufferWriterBase writer, Enum e, bool nullable)
+		{
+			if (e == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+			if (nullable)
+				NumericSerializers.WriteVarInt(writer, (ulong?)(ulong)(object)e);
+			else
+				NumericSerializers.WriteVarInt(writer, (ulong)(object)e);
+		}
+
+		internal static void WriteEnumByte(BufferWriterBase writer, Enum e, bool nullable)
+		{
+			if (e == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+			if (nullable)
+				NumericSerializers.WriteVarInt(writer, (byte?)(byte)(object)e);
+			else
+				writer.Write((byte)(object)e);
+		}
+
+		internal static void WriteEnumSByte(BufferWriterBase writer, Enum e, bool nullable)
+		{
+			if (e == null)
+			{
+				WriteNullValue(writer);
+				return;
+			}
+			if (nullable)
+				NumericSerializers.WriteVarInt(writer, (sbyte?)(sbyte)(object)e);
+			else
+				writer.Write((sbyte)(object)e);
+		}
+#endif
 
 
 		/// <summary>
@@ -580,6 +688,7 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteValue(BufferWriterBase writer, DataSet ds, Encoding encoding)
 		{
+#if SupportsEmit
 			if (ds == null)
 			{
 				WriteNullValue(writer);
@@ -594,6 +703,9 @@ namespace Salar.Bois.Serializers
 			{
 				WriteValue(writer, dt, encoding);
 			}
+#else
+			throw new NotSupportedException("DataSet is not supported with source generator.");
+#endif
 		}
 
 		/// <summary>
@@ -601,6 +713,7 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		internal static void WriteValue(BufferWriterBase writer, DataTable dt, Encoding encoding)
 		{
+#if SupportsEmit
 			if (dt == null)
 			{
 				WriteNullValue(writer);
@@ -654,7 +767,12 @@ namespace Salar.Bois.Serializers
 					WriteRootBasicType(writer, itemToWrite, itemType, basicTypeInfo, encoding);
 				}
 			}
+#else
+			throw new NotSupportedException("DataTable is not supported with source generator.");
+#endif
 		}
+
+#if SupportsEmit
 
 		internal static void WriteRootBasicType(BufferWriterBase writer, object obj, Type type, BoisBasicTypeInfo typeInfo, Encoding encoding)
 		{
@@ -869,8 +987,8 @@ namespace Salar.Bois.Serializers
 			{
 				WriteRootBasicType(writer, array.GetValue(i), arrayItemType, arrayItemTypeType, encoding);
 			}
-
 		}
+#endif
 
 		/// <summary>
 		/// Does return `Encoding.GetBytes`

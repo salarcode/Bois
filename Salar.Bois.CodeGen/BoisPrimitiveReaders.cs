@@ -98,15 +98,99 @@ public static class BoisPrimitiveReaders
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Enum? ReadEnum(BufferReaderBase reader, Type type)
+    public static int ReadEnumInt32(BufferReaderBase reader)
     {
-        return PrimitiveReader.ReadEnum(reader, type);
+        return PrimitiveReader.ReadEnumInt32(reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T ReadEnumGeneric<T>(BufferReaderBase reader)
+    public static int? ReadEnumInt32Nullable(BufferReaderBase reader)
     {
-        return PrimitiveReader.ReadEnumGeneric<T>(reader);
+        return PrimitiveReader.ReadEnumInt32Nullable(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static long ReadEnumInt64(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumInt64(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static long? ReadEnumInt64Nullable(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumInt64Nullable(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static short ReadEnumInt16(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumInt16(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static short? ReadEnumInt16Nullable(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumInt16Nullable(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ushort ReadEnumUInt16(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumUInt16(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ushort? ReadEnumUInt16Nullable(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumUInt16Nullable(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static uint ReadEnumUInt32(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumUInt32(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static uint? ReadEnumUInt32Nullable(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumUInt32Nullable(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ulong ReadEnumUInt64(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumUInt64(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ulong? ReadEnumUInt64Nullable(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumUInt64Nullable(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static byte ReadEnumByte(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumByte(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static byte? ReadEnumByteNullable(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumByteNullable(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static sbyte ReadEnumSByte(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumSByte(reader);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static sbyte? ReadEnumSByteNullable(BufferReaderBase reader)
+    {
+        return PrimitiveReader.ReadEnumSByteNullable(reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.4.11605.240 stable
+VisualStudioVersion = 18.4.11605.240
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.LZ4", "Salar.Bois.LZ4\Salar.Bois.LZ4.csproj", "{12C9A3D9-C75A-4C44-8599-39EB56E40091}"
 EndProject
@@ -29,11 +29,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salar.Bois.BenchmarksObject
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.BenchGroBuf", "Benchmarks\Salar.Bois.BenchGroBuf\Salar.Bois.BenchGroBuf.csproj", "{66912805-8480-4B44-8794-17054248EDFA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.Generator", "Salar.Bois.Generator\Salar.Bois.Generator.csproj", "{3AFA3CA3-48DD-3176-9234-38600CB2951F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.CodeGen.Generator", "Salar.Bois.CodeGen.Generator\Salar.Bois.CodeGen.Generator.csproj", "{3AFA3CA3-48DD-3176-9234-38600CB2951F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{3166F76C-9DF1-40D8-ADE3-0A94D20FFA0D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenSample", "CodeGenSample\CodeGenSample.csproj", "{3FE73A99-3C57-4E76-A5F1-21568EFB2EC1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.CodeGen", "Salar.Bois.CodeGen\Salar.Bois.CodeGen.csproj", "{944FC5F3-8950-445B-AE9D-1BDC137B5C42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -118,6 +120,12 @@ Global
 		{3FE73A99-3C57-4E76-A5F1-21568EFB2EC1}.Debug+AssemblyOut|Any CPU.Build.0 = Debug|Any CPU
 		{3FE73A99-3C57-4E76-A5F1-21568EFB2EC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3FE73A99-3C57-4E76-A5F1-21568EFB2EC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{944FC5F3-8950-445B-AE9D-1BDC137B5C42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{944FC5F3-8950-445B-AE9D-1BDC137B5C42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{944FC5F3-8950-445B-AE9D-1BDC137B5C42}.Debug+AssemblyOut|Any CPU.ActiveCfg = Debug|Any CPU
+		{944FC5F3-8950-445B-AE9D-1BDC137B5C42}.Debug+AssemblyOut|Any CPU.Build.0 = Debug|Any CPU
+		{944FC5F3-8950-445B-AE9D-1BDC137B5C42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{944FC5F3-8950-445B-AE9D-1BDC137B5C42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

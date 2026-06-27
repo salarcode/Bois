@@ -21,6 +21,11 @@ PM> Install-Package Salar.Bois
 PM> Install-Package Salar.Bois.LZ4
 ```
 
+[Source code generator package](https://www.nuget.org/packages/Salar.Bois.CodeGen)
+```
+PM> Install-Package Salar.Bois.CodeGen
+```
+
 > Minimum frameworks supported are .Net Core 2.0, .Net Standard 2.1 and .Net Framework 4.5
 
 ### Getting Started:
@@ -98,6 +103,59 @@ return boisSerializer.Deserialize<Project>(dataStream);
 var boisLz4Serializer = new BoisLz4Serializer();
 return boisLz4Serializer.Unpickle<Project>(dataStream);
 ```
+
+## Method code generation
+The `Salar.Bois.CodeGen` package provides the source code generator version of Bois. It lets you declare the read and write methods that you want to use, and the generator creates the method body during compilation.
+
+To use it, add the `Salar.Bois.CodeGen` package to your project and declare a static partial class with static partial methods. Mark read methods with `BoisReader` and write methods with `BoisWriter`.
+
+```csharp
+using Salar.Bois;
+using System.IO;
+
+public static partial class CustomerOrderSerializer
+{
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(Stream source);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(byte[] buffer, int position, int length);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(CustomerOrder order, Stream output);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(CustomerOrder order, byte[] buffer, int position, int length);
+}
+```
+
+You can then call these methods like normal methods. There is no need to create a `BoisSerializer` instance for this generated path.
+
+```csharp
+using (var file = new FileStream("output.data", FileMode.Create))
+{
+	CustomerOrderSerializer.WriteCustomerOrder(order, file);
+}
+
+using (var file = new FileStream("output.data", FileMode.Open))
+{
+	var order = CustomerOrderSerializer.ReadCustomerOrder(file);
+}
+```
+
+You can also use an existing byte array buffer. This is useful when your application already owns the memory and you want to avoid creating an extra stream.
+
+```csharp
+var buffer = new byte[4096];
+
+CustomerOrderSerializer.WriteCustomerOrder(order, buffer, 0, buffer.Length);
+
+var restoredOrder = CustomerOrderSerializer.ReadCustomerOrder(buffer, 0, buffer.Length);
+```
+
+The generated methods support stream based input and output. They also support buffer reader and buffer writer overloads, plus byte array overloads with position and length when you want to work directly with an existing buffer.
+
+Method code generation is good for performance because the serializer code is created at compile time. There is no first use cost for building serializers at runtime, and there is no reflection based initialization step before the first serialization call. This also makes the package suitable for NativeAOT, where runtime code generation is not available.
 
 ## Defining objects
 Nothing special is really required. Just these small easy rules.

@@ -6,14 +6,18 @@
 		<RootNamespace>Salar.Bois.LZ4</RootNamespace>
 		<LangVersion>latest</LangVersion>
 		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
-		<Version>3.4.1</Version>
+		<PackageId>Salar.Bois.LZ4</PackageId>
+		<Title>Salar.Bois.LZ4</Title>
+		<Version>3.4.2</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
-		<Product>Salar.Bois</Product>
-		<Description>Salar's Serializer for Binary Object Indexed Serialization, LZ4 wrapper</Description>
-		<Copyright>MPLv2 © Salar Khalilzadeh 2023</Copyright>
+		<Product>Salar.Bois.LZ4</Product>
+		<Description>LZ4 compressed wrapper for Salar's Binary Object Indexed Serialization (BOIS) serializer.</Description>
+		<Copyright>MPLv2 © Salar Khalilzadeh 2026</Copyright>
 		<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
-		<PackageLicenseUrl></PackageLicenseUrl>
+		<RepositoryUrl>https://github.com/salarcode/Bois</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -34,6 +38,10 @@
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<DocumentationFile>.\bin\Salar.Bois.LZ4.xml</DocumentationFile>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\LICENSE.md" Pack="true" PackagePath="" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />

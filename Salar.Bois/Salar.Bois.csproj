@@ -7,17 +7,20 @@
 		<LangVersion>latest</LangVersion>
 		<Configurations>Debug;Release;Debug+AssemblyOut</Configurations>
 		<DefineConstants>$(DefineConstants);SupportsEmit</DefineConstants>
-		<Version>3.4.1</Version>
+		<PackageId>Salar.Bois</PackageId>
+		<Title>Salar.Bois</Title>
+		<Version>3.4.2</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
 		<Description>
-			The most compact, extermly fast binary serializer for .NET Code and .NET Framework.
+			The most compact, extremely fast binary serializer for .NET.
 			More info: https://github.com/salarcode/Bois
 		</Description>
 		<Copyright>MPLv2 © Salar Khalilzadeh 2026</Copyright>
 		<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
-		<PackageLicenseUrl></PackageLicenseUrl>
+		<RepositoryUrl>https://github.com/salarcode/Bois</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

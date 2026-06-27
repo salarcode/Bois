@@ -5,25 +5,28 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
-		<IsRoslynComponent>true</IsRoslynComponent>
+		<IsRoslynComponent>false</IsRoslynComponent>
+		<PackageId>Salar.Bois.CodeGen</PackageId>
+		<Title>Salar.Bois.CodeGen</Title>
 		<AssemblyName>Salar.Bois.CodeGen</AssemblyName>
 		<RootNamespace>Salar.Bois.CodeGen</RootNamespace>
-		<Version>3.4.1</Version>
+		<Version>3.4.2</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
-		<Product>Salar.Bois</Product>
-		<Description>Salar's Serializer for Binary Object Indexed Serialization, source generator</Description>
+		<Product>Salar.Bois.CodeGen</Product>
+		<Description>Source-code-generation version of Salar's Binary Object Indexed Serialization (BOIS) serializer.</Description>
 		<Copyright>MPLv2 © Salar Khalilzadeh 2026</Copyright>
 		<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/salarcode/Bois</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS SourceGenerator Analyzer</PackageTags>
+		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS SourceGenerator CodeGeneration</PackageTags>
+		<PackageReleaseNotes>
+			Adds the BOIS source-code-generation serializer package with generated reader and writer support.
+		</PackageReleaseNotes>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<IncludeBuildOutput>false</IncludeBuildOutput>
-		<DevelopmentDependency>true</DevelopmentDependency>
-		<PrivateAssets>all</PrivateAssets>
-		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+		<IncludeBuildOutput>true</IncludeBuildOutput>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -44,8 +47,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Salar.Bois.CodeGen.Generator\Salar.Bois.CodeGen.Generator.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\LICENSE.md" Pack="true" PackagePath="" />
-		<None Include="$(OutputPath)$(TargetFramework)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" Condition="'$(TargetFramework)' != ''" />
+		<None Include="..\Salar.Bois.CodeGen.Generator\bin\$(Configuration)\netstandard2.0\Salar.Bois.CodeGen.Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 </Project>

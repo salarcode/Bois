@@ -12,4 +12,8 @@
     <ProjectReference Include="..\Salar.Bois.CodeGen\Salar.Bois.CodeGen.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

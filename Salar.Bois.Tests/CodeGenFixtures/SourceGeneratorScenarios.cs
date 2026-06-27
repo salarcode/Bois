@@ -8,7 +8,7 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 
-namespace CodeGenSample.Models;
+namespace Salar.Bois.NetFx.Tests.CodeGenFixtures;
 
 public enum ScenarioStatus
 {

@@ -10,7 +10,7 @@
 		<Title>Salar.Bois.CodeGen</Title>
 		<AssemblyName>Salar.Bois.CodeGen</AssemblyName>
 		<RootNamespace>Salar.Bois.CodeGen</RootNamespace>
-		<Version>3.4.2</Version>
+		<Version>3.4.2.1</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois.CodeGen</Product>
@@ -33,6 +33,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Include="..\Salar.Bois\BoisContractAttribute.cs" Link="BoisContractAttribute.cs" />
+	  <Compile Include="..\Salar.Bois\BoisMemberAttribute.cs" Link="BoisMemberAttribute.cs" />
 	  <Compile Include="..\Salar.Bois\Serializers\NumericSerializers.cs" Link="Serializers\NumericSerializers.cs" />
 	  <Compile Include="..\Salar.Bois\Serializers\PrimitiveReader.cs" Link="Serializers\PrimitiveReader.cs" />
 	  <Compile Include="..\Salar.Bois\Serializers\PrimitiveWriter.cs" Link="Serializers\PrimitiveWriter.cs" />

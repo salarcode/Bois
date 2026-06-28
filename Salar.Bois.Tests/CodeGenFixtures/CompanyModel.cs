@@ -54,6 +54,15 @@ public static partial class CompanyModelBois
 
 	[BoisReader]
 	public static partial CompanyModel? ReadCompanyModel(byte[] buffer, int position, int length);
+	
+	[BoisReader]
+	public static partial CompanyModel? ReadCompanyModel(byte[] buffer);
+
+	[BoisReader]
+	public static partial CompanyModel? ReadCompanyModel(ArraySegment<byte> bytes);
+
+	[BoisReader]
+	public static partial CompanyModel? ReadCompanyModelIn(in ArraySegment<byte> bytes);
 
 	[BoisWriter]
 	public static partial void WriteCompanyModel(CompanyModel? model, Stream output);
@@ -66,4 +75,16 @@ public static partial class CompanyModelBois
 
 	[BoisWriter]
 	public static partial void WriteCompanyModel(CompanyModel? model, byte[] output, int position, int length);
+}
+
+public partial class Holding
+{
+	public static partial class CompanyModelSerializer
+	{
+		[BoisReader]
+		public static partial CompanyModel? ReadCompanyModel(Stream source);
+		
+		[BoisWriter]
+		public static partial void WriteCompanyModel(CompanyModel? model, Stream output);
+	}
 }

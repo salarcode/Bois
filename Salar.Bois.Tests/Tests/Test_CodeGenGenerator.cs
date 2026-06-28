@@ -157,6 +157,23 @@ public class Test_CodeGenGenerator
 		CompanyModelBois.WriteCompanyModel(init, buffer, 11, buffer.Length - 11);
 		var bufferFinal = CompanyModelBois.ReadCompanyModel(buffer, 11, buffer.Length - 11);
 		AssertCompanySupportedMembers(init, bufferFinal);
+
+		var wholeBuffer = new byte[4096];
+		CompanyModelBois.WriteCompanyModel(init, wholeBuffer, 0, wholeBuffer.Length);
+		var wholeBufferFinal = CompanyModelBois.ReadCompanyModel(wholeBuffer);
+		AssertCompanySupportedMembers(init, wholeBufferFinal);
+
+		var segmentBuffer = new byte[4096];
+		CompanyModelBois.WriteCompanyModel(init, segmentBuffer, 17, segmentBuffer.Length - 17);
+		var segment = new ArraySegment<byte>(segmentBuffer, 17, segmentBuffer.Length - 17);
+		var segmentFinal = CompanyModelBois.ReadCompanyModel(segment);
+		AssertCompanySupportedMembers(init, segmentFinal);
+
+		var segmentInFinal = CompanyModelBois.ReadCompanyModelIn(in segment);
+		AssertCompanySupportedMembers(init, segmentInFinal);
+
+		var nestedFinal = RoundTrip(init, Holding.CompanyModelSerializer.WriteCompanyModel, Holding.CompanyModelSerializer.ReadCompanyModel);
+		AssertCompanySupportedMembers(init, nestedFinal);
 	}
 
 	[Fact]

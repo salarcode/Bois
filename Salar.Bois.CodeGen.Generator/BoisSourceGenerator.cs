@@ -59,7 +59,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             if (!TryCreateGenerationMethod(method, operation.Value, context, out var generationMethod))
                 continue;
 
-            var key = (generationMethod.ContainingType, GetFileName(generationMethod.RootType));
+            var key = (generationMethod.ContainingType, GetFileName(generationMethod.ContainingType, generationMethod.RootType));
             if (!groups.TryGetValue(key, out var methods))
             {
                 methods = [];
@@ -148,6 +148,12 @@ public sealed class BoisSourceGenerator : ISourceGenerator
     private static bool IsByteArray(ITypeSymbol type)
         => type is IArrayTypeSymbol arrayType && arrayType.ElementType.SpecialType == SpecialType.System_Byte;
 
+    private static bool IsByteArraySegment(ITypeSymbol type)
+        => type is INamedTypeSymbol namedType &&
+           namedType.ConstructedFrom.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.ArraySegment<T>" &&
+           namedType.TypeArguments.Length == 1 &&
+           namedType.TypeArguments[0].SpecialType == SpecialType.System_Byte;
+
     private static bool IsInt32(ITypeSymbol type)
         => type.SpecialType == SpecialType.System_Int32;
 
@@ -173,6 +179,14 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             else if (IsBufferReader(parameters[0].Type))
             {
                 signature = new ReaderSignature(ReaderInputKind.BufferReader, 0, -1, -1, encodingParameterIndex);
+            }
+            else if (IsByteArray(parameters[0].Type))
+            {
+                signature = new ReaderSignature(ReaderInputKind.ByteArray, 0, -1, -1, encodingParameterIndex);
+            }
+            else if (IsByteArraySegment(parameters[0].Type))
+            {
+                signature = new ReaderSignature(ReaderInputKind.ByteArraySegment, 0, -1, -1, encodingParameterIndex);
             }
         }
         else if (parameterCount == 3 &&
@@ -266,6 +280,10 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 "'static partial T Method(System.IO.Stream source, System.Text.Encoding encoding)'",
                 "'static partial T Method(Salar.BinaryBuffers.BufferReaderBase reader)'",
                 "'static partial T Method(Salar.BinaryBuffers.BufferReaderBase reader, System.Text.Encoding encoding)'",
+                "'static partial T Method(byte[] buffer)'",
+                "'static partial T Method(byte[] buffer, System.Text.Encoding encoding)'",
+                "'static partial T Method(System.ArraySegment<byte> bytes)'",
+                "'static partial T Method(in System.ArraySegment<byte> bytes)'",
                 "'static partial T Method(byte[] buffer, int position, int length)'",
                 "or 'static partial T Method(byte[] buffer, int position, int length, System.Text.Encoding encoding)'"
             ]);
@@ -283,14 +301,18 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 "and those same signatures with an optional trailing System.Text.Encoding parameter"
             ]);
 
-    private static string GetFileName(ITypeSymbol type)
+    private static string GetFileName(INamedTypeSymbol containingType, ITypeSymbol type)
     {
-        return type switch
+        var typeName = type switch
         {
             IArrayTypeSymbol arrayType => arrayType.ElementType.Name + "Array",
             INamedTypeSymbol namedType => namedType.Name,
             _ => "BoisGenerated"
         };
+        return containingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+            .Replace("global::", string.Empty)
+            .Replace('.', '_')
+            .Replace('+', '_') + "_" + typeName;
     }
 
     private sealed class SyntaxReceiver : ISyntaxReceiver
@@ -391,9 +413,13 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line();
             }
 
-            builder.Line($"{GetContainingTypeDeclaration()} ");
-            builder.Line("{");
-            builder.Indent();
+            var containingTypes = GetContainingTypes();
+            foreach (var containingType in containingTypes)
+            {
+                builder.Line($"{GetContainingTypeDeclaration(containingType)} ");
+                builder.Line("{");
+                builder.Indent();
+            }
 
             foreach (var method in methods.OrderBy(static x => x.Method.Name, StringComparer.Ordinal))
             {
@@ -401,8 +427,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line();
             }
 
-            builder.Unindent();
-            builder.Line("}");
+            for (var i = 0; i < containingTypes.Length; i++)
+            {
+                builder.Unindent();
+                builder.Line("}");
+            }
             return builder.ToString();
         }
 
@@ -412,10 +441,20 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             emitter.Emit(builder);
         }
 
-        private string GetContainingTypeDeclaration()
+        private ImmutableArray<INamedTypeSymbol> GetContainingTypes()
         {
-            var access = _containingType.DeclaredAccessibility == Accessibility.Public ? "public " : "internal ";
-            return $"{access}static partial class {_containingType.Name}";
+            var builder = ImmutableArray.CreateBuilder<INamedTypeSymbol>();
+            for (var current = _containingType; current is not null; current = current.ContainingType)
+                builder.Add(current);
+            builder.Reverse();
+            return builder.ToImmutable();
+        }
+
+        private static string GetContainingTypeDeclaration(INamedTypeSymbol containingType)
+        {
+            var access = containingType.DeclaredAccessibility == Accessibility.Public ? "public " : "internal ";
+            var staticModifier = containingType.IsStatic ? "static " : string.Empty;
+            return $"{access}{staticModifier}partial class {containingType.Name}";
         }
 
         private sealed class MethodEmitter
@@ -625,9 +664,12 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                             builder.Line($"var reader = {sourceName};");
                         break;
                     case ReaderInputKind.ByteArray:
-                        var positionName = Escape(_method.Method.Parameters[signature.PositionParameterIndex].Name);
-                        var lengthName = Escape(_method.Method.Parameters[signature.LengthParameterIndex].Name);
+                        var positionName = signature.PositionParameterIndex >= 0 ? Escape(_method.Method.Parameters[signature.PositionParameterIndex].Name) : "0";
+                        var lengthName = signature.LengthParameterIndex >= 0 ? Escape(_method.Method.Parameters[signature.LengthParameterIndex].Name) : sourceName + ".Length";
                         builder.Line($"var reader = new BinaryBufferReader({sourceName}, {positionName}, {lengthName});");
+                        break;
+                    case ReaderInputKind.ByteArraySegment:
+                        builder.Line($"var reader = new BinaryBufferReader({sourceName}.Array!, {sourceName}.Offset, {sourceName}.Count);");
                         break;
                     default:
                         throw new InvalidOperationException();
@@ -1486,9 +1528,18 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     _ => string.Empty
                 };
                 var returnType = method.ReturnsVoid ? "void" : TypeName(method.ReturnType);
-                var parameters = string.Join(", ", method.Parameters.Select(static p => $"{p.Type.ToDisplayString(QualifiedTypeFormat)} {Escape(p.Name)}"));
+                var parameters = string.Join(", ", method.Parameters.Select(static p => $"{GetRefKindPrefix(p.RefKind)}{p.Type.ToDisplayString(QualifiedTypeFormat)} {Escape(p.Name)}"));
                 return $"{access}static partial {returnType} {method.Name}({parameters})";
             }
+
+            private static string GetRefKindPrefix(RefKind refKind)
+                => refKind switch
+                {
+                    RefKind.Ref => "ref ",
+                    RefKind.Out => "out ",
+                    RefKind.In => "in ",
+                    _ => string.Empty
+                };
 
             private static string Escape(string value) => SyntaxFacts.GetKeywordKind(value) != SyntaxKind.None ? "@" + value : value;
 
@@ -2026,7 +2077,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
     private sealed record WriterSignature(WriterOutputKind OutputKind, int ModelParameterIndex, int OutputParameterIndex, int PositionParameterIndex, int LengthParameterIndex, int? EncodingParameterIndex) : MethodSignature(EncodingParameterIndex);
 
     private enum OperationKind { Reader, Writer }
-    private enum ReaderInputKind { Stream, BufferReader, ByteArray }
+    private enum ReaderInputKind { Stream, BufferReader, ByteArray, ByteArraySegment }
     private enum WriterOutputKind { Stream, BufferWriter, ByteArray }
 
     private enum BasicType

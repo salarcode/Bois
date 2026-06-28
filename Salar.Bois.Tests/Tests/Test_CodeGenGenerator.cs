@@ -256,6 +256,18 @@ public class Test_CodeGenGenerator
 		Assert.Equal(contract.Third, contractFinal.Third);
 		Assert.Equal(default, contractFinal.Ignored);
 
+		var fieldsOnly = new ContractFieldsOnlyScenario { FieldValue = 10, IgnoredProperty = 20 };
+		var fieldsOnlyFinal = RoundTrip(fieldsOnly, SourceGeneratorScenariosBois.WriteContractFieldsOnlyScenario, SourceGeneratorScenariosBois.ReadContractFieldsOnlyScenario);
+		Assert.NotNull(fieldsOnlyFinal);
+		Assert.Equal(fieldsOnly.FieldValue, fieldsOnlyFinal.FieldValue);
+		Assert.Equal(default, fieldsOnlyFinal.IgnoredProperty);
+
+		var propertiesOnly = new ContractPropertiesOnlyScenario { IgnoredField = 30, PropertyValue = 40 };
+		var propertiesOnlyFinal = RoundTrip(propertiesOnly, SourceGeneratorScenariosBois.WriteContractPropertiesOnlyScenario, SourceGeneratorScenariosBois.ReadContractPropertiesOnlyScenario);
+		Assert.NotNull(propertiesOnlyFinal);
+		Assert.Equal(default, propertiesOnlyFinal.IgnoredField);
+		Assert.Equal(propertiesOnly.PropertyValue, propertiesOnlyFinal.PropertyValue);
+
 		var structValue = new ScenarioStruct { X = 42, Y = 43 };
 		var structFinal = RoundTrip(structValue, SourceGeneratorScenariosBois.WriteScenarioStruct, SourceGeneratorScenariosBois.ReadScenarioStruct);
 		Assert.Equal(structValue.X, structFinal.X);

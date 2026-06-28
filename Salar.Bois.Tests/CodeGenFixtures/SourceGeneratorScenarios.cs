@@ -144,6 +144,20 @@ public sealed class ContractScenario
 	public int Ignored { get; set; }
 }
 
+[BoisContract(fields: true, properties: false)]
+public sealed class ContractFieldsOnlyScenario
+{
+	public int FieldValue;
+	public int IgnoredProperty { get; set; }
+}
+
+[BoisContract(fields: false, properties: true)]
+public sealed class ContractPropertiesOnlyScenario
+{
+	public int IgnoredField;
+	public int PropertyValue { get; set; }
+}
+
 public sealed class DataScenario
 {
 	public DataTable Table { get; set; } = new();
@@ -211,6 +225,18 @@ public static partial class SourceGeneratorScenariosBois
 
 	[BoisWriter]
 	public static partial void WriteContractScenario(ContractScenario? model, Stream output);
+
+	[BoisReader]
+	public static partial ContractFieldsOnlyScenario? ReadContractFieldsOnlyScenario(Stream source);
+
+	[BoisWriter]
+	public static partial void WriteContractFieldsOnlyScenario(ContractFieldsOnlyScenario? model, Stream output);
+
+	[BoisReader]
+	public static partial ContractPropertiesOnlyScenario? ReadContractPropertiesOnlyScenario(Stream source);
+
+	[BoisWriter]
+	public static partial void WriteContractPropertiesOnlyScenario(ContractPropertiesOnlyScenario? model, Stream output);
 
 	[BoisReader]
 	public static partial EmptyScenario? ReadEmptyScenario(Stream source);

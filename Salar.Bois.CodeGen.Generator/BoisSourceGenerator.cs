@@ -1572,23 +1572,27 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             var readProps = true;
             foreach (var attribute in type.GetAttributes())
             {
-                if (attribute.AttributeClass?.ToDisplayString() == "Salar.Bois.BoisContractAttribute" && attribute.ConstructorArguments.Length == 2)
+                if (attribute.AttributeClass?.ToDisplayString() == "Salar.Bois.BoisContractAttribute")
                 {
-                    readFields = attribute.ConstructorArguments[0].Value as bool? ?? true;
-                    readProps = attribute.ConstructorArguments[1].Value as bool? ?? true;
+                    if (attribute.ConstructorArguments.Length == 2)
+                    {
+                        readFields = attribute.ConstructorArguments[0].Value as bool? ?? true;
+                        readProps = attribute.ConstructorArguments[1].Value as bool? ?? true;
+                    }
+                    readFields = ReadNamedBool(attribute, "Fields", readFields);
+                    readProps = ReadNamedBool(attribute, "Properties", readProps);
                     break;
                 }
             }
 
             foreach (var symbol in EnumerateMembers(type, readFields, readProps))
             {
-                var (included, index) = ReadMemberOptions(symbol);
-                if (!included)
-                    continue;
-
                 if (symbol is IFieldSymbol field)
                 {
                     if (field.IsStatic || field.DeclaredAccessibility != Accessibility.Public || field.IsReadOnly)
+                        continue;
+                    var (included, index) = ReadMemberOptions(field);
+                    if (!included)
                         continue;
                     Insert(ordered, new MemberModel(field, field.Type, index, false));
                     continue;
@@ -1605,6 +1609,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                     if (property.SetMethod is not null && property.SetMethod.DeclaredAccessibility == Accessibility.Public)
                     {
+                        var (included, index) = ReadMemberOptions(property);
+                        if (!included)
+                            continue;
                         Insert(ordered, new MemberModel(property, property.Type, index, false));
                     }
                 }
@@ -1670,6 +1677,17 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             }
             return (true, -1);
         }
+
+        private static bool ReadNamedBool(AttributeData attribute, string name, bool defaultValue)
+        {
+            foreach (var argument in attribute.NamedArguments)
+            {
+                if (argument.Key == name && argument.Value.Value is bool value)
+                    return value;
+            }
+            return defaultValue;
+        }
+
 
         public bool TryGetCreationExpression(ITypeSymbol type, out string expression, out string error)
         {

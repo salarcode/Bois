@@ -26,7 +26,7 @@ PM> Install-Package Salar.Bois.LZ4
 PM> Install-Package Salar.Bois.CodeGen
 ```
 
-> Minimum frameworks supported are .Net Core 2.0, .Net Standard 2.1 and .Net Framework 4.5
+> Minimum frameworks supported are .NET 6.0 and .NET 10.0
 
 ### Getting Started:
 It is easy to use , just add the package to your project and voila, you can now use it.
@@ -105,9 +105,9 @@ return boisLz4Serializer.Unpickle<Project>(dataStream);
 ```
 
 ## Method code generation
-The `Salar.Bois.CodeGen` package provides the source code generator version of Bois. It lets you declare the read and write methods that you want to use, and the generator creates the method body during compilation.
+The `Salar.Bois.CodeGen` package provides the source code generator version of Bois. Instead of using the `BoisSerializer` class at runtime, you declare a static partial class that hosts the read and write methods as static partial methods. The generator creates the method body during compilation.
 
-To use it, add the `Salar.Bois.CodeGen` package to your project and declare a static partial class with static partial methods. Mark read methods with `BoisReader` and write methods with `BoisWriter`.
+To use it, add the `Salar.Bois.CodeGen` package to your project and create a static partial class to host your serializer methods. Mark read methods with `[BoisReader]` and write methods with `[BoisWriter]`.
 
 ```csharp
 using Salar.Bois;

@@ -280,6 +280,76 @@ public class Test_CodeGenGenerator
 		Assert.Equal("hello", RoundTripString("hello"));
 	}
 
+	[Fact]
+	public void GeneratedSourceForDifferentNestedTypesCompiles()
+	{
+		var source = """
+			using Salar.Bois;
+			using System.IO;
+
+			namespace GeneratorCompileSample;
+
+			public sealed class TypeA
+			{
+				public int Value { get; set; }
+			}
+
+			public sealed class TypeB
+			{
+				public string Text { get; set; } = "";
+			}
+
+			public sealed class DifferentNestedTypesModel
+			{
+				public TypeA First { get; set; } = new();
+				public TypeB Second { get; set; } = new();
+			}
+
+			public static partial class DifferentNestedTypesModelBois
+			{
+				[BoisReader]
+				public static partial DifferentNestedTypesModel? Read(Stream source);
+
+				[BoisWriter]
+				public static partial void Write(DifferentNestedTypesModel? model, Stream output);
+			}
+			""";
+
+		var syntaxTree = CSharpSyntaxTree.ParseText(source, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest));
+		var compilation = CSharpCompilation.Create(
+			"GeneratorCompileSample",
+			[syntaxTree],
+			GetMetadataReferences(),
+			new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+		GeneratorDriver driver = CSharpGeneratorDriver.Create(new BoisSourceGenerator());
+		driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var generatorDiagnostics);
+
+		Assert.Empty(generatorDiagnostics.Where(static x => x.Severity == DiagnosticSeverity.Error));
+		Assert.Empty(outputCompilation.GetDiagnostics().Where(static x => x.Severity == DiagnosticSeverity.Error));
+	}
+
+	[Fact]
+	public void DifferentNestedTypesRoundTripReadAndWrite()
+	{
+		var init = new DifferentNestedTypesModel
+		{
+			First = new DifferentNestedTypeA { Value = 42 },
+			Second = new DifferentNestedTypeB { Text = "hello" },
+		};
+
+		using var stream = new MemoryStream();
+		DifferentNestedTypesModelBois.Write(init, stream);
+		stream.Position = 0;
+		var final = DifferentNestedTypesModelBois.Read(stream);
+
+		Assert.NotNull(final);
+		Assert.NotNull(final.First);
+		Assert.Equal(init.First.Value, final.First.Value);
+		Assert.NotNull(final.Second);
+		Assert.Equal(init.Second.Text, final.Second.Text);
+	}
+
 	private static IReadOnlyList<MetadataReference> GetMetadataReferences()
 	{
 		var references = new Dictionary<string, MetadataReference>(StringComparer.OrdinalIgnoreCase);
@@ -540,4 +610,29 @@ public static partial class CodeGenSameTypeRuntimeModelBois
 
 	[BoisWriter]
 	public static partial void Write(CodeGenSameTypeRuntimeModel? model, Stream output);
+}
+
+public sealed class DifferentNestedTypeA
+{
+	public int Value { get; set; }
+}
+
+public sealed class DifferentNestedTypeB
+{
+	public string Text { get; set; } = string.Empty;
+}
+
+public sealed class DifferentNestedTypesModel
+{
+	public DifferentNestedTypeA First { get; set; } = new();
+	public DifferentNestedTypeB Second { get; set; } = new();
+}
+
+public static partial class DifferentNestedTypesModelBois
+{
+	[BoisReader]
+	public static partial DifferentNestedTypesModel? Read(Stream source);
+
+	[BoisWriter]
+	public static partial void Write(DifferentNestedTypesModel? model, Stream output);
 }

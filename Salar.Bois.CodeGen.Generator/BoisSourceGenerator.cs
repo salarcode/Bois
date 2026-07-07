@@ -874,6 +874,10 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     builder.Line("return null!;");
                     builder.Unindent();
                 }
+                else
+                {
+                    builder.Line("uint? memberCount = null;");
+                }
                 if (setupEncoding)
                     EmitReaderEncodingSetup(builder);
                 builder.Line($"var instance = {creationExpression};");
@@ -1112,7 +1116,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 if (!_owner.IsExplicitStruct(type))
                 {
-                    builder.Line("var memberCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                    builder.Line("memberCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
                     builder.Line("if (memberCount is null)");
                     builder.Indent();
                     builder.Line($"{target} = null!;");

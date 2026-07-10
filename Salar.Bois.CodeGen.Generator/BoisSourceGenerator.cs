@@ -892,6 +892,14 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private bool EmitWriteMember(MemberModel member, CodeBuilder builder, out string error, string ownerExpression = "value")
             {
+                // The runtime serializer skips non-nullable custom struct members (no data is written),
+                // so CodeGen must do the same to stay binary compatible.
+                if (_owner.IsNonNullableExplicitStruct(member.Type) && !_owner.TryGetBasicType(member.Type, out _))
+                {
+                    error = string.Empty;
+                    return true;
+                }
+
                 var access = $"{ownerExpression}.{Escape(member.Symbol.Name)}";
                 if (_owner.TryGetBasicType(member.Type, out var basicType))
                 {
@@ -977,6 +985,14 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private bool EmitReadMemberInto(MemberModel member, string instanceExpression, CodeBuilder builder, out string error)
             {
+                // The runtime serializer skips non-nullable custom struct members (no data is read),
+                // so CodeGen must do the same to stay binary compatible.
+                if (_owner.IsNonNullableExplicitStruct(member.Type) && !_owner.TryGetBasicType(member.Type, out _))
+                {
+                    error = string.Empty;
+                    return true;
+                }
+
                 var target = $"{instanceExpression}.{Escape(member.Symbol.Name)}";
                 if (_owner.TryGetBasicType(member.Type, out var basicType))
                 {
@@ -2056,6 +2072,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
         public bool IsNameValueCollection(ITypeSymbol type) => EqualOrDerivedFrom(Bare(type), _nameValueCollectionType);
         public bool IsEnum(ITypeSymbol type) => Bare(type).TypeKind == TypeKind.Enum;
         public bool IsExplicitStruct(ITypeSymbol type) => Bare(type).IsValueType && Bare(type).TypeKind != TypeKind.Enum && Bare(type).SpecialType == SpecialType.None;
+        public bool IsNonNullableExplicitStruct(ITypeSymbol type) => IsExplicitStruct(type) && !IsNullableValueType(type);
         public bool IsNullable(ITypeSymbol type) => !Bare(type).IsValueType || IsNullableValueType(type);
         private bool IsNullableValueType(ITypeSymbol type) => type is INamedTypeSymbol named && Equal(named.OriginalDefinition, _nullableType);
         private bool IsNullableComplex(ITypeSymbol type) => IsNullableValueType(type) && !TryGetBasicType(type, out _) && !IsEnum(type);

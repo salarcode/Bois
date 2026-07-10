@@ -272,6 +272,12 @@ public static partial class SourceGeneratorScenariosBois
 	public static partial void WriteInt32Array(int[]? model, Stream output);
 
 	[BoisReader]
+	public static partial byte[]? ReadByteArray(Stream source);
+
+	[BoisWriter]
+	public static partial void WriteByteArray(byte[]? model, Stream output);
+
+	[BoisReader]
 	public static partial string? ReadString(Stream source, Encoding encoding);
 
 	[BoisWriter]

@@ -369,9 +369,23 @@ public class Test_CodeGenGenerator
 		AssertBinaryCompatible("List<string>", new List<string> { "a", "b" }, SourceGeneratorScenariosBois.WriteStringList);
 		AssertBinaryCompatible("Dictionary<string, int>", new Dictionary<string, int> { ["one"] = 1, ["two"] = 2 }, SourceGeneratorScenariosBois.WriteStringIntDictionary);
 		AssertBinaryCompatible("int[]", new[] { 1, 2, 3 }, SourceGeneratorScenariosBois.WriteInt32Array);
+		AssertBinaryCompatible("byte[] empty", Array.Empty<byte>(), SourceGeneratorScenariosBois.WriteByteArray);
+		AssertBinaryCompatible("byte[] length 10", new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, SourceGeneratorScenariosBois.WriteByteArray);
 		AssertBinaryCompatible("string", "hello", static (model, stream) => SourceGeneratorScenariosBois.WriteString(model, stream, Encoding.UTF8));
 		AssertBinaryCompatible("CodeGenSameTypeRuntimeModel", CreateCodeGenSameTypeRuntimeModel(), CodeGenSameTypeRuntimeModelBois.Write);
 		AssertBinaryCompatible("DifferentNestedTypesModel", CreateDifferentNestedTypesModel(), DifferentNestedTypesModelBois.Write);
+	}
+
+	[Fact]
+	public void GeneratedRootByteArrayWriterMatchesBoisSerializerNullBehavior()
+	{
+		byte[] nullByteArray = null!;
+		byte[]? nullableByteArray = null;
+
+		Assert.Throws<ArgumentNullException>(() => SerializeWithCodeGen(nullByteArray, SourceGeneratorScenariosBois.WriteByteArray));
+		Assert.Throws<ArgumentNullException>(() => SerializeWithBoisSerializer(nullByteArray));
+		Assert.Throws<ArgumentNullException>(() => SerializeWithCodeGen(nullableByteArray, SourceGeneratorScenariosBois.WriteByteArray));
+		Assert.Throws<ArgumentNullException>(() => SerializeWithBoisSerializer(nullableByteArray));
 	}
 
 	private static IReadOnlyList<MetadataReference> GetMetadataReferences()

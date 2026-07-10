@@ -798,7 +798,7 @@ namespace Salar.Bois.Types
 
 					if (index > -1)
 					{
-						members.Insert(index, f);
+						members.Insert(Math.Min(index, members.Count), f);
 					}
 					else
 					{
@@ -827,7 +827,7 @@ namespace Salar.Bois.Types
 
 						if (index > -1)
 						{
-							members.Insert(index, p);
+							members.Insert(Math.Min(index, members.Count), p);
 						}
 						else
 						{

@@ -38,7 +38,7 @@
 		<ProjectReference Include="..\Salar.Bois.CodeGen.Generator\Salar.Bois.CodeGen.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
 		<ProjectReference Include="..\Salar.Bois.CodeGen\Salar.Bois.CodeGen.csproj" Aliases="global,SalarBoisCodeGen" />
 		<ProjectReference Include="..\Salar.Bois.LZ4\Salar.Bois.LZ4.csproj" />
-		<ProjectReference Include="..\Salar.Bois\Salar.Bois.csproj" />
+		<ProjectReference Include="..\Salar.Bois\Salar.Bois.csproj" Aliases="global,SalarBoisRuntime" />
 	</ItemGroup>
 
 </Project>

@@ -350,6 +350,30 @@ public class Test_CodeGenGenerator
 		Assert.Equal(init.Second.Text, final.Second.Text);
 	}
 
+	[Fact]
+	public void GeneratedWritersAreBinaryCompatibleWithBoisSerializerForSampleTypes()
+	{
+		AssertBinaryCompatible("CompanyModel", CreateCompanyModel(), CompanyModelBois.WriteCompanyModel);
+		AssertBinaryCompatible("Holding.CompanyModelSerializer", CreateCompanyModel(), Holding.CompanyModelSerializer.WriteCompanyModel);
+
+		AssertBinaryCompatible("PrimitiveScenario", CreatePrimitiveScenario(), SourceGeneratorScenariosBois.WritePrimitiveScenario);
+		AssertBinaryCompatible("CollectionScenario", CreateCollectionScenario(), SourceGeneratorScenariosBois.WriteCollectionScenario);
+		AssertBinaryCompatible("NestedScenario", CreateNestedScenario(), SourceGeneratorScenariosBois.WriteNestedScenario);
+		AssertBinaryCompatible("ReusedNestedScenario", CreateReusedNestedScenario(), SourceGeneratorScenariosBois.WriteReusedNestedScenario);
+		AssertBinaryCompatible("SameTypeCastingScenario", CreateSameTypeCastingScenario(), SourceGeneratorScenariosBois.WriteSameTypeCastingScenario);
+		AssertBinaryCompatible("ContractScenario", new ContractScenario { First = 1, Second = 2, Third = 3, Ignored = 4 }, SourceGeneratorScenariosBois.WriteContractScenario);
+		AssertBinaryCompatible("ContractFieldsOnlyScenario", new ContractFieldsOnlyScenario { FieldValue = 10, IgnoredProperty = 20 }, SourceGeneratorScenariosBois.WriteContractFieldsOnlyScenario);
+		AssertBinaryCompatible("ContractPropertiesOnlyScenario", new ContractPropertiesOnlyScenario { IgnoredField = 30, PropertyValue = 40 }, SourceGeneratorScenariosBois.WriteContractPropertiesOnlyScenario);
+		AssertBinaryCompatible("EmptyScenario", new EmptyScenario(), SourceGeneratorScenariosBois.WriteEmptyScenario);
+		AssertBinaryCompatible("ScenarioStruct", new ScenarioStruct { X = 42, Y = 43 }, SourceGeneratorScenariosBois.WriteScenarioStruct);
+		AssertBinaryCompatible("List<string>", new List<string> { "a", "b" }, SourceGeneratorScenariosBois.WriteStringList);
+		AssertBinaryCompatible("Dictionary<string, int>", new Dictionary<string, int> { ["one"] = 1, ["two"] = 2 }, SourceGeneratorScenariosBois.WriteStringIntDictionary);
+		AssertBinaryCompatible("int[]", new[] { 1, 2, 3 }, SourceGeneratorScenariosBois.WriteInt32Array);
+		AssertBinaryCompatible("string", "hello", static (model, stream) => SourceGeneratorScenariosBois.WriteString(model, stream, Encoding.UTF8));
+		AssertBinaryCompatible("CodeGenSameTypeRuntimeModel", CreateCodeGenSameTypeRuntimeModel(), CodeGenSameTypeRuntimeModelBois.Write);
+		AssertBinaryCompatible("DifferentNestedTypesModel", CreateDifferentNestedTypesModel(), DifferentNestedTypesModelBois.Write);
+	}
+
 	private static IReadOnlyList<MetadataReference> GetMetadataReferences()
 	{
 		var references = new Dictionary<string, MetadataReference>(StringComparer.OrdinalIgnoreCase);
@@ -383,6 +407,45 @@ public class Test_CodeGenGenerator
 		write(init, stream);
 		stream.Position = 0;
 		return read(stream);
+	}
+
+	private static void AssertBinaryCompatible<T>(string scenario, T init, Action<T, Stream> writeCodeGen)
+	{
+		var codeGenBytes = SerializeWithCodeGen(init, writeCodeGen);
+		var serializerBytes = SerializeWithBoisSerializer(init);
+
+		Assert.True(serializerBytes.SequenceEqual(codeGenBytes), GetBinaryDifferenceMessage(scenario, serializerBytes, codeGenBytes));
+	}
+
+	private static string GetBinaryDifferenceMessage(string scenario, byte[] expected, byte[] actual)
+	{
+		var length = Math.Min(expected.Length, actual.Length);
+		var index = 0;
+		while (index < length && expected[index] == actual[index])
+			index++;
+
+		return $"{scenario} differs at byte {index}. ExpectedLength={expected.Length}, ActualLength={actual.Length}, Expected={FormatWindow(expected, index)}, Actual={FormatWindow(actual, index)}";
+	}
+
+	private static string FormatWindow(byte[] bytes, int index)
+	{
+		var start = Math.Max(0, index - 8);
+		var count = Math.Min(bytes.Length - start, 17);
+		return string.Join(",", bytes.Skip(start).Take(count));
+	}
+
+	private static byte[] SerializeWithCodeGen<T>(T init, Action<T, Stream> write)
+	{
+		using var stream = new MemoryStream();
+		write(init, stream);
+		return stream.ToArray();
+	}
+
+	private static byte[] SerializeWithBoisSerializer<T>(T init)
+	{
+		using var stream = new MemoryStream();
+		new BoisSerializer { Encoding = Encoding.UTF8 }.Serialize(init, stream);
+		return stream.ToArray();
 	}
 
 	private static string? RoundTripString(string? init)
@@ -445,6 +508,122 @@ public class Test_CodeGenGenerator
 			NullableStatus = ScenarioStatus.Archived,
 			Bytes = [1, 2, 3],
 			KnownTypeArray = [4, 5, 6],
+		};
+	}
+
+	private static CompanyModel CreateCompanyModel()
+	{
+		var company = new CompanyModel
+		{
+			Id = Guid.Parse("3f67f0a3-6ef2-4649-8e6c-f41d1922b668"),
+			Name = "Salar Code",
+			Address = "Unit Test Street",
+			Phone = "+1-555-0100",
+			Founded = new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc),
+			Revenue = 123456.789m,
+			IsActive = true,
+		};
+		company.AddEmployee("Alice");
+		company.AddEmployee("Bob");
+		return company;
+	}
+
+	private static CollectionScenario CreateCollectionScenario()
+	{
+		var collection = new CollectionScenario
+		{
+			Names = ["one", "two"],
+			Numbers = [1, 2, 3],
+			Scores = { ["first"] = 10, ["second"] = 20 },
+		};
+		collection.Headers.Add("x-one", "1");
+		collection.Headers.Add("x-two", "2");
+		return collection;
+	}
+
+	private static NestedScenario CreateNestedScenario()
+	{
+		return new NestedScenario
+		{
+			Primitive = CreatePrimitiveScenario(),
+			NullablePrimitive = CreatePrimitiveScenario("nullable"),
+			Location = new ScenarioStruct { X = 7, Y = 9 },
+			Empty = new EmptyScenario(),
+		};
+	}
+
+	private static ReusedNestedScenario CreateReusedNestedScenario()
+	{
+		return new ReusedNestedScenario
+		{
+			First = CreatePrimitiveScenario("first"),
+			Second = CreatePrimitiveScenario("second"),
+			Optional = CreatePrimitiveScenario("optional"),
+		};
+	}
+
+	private static SameTypeCastingScenario CreateSameTypeCastingScenario()
+	{
+		return new SameTypeCastingScenario
+		{
+			FirstInt32 = 1,
+			SecondInt32 = 2,
+			OptionalInt32 = 3,
+			FirstText = "first",
+			SecondText = "second",
+			OptionalText1 = "optional-1",
+			OptionalText2 = null,
+			FirstStatus = ScenarioStatus.Active,
+			SecondStatus = ScenarioStatus.Archived,
+			ThirdStatus = ScenarioStatus.Unknown,
+			OptionalStatus1 = ScenarioStatus.Active,
+			OptionalStatus2 = null,
+			OptionalStatus3 = ScenarioStatus.Archived,
+			FirstLocation = new ScenarioStruct { X = 10, Y = 11 },
+			SecondLocation = new ScenarioStruct { X = 20, Y = 21 },
+			FirstPrimitive = CreatePrimitiveScenario("first-primitive"),
+			SecondPrimitive = CreatePrimitiveScenario("second-primitive"),
+			OptionalPrimitive1 = CreatePrimitiveScenario("optional-primitive-1"),
+			OptionalPrimitive2 = null,
+			StatusHistory1 = [ScenarioStatus.Unknown, ScenarioStatus.Active],
+			StatusHistory2 = [ScenarioStatus.Archived, ScenarioStatus.Active],
+			StatusValues1 = { [ScenarioStatus.Active] = CreatePrimitiveScenario("active") },
+			StatusValues2 = { [ScenarioStatus.Archived] = CreatePrimitiveScenario("archived") },
+		};
+	}
+
+	private static CodeGenSameTypeRuntimeModel CreateCodeGenSameTypeRuntimeModel()
+	{
+		return new CodeGenSameTypeRuntimeModel
+		{
+			FirstInt32 = 10,
+			SecondInt32 = 20,
+			OptionalInt32 = 30,
+			FirstText = "first",
+			SecondText = "second",
+			OptionalText1 = "optional-1",
+			OptionalText2 = null,
+			FirstStatus = CodeGenRuntimeStatus.Active,
+			SecondStatus = CodeGenRuntimeStatus.Archived,
+			ThirdStatus = CodeGenRuntimeStatus.Unknown,
+			OptionalStatus1 = CodeGenRuntimeStatus.Active,
+			OptionalStatus2 = null,
+			OptionalStatus3 = CodeGenRuntimeStatus.Archived,
+			FirstNested = new CodeGenNestedRuntimeModel { Id = 1, Name = "one" },
+			SecondNested = new CodeGenNestedRuntimeModel { Id = 2, Name = "two" },
+			StatusHistory1 = [CodeGenRuntimeStatus.Unknown, CodeGenRuntimeStatus.Active],
+			StatusHistory2 = [CodeGenRuntimeStatus.Archived, CodeGenRuntimeStatus.Active],
+			StatusValues1 = { [CodeGenRuntimeStatus.Active] = new CodeGenNestedRuntimeModel { Id = 3, Name = "three" } },
+			StatusValues2 = { [CodeGenRuntimeStatus.Archived] = new CodeGenNestedRuntimeModel { Id = 4, Name = "four" } },
+		};
+	}
+
+	private static DifferentNestedTypesModel CreateDifferentNestedTypesModel()
+	{
+		return new DifferentNestedTypesModel
+		{
+			First = new DifferentNestedTypeA { Value = 42 },
+			Second = new DifferentNestedTypeB { Text = "hello" },
 		};
 	}
 
@@ -530,8 +709,10 @@ public class Test_CodeGenGenerator
 		Assert.NotNull(actual);
 		AssertPrimitiveScenario(expected.Primitive, actual.Primitive);
 		AssertPrimitiveScenario(expected.NullablePrimitive, actual.NullablePrimitive);
-		Assert.Equal(expected.Location.X, actual.Location.X);
-		Assert.Equal(expected.Location.Y, actual.Location.Y);
+		// Non-nullable custom struct members are not serialized by the runtime serializer,
+		// so CodeGen skips them too. They round-trip as their default value.
+		Assert.Equal(0, actual.Location.X);
+		Assert.Equal(0, actual.Location.Y);
 		Assert.NotNull(actual.Empty);
 	}
 
@@ -551,10 +732,12 @@ public class Test_CodeGenGenerator
 		Assert.Equal(expected.OptionalStatus1, actual.OptionalStatus1);
 		Assert.Equal(expected.OptionalStatus2, actual.OptionalStatus2);
 		Assert.Equal(expected.OptionalStatus3, actual.OptionalStatus3);
-		Assert.Equal(expected.FirstLocation.X, actual.FirstLocation.X);
-		Assert.Equal(expected.FirstLocation.Y, actual.FirstLocation.Y);
-		Assert.Equal(expected.SecondLocation.X, actual.SecondLocation.X);
-		Assert.Equal(expected.SecondLocation.Y, actual.SecondLocation.Y);
+		// Non-nullable custom struct members are not serialized by the runtime serializer,
+		// so CodeGen skips them too. They round-trip as their default value.
+		Assert.Equal(0, actual.FirstLocation.X);
+		Assert.Equal(0, actual.FirstLocation.Y);
+		Assert.Equal(0, actual.SecondLocation.X);
+		Assert.Equal(0, actual.SecondLocation.Y);
 		AssertPrimitiveScenario(expected.FirstPrimitive, actual.FirstPrimitive);
 		AssertPrimitiveScenario(expected.SecondPrimitive, actual.SecondPrimitive);
 		AssertPrimitiveScenario(expected.OptionalPrimitive1, actual.OptionalPrimitive1);

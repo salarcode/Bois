@@ -1,4 +1,4 @@
-extern alias SalarBoisCodeGen;
+extern alias SalarBoisRuntime;
 using Salar.BinaryBuffers;
 using Salar.Bois;
 using System;
@@ -8,8 +8,8 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Text;
-using BoisMember = SalarBoisCodeGen::Salar.Bois.BoisMemberAttribute;
-using BoisContract = SalarBoisCodeGen::Salar.Bois.BoisContractAttribute;
+using BoisMember = SalarBoisRuntime::Salar.Bois.BoisMemberAttribute;
+using BoisContract = SalarBoisRuntime::Salar.Bois.BoisContractAttribute;
 
 namespace Salar.Bois.NetFx.Tests.CodeGenFixtures;
 

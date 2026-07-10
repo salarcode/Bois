@@ -502,7 +502,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     EmitWriterValueSetup(builder);
                     EmitRootWriterNullGuard(builder);
                     EmitWriterSetup(builder);
-                    if (!TryEmitWrite(_method.RootType, builder, out error, suppressNullCheck: true))
+                    if (!TryEmitWrite(_method.RootType, builder, out error, suppressNullCheck: !SupportsRootNull(_method.RootType)))
                     {
                         _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
                         builder.Line($"throw new global::NotSupportedException({Literal(error)});");
@@ -689,6 +689,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 if (!_owner.IsNullable(_method.RootType))
                     return;
 
+                if (SupportsRootNull(_method.RootType))
+                    return;
+
                 var signature = (WriterSignature)_method.Signature;
                 var modelParameterName = Escape(_method.Method.Parameters[signature.ModelParameterIndex].Name);
                 builder.Line("if (value is null)");
@@ -698,6 +701,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Unindent();
                 builder.Line("}");
             }
+
+            private static bool SupportsRootNull(ITypeSymbol type) => type is IArrayTypeSymbol;
 
             private void EmitWriterSetup(CodeBuilder builder)
             {

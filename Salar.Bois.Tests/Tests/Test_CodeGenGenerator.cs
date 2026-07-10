@@ -377,15 +377,23 @@ public class Test_CodeGenGenerator
 	}
 
 	[Fact]
-	public void GeneratedRootByteArrayWriterMatchesBoisSerializerNullBehavior()
+	public void GeneratedRootByteArrayWriterSupportsNullValues()
 	{
 		byte[] nullByteArray = null!;
 		byte[]? nullableByteArray = null;
 
-		Assert.Throws<ArgumentNullException>(() => SerializeWithCodeGen(nullByteArray, SourceGeneratorScenariosBois.WriteByteArray));
-		Assert.Throws<ArgumentNullException>(() => SerializeWithBoisSerializer(nullByteArray));
-		Assert.Throws<ArgumentNullException>(() => SerializeWithCodeGen(nullableByteArray, SourceGeneratorScenariosBois.WriteByteArray));
-		Assert.Throws<ArgumentNullException>(() => SerializeWithBoisSerializer(nullableByteArray));
+		Assert.Null(RoundTrip(nullByteArray, SourceGeneratorScenariosBois.WriteByteArray, SourceGeneratorScenariosBois.ReadByteArray));
+		Assert.Null(RoundTrip(nullableByteArray, SourceGeneratorScenariosBois.WriteByteArray, SourceGeneratorScenariosBois.ReadByteArray));
+	}
+
+	[Fact]
+	public void GeneratedRootObjectWriterSupportsNullValues()
+	{
+		PrimitiveScenario nullPrimitiveScenario = null!;
+		PrimitiveScenario? nullablePrimitiveScenario = null;
+
+		Assert.Null(RoundTrip(nullPrimitiveScenario, SourceGeneratorScenariosBois.WritePrimitiveScenario, SourceGeneratorScenariosBois.ReadPrimitiveScenario));
+		Assert.Null(RoundTrip(nullablePrimitiveScenario, SourceGeneratorScenariosBois.WritePrimitiveScenario, SourceGeneratorScenariosBois.ReadPrimitiveScenario));
 	}
 
 	private static IReadOnlyList<MetadataReference> GetMetadataReferences()

@@ -1,7 +1,7 @@
+extern alias SalarBoisCodeGen;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Salar.Bois;
-using Salar.Bois.CodeGen;
 using Salar.Bois.Generator;
 using Salar.Bois.NetFx.Tests.CodeGenFixtures;
 using Salar.BinaryBuffers;
@@ -360,7 +360,7 @@ public class Test_CodeGenGenerator
 
 		AddReference(references, typeof(BoisReaderAttribute).Assembly.Location);
 		AddReference(references, typeof(BufferReaderBase).Assembly.Location);
-		AddReference(references, typeof(BoisCodeGen).Assembly.Location);
+		AddReference(references, typeof(SalarBoisCodeGen::Salar.Bois.CodeGen.BoisCodeGen).Assembly.Location);
 
 		return references.Values.ToArray();
 	}

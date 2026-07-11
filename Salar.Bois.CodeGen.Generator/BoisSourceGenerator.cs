@@ -1648,13 +1648,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
         private static IEnumerable<ISymbol> EnumerateMembers(ITypeSymbol type, bool includeFields, bool includeProperties)
         {
-            var stack = new Stack<INamedTypeSymbol>();
             for (var current = type as INamedTypeSymbol; current is not null; current = current.BaseType)
-                stack.Push(current);
-
-            while (stack.Count > 0)
             {
-                var current = stack.Pop();
                 if (includeFields)
                 {
                     foreach (var field in current.GetMembers().OfType<IFieldSymbol>())

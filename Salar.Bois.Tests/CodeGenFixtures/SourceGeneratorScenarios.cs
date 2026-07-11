@@ -132,6 +132,46 @@ public sealed class SameTypeCastingScenario
 	public Dictionary<ScenarioStatus, PrimitiveScenario> StatusValues2 { get; set; } = [];
 }
 
+public class InheritedMemberBaseScenario
+{
+	public int BaseValue { get; set; }
+}
+
+public sealed class InheritedMemberScenario : InheritedMemberBaseScenario
+{
+	public int DerivedValue { get; set; }
+}
+
+public class IndexedInheritedMemberBaseScenario
+{
+	public int BaseDefaultValue { get; set; }
+
+	[BoisMember(1)]
+	public int BaseIndexedValue { get; set; }
+
+	[BoisMember(6)]
+	public int BaseLastIndexedValue { get; set; }
+
+	[BoisMember(false)]
+	public int ExcludedBaseValue { get; set; }
+}
+
+public sealed class IndexedInheritedMemberScenario : IndexedInheritedMemberBaseScenario
+{
+	[BoisMember(0)]
+	public int DerivedIndexedValue { get; set; }
+
+	public int DerivedDefaultValue { get; set; }
+
+	[BoisMember(2)]
+	public int DerivedMiddleIndexedValue { get; set; }
+
+	public int DerivedSecondDefaultValue { get; set; }
+
+	[BoisMember(4)]
+	public int DerivedLateIndexedValue { get; set; }
+}
+
 public sealed class ContractScenario
 {
 	[BoisMember(0)]
@@ -222,6 +262,18 @@ public static partial class SourceGeneratorScenariosBois
 
 	[BoisWriter]
 	public static partial void WriteSameTypeCastingScenario(SameTypeCastingScenario? model, Stream output);
+
+	[BoisReader]
+	public static partial InheritedMemberScenario? ReadInheritedMemberScenario(Stream source);
+
+	[BoisWriter]
+	public static partial void WriteInheritedMemberScenario(InheritedMemberScenario? model, Stream output);
+
+	[BoisReader]
+	public static partial IndexedInheritedMemberScenario? ReadIndexedInheritedMemberScenario(Stream source);
+
+	[BoisWriter]
+	public static partial void WriteIndexedInheritedMemberScenario(IndexedInheritedMemberScenario? model, Stream output);
 
 	[BoisReader]
 	public static partial ContractScenario? ReadContractScenario(Stream source);

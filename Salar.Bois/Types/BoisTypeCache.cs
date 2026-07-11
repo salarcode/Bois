@@ -1,4 +1,5 @@
-﻿#define DotNet
+﻿#define EmitAssemblyOut
+#define DotNet
 using System;
 using System.Collections;
 using System.Collections.Generic;

@@ -361,6 +361,19 @@ public class Test_CodeGenGenerator
 		AssertBinaryCompatible("NestedScenario", CreateNestedScenario(), SourceGeneratorScenariosBois.WriteNestedScenario);
 		AssertBinaryCompatible("ReusedNestedScenario", CreateReusedNestedScenario(), SourceGeneratorScenariosBois.WriteReusedNestedScenario);
 		AssertBinaryCompatible("SameTypeCastingScenario", CreateSameTypeCastingScenario(), SourceGeneratorScenariosBois.WriteSameTypeCastingScenario);
+		AssertBinaryCompatible("InheritedMemberScenario", new InheritedMemberScenario { DerivedValue = 10, BaseValue = 20 }, SourceGeneratorScenariosBois.WriteInheritedMemberScenario);
+		AssertBinaryCompatible("IndexedInheritedMemberScenario", new IndexedInheritedMemberScenario
+		{
+			DerivedIndexedValue = 10,
+			DerivedDefaultValue = 20,
+			DerivedMiddleIndexedValue = 30,
+			DerivedSecondDefaultValue = 40,
+			DerivedLateIndexedValue = 50,
+			BaseDefaultValue = 60,
+			BaseIndexedValue = 70,
+			BaseLastIndexedValue = 80,
+			ExcludedBaseValue = 90,
+		}, SourceGeneratorScenariosBois.WriteIndexedInheritedMemberScenario);
 		AssertBinaryCompatible("ContractScenario", new ContractScenario { First = 1, Second = 2, Third = 3, Ignored = 4 }, SourceGeneratorScenariosBois.WriteContractScenario);
 		AssertBinaryCompatible("ContractFieldsOnlyScenario", new ContractFieldsOnlyScenario { FieldValue = 10, IgnoredProperty = 20 }, SourceGeneratorScenariosBois.WriteContractFieldsOnlyScenario);
 		AssertBinaryCompatible("ContractPropertiesOnlyScenario", new ContractPropertiesOnlyScenario { IgnoredField = 30, PropertyValue = 40 }, SourceGeneratorScenariosBois.WriteContractPropertiesOnlyScenario);

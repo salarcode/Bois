@@ -500,9 +500,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 else
                 {
                     EmitWriterValueSetup(builder);
-                    EmitRootWriterNullGuard(builder);
                     EmitWriterSetup(builder);
-                    if (!TryEmitWrite(_method.RootType, builder, out error, suppressNullCheck: !SupportsRootNull(_method.RootType)))
+                    if (!TryEmitWrite(_method.RootType, builder, out error, suppressNullCheck: !_owner.IsNullable(_method.RootType)))
                     {
                         _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
                         builder.Line($"throw new global::NotSupportedException({Literal(error)});");
@@ -683,26 +682,6 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 if (_method.Method.Parameters[signature.ModelParameterIndex].Name != "value")
                     builder.Line($"var value = {valueName};");
             }
-
-            private void EmitRootWriterNullGuard(CodeBuilder builder)
-            {
-                if (!_owner.IsNullable(_method.RootType))
-                    return;
-
-                if (SupportsRootNull(_method.RootType))
-                    return;
-
-                var signature = (WriterSignature)_method.Signature;
-                var modelParameterName = Escape(_method.Method.Parameters[signature.ModelParameterIndex].Name);
-                builder.Line("if (value is null)");
-                builder.Line("{");
-                builder.Indent();
-                builder.Line($"throw new global::System.ArgumentNullException(nameof({modelParameterName}), \"Object cannot be null.\");");
-                builder.Unindent();
-                builder.Line("}");
-            }
-
-            private static bool SupportsRootNull(ITypeSymbol type) => type is IArrayTypeSymbol;
 
             private void EmitWriterSetup(CodeBuilder builder)
             {

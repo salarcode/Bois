@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>net10.0;net6.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<IsTrimmable>true</IsTrimmable>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
 		<IsRoslynComponent>false</IsRoslynComponent>
@@ -30,6 +31,7 @@
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<VerifyReferenceTrimCompatibility>true</VerifyReferenceTrimCompatibility>
 	</PropertyGroup>
 
 	<ItemGroup>

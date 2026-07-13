@@ -11,7 +11,14 @@ Salar.Bois is the most compact, extermly fast binary serializer for .Net Standar
 * Easy to use, `Serialize<T>` and `Deserialize<T>` are all you need.
 * No configuration required. No separate schema required. 
 
-## [NuGet Package](https://www.nuget.org/packages/Salar.Bois)
+## NuGet Packages
+
+[Source code generator package](https://www.nuget.org/packages/Salar.Bois.CodeGen)
+```
+PM> Install-Package Salar.Bois.CodeGen
+```
+
+[Dynamic serializer package](https://www.nuget.org/packages/Salar.Bois)
 ```
 PM> Install-Package Salar.Bois
 ```
@@ -21,14 +28,166 @@ PM> Install-Package Salar.Bois
 PM> Install-Package Salar.Bois.LZ4
 ```
 
-[Source code generator package](https://www.nuget.org/packages/Salar.Bois.CodeGen)
-```
-PM> Install-Package Salar.Bois.CodeGen
-```
 
 > Minimum frameworks supported are .NET 6.0 and .NET 10.0
 
-### Getting Started:
+## Getting Started with Source generator
+The `Salar.Bois.CodeGen` package provides the source code generator version of Bois. Instead of using the `BoisSerializer` class at runtime, you declare a static partial class that hosts the read and write methods as static partial methods. The generator creates the method body during compilation.
+
+To use it, add the `Salar.Bois.CodeGen` package to your project and create a static partial class to host your serializer methods. Mark read methods with `[BoisReader]` and write methods with `[BoisWriter]`.
+
+The serializer class must be `partial`, and every generated method must also be `partial`. This is how the compiler connects your method declarations with the generated implementations. If the class or methods are not partial, source generation cannot complete the methods.
+
+Important: source generated partial methods with accessibility require C# 9.0 or later. If your project uses an older C# language version, set `<LangVersion>9.0</LangVersion>` or a newer version in your project file.
+
+You can then call these methods like normal methods. There is no need to create a `BoisSerializer` instance for this generated path.
+
+```csharp
+using Salar.BinaryBuffers;
+using Salar.Bois.CodeGen;
+using System;
+using System.IO;
+using System.Text;
+
+public static partial class CustomerOrderSerializer
+{
+	// ... other signatures ...
+	
+	[BoisReader]
+	public static partial CustomerOrder? ReadCustomerOrder(Stream source);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(CustomerOrder? order, Stream output);
+
+	[BoisReader]
+	public static partial CustomerOrder? ReadCustomerOrder(byte[] buffer, int position, int length);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(CustomerOrder? order, byte[] buffer, int position, int length);
+
+	// ... other signatures ...
+}
+```
+
+Sample usage:
+```csharp
+using (var file = new FileStream("output.data", FileMode.Create))
+{
+	CustomerOrderSerializer.WriteCustomerOrder(order, file);
+}
+
+using (var file = new FileStream("output.data", FileMode.Open))
+{
+	var order = CustomerOrderSerializer.ReadCustomerOrder(file);
+}
+```
+
+You can also use an existing byte array buffer. This is useful when your application already owns the memory and you want to avoid creating an extra stream.
+
+```csharp
+var buffer = new byte[4096];
+
+CustomerOrderSerializer.WriteCustomerOrder(order, buffer, 0, buffer.Length);
+
+var restoredOrder = CustomerOrderSerializer.ReadCustomerOrder(buffer, 0, buffer.Length);
+```
+
+Generated methods use `BoisCodeGen.DefaultEncoding` when an `Encoding` argument is not supplied. It defaults to UTF-8 and can be configured during application startup.
+
+```csharp
+BoisCodeGen.DefaultEncoding = Encoding.UTF8;
+```
+
+The generated methods support stream based input and output. They also support buffer reader and buffer writer overloads, byte array overloads, array segment overloads for reading, and byte array overloads with position and length when you want to work directly with an existing buffer.
+
+Method code generation is good for performance because the serializer code is created at compile time. There is no first use cost for building serializers at runtime, and there is no reflection based initialization step before the first serialization call. This also makes the package suitable for NativeAOT, where runtime code generation is not available.
+
+Supported method signatures:
+
+```csharp
+using Salar.BinaryBuffers;
+using Salar.Bois.CodeGen;
+using System;
+using System.IO;
+using System.Text;
+
+public static partial class CustomerOrderSerializer
+{
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(Stream source);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(Stream source, Encoding encoding);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(BufferReaderBase reader);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(BufferReaderBase reader, Encoding encoding);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(byte[] buffer);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(byte[] buffer, Encoding encoding);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(ArraySegment<byte> bytes);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(ArraySegment<byte> bytes, Encoding encoding);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrderIn(in ArraySegment<byte> bytes);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrderIn(in ArraySegment<byte> bytes, Encoding encoding);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(byte[] buffer, int position, int length);
+
+	[BoisReader]
+	public static partial CustomerOrder ReadCustomerOrder(byte[] buffer, int position, int length, Encoding encoding);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(CustomerOrder order, Stream output);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(Stream output, CustomerOrder order);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(CustomerOrder order, Stream output, Encoding encoding);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(Stream output, CustomerOrder order, Encoding encoding);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(CustomerOrder order, BufferWriterBase writer);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(BufferWriterBase writer, CustomerOrder order);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(CustomerOrder order, BufferWriterBase writer, Encoding encoding);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(BufferWriterBase writer, CustomerOrder order, Encoding encoding);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(CustomerOrder order, byte[] buffer, int position, int length);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(byte[] buffer, int position, int length, CustomerOrder order);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(CustomerOrder order, byte[] buffer, int position, int length, Encoding encoding);
+
+	[BoisWriter]
+	public static partial void WriteCustomerOrder(byte[] buffer, int position, int length, CustomerOrder order, Encoding encoding);
+}
+```
+
+## Getting Started with dynamic BoisSerializer
 It is easy to use , just add the package to your project and voila, you can now use it.
 
 All you need to do is to call `Serialize` method.
@@ -103,59 +262,6 @@ return boisSerializer.Deserialize<Project>(dataStream);
 var boisLz4Serializer = new BoisLz4Serializer();
 return boisLz4Serializer.Unpickle<Project>(dataStream);
 ```
-
-## Method code generation
-The `Salar.Bois.CodeGen` package provides the source code generator version of Bois. Instead of using the `BoisSerializer` class at runtime, you declare a static partial class that hosts the read and write methods as static partial methods. The generator creates the method body during compilation.
-
-To use it, add the `Salar.Bois.CodeGen` package to your project and create a static partial class to host your serializer methods. Mark read methods with `[BoisReader]` and write methods with `[BoisWriter]`.
-
-```csharp
-using Salar.Bois;
-using System.IO;
-
-public static partial class CustomerOrderSerializer
-{
-	[BoisReader]
-	public static partial CustomerOrder ReadCustomerOrder(Stream source);
-
-	[BoisReader]
-	public static partial CustomerOrder ReadCustomerOrder(byte[] buffer, int position, int length);
-
-	[BoisWriter]
-	public static partial void WriteCustomerOrder(CustomerOrder order, Stream output);
-
-	[BoisWriter]
-	public static partial void WriteCustomerOrder(CustomerOrder order, byte[] buffer, int position, int length);
-}
-```
-
-You can then call these methods like normal methods. There is no need to create a `BoisSerializer` instance for this generated path.
-
-```csharp
-using (var file = new FileStream("output.data", FileMode.Create))
-{
-	CustomerOrderSerializer.WriteCustomerOrder(order, file);
-}
-
-using (var file = new FileStream("output.data", FileMode.Open))
-{
-	var order = CustomerOrderSerializer.ReadCustomerOrder(file);
-}
-```
-
-You can also use an existing byte array buffer. This is useful when your application already owns the memory and you want to avoid creating an extra stream.
-
-```csharp
-var buffer = new byte[4096];
-
-CustomerOrderSerializer.WriteCustomerOrder(order, buffer, 0, buffer.Length);
-
-var restoredOrder = CustomerOrderSerializer.ReadCustomerOrder(buffer, 0, buffer.Length);
-```
-
-The generated methods support stream based input and output. They also support buffer reader and buffer writer overloads, plus byte array overloads with position and length when you want to work directly with an existing buffer.
-
-Method code generation is good for performance because the serializer code is created at compile time. There is no first use cost for building serializers at runtime, and there is no reflection based initialization step before the first serialization call. This also makes the package suitable for NativeAOT, where runtime code generation is not available.
 
 ## Defining objects
 Nothing special is really required. Just these small easy rules.

@@ -2,7 +2,6 @@
 using Salar.Bois.Types;
 using System;
 using System.Data;
-using System.Data.SqlTypes;
 using System.Drawing;
 using System.IO;
 using System.Runtime.CompilerServices;

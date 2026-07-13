@@ -1,5 +1,4 @@
-﻿#define EmitAssemblyOut
-using Salar.BinaryBuffers;
+﻿using Salar.BinaryBuffers;
 using Salar.Bois.Serializers;
 using System;
 using System.IO;

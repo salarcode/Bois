@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.CodeGen.Generato
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Salar.Bois.CodeGen", "Salar.Bois.CodeGen\Salar.Bois.CodeGen.csproj", "{944FC5F3-8950-445B-AE9D-1BDC137B5C42}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp2", "ConsoleApp2\ConsoleApp2.csproj", "{4950C5FB-2F85-4AD3-BB90-95B335FC5294}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,6 +118,12 @@ Global
 		{944FC5F3-8950-445B-AE9D-1BDC137B5C42}.Debug+AssemblyOut|Any CPU.Build.0 = Debug|Any CPU
 		{944FC5F3-8950-445B-AE9D-1BDC137B5C42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{944FC5F3-8950-445B-AE9D-1BDC137B5C42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4950C5FB-2F85-4AD3-BB90-95B335FC5294}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4950C5FB-2F85-4AD3-BB90-95B335FC5294}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4950C5FB-2F85-4AD3-BB90-95B335FC5294}.Debug+AssemblyOut|Any CPU.ActiveCfg = Debug|Any CPU
+		{4950C5FB-2F85-4AD3-BB90-95B335FC5294}.Debug+AssemblyOut|Any CPU.Build.0 = Debug|Any CPU
+		{4950C5FB-2F85-4AD3-BB90-95B335FC5294}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4950C5FB-2F85-4AD3-BB90-95B335FC5294}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

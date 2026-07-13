@@ -10,8 +10,8 @@ namespace Salar.Bois.Generator;
 [Generator]
 public sealed class BoisSourceGenerator : ISourceGenerator
 {
-    private const string ReaderAttributeName = "Salar.Bois.BoisReaderAttribute";
-    private const string WriterAttributeName = "Salar.Bois.BoisWriterAttribute";
+    private const string ReaderAttributeName = "Salar.Bois.CodeGen.BoisReaderAttribute";
+    private const string WriterAttributeName = "Salar.Bois.CodeGen.BoisWriterAttribute";
 
     private static readonly DiagnosticDescriptor InvalidMethodSignature = new(
         "BOISGEN001",
@@ -1576,7 +1576,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             var readProps = true;
             foreach (var attribute in type.GetAttributes())
             {
-                if (attribute.AttributeClass?.ToDisplayString() == "Salar.Bois.BoisContractAttribute")
+                if (attribute.AttributeClass?.ToDisplayString() == "Salar.Bois.CodeGen.BoisContractAttribute")
                 {
                     if (attribute.ConstructorArguments.Length == 2)
                     {
@@ -1654,7 +1654,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
         {
             foreach (var attribute in symbol.GetAttributes())
             {
-                if (attribute.AttributeClass?.ToDisplayString() != "Salar.Bois.BoisMemberAttribute")
+                if (attribute.AttributeClass?.ToDisplayString() != "Salar.Bois.CodeGen.BoisMemberAttribute")
                     continue;
 
                 var included = true;

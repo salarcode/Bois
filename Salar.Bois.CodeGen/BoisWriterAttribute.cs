@@ -1,6 +1,4 @@
-using System;
-
-namespace Salar.Bois;
+namespace Salar.Bois.CodeGen;
 
 /// <summary>
 /// Marks a partial method as the target for generated BOIS writer implementation.

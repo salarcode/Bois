@@ -1,4 +1,3 @@
-extern alias SalarBoisCodeGen;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Salar.Bois;
@@ -44,10 +43,10 @@ public class Test_CodeGenGenerator
 
 			public static partial class RepeatedEnumModelBois
 			{
-				[BoisReader]
+				[global::Salar.Bois.CodeGen.BoisReaderAttribute]
 				public static partial RepeatedEnumModel? Read(Stream source);
 
-				[BoisWriter]
+				[global::Salar.Bois.CodeGen.BoisWriterAttribute]
 				public static partial void Write(RepeatedEnumModel? model, Stream output);
 			}
 			""";
@@ -307,10 +306,10 @@ public class Test_CodeGenGenerator
 
 			public static partial class DifferentNestedTypesModelBois
 			{
-				[BoisReader]
+				[global::Salar.Bois.CodeGen.BoisReaderAttribute]
 				public static partial DifferentNestedTypesModel? Read(Stream source);
 
-				[BoisWriter]
+				[global::Salar.Bois.CodeGen.BoisWriterAttribute]
 				public static partial void Write(DifferentNestedTypesModel? model, Stream output);
 			}
 			""";
@@ -417,9 +416,9 @@ public class Test_CodeGenGenerator
 		foreach (var path in trustedAssemblies)
 			AddReference(references, path);
 
-		AddReference(references, typeof(BoisReaderAttribute).Assembly.Location);
+		AddReference(references, typeof(global::Salar.Bois.CodeGen.BoisReaderAttribute).Assembly.Location);
 		AddReference(references, typeof(BufferReaderBase).Assembly.Location);
-		AddReference(references, typeof(SalarBoisCodeGen::Salar.Bois.CodeGen.BoisCodeGen).Assembly.Location);
+		AddReference(references, typeof(global::Salar.Bois.CodeGen.BoisCodeGen).Assembly.Location);
 
 		return references.Values.ToArray();
 	}
@@ -823,10 +822,10 @@ public sealed class CodeGenSameTypeRuntimeModel
 
 public static partial class CodeGenSameTypeRuntimeModelBois
 {
-	[BoisReader]
+	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
 	public static partial CodeGenSameTypeRuntimeModel? Read(Stream source);
 
-	[BoisWriter]
+	[global::Salar.Bois.CodeGen.BoisWriterAttribute]
 	public static partial void Write(CodeGenSameTypeRuntimeModel? model, Stream output);
 }
 
@@ -848,9 +847,9 @@ public sealed class DifferentNestedTypesModel
 
 public static partial class DifferentNestedTypesModelBois
 {
-	[BoisReader]
+	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
 	public static partial DifferentNestedTypesModel? Read(Stream source);
 
-	[BoisWriter]
+	[global::Salar.Bois.CodeGen.BoisWriterAttribute]
 	public static partial void Write(DifferentNestedTypesModel? model, Stream output);
 }

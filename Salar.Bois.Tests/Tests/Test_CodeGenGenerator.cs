@@ -416,9 +416,9 @@ public class Test_CodeGenGenerator
 		foreach (var path in trustedAssemblies)
 			AddReference(references, path);
 
-		AddReference(references, typeof(global::Salar.Bois.CodeGen.BoisReaderAttribute).Assembly.Location);
+		AddReference(references, typeof(CodeGen.BoisReaderAttribute).Assembly.Location);
 		AddReference(references, typeof(BufferReaderBase).Assembly.Location);
-		AddReference(references, typeof(global::Salar.Bois.CodeGen.BoisCodeGen).Assembly.Location);
+		AddReference(references, typeof(CodeGen.BoisCodeGen).Assembly.Location);
 
 		return references.Values.ToArray();
 	}
@@ -822,10 +822,10 @@ public sealed class CodeGenSameTypeRuntimeModel
 
 public static partial class CodeGenSameTypeRuntimeModelBois
 {
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[CodeGen.BoisReader]
 	public static partial CodeGenSameTypeRuntimeModel? Read(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriterAttribute]
+	[CodeGen.BoisWriter]
 	public static partial void Write(CodeGenSameTypeRuntimeModel? model, Stream output);
 }
 
@@ -847,9 +847,9 @@ public sealed class DifferentNestedTypesModel
 
 public static partial class DifferentNestedTypesModelBois
 {
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[CodeGen.BoisReader]
 	public static partial DifferentNestedTypesModel? Read(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriterAttribute]
+	[CodeGen.BoisWriter]
 	public static partial void Write(DifferentNestedTypesModel? model, Stream output);
 }

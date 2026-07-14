@@ -43,37 +43,37 @@ public class CompanyModel
 
 public static partial class CompanyModelBois
 {
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[CodeGen.BoisReader]
 	public static partial CompanyModel? ReadCompanyModel(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[CodeGen.BoisReader]
 	public static partial CompanyModel? ReadCompanyModel(BufferReaderBase reader);
 
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[CodeGen.BoisReader]
 	public static partial CompanyModel? ReadCompanyModel(BufferReaderBase reader, Encoding encoding);
 
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[CodeGen.BoisReader]
 	public static partial CompanyModel? ReadCompanyModel(byte[] buffer, int position, int length);
 	
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[CodeGen.BoisReader]
 	public static partial CompanyModel? ReadCompanyModel(byte[] buffer);
 
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[CodeGen.BoisReader]
 	public static partial CompanyModel? ReadCompanyModel(ArraySegment<byte> bytes);
 
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[CodeGen.BoisReader]
 	public static partial CompanyModel? ReadCompanyModelIn(in ArraySegment<byte> bytes);
 
-	[global::Salar.Bois.CodeGen.BoisWriterAttribute]
+	[CodeGen.BoisWriter]
 	public static partial void WriteCompanyModel(CompanyModel? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisWriterAttribute]
+	[CodeGen.BoisWriter]
 	public static partial void WriteCompanyModel(CompanyModel? model, BufferWriterBase writer);
 
-	[global::Salar.Bois.CodeGen.BoisWriterAttribute]
+	[CodeGen.BoisWriter]
 	public static partial void WriteCompanyModel(CompanyModel? model, BufferWriterBase writer, Encoding encoding);
 
-	[global::Salar.Bois.CodeGen.BoisWriterAttribute]
+	[CodeGen.BoisWriter]
 	public static partial void WriteCompanyModel(CompanyModel? model, byte[] output, int position, int length);
 }
 
@@ -81,10 +81,10 @@ public partial class Holding
 {
 	public static partial class CompanyModelSerializer
 	{
-		[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+		[CodeGen.BoisReader]
 		public static partial CompanyModel? ReadCompanyModel(Stream source);
 		
-		[global::Salar.Bois.CodeGen.BoisWriterAttribute]
+		[CodeGen.BoisWriter]
 		public static partial void WriteCompanyModel(CompanyModel? model, Stream output);
 	}
 }

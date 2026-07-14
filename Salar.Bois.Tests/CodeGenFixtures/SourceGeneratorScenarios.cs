@@ -1,5 +1,6 @@
 using Salar.BinaryBuffers;
 using Salar.Bois;
+using Salar.Bois.CodeGen;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -143,67 +144,67 @@ public class IndexedInheritedMemberBaseScenario
 {
 	public int BaseDefaultValue { get; set; }
 
-	[global::Salar.Bois.CodeGen.BoisMemberAttribute(1)]
-	[global::Salar.Bois.BoisMemberAttribute(1)]
+	[CodeGen.BoisMember(1)]
+	[BoisMember(1)]
 	public int BaseIndexedValue { get; set; }
 
-	[global::Salar.Bois.CodeGen.BoisMemberAttribute(6)]
-	[global::Salar.Bois.BoisMemberAttribute(6)]
+	[CodeGen.BoisMember(6)]
+	[BoisMember(6)]
 	public int BaseLastIndexedValue { get; set; }
 
-	[global::Salar.Bois.CodeGen.BoisMemberAttribute(false)]
-	[global::Salar.Bois.BoisMemberAttribute(false)]
+	[CodeGen.BoisMember(false)]
+	[BoisMember(false)]
 	public int ExcludedBaseValue { get; set; }
 }
 
 public sealed class IndexedInheritedMemberScenario : IndexedInheritedMemberBaseScenario
 {
-	[global::Salar.Bois.CodeGen.BoisMemberAttribute(0)]
-	[global::Salar.Bois.BoisMemberAttribute(0)]
+	[CodeGen.BoisMember(0)]
+	[BoisMember(0)]
 	public int DerivedIndexedValue { get; set; }
 
 	public int DerivedDefaultValue { get; set; }
 
-	[global::Salar.Bois.CodeGen.BoisMemberAttribute(2)]
-	[global::Salar.Bois.BoisMemberAttribute(2)]
+	[CodeGen.BoisMember(2)]
+	[BoisMember(2)]
 	public int DerivedMiddleIndexedValue { get; set; }
 
 	public int DerivedSecondDefaultValue { get; set; }
 
-	[global::Salar.Bois.CodeGen.BoisMemberAttribute(4)]
-	[global::Salar.Bois.BoisMemberAttribute(4)]
+	[CodeGen.BoisMember(4)]
+	[BoisMember(4)]
 	public int DerivedLateIndexedValue { get; set; }
 }
 
 public sealed class ContractScenario
 {
-	[global::Salar.Bois.CodeGen.BoisMemberAttribute(0)]
-	[global::Salar.Bois.BoisMemberAttribute(0)]
+	[CodeGen.BoisMember(0)]
+	[BoisMember(0)]
 	public int First { get; set; }
 
-	[global::Salar.Bois.CodeGen.BoisMemberAttribute(2)]
-	[global::Salar.Bois.BoisMemberAttribute(2)]
+	[CodeGen.BoisMember(2)]
+	[BoisMember(2)]
 	public int Third { get; set; }
 
-	[global::Salar.Bois.CodeGen.BoisMemberAttribute(1)]
-	[global::Salar.Bois.BoisMemberAttribute(1)]
+	[CodeGen.BoisMember(1)]
+	[BoisMember(1)]
 	public int Second { get; set; }
 
-	[global::Salar.Bois.CodeGen.BoisMemberAttribute(false)]
-	[global::Salar.Bois.BoisMemberAttribute(false)]
+	[CodeGen.BoisMember(false)]
+	[BoisMember(false)]
 	public int Ignored { get; set; }
 }
 
-[global::Salar.Bois.CodeGen.BoisContractAttribute(fields: true, properties: false)]
-[global::Salar.Bois.BoisContractAttribute(fields: true, properties: false)]
+[CodeGen.BoisContract(fields: true, properties: false)]
+[BoisContract(fields: true, properties: false)]
 public sealed class ContractFieldsOnlyScenario
 {
 	public int FieldValue;
 	public int IgnoredProperty { get; set; }
 }
 
-[global::Salar.Bois.CodeGen.BoisContractAttribute(fields: false, properties: true)]
-[global::Salar.Bois.BoisContractAttribute(fields: false, properties: true)]
+[CodeGen.BoisContract(fields: false, properties: true)]
+[BoisContract(fields: false, properties: true)]
 public sealed class ContractPropertiesOnlyScenario
 {
 	public int IgnoredField;
@@ -212,129 +213,129 @@ public sealed class ContractPropertiesOnlyScenario
 
 public static partial class SourceGeneratorScenariosBois
 {
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[BoisReader]
 	public static partial PrimitiveScenario? ReadPrimitiveScenario(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial PrimitiveScenario? ReadPrimitiveScenario(BufferReaderBase reader);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial PrimitiveScenario? ReadPrimitiveScenario(BufferReaderBase reader, Encoding encoding);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial PrimitiveScenario? ReadPrimitiveScenario(byte[] buffer, int position, int length);
 
-	[global::Salar.Bois.CodeGen.BoisWriterAttribute]
+	[BoisWriter]
 	public static partial void WritePrimitiveScenario(PrimitiveScenario? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WritePrimitiveScenario(PrimitiveScenario? model, BufferWriterBase writer);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WritePrimitiveScenario(BufferWriterBase writer, PrimitiveScenario? model);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WritePrimitiveScenario(PrimitiveScenario? model, BufferWriterBase writer, Encoding encoding);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WritePrimitiveScenario(PrimitiveScenario? model, byte[] output, int position, int length);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WritePrimitiveScenario(byte[] output, int position, int length, PrimitiveScenario? model);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial CollectionScenario? ReadCollectionScenario(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteCollectionScenario(CollectionScenario? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial NestedScenario? ReadNestedScenario(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteNestedScenario(NestedScenario? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial ReusedNestedScenario? ReadReusedNestedScenario(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteReusedNestedScenario(ReusedNestedScenario? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial SameTypeCastingScenario? ReadSameTypeCastingScenario(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteSameTypeCastingScenario(SameTypeCastingScenario? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial InheritedMemberScenario? ReadInheritedMemberScenario(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteInheritedMemberScenario(InheritedMemberScenario? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial IndexedInheritedMemberScenario? ReadIndexedInheritedMemberScenario(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteIndexedInheritedMemberScenario(IndexedInheritedMemberScenario? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial ContractScenario? ReadContractScenario(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteContractScenario(ContractScenario? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial ContractFieldsOnlyScenario? ReadContractFieldsOnlyScenario(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteContractFieldsOnlyScenario(ContractFieldsOnlyScenario? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial ContractPropertiesOnlyScenario? ReadContractPropertiesOnlyScenario(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteContractPropertiesOnlyScenario(ContractPropertiesOnlyScenario? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial EmptyScenario? ReadEmptyScenario(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteEmptyScenario(EmptyScenario? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial ScenarioStruct ReadScenarioStruct(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteScenarioStruct(ScenarioStruct model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial List<string>? ReadStringList(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteStringList(List<string>? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial Dictionary<string, int>? ReadStringIntDictionary(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteStringIntDictionary(Dictionary<string, int>? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial int[]? ReadInt32Array(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteInt32Array(int[]? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial byte[]? ReadByteArray(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteByteArray(byte[]? model, Stream output);
 
-	[global::Salar.Bois.CodeGen.BoisReader]
+	[BoisReader]
 	public static partial string? ReadString(Stream source, Encoding encoding);
 
-	[global::Salar.Bois.CodeGen.BoisWriter]
+	[BoisWriter]
 	public static partial void WriteString(string? model, Stream output, Encoding encoding);
 }

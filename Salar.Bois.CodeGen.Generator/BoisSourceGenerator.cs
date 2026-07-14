@@ -283,7 +283,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 "'static partial T Method(byte[] buffer)'",
                 "'static partial T Method(byte[] buffer, System.Text.Encoding encoding)'",
                 "'static partial T Method(System.ArraySegment<byte> bytes)'",
+                "'static partial T Method(System.ArraySegment<byte> bytes, System.Text.Encoding encoding)'",
                 "'static partial T Method(in System.ArraySegment<byte> bytes)'",
+                "'static partial T Method(in System.ArraySegment<byte> bytes, System.Text.Encoding encoding)'",
                 "'static partial T Method(byte[] buffer, int position, int length)'",
                 "or 'static partial T Method(byte[] buffer, int position, int length, System.Text.Encoding encoding)'"
             ]);

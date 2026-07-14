@@ -309,10 +309,17 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             INamedTypeSymbol namedType => namedType.Name,
             _ => "BoisGenerated"
         };
-        return containingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+
+        var containingName = containingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
             .Replace("global::", string.Empty)
             .Replace('.', '_')
-            .Replace('+', '_') + "_" + typeName;
+            .Replace('+', '_');
+
+        var fileNameBuilder = new StringBuilder(containingName.Length);
+        foreach (var ch in containingName)
+            fileNameBuilder.Append(char.IsLetterOrDigit(ch) || ch == '_' ? ch : '_');
+
+        return fileNameBuilder + "_" + typeName;
     }
 
     private sealed class SyntaxReceiver : ISyntaxReceiver
@@ -1027,31 +1034,6 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     return true;
                 }
 
-                if (member.IsGetterOnlyMutableCollection)
-                {
-                    var mutableTargetName = Escape(member.Symbol.Name) + "Target";
-                    builder.Line($"var {mutableTargetName} = {target} ?? throw new global::System.InvalidOperationException({Literal($"Property '{member.Symbol.Name}' returned null during deserialization.")});");
-                    builder.Line($"{mutableTargetName}.Clear();");
-                    if (_owner.TryGetDictionaryInfo(member.Type, out var dict))
-                    {
-                        EmitReadIntoDictionary(dict, mutableTargetName, builder);
-                        error = string.Empty;
-                        return true;
-                    }
-                    if (_owner.TryGetCollectionInfo(member.Type, out var coll))
-                    {
-                        EmitReadIntoCollection(coll, mutableTargetName, builder);
-                        error = string.Empty;
-                        return true;
-                    }
-                    if (_owner.IsNameValueCollection(member.Type))
-                    {
-                        EmitReadIntoNameValue(mutableTargetName, builder);
-                        error = string.Empty;
-                        return true;
-                    }
-                }
-
                 var localName = Escape(member.Symbol.Name) + "Items";
                 if (member.Type is IArrayTypeSymbol memberArrayType)
                 {
@@ -1645,7 +1627,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     var (included, index) = ReadMemberOptions(field);
                     if (!included)
                         continue;
-                    Insert(ordered, new MemberModel(field, field.Type, index, false));
+                    Insert(ordered, new MemberModel(field, field.Type, index));
                     continue;
                 }
 
@@ -1663,7 +1645,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                         var (included, index) = ReadMemberOptions(property);
                         if (!included)
                             continue;
-                        Insert(ordered, new MemberModel(property, property.Type, index, false));
+                        Insert(ordered, new MemberModel(property, property.Type, index));
                     }
                 }
             }
@@ -2122,7 +2104,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
     private sealed record GenerationMethod(IMethodSymbol Method, INamedTypeSymbol ContainingType, OperationKind Operation, ITypeSymbol RootType, MethodSignature Signature);
     private sealed record LocalFunctionModel(OperationKind Operation, ITypeSymbol Type, string Name);
-    private sealed record MemberModel(ISymbol Symbol, ITypeSymbol Type, int Index, bool IsGetterOnlyMutableCollection);
+    private sealed record MemberModel(ISymbol Symbol, ITypeSymbol Type, int Index);
     private sealed record CollectionInfo(ITypeSymbol Type, ITypeSymbol ElementType);
     private sealed record DictionaryInfo(ITypeSymbol Type, ITypeSymbol KeyType, ITypeSymbol ValueType);
     private abstract record MethodSignature(int? EncodingParameterIndex);

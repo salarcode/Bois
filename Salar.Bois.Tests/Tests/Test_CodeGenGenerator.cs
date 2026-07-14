@@ -68,6 +68,59 @@ public class Test_CodeGenGenerator
 	}
 
 	[Fact]
+	public void GeneratedSourceForMethodsNestedInStructAndRecordContainersCompiles()
+	{
+		var source = """
+			using System.IO;
+
+			namespace GeneratorCompileSample;
+
+			public partial struct StructContainer
+			{
+				public static partial class Serializer
+				{
+					[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+					public static partial int Read(Stream source);
+				}
+			}
+
+			public partial record RecordContainer
+			{
+				public static partial class Serializer
+				{
+					[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+					public static partial int Read(Stream source);
+				}
+			}
+
+			public partial record struct RecordStructContainer
+			{
+				public static partial class Serializer
+				{
+					[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+					public static partial int Read(Stream source);
+				}
+			}
+			""";
+
+		var compilation = CSharpCompilation.Create(
+			"GeneratorCompileSample",
+			[CSharpSyntaxTree.ParseText(source, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest))],
+			GetMetadataReferences(),
+			new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+		GeneratorDriver driver = CSharpGeneratorDriver.Create(new BoisSourceGenerator());
+		driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var generatorDiagnostics);
+		var generatedSource = string.Concat(driver.GetRunResult().GeneratedTrees.Select(static x => x.GetText().ToString()));
+
+		Assert.Empty(generatorDiagnostics.Where(static x => x.Severity == DiagnosticSeverity.Error));
+		Assert.Contains("partial struct StructContainer", generatedSource);
+		Assert.Contains("partial record RecordContainer", generatedSource);
+		Assert.Contains("partial record struct RecordStructContainer", generatedSource);
+		Assert.Empty(outputCompilation.GetDiagnostics().Where(static x => x.Severity == DiagnosticSeverity.Error));
+	}
+
+	[Fact]
 	public void GeneratedReaderAndWriterRoundTripRepeatedSameTypeValues()
 	{
 		var init = new CodeGenSameTypeRuntimeModel

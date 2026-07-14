@@ -452,9 +452,27 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
         private static string GetContainingTypeDeclaration(INamedTypeSymbol containingType)
         {
-            var access = containingType.DeclaredAccessibility == Accessibility.Public ? "public " : "internal ";
+            var access = containingType.DeclaredAccessibility switch
+            {
+                Accessibility.Public => "public ",
+                Accessibility.Private => "private ",
+                Accessibility.Protected => "protected ",
+                Accessibility.ProtectedOrInternal => "protected internal ",
+                Accessibility.ProtectedAndInternal => "private protected ",
+                _ => "internal "
+            };
             var staticModifier = containingType.IsStatic ? "static " : string.Empty;
-            return $"{access}{staticModifier}partial class {containingType.Name}";
+            var kind = containingType.TypeKind switch
+            {
+                TypeKind.Struct when containingType.IsRecord => "record struct",
+                TypeKind.Struct => "struct",
+                TypeKind.Class when containingType.IsRecord => "record",
+                _ => "class"
+            };
+            var typeParameters = containingType.TypeParameters.Length == 0
+                ? string.Empty
+                : $"<{string.Join(", ", containingType.TypeParameters.Select(static x => x.Name))}>";
+            return $"{access}{staticModifier}partial {kind} {containingType.Name}{typeParameters}";
         }
 
         private sealed class MethodEmitter

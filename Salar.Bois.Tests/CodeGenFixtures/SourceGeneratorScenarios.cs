@@ -210,12 +210,6 @@ public sealed class ContractPropertiesOnlyScenario
 	public int PropertyValue { get; set; }
 }
 
-public sealed class DataScenario
-{
-	public DataTable Table { get; set; } = new();
-	public DataSet Set { get; set; } = new();
-}
-
 public static partial class SourceGeneratorScenariosBois
 {
 	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
@@ -343,10 +337,4 @@ public static partial class SourceGeneratorScenariosBois
 
 	[global::Salar.Bois.CodeGen.BoisWriter]
 	public static partial void WriteString(string? model, Stream output, Encoding encoding);
-
-	[global::Salar.Bois.CodeGen.BoisReader]
-	public static partial DataScenario? ReadDataScenario(Stream source);
-
-	[global::Salar.Bois.CodeGen.BoisWriter]
-	public static partial void WriteDataScenario(DataScenario? model, Stream output);
 }

@@ -494,7 +494,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     if (!TryEmitRead(_method.RootType, builder, out error, setupEncoding: true))
                     {
                         _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
-                        builder.Line($"throw new global::NotSupportedException({Literal(error)});");
+                        builder.Line($"throw new global::System.NotSupportedException({Literal(error)});");
                     }
                 }
                 else
@@ -504,7 +504,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     if (!TryEmitWrite(_method.RootType, builder, out error, suppressNullCheck: !_owner.IsNullable(_method.RootType)))
                     {
                         _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
-                        builder.Line($"throw new global::NotSupportedException({Literal(error)});");
+                        builder.Line($"throw new global::System.NotSupportedException({Literal(error)});");
                     }
                 }
 
@@ -520,7 +520,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line(BuildSignature(_method.Method));
                 builder.Line("{");
                 builder.Indent();
-                builder.Line($"throw new global::NotSupportedException({Literal(error)});");
+                builder.Line($"throw new global::System.NotSupportedException({Literal(error)});");
                 builder.Unindent();
                 builder.Line("}");
             }
@@ -625,7 +625,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 if (!TryEmitRead(function.Type, builder, out var error))
                 {
                     _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
-                    builder.Line($"throw new global::NotSupportedException({Literal(error)});");
+                    builder.Line($"throw new global::System.NotSupportedException({Literal(error)});");
                 }
 
                 builder.Unindent();
@@ -642,7 +642,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 if (!TryEmitWrite(function.Type, builder, out var error))
                 {
                     _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
-                    builder.Line($"throw new global::NotSupportedException({Literal(error)});");
+                    builder.Line($"throw new global::System.NotSupportedException({Literal(error)});");
                 }
 
                 builder.Unindent();
@@ -728,6 +728,12 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private bool TryEmitWrite(ITypeSymbol type, CodeBuilder builder, out string error, bool suppressNullCheck = false)
             {
+                if (_owner.IsUnsupportedType(type))
+                {
+                    error = $"Type '{type.ToDisplayString()}' (DataTable/DataSet) is not supported by the BOIS source generator. Use the runtime serializer instead.";
+                    return false;
+                }
+
                 if (_owner.TryGetBasicType(type, out var basicType))
                 {
                     builder.Line(_owner.GetWriteStatement(type, basicType, "value"));
@@ -759,6 +765,12 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private bool TryEmitRead(ITypeSymbol type, CodeBuilder builder, out string error, bool setupEncoding = false)
             {
+                if (_owner.IsUnsupportedType(type))
+                {
+                    error = $"Type '{type.ToDisplayString()}' (DataTable/DataSet) is not supported by the BOIS source generator. Use the runtime serializer instead.";
+                    return false;
+                }
+
                 if (_owner.TryGetBasicType(type, out var basicType))
                 {
                     if (setupEncoding)
@@ -911,6 +923,12 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private bool EmitWriteNestedComplex(ITypeSymbol type, string expression, CodeBuilder builder, out string error)
             {
+                if (_owner.IsUnsupportedType(type))
+                {
+                    error = $"Type '{type.ToDisplayString()}' (DataTable/DataSet) is not supported by the BOIS source generator. Use the runtime serializer instead.";
+                    return false;
+                }
+
                 if (ShouldUseNestedFunction(type))
                 {
                     EmitWriteNestedComplexFunctionCall(type, expression, builder);
@@ -1051,6 +1069,12 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private bool EmitReadNestedComplex(ITypeSymbol type, string target, string localName, CodeBuilder builder, out string error)
             {
+                if (_owner.IsUnsupportedType(type))
+                {
+                    error = $"Type '{type.ToDisplayString()}' (DataTable/DataSet) is not supported by the BOIS source generator. Use the runtime serializer instead.";
+                    return false;
+                }
+
                 if (ShouldUseNestedFunction(type))
                 {
                     EmitReadNestedComplexFunctionCall(type, target, builder);
@@ -1559,6 +1583,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
         public bool ValidateRootType(ITypeSymbol type, out string error)
         {
+            if (IsUnsupportedType(type))
+            {
+                error = $"Type '{type.ToDisplayString()}' (DataTable/DataSet) is not supported by the BOIS source generator. Use the runtime serializer instead.";
+                return false;
+            }
             if (IsNullableComplex(type))
             {
                 error = $"Nullable complex type '{type.ToDisplayString()}' is not supported by the BOIS source generator.";
@@ -1848,17 +1877,6 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 basicType = BasicType.Version;
                 return true;
             }
-            if (EqualOrDerivedFrom(bare, _dataTableType))
-            {
-                basicType = BasicType.DataTable;
-                return true;
-            }
-            if (EqualOrDerivedFrom(bare, _dataSetType))
-            {
-                basicType = BasicType.DataSet;
-                return true;
-            }
-
             basicType = default;
             return false;
         }
@@ -1923,10 +1941,6 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 case BasicType.SByte:
                     return $"BoisNumericSerializers.WriteSByte(writer, {expression});";
-
-                case BasicType.DataTable:
-                case BasicType.DataSet:
-                    return $"BoisPrimitiveWriters.WriteValue(writer, {expression}, encoding);";
 
                 default:
                     throw new InvalidOperationException();
@@ -2015,8 +2029,6 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             BasicType.DbNull => "BoisPrimitiveReaders.ReadDbNull(reader)",
             BasicType.Uri => "BoisPrimitiveReaders.ReadUri(reader)",
             BasicType.Version => "BoisPrimitiveReaders.ReadVersion(reader)",
-            BasicType.DataTable => "BoisPrimitiveReaders.ReadDataTable(reader, encoding)",
-            BasicType.DataSet => "BoisPrimitiveReaders.ReadDataSet(reader, encoding)",
             _ => throw new InvalidOperationException()
         };
 
@@ -2049,6 +2061,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
         }
 
         public bool IsNameValueCollection(ITypeSymbol type) => EqualOrDerivedFrom(Bare(type), _nameValueCollectionType);
+        public bool IsUnsupportedType(ITypeSymbol type)
+        {
+            var bare = Bare(type);
+            return EqualOrDerivedFrom(bare, _dataTableType) || EqualOrDerivedFrom(bare, _dataSetType);
+        }
         public bool IsEnum(ITypeSymbol type) => Bare(type).TypeKind == TypeKind.Enum;
         public bool IsExplicitStruct(ITypeSymbol type) => Bare(type).IsValueType && Bare(type).TypeKind != TypeKind.Enum && Bare(type).SpecialType == SpecialType.None;
         public bool IsNonNullableExplicitStruct(ITypeSymbol type) => IsExplicitStruct(type) && !IsNullableValueType(type);
@@ -2145,8 +2162,6 @@ public sealed class BoisSourceGenerator : ISourceGenerator
         DbNull,
         Uri,
         Version,
-        DataTable,
-        DataSet,
     }
 
     private sealed class CodeBuilder

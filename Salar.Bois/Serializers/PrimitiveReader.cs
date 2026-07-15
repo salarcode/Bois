@@ -205,6 +205,8 @@ namespace Salar.Bois.Serializers
 			return reader.ReadBytes((int)length.Value);
 		}
 
+#if SupportsEmit
+
 		internal static Enum ReadEnum(BufferReaderBase reader, Type type)
 		{
 			var enumType = BoisTypeCache.GetEnumType(type);
@@ -329,7 +331,9 @@ namespace Salar.Bois.Serializers
 					throw new InvalidDataException($"Enum type not supported '{type.Name}'. Please raise an issue here https://github.com/salarcode/Bois/issues ");
 			}
 		}
+#endif
 
+#if SupportsEmit
 		internal static T ReadEnumGeneric<T>(BufferReaderBase reader)
 		{
 			var type = typeof(T);
@@ -455,6 +459,87 @@ namespace Salar.Bois.Serializers
 					throw new InvalidDataException($"Enum type not supported '{type.Name}'. Please raise an issue here https://github.com/salarcode/Bois/issues ");
 			}
 		}
+#endif
+
+		internal static int ReadEnumInt32(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarInt32(reader);
+		}
+
+		internal static int? ReadEnumInt32Nullable(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarInt32Nullable(reader);
+		}
+
+		internal static long ReadEnumInt64(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarInt64(reader);
+		}
+
+		internal static long? ReadEnumInt64Nullable(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarInt64Nullable(reader);
+		}
+
+		internal static short ReadEnumInt16(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarInt16(reader);
+		}
+
+		internal static short? ReadEnumInt16Nullable(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarInt16Nullable(reader);
+		}
+
+		internal static ushort ReadEnumUInt16(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarUInt16(reader);
+		}
+
+		internal static ushort? ReadEnumUInt16Nullable(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarUInt16Nullable(reader);
+		}
+
+		internal static uint ReadEnumUInt32(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarUInt32(reader);
+		}
+
+		internal static uint? ReadEnumUInt32Nullable(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarUInt32Nullable(reader);
+		}
+
+		internal static ulong ReadEnumUInt64(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarUInt64(reader);
+		}
+
+		internal static ulong? ReadEnumUInt64Nullable(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarUInt64Nullable(reader);
+		}
+
+		internal static byte ReadEnumByte(BufferReaderBase reader)
+		{
+			return reader.ReadByte();
+		}
+
+		internal static byte? ReadEnumByteNullable(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarByteNullable(reader);
+		}
+
+		internal static sbyte ReadEnumSByte(BufferReaderBase reader)
+		{
+			return reader.ReadSByte();
+		}
+
+		internal static sbyte? ReadEnumSByteNullable(BufferReaderBase reader)
+		{
+			return NumericSerializers.ReadVarSByteNullable(reader);
+		}
 
 		internal static TimeSpan? ReadTimeSpanNullable(BufferReaderBase reader)
 		{
@@ -547,6 +632,7 @@ namespace Salar.Bois.Serializers
 
 		internal static DataTable ReadDataTable(BufferReaderBase reader, Encoding encoding)
 		{
+#if SupportsEmit
 			var columnCount = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (columnCount == null)
 				return null;
@@ -599,10 +685,14 @@ namespace Salar.Bois.Serializers
 
 
 			return dt;
+#else
+			throw new NotSupportedException("DataTable is not supported with source generator.");
+#endif
 		}
 
 		internal static DataSet ReadDataSet(BufferReaderBase reader, Encoding encoding)
 		{
+#if SupportsEmit
 			var tablesCount = NumericSerializers.ReadVarUInt32Nullable(reader);
 			if (tablesCount == null)
 				return null;
@@ -618,10 +708,13 @@ namespace Salar.Bois.Serializers
 				ds.Tables.Add(dt);
 			}
 			return ds;
+#else
+			throw new NotSupportedException("DataSet is not supported with source generator.");
+#endif
 		}
 
 
-
+#if SupportsEmit
 		internal static object ReadRootBasicType(BufferReaderBase reader, Type type, BoisBasicTypeInfo typeInfo, Encoding encoding)
 		{
 			switch (typeInfo.KnownType)
@@ -762,7 +855,9 @@ namespace Salar.Bois.Serializers
 			}
 			throw new ArgumentException($"Not supported basic type '{type}' as root", nameof(type));
 		}
+#endif
 
+#if SupportsEmit
 		internal static Array ReadRootBasicTypedArray(BufferReaderBase reader, BoisBasicTypeInfo typeInfo, Encoding encoding)
 		{
 			var length = NumericSerializers.ReadVarUInt32Nullable(reader);
@@ -783,5 +878,6 @@ namespace Salar.Bois.Serializers
 			}
 			return result;
 		}
+#endif
 	}
 }

@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net10.0;net6.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<IsTrimmable>true</IsTrimmable>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<IsRoslynComponent>false</IsRoslynComponent>
+		<PackageId>Salar.Bois.CodeGen</PackageId>
+		<Title>Salar.Bois.CodeGen</Title>
+		<AssemblyName>Salar.Bois.CodeGen</AssemblyName>
+		<RootNamespace>Salar.Bois.CodeGen</RootNamespace>
+		<Version>3.4.2.5</Version>
+		<Authors>Salar Khalilzadeh</Authors>
+		<Company>Salar Khalilzadeh</Company>
+		<Product>Salar.Bois.CodeGen</Product>
+		<Description>Salar's Serializer for Binary Object Indexed Serialization, the source-code-generator version.</Description>
+		<Copyright>MPLv2 © Salar Khalilzadeh 2026</Copyright>
+		<PackageProjectUrl>https://github.com/salarcode/Bois</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/salarcode/Bois</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS SourceGenerator CodeGeneration</PackageTags>
+		<PackageReleaseNotes>
+			Adds the BOIS source-code-generation serializer package with generated reader and writer support.
+		</PackageReleaseNotes>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeBuildOutput>true</IncludeBuildOutput>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<VerifyReferenceTrimCompatibility>true</VerifyReferenceTrimCompatibility>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Include="..\Salar.Bois\Serializers\NumericSerializers.cs" Link="Serializers\NumericSerializers.cs" />
+	  <Compile Include="..\Salar.Bois\Serializers\PrimitiveReader.cs" Link="Serializers\PrimitiveReader.cs" />
+	  <Compile Include="..\Salar.Bois\Serializers\PrimitiveWriter.cs" Link="Serializers\PrimitiveWriter.cs" />
+	  <Compile Include="..\Salar.Bois\Types\EnBasicEnumType.cs" Link="Types\EnBasicEnumType.cs" />
+	  <Compile Include="..\Salar.Bois\Types\EnBasicKnownType.cs" Link="Types\EnBasicKnownType.cs" />
+	  <Compile Include="..\Salar.Bois\Types\EnComplexKnownType.cs" Link="Types\EnComplexKnownType.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
+		<PackageReference Include="Salar.BinaryBuffers" Version="3.4.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Salar.Bois.CodeGen.Generator\Salar.Bois.CodeGen.Generator.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\LICENSE.md" Pack="true" PackagePath="" />
+		<None Include="..\Salar.Bois.CodeGen.Generator\bin\$(Configuration)\netstandard2.0\Salar.Bois.CodeGen.Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	</ItemGroup>
+
+</Project>

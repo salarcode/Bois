@@ -33,12 +33,18 @@ namespace Salar.Bois
 		/// </summary>
 		public Encoding Encoding { get; set; }
 
-		/// <summary>
-		/// Initializing a new instance of Bois serializer.
-		/// </summary>
-		public BoisSerializer()
+        public static Encoding DefaultEncoding
+        {
+            get;
+            set => field = value ?? throw new ArgumentNullException(nameof(value));
+        } = Encoding.UTF8;
+
+        /// <summary>
+        /// Initializing a new instance of Bois serializer.
+        /// </summary>
+        public BoisSerializer()
 		{
-			Encoding = Encoding.UTF8;
+			Encoding = DefaultEncoding;
 		}
 
 		static BoisSerializer()
@@ -102,10 +108,9 @@ namespace Salar.Bois
 		/// <typeparam name="T">The object type.</typeparam>
 		public void Serialize<T>(T obj, Stream output)
 		{
-			var writer = new BoisBufferWriter(output);
+            var writer = new StreamBufferWriter(output);
 
-			Serialize(obj, writer);
-			writer.Flush();
+            Serialize(obj, writer);
 		}
 
 		/// <summary>
@@ -140,10 +145,9 @@ namespace Salar.Bois
 		/// <param name="output">The output of the serialization in binary.</param>
 		public void Serialize(object obj, Type type, Stream output)
 		{
-			var writer = new BoisBufferWriter(output);
+            var writer = new StreamBufferWriter(output);
 
-			Serialize(obj, type, writer);
-			writer.Flush();
+            Serialize(obj, type, writer);
 		}
 
 		/// <summary>

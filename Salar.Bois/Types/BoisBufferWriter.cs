@@ -301,8 +301,8 @@ namespace Salar.Bois.Types
 				return;
 
 			if ((uint)count > (uint)(_length - _position))
-				throw new EndOfStreamException("Reached to end of data");
-		}
+                throw new EndOfStreamException("Reached end of the underlying buffer.");
+        }
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private Span<byte> GetFixedWriteSpan(int size)

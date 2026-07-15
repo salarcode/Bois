@@ -28,8 +28,7 @@ PM> Install-Package Salar.Bois
 PM> Install-Package Salar.Bois.LZ4
 ```
 
-
-> Minimum frameworks supported are .NET 6.0 and .NET 10.0
+> Minimum frameworks supported are .NET Framework 4.8 , .NET 6.0 and up to latest .NET 10.0
 
 ## Getting Started with Source generator
 The `Salar.Bois.CodeGen` package provides the source code generator version of Bois. Instead of using the `BoisSerializer` class at runtime, you declare a static partial class that hosts the read and write methods as static partial methods. The generator creates the method body during compilation.

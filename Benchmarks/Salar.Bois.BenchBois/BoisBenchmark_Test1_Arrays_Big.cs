@@ -65,18 +65,18 @@ public class BoisBenchmark_Test1_Arrays_Small : BenchmarkBase<Test1_Arrays_Small
 
 public static partial class Bois_Test1_Arrays_Big
 {
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[CodeGen.BoisReader]
 	public static partial Test1_Arrays_Big? ReadCompanyModel(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriterAttribute]
+	[CodeGen.BoisWriter]
 	public static partial void WriteCompanyModel(Test1_Arrays_Big? model, Stream output);
 }
 
 public static partial class Bois_Test1_Arrays_Small
 {
-	[global::Salar.Bois.CodeGen.BoisReaderAttribute]
+	[CodeGen.BoisReader]
 	public static partial Test1_Arrays_Small? ReadCompanyModel(Stream source);
 
-	[global::Salar.Bois.CodeGen.BoisWriterAttribute]
+	[CodeGen.BoisWriter]
 	public static partial void WriteCompanyModel(Test1_Arrays_Small? model, Stream output);
 }

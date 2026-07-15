@@ -20,13 +20,14 @@ internal class Program
 		Console.WriteLine("**********************************************");		
 #endif
 		var choice = Menu();
-		if (choice.KeyChar == '0')
+		if (choice.KeyChar == '0' || choice.KeyChar == '1')
 		{
-			new BenchRunner().RunAll();
-		}
-		else if (choice.KeyChar == '1')
-		{
-			new BenchRunner().RunSwitcher();
+			var runCount = PromptRunCount();
+			var runner = new BenchRunner(runCount);
+			if (choice.KeyChar == '0')
+				runner.RunAll();
+			else
+				runner.RunSwitcher();
 		}
 		else if (choice.Key == ConsoleKey.Q)
 		{
@@ -44,8 +45,8 @@ internal class Program
 
 	static ConsoleKeyInfo Menu()
 	{
-		Console.WriteLine("0 - Run all benchmarks 10_000 times");
-		Console.WriteLine("1 - Select what to run 10_000 times");
+		Console.WriteLine("0 - Run all benchmarks");
+		Console.WriteLine("1 - Select what to run");
 #if DEBUG
 		Console.WriteLine("d - Debug");
 #endif
@@ -59,6 +60,19 @@ internal class Program
 		{
 			Console.WriteLine();
 		}
+	}
+
+	static int PromptRunCount()
+	{
+		const int defaultRunCount = 10_000;
+		Console.Write($"Number of runs (default {defaultRunCount:N0}): ");
+		var input = Console.ReadLine();
+		if (string.IsNullOrWhiteSpace(input))
+			return defaultRunCount;
+		if (int.TryParse(input, out var count) && count > 0)
+			return count;
+		Console.WriteLine($"Invalid number, using default ({defaultRunCount:N0}).");
+		return defaultRunCount;
 	}
 
 	[Conditional("DEBUG")]

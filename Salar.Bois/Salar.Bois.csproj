@@ -9,7 +9,7 @@
 		<DefineConstants>$(DefineConstants);SupportsEmit</DefineConstants>
 		<PackageId>Salar.Bois</PackageId>
 		<Title>Salar.Bois</Title>
-		<Version>3.4.2</Version>
+		<Version>3.5</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>

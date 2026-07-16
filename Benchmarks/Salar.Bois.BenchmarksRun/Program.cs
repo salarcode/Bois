@@ -22,8 +22,8 @@ internal class Program
 		var choice = Menu();
 		if (choice.KeyChar == '0' || choice.KeyChar == '1')
 		{
-			var runCount = PromptRunCount();
-			var runner = new BenchRunner(runCount);
+			BenchmarkConfig.IterationCount = PromptRunCount();
+			var runner = new BenchRunner();
 			if (choice.KeyChar == '0')
 				runner.RunAll();
 			else

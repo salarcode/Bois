@@ -5,18 +5,15 @@ using Salar.Bois.BenchmarksObjects.TestObjects;
 using Salar.Bois.BenchMessagePack;
 using Salar.Bois.BenchProtobufNet;
 using System.Linq;
-using BenchmarkDotNet.Jobs;
 
 namespace Salar.Bois.BenchmarksRun;
 
 public class BenchRunner
 {
     private readonly BenchEngine _engine;
-    private readonly int _runCount;
 
-    public BenchRunner(int runCount)
+    public BenchRunner()
     {
-        _runCount = runCount;
         _engine = new BenchEngine();
         SetupBenchmarks();
     }
@@ -48,23 +45,23 @@ public class BenchRunner
     {
         var benchmarks = _engine.GetBenchmarkable();
 
-        BenchmarkSwitcher.FromTypes(benchmarks.ToArray())
-            .With(typeof(BenchRunner).Assembly)
-            .RunAllJoined(new RunConfig(_runCount));
+		BenchmarkSwitcher.FromTypes(benchmarks.ToArray())
+			.With(typeof(BenchRunner).Assembly)
+			.RunAllJoined(new RunConfig());
     }
 
     public void RunSwitcher()
     {
         var benchmarks = _engine.GetBenchmarkable();
 
-        BenchmarkSwitcher.FromTypes(benchmarks.ToArray())
-            .With(typeof(BenchRunner).Assembly)
-            .Run(config: new RunConfig(_runCount));
+		BenchmarkSwitcher.FromTypes(benchmarks.ToArray())
+			.With(typeof(BenchRunner).Assembly)
+			.Run(config: new RunConfig());
     }
 
     class RunConfig : ManualConfig
     {
-        public RunConfig(int runCount)
+        public RunConfig()
         {
             //Orderer = new DefaultOrderer(SummaryOrderPolicy.Declared);
             AddExporter(DefaultConfig.Instance.GetExporters().ToArray());
@@ -72,7 +69,7 @@ public class BenchRunner
             AddColumnProvider(DefaultConfig.Instance.GetColumnProviders().ToArray());
             AddLogger(DefaultConfig.Instance.GetLoggers().ToArray());
             AddValidator(DefaultConfig.Instance.GetValidators().ToArray());
-            AddJob(DefaultConfig.Instance.GetJobs().Select(j => j.WithIterationCount(runCount)).ToArray());
+            AddJob(DefaultConfig.Instance.GetJobs().ToArray());
             AddDiagnoser(DefaultConfig.Instance.GetDiagnosers().ToArray());
             AddHardwareCounters(DefaultConfig.Instance.GetHardwareCounters().ToArray());
             AddFilter(DefaultConfig.Instance.GetFilters().ToArray());

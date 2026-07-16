@@ -6,11 +6,16 @@ using System.IO;
 
 namespace Salar.Bois.BenchmarksBase;
 
+public static class BenchmarkConfig
+{
+	public static int IterationCount { get; set; } = 10_000;
+}
+
 [HideColumns(Column.Namespace)]
 public abstract class BenchmarkBase<T> : IDisposable, IBenchmark
 	where T : class, IBenchmarkTestObject, new()
 {
-	protected int IterationCount = 10_000;
+	protected int IterationCount => BenchmarkConfig.IterationCount;
 
 	protected MemoryStream TestStream { get; } = new MemoryStream();
 

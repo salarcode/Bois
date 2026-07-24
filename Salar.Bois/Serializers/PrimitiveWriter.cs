@@ -15,16 +15,18 @@ namespace Salar.Bois.Serializers
 		/// there is no data and the value is null
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteNullValue(BufferWriterBase writer)
-		{
-			writer.Write(NumericSerializers.FlagIsNull);
+		internal static void WriteNullValue<TWriter>(TWriter writer)
+                where TWriter : IBufferWriter
+        {
+            writer.Write(NumericSerializers.FlagIsNull);
 		}
 
 		/// <summary>
 		/// String - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, string str, Encoding encoding)
+		internal static void WriteValue<TWriter>(TWriter writer, string str, Encoding encoding)
+			where TWriter : IBufferWriter
 		{
 			if (str == null)
 			{
@@ -53,8 +55,9 @@ namespace Salar.Bois.Serializers
 		/// Embeddable range: 0..127
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteValue(BufferWriterBase writer, char c)
-		{
+		internal static void WriteValue<TWriter>(TWriter writer, char c)
+			where TWriter : IBufferWriter
+        {
 			writer.Write((ushort)c);
 		}
 
@@ -63,7 +66,8 @@ namespace Salar.Bois.Serializers
 		/// Embeddable range: 0..63
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteValue(BufferWriterBase writer, char? c)
+		internal static void WriteValue<TWriter>(TWriter writer, char? c)
+			where TWriter : IBufferWriter
 		{
 			NumericSerializers.WriteVarInt(writer, (ushort?)c);
 		}
@@ -73,7 +77,8 @@ namespace Salar.Bois.Serializers
 		/// Embeddable range: 0..127
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteValue(BufferWriterBase writer, bool b)
+		internal static void WriteValue<TWriter>(TWriter writer, bool b)
+			where TWriter : IBufferWriter
 		{
 			writer.Write(b);
 		}
@@ -83,7 +88,8 @@ namespace Salar.Bois.Serializers
 		/// Embeddable range: 0..63
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteValue(BufferWriterBase writer, bool? b)
+		internal static void WriteValue<TWriter>(TWriter writer, bool? b)
+			where TWriter : IBufferWriter
 		{
 			byte? val = null;
 			if (b.HasValue)
@@ -97,7 +103,8 @@ namespace Salar.Bois.Serializers
 		/// Embeddable kind range: always embedded
 		/// Embeddable ticks range: 0..127
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, DateTime dateTime)
+		internal static void WriteValue<TWriter>(TWriter writer, DateTime dateTime)
+			where TWriter : IBufferWriter
 		{
 			var kind = (byte)dateTime.Kind;
 
@@ -126,7 +133,8 @@ namespace Salar.Bois.Serializers
 		/// Embeddable kind range: always embedded
 		/// Embeddable ticks range: 0..127
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, DateTime? dt)
+		internal static void WriteValue<TWriter>(TWriter writer, DateTime? dt)
+			where TWriter : IBufferWriter
 		{
 			if (dt == null)
 			{
@@ -161,7 +169,8 @@ namespace Salar.Bois.Serializers
 		/// Embeddable offset range: 0..127
 		/// Embeddable ticks range: 0..127
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, DateTimeOffset dateTimeOffset)
+		internal static void WriteValue<TWriter>(TWriter writer, DateTimeOffset dateTimeOffset)
+			where TWriter : IBufferWriter
 		{
 			var offset = dateTimeOffset.Offset;
 			short offsetMinutes;
@@ -181,7 +190,8 @@ namespace Salar.Bois.Serializers
 		/// Embeddable offset range: 0..63
 		/// Embeddable ticks range: 0..127
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, DateTimeOffset? dto)
+		internal static void WriteValue<TWriter>(TWriter writer, DateTimeOffset? dto)
+			where TWriter : IBufferWriter
 		{
 			if (dto == null)
 			{
@@ -208,7 +218,8 @@ namespace Salar.Bois.Serializers
 		/// DateOnly - Format: 
 		/// Embeddable day-number range: 
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, DateOnly dateOnly)
+		internal static void WriteValue<TWriter>(TWriter writer, DateOnly dateOnly)
+			where TWriter : IBufferWriter
 		{
 			if (dateOnly == DateOnly.MinValue)
 			{
@@ -231,7 +242,8 @@ namespace Salar.Bois.Serializers
 		/// DateOnly? - Format:
 		/// Embeddable day-number range: 
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, DateOnly? dto)
+		internal static void WriteValue<TWriter>(TWriter writer, DateOnly? dto)
+			where TWriter : IBufferWriter
 		{
 			if (dto == null)
 			{
@@ -262,7 +274,8 @@ namespace Salar.Bois.Serializers
 		/// DateOnly - Format: 
 		/// Embeddable ticks range: 
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, TimeOnly timeOnly)
+		internal static void WriteValue<TWriter>(TWriter writer, TimeOnly timeOnly)
+			where TWriter : IBufferWriter
 		{
 			if (timeOnly == TimeOnly.MinValue)
 			{
@@ -285,7 +298,8 @@ namespace Salar.Bois.Serializers
 		/// TimeOnly? - Format: 
 		/// Embeddable ticks range: 
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, TimeOnly? dto)
+		internal static void WriteValue<TWriter>(TWriter writer, TimeOnly? dto)
+			where TWriter : IBufferWriter
 		{
 			if (dto == null)
 			{
@@ -316,7 +330,8 @@ namespace Salar.Bois.Serializers
 		/// byte[] - Format: (Array Length:Embedded-Nullable-0-0-0-0-0-0) [if array length not embedded?0-0-0-0-0-0-0-0] (data:0-0-0-0-0-0-0-0)
 		/// Embeddable Array Length range: 0..63
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, byte[] bytes)
+		internal static void WriteValue<TWriter>(TWriter writer, byte[] bytes)
+			where TWriter : IBufferWriter
 		{
 			if (bytes == null)
 			{
@@ -334,7 +349,8 @@ namespace Salar.Bois.Serializers
 		/// VarInt - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, Enum e)
+		internal static void WriteValue<TWriter>(TWriter writer, Enum e)
+			where TWriter : IBufferWriter
 		{
 			if (e == null)
 			{
@@ -348,7 +364,8 @@ namespace Salar.Bois.Serializers
 		/// VarInt - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, Enum e, bool nullable)
+		internal static void WriteValue<TWriter>(TWriter writer, Enum e, bool nullable)
+			where TWriter : IBufferWriter
 		{
 			if (e == null)
 			{
@@ -363,7 +380,8 @@ namespace Salar.Bois.Serializers
 		/// VarInt - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, Enum e, Type type, bool? memberIsNullable)
+		internal static void WriteValue<TWriter>(TWriter writer, Enum e, Type type, bool? memberIsNullable)
+			where TWriter : IBufferWriter
 		{
 			if (e == null)
 			{
@@ -441,7 +459,8 @@ namespace Salar.Bois.Serializers
 			}
 		}
 #else
-		internal static void WriteEnumInt32(BufferWriterBase writer, Enum e, bool nullable)
+		internal static void WriteEnumInt32<TWriter>(TWriter writer, Enum e, bool nullable)
+			where TWriter : IBufferWriter
 		{
 			if (e == null)
 			{
@@ -454,7 +473,8 @@ namespace Salar.Bois.Serializers
 				NumericSerializers.WriteVarInt(writer, (int)(object)e);
 		}
 
-		internal static void WriteEnumInt64(BufferWriterBase writer, Enum e, bool nullable)
+		internal static void WriteEnumInt64<TWriter>(TWriter writer, Enum e, bool nullable)
+			where TWriter : IBufferWriter
 		{
 			if (e == null)
 			{
@@ -467,7 +487,8 @@ namespace Salar.Bois.Serializers
 				NumericSerializers.WriteVarInt(writer, (long)(object)e);
 		}
 
-		internal static void WriteEnumInt16(BufferWriterBase writer, Enum e, bool nullable)
+		internal static void WriteEnumInt16<TWriter>(TWriter writer, Enum e, bool nullable)
+			where TWriter : IBufferWriter
 		{
 			if (e == null)
 			{
@@ -480,7 +501,8 @@ namespace Salar.Bois.Serializers
 				NumericSerializers.WriteVarInt(writer, (short)(object)e);
 		}
 
-		internal static void WriteEnumUInt16(BufferWriterBase writer, Enum e, bool nullable)
+		internal static void WriteEnumUInt16<TWriter>(TWriter writer, Enum e, bool nullable)
+			where TWriter : IBufferWriter
 		{
 			if (e == null)
 			{
@@ -493,7 +515,8 @@ namespace Salar.Bois.Serializers
 				NumericSerializers.WriteVarInt(writer, (ushort)(object)e);
 		}
 
-		internal static void WriteEnumUInt32(BufferWriterBase writer, Enum e, bool nullable)
+		internal static void WriteEnumUInt32<TWriter>(TWriter writer, Enum e, bool nullable)
+			where TWriter : IBufferWriter
 		{
 			if (e == null)
 			{
@@ -506,7 +529,8 @@ namespace Salar.Bois.Serializers
 				NumericSerializers.WriteVarInt(writer, (uint)(object)e);
 		}
 
-		internal static void WriteEnumUInt64(BufferWriterBase writer, Enum e, bool nullable)
+		internal static void WriteEnumUInt64<TWriter>(TWriter writer, Enum e, bool nullable)
+			where TWriter : IBufferWriter
 		{
 			if (e == null)
 			{
@@ -519,7 +543,8 @@ namespace Salar.Bois.Serializers
 				NumericSerializers.WriteVarInt(writer, (ulong)(object)e);
 		}
 
-		internal static void WriteEnumByte(BufferWriterBase writer, Enum e, bool nullable)
+		internal static void WriteEnumByte<TWriter>(TWriter writer, Enum e, bool nullable)
+			where TWriter : IBufferWriter
 		{
 			if (e == null)
 			{
@@ -532,7 +557,8 @@ namespace Salar.Bois.Serializers
 				writer.Write((byte)(object)e);
 		}
 
-		internal static void WriteEnumSByte(BufferWriterBase writer, Enum e, bool nullable)
+		internal static void WriteEnumSByte<TWriter>(TWriter writer, Enum e, bool nullable)
+			where TWriter : IBufferWriter
 		{
 			if (e == null)
 			{
@@ -552,7 +578,8 @@ namespace Salar.Bois.Serializers
 		/// Embeddable range: 0..127
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteValue(BufferWriterBase writer, TimeSpan timeSpan)
+		internal static void WriteValue<TWriter>(TWriter writer, TimeSpan timeSpan)
+			where TWriter : IBufferWriter
 		{
 			NumericSerializers.WriteVarInt(writer, timeSpan.Ticks);
 		}
@@ -562,7 +589,8 @@ namespace Salar.Bois.Serializers
 		/// Embeddable range: 0..63
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteValue(BufferWriterBase writer, TimeSpan? timeSpan)
+		internal static void WriteValue<TWriter>(TWriter writer, TimeSpan? timeSpan)
+			where TWriter : IBufferWriter
 		{
 			if (timeSpan == null)
 			{
@@ -577,7 +605,8 @@ namespace Salar.Bois.Serializers
 		/// Embeddable range: 0..63
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteValue(BufferWriterBase writer, Version version)
+		internal static void WriteValue<TWriter>(TWriter writer, Version version)
+			where TWriter : IBufferWriter
 		{
 			if (version == null)
 			{
@@ -591,7 +620,8 @@ namespace Salar.Bois.Serializers
 		/// Same as String
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteValue(BufferWriterBase writer, Uri uri)
+		internal static void WriteValue<TWriter>(TWriter writer, Uri uri)
+			where TWriter : IBufferWriter
 		{
 			PrimitiveWriter.WriteValue(writer, uri?.ToString(), Encoding.UTF8);
 		}
@@ -600,7 +630,8 @@ namespace Salar.Bois.Serializers
 		/// Guid - Format: (Embedded-0-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..127
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, Guid guid)
+		internal static void WriteValue<TWriter>(TWriter writer, Guid guid)
+			where TWriter : IBufferWriter
 		{
 			if (guid == Guid.Empty)
 			{
@@ -620,7 +651,8 @@ namespace Salar.Bois.Serializers
 		/// Guid? - Format: (Embedded-Nullable-0-0-0-0-0-0) [if not embedded?0-0-0-0-0-0-0-0]
 		/// Embeddable range: 0..63
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, Guid? g)
+		internal static void WriteValue<TWriter>(TWriter writer, Guid? g)
+			where TWriter : IBufferWriter
 		{
 			if (g == null)
 			{
@@ -647,7 +679,8 @@ namespace Salar.Bois.Serializers
 		/// DBNull? - Format: (Embedded=true-Nullable=true-0-0-0-0-0-0)
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteValue(BufferWriterBase writer, DBNull dbNull)
+		internal static void WriteValue<TWriter>(TWriter writer, DBNull dbNull)
+			where TWriter : IBufferWriter
 		{
 			if (dbNull == null)
 				WriteNullValue(writer);
@@ -660,7 +693,8 @@ namespace Salar.Bois.Serializers
 		/// Same as Int32
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteValue(BufferWriterBase writer, Color color)
+		internal static void WriteValue<TWriter>(TWriter writer, Color color)
+			where TWriter : IBufferWriter
 		{
 			int argb = color.ToArgb();
 			// Int32
@@ -670,7 +704,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// Same as Nullable<Int32>
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, Color? color)
+		internal static void WriteValue<TWriter>(TWriter writer, Color? color)
+			where TWriter : IBufferWriter
 		{
 			if (color == null)
 			{
@@ -685,7 +720,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// Obsolete - only backward compatibility
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, DataSet ds, Encoding encoding)
+		internal static void WriteValue<TWriter>(TWriter writer, DataSet ds, Encoding encoding)
+			where TWriter : IBufferWriter
 		{
 #if SupportsEmit
 			if (ds == null)
@@ -710,7 +746,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// Obsolete - only backward compatibility
 		/// </summary>
-		internal static void WriteValue(BufferWriterBase writer, DataTable dt, Encoding encoding)
+		internal static void WriteValue<TWriter>(TWriter writer, DataTable dt, Encoding encoding)
+			where TWriter : IBufferWriter
 		{
 #if SupportsEmit
 			if (dt == null)
@@ -773,7 +810,8 @@ namespace Salar.Bois.Serializers
 
 #if SupportsEmit
 
-		internal static void WriteRootBasicType(BufferWriterBase writer, object obj, Type type, BoisBasicTypeInfo typeInfo, Encoding encoding)
+		internal static void WriteRootBasicType<TWriter>(TWriter writer, object obj, Type type, BoisBasicTypeInfo typeInfo, Encoding encoding)
+			where TWriter : IBufferWriter
 		{
 			switch (typeInfo.KnownType)
 			{
@@ -968,7 +1006,8 @@ namespace Salar.Bois.Serializers
 			}
 		}
 
-		internal static void WriteRootBasicTypedArray(BufferWriterBase writer, Array array, BoisBasicTypeInfo typeInfo, Encoding encoding)
+		internal static void WriteRootBasicTypedArray<TWriter>(TWriter writer, Array array, BoisBasicTypeInfo typeInfo, Encoding encoding)
+			where TWriter : IBufferWriter
 		{
 			if (array == null)
 			{

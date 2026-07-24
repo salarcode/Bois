@@ -410,7 +410,8 @@ namespace Salar.Bois.Serializers
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BufferWriterBase writer, int num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, int num)
+			where TWriter : IBufferWriter
 		{
 			WriteZigzag(writer, num);
 		}
@@ -421,7 +422,8 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
-		internal static void WriteVarInt(BufferWriterBase writer, int? num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, int? num)
+			where TWriter : IBufferWriter
 		{
 			if (num == null)
 			{
@@ -453,7 +455,8 @@ namespace Salar.Bois.Serializers
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BufferWriterBase writer, uint num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, uint num)
+			where TWriter : IBufferWriter
 		{
 			WriteZigzag(writer, num);
 		}
@@ -463,7 +466,8 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
-		internal static void WriteVarInt(BufferWriterBase writer, uint? num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, uint? num)
+			where TWriter : IBufferWriter
 		{
 			if (num == null)
 			{
@@ -498,7 +502,8 @@ namespace Salar.Bois.Serializers
 		/// the don't have null value, there is no point creating Nullable object to convert it
 		/// </remarks>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteUIntNullableMemberCount(BufferWriterBase writer, uint num)
+		internal static void WriteUIntNullableMemberCount<TWriter>(TWriter writer, uint num)
+			where TWriter : IBufferWriter
 		{
 			// NOTE:
 			// Member count can be null, but not the place this method is being called
@@ -525,7 +530,8 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BufferWriterBase writer, short num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, short num)
+			where TWriter : IBufferWriter
 		{
 			WriteZigzag(writer, num);
 		}
@@ -533,7 +539,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BufferWriterBase writer, short? num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, short? num)
+			where TWriter : IBufferWriter
 		{
 			if (num == null)
 			{
@@ -563,7 +570,8 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BufferWriterBase writer, ushort num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, ushort num)
+			where TWriter : IBufferWriter
 		{
 			WriteZigzag(writer, num);
 		}
@@ -571,7 +579,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BufferWriterBase writer, ushort? num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, ushort? num)
+			where TWriter : IBufferWriter
 		{
 			if (num == null)
 			{
@@ -601,7 +610,8 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BufferWriterBase writer, long num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, long num)
+			where TWriter : IBufferWriter
 		{
 			WriteZigzag(writer, num);
 		}
@@ -609,7 +619,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BufferWriterBase writer, long? num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, long? num)
+			where TWriter : IBufferWriter
 		{
 			if (num == null)
 			{
@@ -639,7 +650,8 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt(BufferWriterBase writer, ulong num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, ulong num)
+			where TWriter : IBufferWriter
 		{
 			WriteZigzag(writer, num);
 		}
@@ -647,7 +659,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BufferWriterBase writer, ulong? num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, ulong? num)
+			where TWriter : IBufferWriter
 		{
 			if (num == null)
 			{
@@ -676,7 +689,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BufferWriterBase writer, byte? num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, byte? num)
+			where TWriter : IBufferWriter
 		{
 			if (num == null)
 			{
@@ -705,7 +719,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt(BufferWriterBase writer, sbyte? num)
+		internal static void WriteVarInt<TWriter>(TWriter writer, sbyte? num)
+			where TWriter : IBufferWriter
 		{
 			if (num == null)
 			{
@@ -734,7 +749,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BufferWriterBase writer, float num)
+		internal static void WriteVarDecimal<TWriter>(TWriter writer, float num)
+			where TWriter : IBufferWriter
 		{
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen, out var position);
 			var firstByte = numBuff[position];
@@ -756,7 +772,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BufferWriterBase writer, float? num)
+		internal static void WriteVarDecimal<TWriter>(TWriter writer, float? num)
+			where TWriter : IBufferWriter
 		{
 			if (num == null)
 			{
@@ -786,7 +803,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BufferWriterBase writer, double num)
+		internal static void WriteVarDecimal<TWriter>(TWriter writer, double num)
+			where TWriter : IBufferWriter
 		{
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen, out var position);
 			var firstByte = numBuff[position];
@@ -808,7 +826,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BufferWriterBase writer, double? num)
+		internal static void WriteVarDecimal<TWriter>(TWriter writer, double? num)
+			where TWriter : IBufferWriter
 		{
 			if (num == null)
 			{
@@ -839,7 +858,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BufferWriterBase writer, decimal num)
+		internal static void WriteVarDecimal<TWriter>(TWriter writer, decimal num)
+			where TWriter : IBufferWriter
 		{
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
 			var firstByte = numBuff[0];
@@ -861,7 +881,8 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal(BufferWriterBase writer, decimal? num)
+		internal static void WriteVarDecimal<TWriter>(TWriter writer, decimal? num)
+			where TWriter : IBufferWriter
 		{
 			if (num == null)
 			{
@@ -1013,7 +1034,8 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		private static void WriteZigzag(BufferWriterBase writer, long num)
+		private static void WriteZigzag<TWriter>(TWriter writer, long num)
+			where TWriter : IBufferWriter
 		{
 			var zigZagEncoded = unchecked((ulong)((num << 1) ^ (num >> 63)));
 			while ((zigZagEncoded & ~0x7FUL) != 0)
@@ -1024,7 +1046,8 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)zigZagEncoded);
 		}
 
-		private static void WriteZigzag(BufferWriterBase writer, ulong num)
+		private static void WriteZigzag<TWriter>(TWriter writer, ulong num)
+			where TWriter : IBufferWriter
 		{
 			while ((num & ~0x7FUL) != 0)
 			{
@@ -1034,7 +1057,8 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)num);
 		}
 
-		private static void WriteZigzag(BufferWriterBase writer, int num)
+		private static void WriteZigzag<TWriter>(TWriter writer, int num)
+			where TWriter : IBufferWriter
 		{
 			var zigZagEncoded = unchecked((uint)((num << 1) ^ (num >> 31)));
 			while ((zigZagEncoded & ~0x7F) != 0)
@@ -1045,7 +1069,8 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)zigZagEncoded);
 		}
 
-		private static void WriteZigzag(BufferWriterBase writer, uint num)
+		private static void WriteZigzag<TWriter>(TWriter writer, uint num)
+			where TWriter : IBufferWriter
 		{
 			while ((num & ~0x7F) != 0)
 			{
@@ -1055,7 +1080,8 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)num);
 		}
 
-		private static void WriteZigzag(BufferWriterBase writer, short num)
+		private static void WriteZigzag<TWriter>(TWriter writer, short num)
+			where TWriter : IBufferWriter
 		{
 			var zigZagEncoded = unchecked((ushort)((num << 1) ^ (num >> 15)));
 			while ((zigZagEncoded & ~0x7F) != 0)
@@ -1066,7 +1092,8 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)zigZagEncoded);
 		}
 
-		private static void WriteZigzag(BufferWriterBase writer, ushort num)
+		private static void WriteZigzag<TWriter>(TWriter writer, ushort num)
+			where TWriter : IBufferWriter
 		{
 			while ((num & ~0x7F) != 0)
 			{

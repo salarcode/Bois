@@ -26,36 +26,36 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageReleaseNotes>
-            * Fixed deserializing a zero-length byte with dynamic type that would throw an exception.
+			* Fixed deserializing a zero-length byte with dynamic type that would throw an exception.
 		</PackageReleaseNotes>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
-	
+
 	<PropertyGroup Condition="'$(Configuration)'=='Debug+AssemblyOut'">
-	  <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
-	  <Optimize>false</Optimize>
+		<DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+		<Optimize>false</Optimize>
 	</PropertyGroup>
-	
+
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug+AssemblyOut|net48'">
-	  <DefineConstants>$(DefineConstants);DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
-	  <Optimize>false</Optimize>
+		<DefineConstants>$(DefineConstants);DEBUG;TRACE;EmitAssemblyOut</DefineConstants>
+		<Optimize>false</Optimize>
 	</PropertyGroup>
-	
+
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<DocumentationFile>.\bin\Salar.Bois.xml</DocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include="..\LICENSE.md">
-	    <Pack>True</Pack>
-	    <PackagePath></PackagePath>
-	  </None>
+		<None Include="..\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Salar.BinaryBuffers" Version="3.4.0" />
+		<PackageReference Include="Salar.BinaryBuffers" Version="4.0.0" />
 	</ItemGroup>
 
 </Project>

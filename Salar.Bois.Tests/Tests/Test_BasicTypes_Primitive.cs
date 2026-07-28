@@ -38,6 +38,13 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			yield return new object[] { "This is a test", utf8 };
 			yield return new object[] { "😎 emojis 😍", utf8 };
 			yield return new object[] { "ASCII", Encoding.ASCII };
+			yield return new object[] { new string('a', 63), utf8 };
+			yield return new object[] { new string('a', 64), utf8 };
+			yield return new object[] { new string('a', 65), utf8 };
+			yield return new object[] { new string('a', 256), utf8 };
+			yield return new object[] { new string('a', 257), utf8 };
+			yield return new object[] { new string('界', 85), utf8 };
+			yield return new object[] { new string('界', 86), utf8 };
 		}
 
 		[Theory]

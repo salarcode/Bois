@@ -35,17 +35,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Include="..\Salar.Bois\Serializers\NumericSerializers.cs" Link="Serializers\NumericSerializers.cs" />
-	  <Compile Include="..\Salar.Bois\Serializers\PrimitiveReader.cs" Link="Serializers\PrimitiveReader.cs" />
-	  <Compile Include="..\Salar.Bois\Serializers\PrimitiveWriter.cs" Link="Serializers\PrimitiveWriter.cs" />
-	  <Compile Include="..\Salar.Bois\Types\EnBasicEnumType.cs" Link="Types\EnBasicEnumType.cs" />
-	  <Compile Include="..\Salar.Bois\Types\EnBasicKnownType.cs" Link="Types\EnBasicKnownType.cs" />
-	  <Compile Include="..\Salar.Bois\Types\EnComplexKnownType.cs" Link="Types\EnComplexKnownType.cs" />
+		<Compile Include="..\Salar.Bois\Serializers\NumericSerializers.cs" Link="Serializers\NumericSerializers.cs" />
+		<Compile Include="..\Salar.Bois\Serializers\PrimitiveReader.cs" Link="Serializers\PrimitiveReader.cs" />
+		<Compile Include="..\Salar.Bois\Serializers\PrimitiveWriter.cs" Link="Serializers\PrimitiveWriter.cs" />
+		<Compile Include="..\Salar.Bois\Types\EnBasicEnumType.cs" Link="Types\EnBasicEnumType.cs" />
+		<Compile Include="..\Salar.Bois\Types\EnBasicKnownType.cs" Link="Types\EnBasicKnownType.cs" />
+		<Compile Include="..\Salar.Bois\Types\EnComplexKnownType.cs" Link="Types\EnComplexKnownType.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" PrivateAssets="all" />
-		<PackageReference Include="Salar.BinaryBuffers" Version="3.4.0" />
+		<PackageReference Include="Salar.BinaryBuffers" Version="4.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

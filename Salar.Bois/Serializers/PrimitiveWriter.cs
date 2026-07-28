@@ -1,6 +1,7 @@
 ﻿using Salar.BinaryBuffers;
 using Salar.Bois.Types;
 using System;
+using System.Buffers;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -38,15 +39,37 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				byte[] strBytes;
-				if (str.Length > 64)
-					strBytes = GetStringBytes(ref str, encoding);
-				else
-					strBytes = GetStringBytes(str, encoding);
+				var byteCount = encoding.GetByteCount(str);
+#if NET6_0_OR_GREATER
+				byte[] rentedBytes = null;
+				Span<byte> bytes = byteCount <= 256
+					? stackalloc byte[byteCount]
+					: (rentedBytes = ArrayPool<byte>.Shared.Rent(byteCount));
 
-				// Int32
-				NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)strBytes.Length);
-				writer.Write(strBytes);
+				try
+				{
+					var bytesWritten = encoding.GetBytes(str.AsSpan(), bytes);
+					NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)bytesWritten);
+					writer.Write(bytes.Slice(0, bytesWritten));
+				}
+				finally
+				{
+					if (rentedBytes != null)
+						ArrayPool<byte>.Shared.Return(rentedBytes);
+				}
+#else
+				var bytes = ArrayPool<byte>.Shared.Rent(byteCount);
+				try
+				{
+					var bytesWritten = encoding.GetBytes(str, 0, str.Length, bytes, 0);
+					NumericSerializers.WriteUIntNullableMemberCount(writer, (uint)bytesWritten);
+					writer.Write(bytes, 0, bytesWritten);
+				}
+				finally
+				{
+					ArrayPool<byte>.Shared.Return(bytes);
+				}
+#endif
 			}
 		}
 
@@ -1028,32 +1051,5 @@ namespace Salar.Bois.Serializers
 		}
 #endif
 
-		/// <summary>
-		/// Does return `Encoding.GetBytes`
-		/// One less call method to `encoding.GetBytes` means one less string copy
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static byte[] GetStringBytes(string str, Encoding encoding)
-		{
-			var chars = str.ToCharArray();
-			var bytes = new byte[encoding.GetByteCount(chars, 0, chars.Length)];
-			encoding.GetBytes(chars, 0, chars.Length, bytes, 0);
-
-			return bytes;
-		}
-
-		/// <summary>
-		/// Does return `Encoding.GetBytes`
-		/// One less call method to `encoding.GetBytes` means one less string copy
-		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static byte[] GetStringBytes(ref string str, Encoding encoding)
-		{
-			var chars = str.ToCharArray();
-			var bytes = new byte[encoding.GetByteCount(chars, 0, chars.Length)];
-			encoding.GetBytes(chars, 0, chars.Length, bytes, 0);
-
-			return bytes;
-		}
 	}
 }

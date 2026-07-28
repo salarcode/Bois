@@ -1060,13 +1060,55 @@ namespace Salar.Bois.Serializers
 		private static void WriteZigzag<TWriter>(TWriter writer, int num)
 			where TWriter : IBufferWriter
 		{
-			var zigZagEncoded = unchecked((uint)((num << 1) ^ (num >> 31)));
-			while ((zigZagEncoded & ~0x7F) != 0)
+			uint v = unchecked((uint)((num << 1) ^ (num >> 31)));
+
+			// 1-Byte Path (Values 0..127) -> 1 Write call
+			if (v < (1u << 7))
 			{
-				writer.Write((byte)((zigZagEncoded | 0x80) & 0xFF));
-				zigZagEncoded >>= 7;
+				writer.Write((byte)v);
+				return;
 			}
-			writer.Write((byte)zigZagEncoded);
+
+			// 2-Byte Path (Values 128..16,383) -> 1 Write call
+			if (v < (1u << 14))
+			{
+				ushort packed = (ushort)((v & 0x7F) | 0x80 | ((v >> 7) << 8));
+				writer.Write(packed);
+				return;
+			}
+
+			// 3-Byte Path -> 2 Write calls (ushort + byte)
+			if (v < (1u << 21))
+			{
+				ushort lower = (ushort)((v & 0x7F) | 0x80 | (((v >> 7) & 0x7F) | 0x80) << 8);
+				byte upper = (byte)(v >> 14);
+
+				writer.Write(lower);
+				writer.Write(upper);
+				return;
+			}
+
+			// 4-Byte Path -> 1 Write call (uint)
+			if (v < (1u << 28))
+			{
+				uint packed = (v & 0x7F) | 0x80
+							| (((v >> 7) & 0x7F) | 0x80) << 8
+							| (((v >> 14) & 0x7F) | 0x80) << 16
+							| ((v >> 21) << 24);
+
+				writer.Write(packed);
+				return;
+			}
+
+			// 5-Byte Path -> 2 Write calls (uint + byte)
+			uint lower5 = (v & 0x7F) | 0x80
+						| (((v >> 7) & 0x7F) | 0x80) << 8
+						| (((v >> 14) & 0x7F) | 0x80) << 16
+						| (((v >> 21) & 0x7F) | 0x80) << 24;
+			byte upper5 = (byte)(v >> 28);
+
+			writer.Write(lower5);
+			writer.Write(upper5);
 		}
 
 		private static void WriteZigzag<TWriter>(TWriter writer, uint num)

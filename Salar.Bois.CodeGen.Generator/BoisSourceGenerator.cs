@@ -700,14 +700,26 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     case ReaderInputKind.ByteArray:
                         var positionName = signature.PositionParameterIndex >= 0 ? Escape(_method.Method.Parameters[signature.PositionParameterIndex].Name) : "0";
                         var lengthName = signature.LengthParameterIndex >= 0 ? Escape(_method.Method.Parameters[signature.LengthParameterIndex].Name) : sourceName + ".Length";
-                        builder.Line($"var reader = new BinaryBufferReader({sourceName}, {positionName}, {lengthName});");
+                        EmitBufferReaderCreation(builder, $"{sourceName}, {positionName}, {lengthName}");
                         break;
                     case ReaderInputKind.ByteArraySegment:
-                        builder.Line($"var reader = new BinaryBufferReader({sourceName}.Array!, {sourceName}.Offset, {sourceName}.Count);");
+                        EmitBufferReaderCreation(builder, $"{sourceName}.Array!, {sourceName}.Offset, {sourceName}.Count");
                         break;
                     default:
                         throw new InvalidOperationException();
                 }
+            }
+
+            /// <summary>
+            /// Emits the buffer reader creation, preferring the zero allocation span based reader when the target framework supports ref structs in generics.
+            /// </summary>
+            private static void EmitBufferReaderCreation(CodeBuilder builder, string arguments)
+            {
+                builder.Line("#if NET9_0_OR_GREATER");
+                builder.Line($"var reader = new BinarySpanBufferReader(new global::System.ReadOnlySpan<byte>({arguments}));");
+                builder.Line("#else");
+                builder.Line($"var reader = new BinaryBufferReader({arguments});");
+                builder.Line("#endif");
             }
 
             private void EmitWriterValueSetup(CodeBuilder builder)
@@ -736,7 +748,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     case WriterOutputKind.ByteArray:
                         var positionName = Escape(_method.Method.Parameters[signature.PositionParameterIndex].Name);
                         var lengthName = Escape(_method.Method.Parameters[signature.LengthParameterIndex].Name);
+                        builder.Line("#if NET9_0_OR_GREATER");
+                        builder.Line($"var writer = new BinarySpanBufferWriter(new global::System.Span<byte>({outputName}, {positionName}, {lengthName}));");
+                        builder.Line("#else");
                         builder.Line($"var writer = new BinaryBufferWriter({outputName}, {positionName}, {lengthName});");
+                        builder.Line("#endif");
                         break;
                     default:
                         throw new InvalidOperationException();

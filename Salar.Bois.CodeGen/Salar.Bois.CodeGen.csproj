@@ -7,6 +7,7 @@
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
 		<IsRoslynComponent>false</IsRoslynComponent>
+		<IsAotCompatible>true</IsAotCompatible>
 		<PackageId>Salar.Bois.CodeGen</PackageId>
 		<Title>Salar.Bois.CodeGen</Title>
 		<AssemblyName>Salar.Bois.CodeGen</AssemblyName>

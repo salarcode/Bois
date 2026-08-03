@@ -1,4 +1,4 @@
-﻿using Salar.BinaryBuffers;
+using Salar.BinaryBuffers;
 using Salar.Bois.Types;
 using System;
 using System.Data;
@@ -11,9 +11,39 @@ namespace Salar.Bois.Serializers
 {
 	internal static class PrimitiveReader
 	{
-		internal static string ReadString(BufferReaderBase reader, Encoding encoding)
+		/// <summary>
+		/// Reads a raw byte. Used by the emitted IL, which can only pass the buffer by reference.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static byte ReadByte<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			uint? length = NumericSerializers.ReadVarUInt32Nullable(reader);
+			return reader.ReadByte();
+		}
+
+		/// <summary>
+		/// Reads a raw signed byte. Used by the emitted IL, which can only pass the buffer by reference.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static sbyte ReadSByte<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
+		{
+			return reader.ReadSByte();
+		}
+
+		internal static string ReadString<TReader>(ref TReader reader, Encoding encoding)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
+		{
+			uint? length = NumericSerializers.ReadVarUInt32Nullable(ref reader);
 			if (length == null)
 			{
 				return null;
@@ -35,43 +65,63 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static char ReadChar(BufferReaderBase reader)
+		internal static char ReadChar<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var charByte = reader.ReadUInt16();
 			return (char)charByte;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static char? ReadCharNullable(BufferReaderBase reader)
+		internal static char? ReadCharNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var charByte = NumericSerializers.ReadVarUInt16Nullable(reader);
+			var charByte = NumericSerializers.ReadVarUInt16Nullable(ref reader);
 			if (charByte == null)
 				return null;
 			return (char)charByte.Value;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static bool? ReadBooleanNullable(BufferReaderBase reader)
+		internal static bool? ReadBooleanNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var value = NumericSerializers.ReadVarByteNullable(reader);
+			var value = NumericSerializers.ReadVarByteNullable(ref reader);
 			if (value == null)
 				return null;
 			return value.Value != 0;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static bool ReadBoolean(BufferReaderBase reader)
+		internal static bool ReadBoolean<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			return reader.ReadByte() != 0;
 		}
 
-		internal static DateTime? ReadDateTimeNullable(BufferReaderBase reader)
+		internal static DateTime? ReadDateTimeNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var kind = NumericSerializers.ReadVarByteNullable(reader);
+			var kind = NumericSerializers.ReadVarByteNullable(ref reader);
 			if (kind == null)
 				return null;
 
-			var ticks = NumericSerializers.ReadVarInt64(reader);
+			var ticks = NumericSerializers.ReadVarInt64(ref reader);
 			if (ticks == 0L)
 			{
 				return DateTime.MinValue;
@@ -84,10 +134,14 @@ namespace Salar.Bois.Serializers
 			return new DateTime(ticks, (DateTimeKind)kind.Value);
 		}
 
-		internal static DateTime ReadDateTime(BufferReaderBase reader)
+		internal static DateTime ReadDateTime<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var kind = reader.ReadByte();
-			var ticks = NumericSerializers.ReadVarInt64(reader);
+			var ticks = NumericSerializers.ReadVarInt64(ref reader);
 			if (ticks == 0L)
 			{
 				return DateTime.MinValue;
@@ -100,33 +154,45 @@ namespace Salar.Bois.Serializers
 			return new DateTime(ticks, (DateTimeKind)kind);
 		}
 
-		internal static DateTimeOffset? ReadDateTimeOffsetNullable(BufferReaderBase reader)
+		internal static DateTimeOffset? ReadDateTimeOffsetNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var offsetMinutes = NumericSerializers.ReadVarInt16Nullable(reader);
+			var offsetMinutes = NumericSerializers.ReadVarInt16Nullable(ref reader);
 			if (offsetMinutes == null)
 			{
 				return null;
 			}
 
-			var ticks = NumericSerializers.ReadVarInt64(reader);
+			var ticks = NumericSerializers.ReadVarInt64(ref reader);
 
 			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes.Value));
 		}
 
-		internal static DateTimeOffset ReadDateTimeOffset(BufferReaderBase reader)
+		internal static DateTimeOffset ReadDateTimeOffset<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var offsetMinutes = NumericSerializers.ReadVarInt16(reader);
+			var offsetMinutes = NumericSerializers.ReadVarInt16(ref reader);
 
-			var ticks = NumericSerializers.ReadVarInt64(reader);
+			var ticks = NumericSerializers.ReadVarInt64(ref reader);
 
 			return new DateTimeOffset(ticks, TimeSpan.FromMinutes(offsetMinutes));
 		}
 
 #if NET6_0_OR_GREATER
 
-		internal static DateOnly ReadDateOnly(BufferReaderBase reader)
+		internal static DateOnly ReadDateOnly<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var dayNumber = NumericSerializers.ReadVarInt32(reader);
+			var dayNumber = NumericSerializers.ReadVarInt32(ref reader);
 			if (dayNumber == 0L)
 			{
 				return DateOnly.MinValue;
@@ -139,9 +205,13 @@ namespace Salar.Bois.Serializers
 			return DateOnly.FromDayNumber(dayNumber);
 		}
 
-		internal static DateOnly? ReadDateOnlyNullable(BufferReaderBase reader)
+		internal static DateOnly? ReadDateOnlyNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var dayNumber = NumericSerializers.ReadVarInt32Nullable(reader);
+			var dayNumber = NumericSerializers.ReadVarInt32Nullable(ref reader);
 			if (dayNumber is null)
 				return null;
 
@@ -157,9 +227,13 @@ namespace Salar.Bois.Serializers
 			return DateOnly.FromDayNumber(dayNumber.Value);
 		}
 
-		internal static TimeOnly ReadTimeOnly(BufferReaderBase reader)
+		internal static TimeOnly ReadTimeOnly<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var ticks = NumericSerializers.ReadVarInt64(reader);
+			var ticks = NumericSerializers.ReadVarInt64(ref reader);
 			if (ticks == 0L)
 			{
 				return TimeOnly.MinValue;
@@ -172,9 +246,13 @@ namespace Salar.Bois.Serializers
 			return new TimeOnly(ticks);
 		}
 
-		internal static TimeOnly? ReadTimeOnlyNullable(BufferReaderBase reader)
+		internal static TimeOnly? ReadTimeOnlyNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var ticks = NumericSerializers.ReadVarInt64Nullable(reader);
+			var ticks = NumericSerializers.ReadVarInt64Nullable(ref reader);
 			if (ticks is null)
 				return null;
 
@@ -192,9 +270,13 @@ namespace Salar.Bois.Serializers
 #endif
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static byte[] ReadByteArray(BufferReaderBase reader)
+		internal static byte[] ReadByteArray<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var length = NumericSerializers.ReadVarUInt32Nullable(reader);
+			var length = NumericSerializers.ReadVarUInt32Nullable(ref reader);
 			if (length == null)
 			{
 				return null;
@@ -207,7 +289,11 @@ namespace Salar.Bois.Serializers
 
 #if SupportsEmit
 
-		internal static Enum ReadEnum(BufferReaderBase reader, Type type)
+		internal static Enum ReadEnum<TReader>(ref TReader reader, Type type)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var enumType = BoisTypeCache.GetEnumType(type);
 			if (enumType == null)
@@ -218,21 +304,21 @@ namespace Salar.Bois.Serializers
 				case EnBasicEnumType.Int32:
 					if (enumType.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarInt32Nullable(reader);
+						var val = NumericSerializers.ReadVarInt32Nullable(ref reader);
 						if (val == null)
 							return null;
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarInt32(reader);
+						var val = NumericSerializers.ReadVarInt32(ref reader);
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 
 				case EnBasicEnumType.Byte:
 					if (enumType.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarByteNullable(reader);
+						var val = NumericSerializers.ReadVarByteNullable(ref reader);
 						if (val == null)
 							return null;
 						return (Enum)Enum.ToObject(enumType.BareType, val);
@@ -246,77 +332,77 @@ namespace Salar.Bois.Serializers
 				case EnBasicEnumType.Int16:
 					if (enumType.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarInt16Nullable(reader);
+						var val = NumericSerializers.ReadVarInt16Nullable(ref reader);
 						if (val == null)
 							return null;
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarInt16(reader);
+						var val = NumericSerializers.ReadVarInt16(ref reader);
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 
 				case EnBasicEnumType.Int64:
 					if (enumType.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarInt64Nullable(reader);
+						var val = NumericSerializers.ReadVarInt64Nullable(ref reader);
 						if (val == null)
 							return null;
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarInt64(reader);
+						var val = NumericSerializers.ReadVarInt64(ref reader);
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 
 				case EnBasicEnumType.UInt16:
 					if (enumType.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarUInt16Nullable(reader);
+						var val = NumericSerializers.ReadVarUInt16Nullable(ref reader);
 						if (val == null)
 							return null;
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarUInt16(reader);
+						var val = NumericSerializers.ReadVarUInt16(ref reader);
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 
 				case EnBasicEnumType.UInt32:
 					if (enumType.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarUInt32Nullable(reader);
+						var val = NumericSerializers.ReadVarUInt32Nullable(ref reader);
 						if (val == null)
 							return null;
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarUInt32(reader);
+						var val = NumericSerializers.ReadVarUInt32(ref reader);
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 
 				case EnBasicEnumType.UInt64:
 					if (enumType.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarUInt64Nullable(reader);
+						var val = NumericSerializers.ReadVarUInt64Nullable(ref reader);
 						if (val == null)
 							return null;
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarUInt64(reader);
+						var val = NumericSerializers.ReadVarUInt64(ref reader);
 						return (Enum)Enum.ToObject(enumType.BareType, val);
 					}
 
 				case EnBasicEnumType.SByte:
 					if (enumType.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarSByteNullable(reader);
+						var val = NumericSerializers.ReadVarSByteNullable(ref reader);
 						if (val == null)
 							return null;
 						return (Enum)Enum.ToObject(enumType.BareType, val);
@@ -334,7 +420,11 @@ namespace Salar.Bois.Serializers
 #endif
 
 #if SupportsEmit
-		internal static T ReadEnumGeneric<T>(BufferReaderBase reader)
+		internal static T ReadEnumGeneric<T, TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var type = typeof(T);
 			var enumTypeInfo = BoisTypeCache.GetEnumType(type);
@@ -346,21 +436,21 @@ namespace Salar.Bois.Serializers
 				case EnBasicEnumType.Int32:
 					if (enumTypeInfo.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarInt32Nullable(reader);
+						var val = NumericSerializers.ReadVarInt32Nullable(ref reader);
 						if (val == null)
 							return default;
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarInt32(reader);
+						var val = NumericSerializers.ReadVarInt32(ref reader);
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 
 				case EnBasicEnumType.Byte:
 					if (enumTypeInfo.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarByteNullable(reader);
+						var val = NumericSerializers.ReadVarByteNullable(ref reader);
 						if (val == null)
 							return default;
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
@@ -374,77 +464,77 @@ namespace Salar.Bois.Serializers
 				case EnBasicEnumType.Int16:
 					if (enumTypeInfo.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarInt16Nullable(reader);
+						var val = NumericSerializers.ReadVarInt16Nullable(ref reader);
 						if (val == null)
 							return default;
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarInt16(reader);
+						var val = NumericSerializers.ReadVarInt16(ref reader);
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 
 				case EnBasicEnumType.Int64:
 					if (enumTypeInfo.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarInt64Nullable(reader);
+						var val = NumericSerializers.ReadVarInt64Nullable(ref reader);
 						if (val == null)
 							return default;
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarInt64(reader);
+						var val = NumericSerializers.ReadVarInt64(ref reader);
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 
 				case EnBasicEnumType.UInt16:
 					if (enumTypeInfo.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarUInt16Nullable(reader);
+						var val = NumericSerializers.ReadVarUInt16Nullable(ref reader);
 						if (val == null)
 							return default;
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarUInt16(reader);
+						var val = NumericSerializers.ReadVarUInt16(ref reader);
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 
 				case EnBasicEnumType.UInt32:
 					if (enumTypeInfo.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarUInt32Nullable(reader);
+						var val = NumericSerializers.ReadVarUInt32Nullable(ref reader);
 						if (val == null)
 							return default;
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarUInt32(reader);
+						var val = NumericSerializers.ReadVarUInt32(ref reader);
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 
 				case EnBasicEnumType.UInt64:
 					if (enumTypeInfo.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarUInt64Nullable(reader);
+						var val = NumericSerializers.ReadVarUInt64Nullable(ref reader);
 						if (val == null)
 							return default;
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 					else
 					{
-						var val = NumericSerializers.ReadVarUInt64(reader);
+						var val = NumericSerializers.ReadVarUInt64(ref reader);
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
 					}
 
 				case EnBasicEnumType.SByte:
 					if (enumTypeInfo.IsNullable)
 					{
-						var val = NumericSerializers.ReadVarSByteNullable(reader);
+						var val = NumericSerializers.ReadVarSByteNullable(ref reader);
 						if (val == null)
 							return default;
 						return (T)Enum.ToObject(enumTypeInfo.BareType, val);
@@ -461,89 +551,157 @@ namespace Salar.Bois.Serializers
 		}
 #endif
 
-		internal static int ReadEnumInt32(BufferReaderBase reader)
+		internal static int ReadEnumInt32<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarInt32(reader);
+			return NumericSerializers.ReadVarInt32(ref reader);
 		}
 
-		internal static int? ReadEnumInt32Nullable(BufferReaderBase reader)
+		internal static int? ReadEnumInt32Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarInt32Nullable(reader);
+			return NumericSerializers.ReadVarInt32Nullable(ref reader);
 		}
 
-		internal static long ReadEnumInt64(BufferReaderBase reader)
+		internal static long ReadEnumInt64<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarInt64(reader);
+			return NumericSerializers.ReadVarInt64(ref reader);
 		}
 
-		internal static long? ReadEnumInt64Nullable(BufferReaderBase reader)
+		internal static long? ReadEnumInt64Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarInt64Nullable(reader);
+			return NumericSerializers.ReadVarInt64Nullable(ref reader);
 		}
 
-		internal static short ReadEnumInt16(BufferReaderBase reader)
+		internal static short ReadEnumInt16<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarInt16(reader);
+			return NumericSerializers.ReadVarInt16(ref reader);
 		}
 
-		internal static short? ReadEnumInt16Nullable(BufferReaderBase reader)
+		internal static short? ReadEnumInt16Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarInt16Nullable(reader);
+			return NumericSerializers.ReadVarInt16Nullable(ref reader);
 		}
 
-		internal static ushort ReadEnumUInt16(BufferReaderBase reader)
+		internal static ushort ReadEnumUInt16<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarUInt16(reader);
+			return NumericSerializers.ReadVarUInt16(ref reader);
 		}
 
-		internal static ushort? ReadEnumUInt16Nullable(BufferReaderBase reader)
+		internal static ushort? ReadEnumUInt16Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarUInt16Nullable(reader);
+			return NumericSerializers.ReadVarUInt16Nullable(ref reader);
 		}
 
-		internal static uint ReadEnumUInt32(BufferReaderBase reader)
+		internal static uint ReadEnumUInt32<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarUInt32(reader);
+			return NumericSerializers.ReadVarUInt32(ref reader);
 		}
 
-		internal static uint? ReadEnumUInt32Nullable(BufferReaderBase reader)
+		internal static uint? ReadEnumUInt32Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarUInt32Nullable(reader);
+			return NumericSerializers.ReadVarUInt32Nullable(ref reader);
 		}
 
-		internal static ulong ReadEnumUInt64(BufferReaderBase reader)
+		internal static ulong ReadEnumUInt64<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarUInt64(reader);
+			return NumericSerializers.ReadVarUInt64(ref reader);
 		}
 
-		internal static ulong? ReadEnumUInt64Nullable(BufferReaderBase reader)
+		internal static ulong? ReadEnumUInt64Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarUInt64Nullable(reader);
+			return NumericSerializers.ReadVarUInt64Nullable(ref reader);
 		}
 
-		internal static byte ReadEnumByte(BufferReaderBase reader)
+		internal static byte ReadEnumByte<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			return reader.ReadByte();
 		}
 
-		internal static byte? ReadEnumByteNullable(BufferReaderBase reader)
+		internal static byte? ReadEnumByteNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarByteNullable(reader);
+			return NumericSerializers.ReadVarByteNullable(ref reader);
 		}
 
-		internal static sbyte ReadEnumSByte(BufferReaderBase reader)
+		internal static sbyte ReadEnumSByte<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			return reader.ReadSByte();
 		}
 
-		internal static sbyte? ReadEnumSByteNullable(BufferReaderBase reader)
+		internal static sbyte? ReadEnumSByteNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return NumericSerializers.ReadVarSByteNullable(reader);
+			return NumericSerializers.ReadVarSByteNullable(ref reader);
 		}
 
-		internal static TimeSpan? ReadTimeSpanNullable(BufferReaderBase reader)
+		internal static TimeSpan? ReadTimeSpanNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var ticks = NumericSerializers.ReadVarInt64Nullable(reader);
+			var ticks = NumericSerializers.ReadVarInt64Nullable(ref reader);
 			if (ticks == null)
 				return null;
 
@@ -551,23 +709,35 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static TimeSpan ReadTimeSpan(BufferReaderBase reader)
+		internal static TimeSpan ReadTimeSpan<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var ticks = NumericSerializers.ReadVarInt64(reader);
+			var ticks = NumericSerializers.ReadVarInt64(ref reader);
 			return new TimeSpan(ticks);
 		}
 
-		internal static Version ReadVersion(BufferReaderBase reader)
+		internal static Version ReadVersion<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var version = ReadString(reader, Encoding.ASCII);
+			var version = ReadString(ref reader, Encoding.ASCII);
 			if (version == null)
 				return null;
 			return new Version(version);
 		}
 
-		internal static Guid? ReadGuidNullable(BufferReaderBase reader)
+		internal static Guid? ReadGuidNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			uint? len = NumericSerializers.ReadVarUInt32Nullable(reader);
+			uint? len = NumericSerializers.ReadVarUInt32Nullable(ref reader);
 
 			if (len == null)
 				return null;
@@ -584,9 +754,13 @@ namespace Salar.Bois.Serializers
 #endif
 		}
 
-		internal static Guid ReadGuid(BufferReaderBase reader)
+		internal static Guid ReadGuid<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			uint len = NumericSerializers.ReadVarUInt32(reader);
+			uint len = NumericSerializers.ReadVarUInt32(ref reader);
 			if (len == 0)
 				return Guid.Empty;
 
@@ -600,7 +774,11 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static DBNull ReadDbNull(BufferReaderBase reader)
+		internal static DBNull ReadDbNull<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (reader.ReadByte() == NumericSerializers.FlagIsNull)
 				return null;
@@ -608,46 +786,62 @@ namespace Salar.Bois.Serializers
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static Color? ReadColorNullable(BufferReaderBase reader)
+		internal static Color? ReadColorNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var argb = NumericSerializers.ReadVarInt32Nullable(reader);
+			var argb = NumericSerializers.ReadVarInt32Nullable(ref reader);
 			if (argb == null)
 				return null;
 			return Color.FromArgb(argb.Value);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static Color ReadColor(BufferReaderBase reader)
+		internal static Color ReadColor<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return Color.FromArgb(NumericSerializers.ReadVarInt32(reader));
+			return Color.FromArgb(NumericSerializers.ReadVarInt32(ref reader));
 		}
 
-		internal static Uri ReadUri(BufferReaderBase reader)
+		internal static Uri ReadUri<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var uri = ReadString(reader, Encoding.UTF8);
+			var uri = ReadString(ref reader, Encoding.UTF8);
 			if (uri == null)
 				return null;
 			return new Uri(uri, UriKind.RelativeOrAbsolute);
 		}
 
-		internal static DataTable ReadDataTable(BufferReaderBase reader, Encoding encoding)
+		internal static DataTable ReadDataTable<TReader>(ref TReader reader, Encoding encoding)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 #if SupportsEmit
-			var columnCount = NumericSerializers.ReadVarUInt32Nullable(reader);
+			var columnCount = NumericSerializers.ReadVarUInt32Nullable(ref reader);
 			if (columnCount == null)
 				return null;
 
 			// table name
-			var tableName = ReadString(reader, encoding);
+			var tableName = ReadString(ref reader, encoding);
 
 			var dt = new DataTable(tableName);
 
 			// columns
 			for (int index = 0; index < columnCount.Value; index++)
 			{
-				var caption = ReadString(reader, encoding);
-				var columnName = ReadString(reader, encoding);
-				var dataTypeStr = ReadString(reader, encoding);
+				var caption = ReadString(ref reader, encoding);
+				var columnName = ReadString(ref reader, encoding);
+				var dataTypeStr = ReadString(ref reader, encoding);
 
 				if (dataTypeStr.StartsWith("0."))
 				{
@@ -661,7 +855,7 @@ namespace Salar.Bois.Serializers
 				});
 			}
 
-			var rowsCount = NumericSerializers.ReadVarInt32(reader);
+			var rowsCount = NumericSerializers.ReadVarInt32(ref reader);
 			for (int index = 0; index < rowsCount; index++)
 			{
 				var itemArray = new object[columnCount.Value];
@@ -675,7 +869,7 @@ namespace Salar.Bois.Serializers
 					if (basicTypeInfo.KnownType == EnBasicKnownType.Unknown)
 						throw new InvalidDataException($"Deserialization of DataTable with item type of '{itemType}' is not supported.");
 
-					var item = ReadRootBasicType(reader, itemType, basicTypeInfo, encoding);
+					var item = ReadRootBasicType(ref reader, itemType, basicTypeInfo, encoding);
 
 					itemArray[colIndex] = item;
 				}
@@ -690,21 +884,25 @@ namespace Salar.Bois.Serializers
 #endif
 		}
 
-		internal static DataSet ReadDataSet(BufferReaderBase reader, Encoding encoding)
+		internal static DataSet ReadDataSet<TReader>(ref TReader reader, Encoding encoding)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 #if SupportsEmit
-			var tablesCount = NumericSerializers.ReadVarUInt32Nullable(reader);
+			var tablesCount = NumericSerializers.ReadVarUInt32Nullable(ref reader);
 			if (tablesCount == null)
 				return null;
 
 			// set name
-			var setName = ReadString(reader, encoding);
+			var setName = ReadString(ref reader, encoding);
 
 			var ds = new DataSet(setName);
 
 			for (int index = 0; index < tablesCount.Value; index++)
 			{
-				var dt = ReadDataTable(reader, encoding);
+				var dt = ReadDataTable(ref reader, encoding);
 				ds.Tables.Add(dt);
 			}
 			return ds;
@@ -715,138 +913,142 @@ namespace Salar.Bois.Serializers
 
 
 #if SupportsEmit
-		internal static object ReadRootBasicType(BufferReaderBase reader, Type type, BoisBasicTypeInfo typeInfo, Encoding encoding)
+		internal static object ReadRootBasicType<TReader>(ref TReader reader, Type type, BoisBasicTypeInfo typeInfo, Encoding encoding)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			switch (typeInfo.KnownType)
 			{
 				case EnBasicKnownType.String:
-					return PrimitiveReader.ReadString(reader, encoding);
+					return PrimitiveReader.ReadString(ref reader, encoding);
 
 				case EnBasicKnownType.Char:
 					if (typeInfo.IsNullable)
-						return PrimitiveReader.ReadCharNullable(reader);
-					return PrimitiveReader.ReadChar(reader);
+						return PrimitiveReader.ReadCharNullable(ref reader);
+					return PrimitiveReader.ReadChar(ref reader);
 
 				case EnBasicKnownType.Guid:
 					if (typeInfo.IsNullable)
-						return PrimitiveReader.ReadGuidNullable(reader);
-					return PrimitiveReader.ReadGuid(reader);
+						return PrimitiveReader.ReadGuidNullable(ref reader);
+					return PrimitiveReader.ReadGuid(ref reader);
 
 				case EnBasicKnownType.Bool:
 					if (typeInfo.IsNullable)
-						return PrimitiveReader.ReadBooleanNullable(reader);
-					return PrimitiveReader.ReadBoolean(reader);
+						return PrimitiveReader.ReadBooleanNullable(ref reader);
+					return PrimitiveReader.ReadBoolean(ref reader);
 
 				case EnBasicKnownType.Enum:
-					return PrimitiveReader.ReadEnum(reader, type);
+					return PrimitiveReader.ReadEnum(ref reader, type);
 
 				case EnBasicKnownType.DateTime:
 					if (typeInfo.IsNullable)
-						return PrimitiveReader.ReadDateTimeNullable(reader);
-					return PrimitiveReader.ReadDateTime(reader);
+						return PrimitiveReader.ReadDateTimeNullable(ref reader);
+					return PrimitiveReader.ReadDateTime(ref reader);
 
 				case EnBasicKnownType.DateTimeOffset:
 					if (typeInfo.IsNullable)
-						return PrimitiveReader.ReadDateTimeOffsetNullable(reader);
-					return PrimitiveReader.ReadDateTimeOffset(reader);
+						return PrimitiveReader.ReadDateTimeOffsetNullable(ref reader);
+					return PrimitiveReader.ReadDateTimeOffset(ref reader);
 
 #if NET6_0_OR_GREATER
 				case EnBasicKnownType.DateOnly:
 					if (typeInfo.IsNullable)
-						return PrimitiveReader.ReadDateOnlyNullable(reader);
-					return PrimitiveReader.ReadDateOnly(reader);
+						return PrimitiveReader.ReadDateOnlyNullable(ref reader);
+					return PrimitiveReader.ReadDateOnly(ref reader);
 
 				case EnBasicKnownType.TimeOnly:
 					if (typeInfo.IsNullable)
-						return PrimitiveReader.ReadTimeOnlyNullable(reader);
-					return PrimitiveReader.ReadTimeOnly(reader);
+						return PrimitiveReader.ReadTimeOnlyNullable(ref reader);
+					return PrimitiveReader.ReadTimeOnly(ref reader);
 #endif
 
 				case EnBasicKnownType.TimeSpan:
 					if (typeInfo.IsNullable)
-						return PrimitiveReader.ReadTimeSpanNullable(reader);
-					return PrimitiveReader.ReadTimeSpan(reader);
+						return PrimitiveReader.ReadTimeSpanNullable(ref reader);
+					return PrimitiveReader.ReadTimeSpan(ref reader);
 
 				case EnBasicKnownType.ByteArray:
-					return PrimitiveReader.ReadByteArray(reader);
+					return PrimitiveReader.ReadByteArray(ref reader);
 
 				case EnBasicKnownType.KnownTypeArray:
-					return ReadRootBasicTypedArray(reader, typeInfo, encoding);
+					return ReadRootBasicTypedArray(ref reader, typeInfo, encoding);
 
 				case EnBasicKnownType.Color:
 					if (typeInfo.IsNullable)
-						return PrimitiveReader.ReadColorNullable(reader);
-					return PrimitiveReader.ReadColor(reader);
+						return PrimitiveReader.ReadColorNullable(ref reader);
+					return PrimitiveReader.ReadColor(ref reader);
 
 				case EnBasicKnownType.Version:
-					return PrimitiveReader.ReadVersion(reader);
+					return PrimitiveReader.ReadVersion(ref reader);
 
 				case EnBasicKnownType.DbNull:
-					return PrimitiveReader.ReadDbNull(reader);
+					return PrimitiveReader.ReadDbNull(ref reader);
 
 				case EnBasicKnownType.DataTable:
-					return PrimitiveReader.ReadDataTable(reader, encoding);
+					return PrimitiveReader.ReadDataTable(ref reader, encoding);
 
 				case EnBasicKnownType.DataSet:
-					return PrimitiveReader.ReadDataSet(reader, encoding);
+					return PrimitiveReader.ReadDataSet(ref reader, encoding);
 
 				case EnBasicKnownType.Uri:
-					return PrimitiveReader.ReadUri(reader);
+					return PrimitiveReader.ReadUri(ref reader);
 
 				case EnBasicKnownType.Int16:
 					if (typeInfo.IsNullable)
-						return NumericSerializers.ReadVarInt16Nullable(reader);
-					return NumericSerializers.ReadVarInt16(reader);
+						return NumericSerializers.ReadVarInt16Nullable(ref reader);
+					return NumericSerializers.ReadVarInt16(ref reader);
 
 				case EnBasicKnownType.Int32:
 					if (typeInfo.IsNullable)
-						return NumericSerializers.ReadVarInt32Nullable(reader);
-					return NumericSerializers.ReadVarInt32(reader);
+						return NumericSerializers.ReadVarInt32Nullable(ref reader);
+					return NumericSerializers.ReadVarInt32(ref reader);
 
 				case EnBasicKnownType.Int64:
 					if (typeInfo.IsNullable)
-						return NumericSerializers.ReadVarInt64Nullable(reader);
-					return NumericSerializers.ReadVarInt64(reader);
+						return NumericSerializers.ReadVarInt64Nullable(ref reader);
+					return NumericSerializers.ReadVarInt64(ref reader);
 
 				case EnBasicKnownType.UInt16:
 					if (typeInfo.IsNullable)
-						return NumericSerializers.ReadVarUInt16Nullable(reader);
-					return NumericSerializers.ReadVarUInt16(reader);
+						return NumericSerializers.ReadVarUInt16Nullable(ref reader);
+					return NumericSerializers.ReadVarUInt16(ref reader);
 
 				case EnBasicKnownType.UInt32:
 					if (typeInfo.IsNullable)
-						return NumericSerializers.ReadVarUInt32Nullable(reader);
-					return NumericSerializers.ReadVarUInt32(reader);
+						return NumericSerializers.ReadVarUInt32Nullable(ref reader);
+					return NumericSerializers.ReadVarUInt32(ref reader);
 
 				case EnBasicKnownType.UInt64:
 					if (typeInfo.IsNullable)
-						return NumericSerializers.ReadVarUInt64Nullable(reader);
-					return NumericSerializers.ReadVarUInt64(reader);
+						return NumericSerializers.ReadVarUInt64Nullable(ref reader);
+					return NumericSerializers.ReadVarUInt64(ref reader);
 
 				case EnBasicKnownType.Double:
 					if (typeInfo.IsNullable)
-						return NumericSerializers.ReadVarDoubleNullable(reader);
-					return NumericSerializers.ReadVarDouble(reader);
+						return NumericSerializers.ReadVarDoubleNullable(ref reader);
+					return NumericSerializers.ReadVarDouble(ref reader);
 
 
 				case EnBasicKnownType.Decimal:
 					if (typeInfo.IsNullable)
-						return NumericSerializers.ReadVarDecimalNullable(reader);
-					return NumericSerializers.ReadVarDecimal(reader);
+						return NumericSerializers.ReadVarDecimalNullable(ref reader);
+					return NumericSerializers.ReadVarDecimal(ref reader);
 
 				case EnBasicKnownType.Single:
 					if (typeInfo.IsNullable)
-						return NumericSerializers.ReadVarSingleNullable(reader);
-					return NumericSerializers.ReadVarSingle(reader);
+						return NumericSerializers.ReadVarSingleNullable(ref reader);
+					return NumericSerializers.ReadVarSingle(ref reader);
 
 				case EnBasicKnownType.Byte:
 					if (typeInfo.IsNullable)
-						return NumericSerializers.ReadVarByteNullable(reader);
+						return NumericSerializers.ReadVarByteNullable(ref reader);
 					return reader.ReadByte();
 
 				case EnBasicKnownType.SByte:
 					if (typeInfo.IsNullable)
-						return NumericSerializers.ReadVarSByteNullable(reader);
+						return NumericSerializers.ReadVarSByteNullable(ref reader);
 					return reader.ReadSByte();
 
 				case EnBasicKnownType.Unknown:
@@ -858,9 +1060,13 @@ namespace Salar.Bois.Serializers
 #endif
 
 #if SupportsEmit
-		internal static Array ReadRootBasicTypedArray(BufferReaderBase reader, BoisBasicTypeInfo typeInfo, Encoding encoding)
+		internal static Array ReadRootBasicTypedArray<TReader>(ref TReader reader, BoisBasicTypeInfo typeInfo, Encoding encoding)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			var length = NumericSerializers.ReadVarUInt32Nullable(reader);
+			var length = NumericSerializers.ReadVarUInt32Nullable(ref reader);
 			if (length == null)
 			{
 				return null;
@@ -873,7 +1079,7 @@ namespace Salar.Bois.Serializers
 
 			for (int i = 0; i < length; i++)
 			{
-				var item = ReadRootBasicType(reader, arrayItemType, boisBasicTypeInfo, encoding);
+				var item = ReadRootBasicType(ref reader, arrayItemType, boisBasicTypeInfo, encoding);
 				result.SetValue(item, i);
 			}
 			return result;

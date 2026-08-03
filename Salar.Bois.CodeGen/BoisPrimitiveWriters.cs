@@ -12,208 +12,344 @@ namespace Salar.Bois.CodeGen;
 public static class BoisPrimitiveWriters
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteNullValue(BufferWriterBase writer)
+	public static void WriteNullValue<TWriter>(ref TWriter writer)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteNullValue(writer);
+		PrimitiveWriter.WriteNullValue(ref writer);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, string? str, Encoding encoding)
+	public static void WriteValue<TWriter>(ref TWriter writer, string? str, Encoding encoding)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, str, encoding);
+		PrimitiveWriter.WriteValue(ref writer, str, encoding);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, char c)
+	public static void WriteValue<TWriter>(ref TWriter writer, char c)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, c);
+		PrimitiveWriter.WriteValue(ref writer, c);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, char? c)
+	public static void WriteValue<TWriter>(ref TWriter writer, char? c)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, c);
+		PrimitiveWriter.WriteValue(ref writer, c);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, bool b)
+	public static void WriteValue<TWriter>(ref TWriter writer, bool b)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, b);
+		PrimitiveWriter.WriteValue(ref writer, b);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, bool? b)
+	public static void WriteValue<TWriter>(ref TWriter writer, bool? b)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, b);
+		PrimitiveWriter.WriteValue(ref writer, b);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, DateTime dateTime)
+	public static void WriteValue<TWriter>(ref TWriter writer, DateTime dateTime)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, dateTime);
+		PrimitiveWriter.WriteValue(ref writer, dateTime);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, DateTime? dt)
+	public static void WriteValue<TWriter>(ref TWriter writer, DateTime? dt)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, dt);
+		PrimitiveWriter.WriteValue(ref writer, dt);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, DateTimeOffset dateTimeOffset)
+	public static void WriteValue<TWriter>(ref TWriter writer, DateTimeOffset dateTimeOffset)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, dateTimeOffset);
+		PrimitiveWriter.WriteValue(ref writer, dateTimeOffset);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, DateTimeOffset? dto)
+	public static void WriteValue<TWriter>(ref TWriter writer, DateTimeOffset? dto)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, dto);
+		PrimitiveWriter.WriteValue(ref writer, dto);
 	}
 
 #if NET6_0_OR_GREATER
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, DateOnly dateOnly)
+	public static void WriteValue<TWriter>(ref TWriter writer, DateOnly dateOnly)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, dateOnly);
+		PrimitiveWriter.WriteValue(ref writer, dateOnly);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, DateOnly? dto)
+	public static void WriteValue<TWriter>(ref TWriter writer, DateOnly? dto)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, dto);
+		PrimitiveWriter.WriteValue(ref writer, dto);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, TimeOnly timeOnly)
+	public static void WriteValue<TWriter>(ref TWriter writer, TimeOnly timeOnly)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, timeOnly);
+		PrimitiveWriter.WriteValue(ref writer, timeOnly);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, TimeOnly? dto)
+	public static void WriteValue<TWriter>(ref TWriter writer, TimeOnly? dto)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, dto);
+		PrimitiveWriter.WriteValue(ref writer, dto);
 	}
 #endif
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, byte[]? bytes)
+	public static void WriteValue<TWriter>(ref TWriter writer, byte[]? bytes)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, bytes);
+		PrimitiveWriter.WriteValue(ref writer, bytes);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteEnumInt32(BufferWriterBase writer, Enum? e, bool nullable)
+	public static void WriteEnumInt32<TWriter>(ref TWriter writer, Enum? e, bool nullable)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteEnumInt32(writer, e, nullable);
+		PrimitiveWriter.WriteEnumInt32(ref writer, e, nullable);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteEnumInt64(BufferWriterBase writer, Enum? e, bool nullable)
+	public static void WriteEnumInt64<TWriter>(ref TWriter writer, Enum? e, bool nullable)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteEnumInt64(writer, e, nullable);
+		PrimitiveWriter.WriteEnumInt64(ref writer, e, nullable);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteEnumInt16(BufferWriterBase writer, Enum? e, bool nullable)
+	public static void WriteEnumInt16<TWriter>(ref TWriter writer, Enum? e, bool nullable)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteEnumInt16(writer, e, nullable);
+		PrimitiveWriter.WriteEnumInt16(ref writer, e, nullable);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteEnumUInt16(BufferWriterBase writer, Enum? e, bool nullable)
+	public static void WriteEnumUInt16<TWriter>(ref TWriter writer, Enum? e, bool nullable)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteEnumUInt16(writer, e, nullable);
+		PrimitiveWriter.WriteEnumUInt16(ref writer, e, nullable);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteEnumUInt32(BufferWriterBase writer, Enum? e, bool nullable)
+	public static void WriteEnumUInt32<TWriter>(ref TWriter writer, Enum? e, bool nullable)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteEnumUInt32(writer, e, nullable);
+		PrimitiveWriter.WriteEnumUInt32(ref writer, e, nullable);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteEnumUInt64(BufferWriterBase writer, Enum? e, bool nullable)
+	public static void WriteEnumUInt64<TWriter>(ref TWriter writer, Enum? e, bool nullable)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteEnumUInt64(writer, e, nullable);
+		PrimitiveWriter.WriteEnumUInt64(ref writer, e, nullable);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteEnumByte(BufferWriterBase writer, Enum? e, bool nullable)
+	public static void WriteEnumByte<TWriter>(ref TWriter writer, Enum? e, bool nullable)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteEnumByte(writer, e, nullable);
+		PrimitiveWriter.WriteEnumByte(ref writer, e, nullable);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteEnumSByte(BufferWriterBase writer, Enum? e, bool nullable)
+	public static void WriteEnumSByte<TWriter>(ref TWriter writer, Enum? e, bool nullable)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteEnumSByte(writer, e, nullable);
+		PrimitiveWriter.WriteEnumSByte(ref writer, e, nullable);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, TimeSpan timeSpan)
+	public static void WriteValue<TWriter>(ref TWriter writer, TimeSpan timeSpan)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, timeSpan);
+		PrimitiveWriter.WriteValue(ref writer, timeSpan);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, TimeSpan? timeSpan)
+	public static void WriteValue<TWriter>(ref TWriter writer, TimeSpan? timeSpan)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, timeSpan);
+		PrimitiveWriter.WriteValue(ref writer, timeSpan);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, Version? version)
+	public static void WriteValue<TWriter>(ref TWriter writer, Version? version)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, version);
+		PrimitiveWriter.WriteValue(ref writer, version);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, Uri? uri)
+	public static void WriteValue<TWriter>(ref TWriter writer, Uri? uri)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, uri);
+		PrimitiveWriter.WriteValue(ref writer, uri);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, Guid guid)
+	public static void WriteValue<TWriter>(ref TWriter writer, Guid guid)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, guid);
+		PrimitiveWriter.WriteValue(ref writer, guid);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, Guid? g)
+	public static void WriteValue<TWriter>(ref TWriter writer, Guid? g)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, g);
+		PrimitiveWriter.WriteValue(ref writer, g);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, DBNull? dbNull)
+	public static void WriteValue<TWriter>(ref TWriter writer, DBNull? dbNull)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, dbNull);
+		PrimitiveWriter.WriteValue(ref writer, dbNull);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, Color color)
+	public static void WriteValue<TWriter>(ref TWriter writer, Color color)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, color);
+		PrimitiveWriter.WriteValue(ref writer, color);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, Color? color)
+	public static void WriteValue<TWriter>(ref TWriter writer, Color? color)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, color);
+		PrimitiveWriter.WriteValue(ref writer, color);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, DataSet? ds, Encoding encoding)
+	public static void WriteValue<TWriter>(ref TWriter writer, DataSet? ds, Encoding encoding)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, ds, encoding);
+		PrimitiveWriter.WriteValue(ref writer, ds, encoding);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteValue(BufferWriterBase writer, DataTable? dt, Encoding encoding)
+	public static void WriteValue<TWriter>(ref TWriter writer, DataTable? dt, Encoding encoding)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		PrimitiveWriter.WriteValue(writer, dt, encoding);
+		PrimitiveWriter.WriteValue(ref writer, dt, encoding);
 	}
 }

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Salar.Bois.NetFx.Tests.Base;
 using Salar.Bois.Serializers;
 using System;
@@ -21,10 +21,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init, encoding);
+			PrimitiveWriter.WriteValue(ref Writer, init, encoding);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadString(Reader, encoding);
+			var final = PrimitiveReader.ReadString(ref Reader, encoding);
 
 			final.Should().Be(init);
 		}
@@ -53,10 +53,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadBoolean(Reader);
+			var final = PrimitiveReader.ReadBoolean(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -67,10 +67,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadBooleanNullable(Reader);
+			var final = PrimitiveReader.ReadBooleanNullable(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -81,10 +81,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadChar(Reader);
+			var final = PrimitiveReader.ReadChar(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -96,10 +96,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadCharNullable(Reader);
+			var final = PrimitiveReader.ReadCharNullable(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -120,10 +120,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 			if (init != null)
 				enumType = init.GetType();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadEnum(Reader, enumType);
+			var final = PrimitiveReader.ReadEnum(ref Reader, enumType);
 
 			final.Should().Be(init);
 		}
@@ -140,10 +140,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadDbNull(Reader);
+			var final = PrimitiveReader.ReadDbNull(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -163,10 +163,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadGuid(Reader);
+			var final = PrimitiveReader.ReadGuid(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -178,10 +178,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadGuidNullable(Reader);
+			var final = PrimitiveReader.ReadGuidNullable(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -203,10 +203,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadUri(Reader);
+			var final = PrimitiveReader.ReadUri(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -228,10 +228,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadVersion(Reader);
+			var final = PrimitiveReader.ReadVersion(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -253,10 +253,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadColor(Reader);
+			var final = PrimitiveReader.ReadColor(ref Reader);
 
 			Assert.True(init.ToArgb() == final.ToArgb(), $"Color value are not same, expected: {init.ToArgb()}, actual: {final.ToArgb()}");
 
@@ -271,10 +271,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadColorNullable(Reader);
+			var final = PrimitiveReader.ReadColorNullable(ref Reader);
 
 			Assert.True(init?.ToArgb() == final?.ToArgb(), $"Color value are not same, expected: {init?.ToArgb()}, actual: {final?.ToArgb()}");
 
@@ -300,10 +300,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadTimeSpan(Reader);
+			var final = PrimitiveReader.ReadTimeSpan(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -315,10 +315,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadTimeSpanNullable(Reader);
+			var final = PrimitiveReader.ReadTimeSpanNullable(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -341,10 +341,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadDateTime(Reader);
+			var final = PrimitiveReader.ReadDateTime(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -356,10 +356,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadDateTimeNullable(Reader);
+			var final = PrimitiveReader.ReadDateTimeNullable(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -380,10 +380,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadDateTimeOffset(Reader);
+			var final = PrimitiveReader.ReadDateTimeOffset(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -395,10 +395,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadDateTimeOffsetNullable(Reader);
+			var final = PrimitiveReader.ReadDateTimeOffsetNullable(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -418,10 +418,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadDateOnly(Reader);
+			var final = PrimitiveReader.ReadDateOnly(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -433,10 +433,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadDateOnlyNullable(Reader);
+			var final = PrimitiveReader.ReadDateOnlyNullable(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -456,10 +456,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadTimeOnly(Reader);
+			var final = PrimitiveReader.ReadTimeOnly(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -471,10 +471,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadTimeOnlyNullable(Reader);
+			var final = PrimitiveReader.ReadTimeOnlyNullable(ref Reader);
 
 			final.Should().Be(init);
 		}
@@ -498,10 +498,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init);
+			PrimitiveWriter.WriteValue(ref Writer, init);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadByteArray(Reader);
+			var final = PrimitiveReader.ReadByteArray(ref Reader);
 
 			if (final != null && init != null)
 				final.Should().BeEquivalentTo(init);
@@ -545,10 +545,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init, Encoding.UTF8);
+			PrimitiveWriter.WriteValue(ref Writer, init, Encoding.UTF8);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadDataSet(Reader, Encoding.UTF8);
+			var final = PrimitiveReader.ReadDataSet(ref Reader, Encoding.UTF8);
 
 			SerializeAreEqual(init, final);
 		}
@@ -586,10 +586,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			PrimitiveWriter.WriteValue(Writer, init, Encoding.UTF8);
+			PrimitiveWriter.WriteValue(ref Writer, init, Encoding.UTF8);
 			ResetStream();
 
-			var final = PrimitiveReader.ReadDataTable(Reader, Encoding.UTF8);
+			var final = PrimitiveReader.ReadDataTable(ref Reader, Encoding.UTF8);
 
 			SerializeAreEqual(init, final);
 		}

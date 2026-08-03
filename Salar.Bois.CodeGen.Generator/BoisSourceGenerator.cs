@@ -645,7 +645,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             private void EmitReadLocalFunction(CodeBuilder builder, LocalFunctionModel function)
             {
                 builder.Line();
-                builder.Line($"static {TypeName(function.Type)} {function.Name}(global::Salar.BinaryBuffers.BufferReaderBase reader, global::System.Text.Encoding encoding)");
+                builder.Line($"static {TypeName(function.Type)} {function.Name}<TReader>(ref TReader reader, global::System.Text.Encoding encoding)");
+                builder.Line("    where TReader : global::Salar.BinaryBuffers.IBufferReader");
+                builder.Line("#if NET9_0_OR_GREATER");
+                builder.Line("        , allows ref struct");
+                builder.Line("#endif");
                 builder.Line("{");
                 builder.Indent();
 
@@ -662,7 +666,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             private void EmitWriteLocalFunction(CodeBuilder builder, LocalFunctionModel function)
             {
                 builder.Line();
-                builder.Line($"static void {function.Name}(global::Salar.BinaryBuffers.BufferWriterBase writer, {TypeName(function.Type)} value, global::System.Text.Encoding encoding)");
+                builder.Line($"static void {function.Name}<TWriter>(ref TWriter writer, {TypeName(function.Type)} value, global::System.Text.Encoding encoding)");
+                builder.Line("    where TWriter : global::Salar.BinaryBuffers.IBufferWriter");
+                builder.Line("#if NET9_0_OR_GREATER");
+                builder.Line("        , allows ref struct");
+                builder.Line("#endif");
                 builder.Line("{");
                 builder.Indent();
 
@@ -853,12 +861,12 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                         builder.Line($"if ({expression} is null)");
                         builder.Line("{");
                         builder.Indent();
-                        builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                        builder.Line("BoisPrimitiveWriters.WriteNullValue(ref writer);");
                         builder.Line("return;");
                         builder.Unindent();
                         builder.Line("}");
                     }
-                    builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(writer, {members.Length}u);");
+                    builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(ref writer, {members.Length}u);");
                 }
 
                 foreach (var member in members)
@@ -891,7 +899,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 if (!_owner.IsExplicitStruct(type))
                 {
-                    builder.Line("var memberCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                    builder.Line("var memberCount = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                     builder.Line("if (memberCount is null)");
                     builder.Indent();
                     builder.Line("return null!;");
@@ -971,7 +979,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line($"if ({expression} is null)");
                 builder.Line("{");
                 builder.Indent();
-                builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                builder.Line("BoisPrimitiveWriters.WriteNullValue(ref writer);");
                 builder.Unindent();
                 builder.Line("}");
                 builder.Line("else");
@@ -990,21 +998,21 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             {
                 if (_owner.IsExplicitStruct(type))
                 {
-                    builder.Line($"{EnsureWriteFunction(type)}(writer, {expression}, encoding);");
+                    builder.Line($"{EnsureWriteFunction(type)}(ref writer, {expression}, encoding);");
                     return;
                 }
 
                 builder.Line($"if ({expression} is null)");
                 builder.Line("{");
                 builder.Indent();
-                builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                builder.Line("BoisPrimitiveWriters.WriteNullValue(ref writer);");
                 builder.Unindent();
                 builder.Line("}");
                 builder.Line("else");
                 builder.Line("{");
                 builder.Indent();
                 builder.Line("writer.Write((byte)0);");
-                builder.Line($"{EnsureWriteFunction(type)}(writer, {expression}, encoding);");
+                builder.Line($"{EnsureWriteFunction(type)}(ref writer, {expression}, encoding);");
                 builder.Unindent();
                 builder.Line("}");
             }
@@ -1108,7 +1116,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             {
                 if (_owner.IsExplicitStruct(type))
                 {
-                    builder.Line($"{target} = {EnsureReadFunction(type)}(reader, encoding);");
+                    builder.Line($"{target} = {EnsureReadFunction(type)}(ref reader, encoding);");
                     return;
                 }
 
@@ -1118,7 +1126,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Unindent();
                 builder.Line("else");
                 builder.Indent();
-                builder.Line($"{target} = {EnsureReadFunction(type)}(reader, encoding);");
+                builder.Line($"{target} = {EnsureReadFunction(type)}(ref reader, encoding);");
                 builder.Unindent();
             }
 
@@ -1142,7 +1150,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 if (!_owner.IsExplicitStruct(type))
                 {
-                    builder.Line("memberCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                    builder.Line("memberCount = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                     builder.Line("if (memberCount is null)");
                     builder.Indent();
                     builder.Line($"{target} = null!;");
@@ -1173,7 +1181,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             private void EmitReadNestedArray(IArrayTypeSymbol arrayType, string target, string localName, CodeBuilder builder)
             {
                 var countName = localName + "Count";
-                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line($"if ({countName} is null)");
                 builder.Indent();
                 builder.Line($"{target} = null!;");
@@ -1196,7 +1204,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             private void EmitReadNestedCollection(CollectionInfo collectionInfo, string target, string localName, CodeBuilder builder)
             {
                 var countName = localName + "Count";
-                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line($"if ({countName} is null)");
                 builder.Indent();
                 builder.Line($"{target} = null!;");
@@ -1214,7 +1222,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             private void EmitReadNestedDictionary(DictionaryInfo dictionaryInfo, string target, string localName, CodeBuilder builder)
             {
                 var countName = localName + "Count";
-                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line($"if ({countName} is null)");
                 builder.Indent();
                 builder.Line($"{target} = null!;");
@@ -1232,7 +1240,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             private void EmitReadNestedNameValue(string target, string localName, CodeBuilder builder)
             {
                 var countName = localName + "Count";
-                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line($"var {countName} = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line($"if ({countName} is null)");
                 builder.Indent();
                 builder.Line($"{target} = null!;");
@@ -1265,14 +1273,14 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     builder.Line($"if ({expression} is null)");
                     builder.Line("{");
                     builder.Indent();
-                    builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                    builder.Line("BoisPrimitiveWriters.WriteNullValue(ref writer);");
                     builder.Unindent();
                     builder.Line("}");
                     builder.Line("else");
                     builder.Line("{");
                     builder.Indent();
                 }
-                builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(writer, (uint){expression}.Length);");
+                builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(ref writer, (uint){expression}.Length);");
                 builder.Line($"foreach (var item in {expression})");
                 builder.Line("{");
                 builder.Indent();
@@ -1290,7 +1298,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private bool EmitReadArray(IArrayTypeSymbol arrayType, CodeBuilder builder, out string error, bool setupEncoding = false)
             {
-                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line("if (itemCount is null)");
                 builder.Indent();
                 builder.Line("return null!;");
@@ -1319,14 +1327,14 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     builder.Line($"if ({expression} is null)");
                     builder.Line("{");
                     builder.Indent();
-                    builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                    builder.Line("BoisPrimitiveWriters.WriteNullValue(ref writer);");
                     builder.Unindent();
                     builder.Line("}");
                     builder.Line("else");
                     builder.Line("{");
                     builder.Indent();
                 }
-                builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(writer, (uint){expression}.Count);");
+                builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(ref writer, (uint){expression}.Count);");
                 builder.Line($"foreach (var item in {expression})");
                 builder.Line("{");
                 builder.Indent();
@@ -1346,7 +1354,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             {
                 if (!_owner.TryGetCreationExpression(type, out var create, out error))
                     return false;
-                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line("if (itemCount is null)");
                 builder.Indent();
                 builder.Line("return null!;");
@@ -1362,7 +1370,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private void EmitReadIntoCollection(CollectionInfo collectionInfo, string target, CodeBuilder builder)
             {
-                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line("if (itemCount is not null)");
                 builder.Line("{");
                 builder.Indent();
@@ -1391,14 +1399,14 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     builder.Line($"if ({expression} is null)");
                     builder.Line("{");
                     builder.Indent();
-                    builder.Line("BoisPrimitiveWriters.WriteNullValue(writer);");
+                    builder.Line("BoisPrimitiveWriters.WriteNullValue(ref writer);");
                     builder.Unindent();
                     builder.Line("}");
                     builder.Line("else");
                     builder.Line("{");
                     builder.Indent();
                 }
-                builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(writer, (uint){expression}.Count);");
+                builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(ref writer, (uint){expression}.Count);");
                 builder.Line($"foreach (var item in {expression})");
                 builder.Line("{");
                 builder.Indent();
@@ -1419,7 +1427,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             {
                 if (!_owner.TryGetCreationExpression(type, out var create, out error))
                     return false;
-                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line("if (itemCount is null)");
                 builder.Indent();
                 builder.Line("return null!;");
@@ -1435,7 +1443,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private void EmitReadIntoDictionary(DictionaryInfo dictionaryInfo, string target, CodeBuilder builder)
             {
-                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line("if (itemCount is not null)");
                 builder.Line("{");
                 builder.Indent();
@@ -1466,19 +1474,19 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     builder.MultiLine($$"""
                     if ({{expression}} is null)
                     {
-                        BoisPrimitiveWriters.WriteNullValue(writer);
+                        BoisPrimitiveWriters.WriteNullValue(ref writer);
                     }
                     else
                     {
                     """);
                     builder.Indent();
                 }
-                builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(writer, (uint){expression}.Count);");
+                builder.Line($"BoisNumericSerializers.WriteUIntNullableMemberCount(ref writer, (uint){expression}.Count);");
                 builder.Line($"foreach (var key in {expression}.AllKeys)");
                 builder.Line("{");
                 builder.Indent();
-                builder.Line("BoisPrimitiveWriters.WriteValue(writer, key, encoding);");
-                builder.Line($"BoisPrimitiveWriters.WriteValue(writer, {expression}[key], encoding);");
+                builder.Line("BoisPrimitiveWriters.WriteValue(ref writer, key, encoding);");
+                builder.Line($"BoisPrimitiveWriters.WriteValue(ref writer, {expression}[key], encoding);");
                 builder.Unindent();
                 builder.Line("}");
                 if (!suppressNullCheck)
@@ -1494,7 +1502,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             {
                 if (!_owner.TryGetCreationExpression(type, out var create, out error))
                     return false;
-                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line("if (itemCount is null)");
                 builder.Indent();
                 builder.Line("return null!;");
@@ -1510,7 +1518,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private void EmitReadIntoNameValue(string target, CodeBuilder builder)
             {
-                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(reader);");
+                builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line("if (itemCount is not null)");
                 builder.Line("{");
                 builder.Indent();
@@ -1524,8 +1532,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line($"for (var i = 0; i < {countExpression}; i++)");
                 builder.Line("{");
                 builder.Indent();
-                builder.Line("var key = BoisPrimitiveReaders.ReadString(reader, encoding);");
-                builder.Line("var value = BoisPrimitiveReaders.ReadString(reader, encoding);");
+                builder.Line("var key = BoisPrimitiveReaders.ReadString(ref reader, encoding);");
+                builder.Line("var value = BoisPrimitiveReaders.ReadString(ref reader, encoding);");
                 builder.Line($"{target}.Add(key, value);");
                 builder.Unindent();
                 builder.Line("}");
@@ -1537,7 +1545,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     return _owner.GetWriteStatement(type, basicType, expression);
                 if (_owner.IsEnum(type))
                     return _owner.GetEnumWriteStatement(type, expression);
-                return $"{EnsureWriteFunction(type)}(writer, {expression}, encoding);";
+                return $"{EnsureWriteFunction(type)}(ref writer, {expression}, encoding);";
             }
 
             private string GetReadValueExpression(ITypeSymbol type)
@@ -1546,7 +1554,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     return _owner.GetReadExpression(type, basicType);
                 if (_owner.IsEnum(type))
                     return _owner.GetEnumReadExpression(type);
-                return $"{EnsureReadFunction(type)}(reader, encoding)";
+                return $"{EnsureReadFunction(type)}(ref reader, encoding)";
             }
 
             private string BuildSignature(IMethodSymbol method)
@@ -1888,7 +1896,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             switch (basicType)
             {
                 case BasicType.String:
-                    return $"BoisPrimitiveWriters.WriteValue(writer, {expression}, encoding);";
+                    return $"BoisPrimitiveWriters.WriteValue(ref writer, {expression}, encoding);";
 
                 case BasicType.Bool:
                 case BasicType.BoolNullable:
@@ -1912,7 +1920,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 case BasicType.TimeOnly:
                 case BasicType.TimeOnlyNullable:
                 case BasicType.ByteArray:
-                    return $"BoisPrimitiveWriters.WriteValue(writer, {expression});";
+                    return $"BoisPrimitiveWriters.WriteValue(ref writer, {expression});";
 
                 case BasicType.Int16:
                 case BasicType.Int16Nullable:
@@ -1928,7 +1936,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 case BasicType.UInt64Nullable:
                 case BasicType.ByteNullable:
                 case BasicType.SByteNullable:
-                    return $"BoisNumericSerializers.WriteVarInt(writer, {expression});";
+                    return $"BoisNumericSerializers.WriteVarInt(ref writer, {expression});";
 
                 case BasicType.Single:
                 case BasicType.SingleNullable:
@@ -1936,13 +1944,13 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 case BasicType.DoubleNullable:
                 case BasicType.Decimal:
                 case BasicType.DecimalNullable:
-                    return $"BoisNumericSerializers.WriteVarDecimal(writer, {expression});";
+                    return $"BoisNumericSerializers.WriteVarDecimal(ref writer, {expression});";
 
                 case BasicType.Byte:
-                    return $"BoisNumericSerializers.WriteByte(writer, {expression});";
+                    return $"BoisNumericSerializers.WriteByte(ref writer, {expression});";
 
                 case BasicType.SByte:
-                    return $"BoisNumericSerializers.WriteSByte(writer, {expression});";
+                    return $"BoisNumericSerializers.WriteSByte(ref writer, {expression});";
 
                 default:
                     throw new InvalidOperationException();
@@ -1955,7 +1963,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 ? $"({expression}.HasValue ? (global::System.Enum)(object){expression}.Value : null)"
                 : $"((global::System.Enum)(object){expression})";
             var isNullable = IsNullable(type) ? "true" : "false";
-            return $"BoisPrimitiveWriters.{GetEnumHelperName(type, "WriteEnum")}(writer, {enumExpression}, {isNullable});";
+            return $"BoisPrimitiveWriters.{GetEnumHelperName(type, "WriteEnum")}(ref writer, {enumExpression}, {isNullable});";
         }
 
         private string GetEnumHelperName(ITypeSymbol type, string prefix)
@@ -1980,57 +1988,57 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             var enumType = Bare(type).ToDisplayString(QualifiedTypeFormat);
             var helperName = GetEnumHelperName(type, "ReadEnum");
             if (IsNullable(type))
-                return $"({enumType}?)BoisPrimitiveReaders.{helperName}Nullable(reader)";
-            return $"({enumType})BoisPrimitiveReaders.{helperName}(reader)";
+                return $"({enumType}?)BoisPrimitiveReaders.{helperName}Nullable(ref reader)";
+            return $"({enumType})BoisPrimitiveReaders.{helperName}(ref reader)";
         }
 
         public string GetReadExpression(ITypeSymbol type, BasicType basicType) => basicType switch
         {
-            BasicType.String => "BoisPrimitiveReaders.ReadString(reader, encoding)",
-            BasicType.Bool => "BoisPrimitiveReaders.ReadBoolean(reader)",
-            BasicType.BoolNullable => "BoisPrimitiveReaders.ReadBooleanNullable(reader)",
-            BasicType.Char => "BoisPrimitiveReaders.ReadChar(reader)",
-            BasicType.CharNullable => "BoisPrimitiveReaders.ReadCharNullable(reader)",
-            BasicType.Int16 => "BoisNumericSerializers.ReadVarInt16(reader)",
-            BasicType.Int16Nullable => "BoisNumericSerializers.ReadVarInt16Nullable(reader)",
-            BasicType.Int32 => "BoisNumericSerializers.ReadVarInt32(reader)",
-            BasicType.Int32Nullable => "BoisNumericSerializers.ReadVarInt32Nullable(reader)",
-            BasicType.Int64 => "BoisNumericSerializers.ReadVarInt64(reader)",
-            BasicType.Int64Nullable => "BoisNumericSerializers.ReadVarInt64Nullable(reader)",
-            BasicType.UInt16 => "BoisNumericSerializers.ReadVarUInt16(reader)",
-            BasicType.UInt16Nullable => "BoisNumericSerializers.ReadVarUInt16Nullable(reader)",
-            BasicType.UInt32 => "BoisNumericSerializers.ReadVarUInt32(reader)",
-            BasicType.UInt32Nullable => "BoisNumericSerializers.ReadVarUInt32Nullable(reader)",
-            BasicType.UInt64 => "BoisNumericSerializers.ReadVarUInt64(reader)",
-            BasicType.UInt64Nullable => "BoisNumericSerializers.ReadVarUInt64Nullable(reader)",
-            BasicType.Single => "BoisNumericSerializers.ReadVarSingle(reader)",
-            BasicType.SingleNullable => "BoisNumericSerializers.ReadVarSingleNullable(reader)",
-            BasicType.Double => "BoisNumericSerializers.ReadVarDouble(reader)",
-            BasicType.DoubleNullable => "BoisNumericSerializers.ReadVarDoubleNullable(reader)",
-            BasicType.Decimal => "BoisNumericSerializers.ReadVarDecimal(reader)",
-            BasicType.DecimalNullable => "BoisNumericSerializers.ReadVarDecimalNullable(reader)",
-            BasicType.Byte => "BoisNumericSerializers.ReadByte(reader)",
-            BasicType.ByteNullable => "BoisNumericSerializers.ReadVarByteNullable(reader)",
-            BasicType.SByte => "BoisNumericSerializers.ReadSByte(reader)",
-            BasicType.SByteNullable => "BoisNumericSerializers.ReadVarSByteNullable(reader)",
-            BasicType.DateTime => "BoisPrimitiveReaders.ReadDateTime(reader)",
-            BasicType.DateTimeNullable => "BoisPrimitiveReaders.ReadDateTimeNullable(reader)",
-            BasicType.DateTimeOffset => "BoisPrimitiveReaders.ReadDateTimeOffset(reader)",
-            BasicType.DateTimeOffsetNullable => "BoisPrimitiveReaders.ReadDateTimeOffsetNullable(reader)",
-            BasicType.DateOnly => "BoisPrimitiveReaders.ReadDateOnly(reader)",
-            BasicType.DateOnlyNullable => "BoisPrimitiveReaders.ReadDateOnlyNullable(reader)",
-            BasicType.TimeOnly => "BoisPrimitiveReaders.ReadTimeOnly(reader)",
-            BasicType.TimeOnlyNullable => "BoisPrimitiveReaders.ReadTimeOnlyNullable(reader)",
-            BasicType.ByteArray => "BoisPrimitiveReaders.ReadByteArray(reader)",
-            BasicType.TimeSpan => "BoisPrimitiveReaders.ReadTimeSpan(reader)",
-            BasicType.TimeSpanNullable => "BoisPrimitiveReaders.ReadTimeSpanNullable(reader)",
-            BasicType.Guid => "BoisPrimitiveReaders.ReadGuid(reader)",
-            BasicType.GuidNullable => "BoisPrimitiveReaders.ReadGuidNullable(reader)",
-            BasicType.Color => "BoisPrimitiveReaders.ReadColor(reader)",
-            BasicType.ColorNullable => "BoisPrimitiveReaders.ReadColorNullable(reader)",
-            BasicType.DbNull => "BoisPrimitiveReaders.ReadDbNull(reader)",
-            BasicType.Uri => "BoisPrimitiveReaders.ReadUri(reader)",
-            BasicType.Version => "BoisPrimitiveReaders.ReadVersion(reader)",
+            BasicType.String => "BoisPrimitiveReaders.ReadString(ref reader, encoding)",
+            BasicType.Bool => "BoisPrimitiveReaders.ReadBoolean(ref reader)",
+            BasicType.BoolNullable => "BoisPrimitiveReaders.ReadBooleanNullable(ref reader)",
+            BasicType.Char => "BoisPrimitiveReaders.ReadChar(ref reader)",
+            BasicType.CharNullable => "BoisPrimitiveReaders.ReadCharNullable(ref reader)",
+            BasicType.Int16 => "BoisNumericSerializers.ReadVarInt16(ref reader)",
+            BasicType.Int16Nullable => "BoisNumericSerializers.ReadVarInt16Nullable(ref reader)",
+            BasicType.Int32 => "BoisNumericSerializers.ReadVarInt32(ref reader)",
+            BasicType.Int32Nullable => "BoisNumericSerializers.ReadVarInt32Nullable(ref reader)",
+            BasicType.Int64 => "BoisNumericSerializers.ReadVarInt64(ref reader)",
+            BasicType.Int64Nullable => "BoisNumericSerializers.ReadVarInt64Nullable(ref reader)",
+            BasicType.UInt16 => "BoisNumericSerializers.ReadVarUInt16(ref reader)",
+            BasicType.UInt16Nullable => "BoisNumericSerializers.ReadVarUInt16Nullable(ref reader)",
+            BasicType.UInt32 => "BoisNumericSerializers.ReadVarUInt32(ref reader)",
+            BasicType.UInt32Nullable => "BoisNumericSerializers.ReadVarUInt32Nullable(ref reader)",
+            BasicType.UInt64 => "BoisNumericSerializers.ReadVarUInt64(ref reader)",
+            BasicType.UInt64Nullable => "BoisNumericSerializers.ReadVarUInt64Nullable(ref reader)",
+            BasicType.Single => "BoisNumericSerializers.ReadVarSingle(ref reader)",
+            BasicType.SingleNullable => "BoisNumericSerializers.ReadVarSingleNullable(ref reader)",
+            BasicType.Double => "BoisNumericSerializers.ReadVarDouble(ref reader)",
+            BasicType.DoubleNullable => "BoisNumericSerializers.ReadVarDoubleNullable(ref reader)",
+            BasicType.Decimal => "BoisNumericSerializers.ReadVarDecimal(ref reader)",
+            BasicType.DecimalNullable => "BoisNumericSerializers.ReadVarDecimalNullable(ref reader)",
+            BasicType.Byte => "BoisNumericSerializers.ReadByte(ref reader)",
+            BasicType.ByteNullable => "BoisNumericSerializers.ReadVarByteNullable(ref reader)",
+            BasicType.SByte => "BoisNumericSerializers.ReadSByte(ref reader)",
+            BasicType.SByteNullable => "BoisNumericSerializers.ReadVarSByteNullable(ref reader)",
+            BasicType.DateTime => "BoisPrimitiveReaders.ReadDateTime(ref reader)",
+            BasicType.DateTimeNullable => "BoisPrimitiveReaders.ReadDateTimeNullable(ref reader)",
+            BasicType.DateTimeOffset => "BoisPrimitiveReaders.ReadDateTimeOffset(ref reader)",
+            BasicType.DateTimeOffsetNullable => "BoisPrimitiveReaders.ReadDateTimeOffsetNullable(ref reader)",
+            BasicType.DateOnly => "BoisPrimitiveReaders.ReadDateOnly(ref reader)",
+            BasicType.DateOnlyNullable => "BoisPrimitiveReaders.ReadDateOnlyNullable(ref reader)",
+            BasicType.TimeOnly => "BoisPrimitiveReaders.ReadTimeOnly(ref reader)",
+            BasicType.TimeOnlyNullable => "BoisPrimitiveReaders.ReadTimeOnlyNullable(ref reader)",
+            BasicType.ByteArray => "BoisPrimitiveReaders.ReadByteArray(ref reader)",
+            BasicType.TimeSpan => "BoisPrimitiveReaders.ReadTimeSpan(ref reader)",
+            BasicType.TimeSpanNullable => "BoisPrimitiveReaders.ReadTimeSpanNullable(ref reader)",
+            BasicType.Guid => "BoisPrimitiveReaders.ReadGuid(ref reader)",
+            BasicType.GuidNullable => "BoisPrimitiveReaders.ReadGuidNullable(ref reader)",
+            BasicType.Color => "BoisPrimitiveReaders.ReadColor(ref reader)",
+            BasicType.ColorNullable => "BoisPrimitiveReaders.ReadColorNullable(ref reader)",
+            BasicType.DbNull => "BoisPrimitiveReaders.ReadDbNull(ref reader)",
+            BasicType.Uri => "BoisPrimitiveReaders.ReadUri(ref reader)",
+            BasicType.Version => "BoisPrimitiveReaders.ReadVersion(ref reader)",
             _ => throw new InvalidOperationException()
         };
 

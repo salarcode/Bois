@@ -10,12 +10,15 @@ public abstract class TestBase : IDisposable
 	private dynamic _boisDynamic;
 	private BoisSerializer _bois;
 	private MemoryStream _mem;
-	private BufferWriterBase _writer;
-	private BufferReaderBase _reader;
+
+	// these are fields so they can be passed by 'ref' to the generic serializers
+	public BufferWriterBase Writer;
+	public BufferReaderBase Reader;
 
 	protected TestBase()
 	{
-
+		Writer = new StreamBufferWriter(TestStream);
+		Reader = new StreamBufferReader(TestStream);
 	}
 
 	public BoisSerializer Bois => _bois ??= new BoisSerializer();
@@ -23,10 +26,6 @@ public abstract class TestBase : IDisposable
 	public dynamic BoisDynamic => _boisDynamic ??= _bois.AsDynamic();
 
 	public MemoryStream TestStream => _mem ??= new MemoryStream();
-
-	public BufferWriterBase Writer => _writer ??= new StreamBufferWriter(TestStream);
-
-	public BufferReaderBase Reader => _reader ??= new StreamBufferReader(TestStream);
 
 	public void ResetBois()
 	{

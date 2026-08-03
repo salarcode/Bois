@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using Salar.BinaryBuffers;
 using Salar.Bois.Serializers;
 using System;
@@ -12,250 +12,414 @@ namespace Salar.Bois.CodeGen;
 public static class BoisPrimitiveReaders
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string? ReadString(BufferReaderBase reader, Encoding encoding)
+    public static string? ReadString<TReader>(ref TReader reader, Encoding encoding)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadString(reader, encoding);
+        return PrimitiveReader.ReadString(ref reader, encoding);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static char ReadChar(BufferReaderBase reader)
+    public static char ReadChar<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadChar(reader);
+        return PrimitiveReader.ReadChar(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static char? ReadCharNullable(BufferReaderBase reader)
+    public static char? ReadCharNullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadCharNullable(reader);
+        return PrimitiveReader.ReadCharNullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool? ReadBooleanNullable(BufferReaderBase reader)
+    public static bool? ReadBooleanNullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadBooleanNullable(reader);
+        return PrimitiveReader.ReadBooleanNullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool ReadBoolean(BufferReaderBase reader)
+    public static bool ReadBoolean<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadBoolean(reader);
+        return PrimitiveReader.ReadBoolean(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateTime? ReadDateTimeNullable(BufferReaderBase reader)
+    public static DateTime? ReadDateTimeNullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadDateTimeNullable(reader);
+        return PrimitiveReader.ReadDateTimeNullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateTime ReadDateTime(BufferReaderBase reader)
+    public static DateTime ReadDateTime<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadDateTime(reader);
+        return PrimitiveReader.ReadDateTime(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateTimeOffset? ReadDateTimeOffsetNullable(BufferReaderBase reader)
+    public static DateTimeOffset? ReadDateTimeOffsetNullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadDateTimeOffsetNullable(reader);
+        return PrimitiveReader.ReadDateTimeOffsetNullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateTimeOffset ReadDateTimeOffset(BufferReaderBase reader)
+    public static DateTimeOffset ReadDateTimeOffset<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadDateTimeOffset(reader);
+        return PrimitiveReader.ReadDateTimeOffset(ref reader);
     }
 
 #if NET6_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateOnly ReadDateOnly(BufferReaderBase reader)
+    public static DateOnly ReadDateOnly<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadDateOnly(reader);
+        return PrimitiveReader.ReadDateOnly(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateOnly? ReadDateOnlyNullable(BufferReaderBase reader)
+    public static DateOnly? ReadDateOnlyNullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadDateOnlyNullable(reader);
+        return PrimitiveReader.ReadDateOnlyNullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TimeOnly ReadTimeOnly(BufferReaderBase reader)
+    public static TimeOnly ReadTimeOnly<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadTimeOnly(reader);
+        return PrimitiveReader.ReadTimeOnly(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TimeOnly? ReadTimeOnlyNullable(BufferReaderBase reader)
+    public static TimeOnly? ReadTimeOnlyNullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadTimeOnlyNullable(reader);
+        return PrimitiveReader.ReadTimeOnlyNullable(ref reader);
     }
 #endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte[]? ReadByteArray(BufferReaderBase reader)
+    public static byte[]? ReadByteArray<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadByteArray(reader);
+        return PrimitiveReader.ReadByteArray(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadEnumInt32(BufferReaderBase reader)
+    public static int ReadEnumInt32<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumInt32(reader);
+        return PrimitiveReader.ReadEnumInt32(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int? ReadEnumInt32Nullable(BufferReaderBase reader)
+    public static int? ReadEnumInt32Nullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumInt32Nullable(reader);
+        return PrimitiveReader.ReadEnumInt32Nullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static long ReadEnumInt64(BufferReaderBase reader)
+    public static long ReadEnumInt64<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumInt64(reader);
+        return PrimitiveReader.ReadEnumInt64(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static long? ReadEnumInt64Nullable(BufferReaderBase reader)
+    public static long? ReadEnumInt64Nullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumInt64Nullable(reader);
+        return PrimitiveReader.ReadEnumInt64Nullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static short ReadEnumInt16(BufferReaderBase reader)
+    public static short ReadEnumInt16<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumInt16(reader);
+        return PrimitiveReader.ReadEnumInt16(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static short? ReadEnumInt16Nullable(BufferReaderBase reader)
+    public static short? ReadEnumInt16Nullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumInt16Nullable(reader);
+        return PrimitiveReader.ReadEnumInt16Nullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ushort ReadEnumUInt16(BufferReaderBase reader)
+    public static ushort ReadEnumUInt16<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumUInt16(reader);
+        return PrimitiveReader.ReadEnumUInt16(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ushort? ReadEnumUInt16Nullable(BufferReaderBase reader)
+    public static ushort? ReadEnumUInt16Nullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumUInt16Nullable(reader);
+        return PrimitiveReader.ReadEnumUInt16Nullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static uint ReadEnumUInt32(BufferReaderBase reader)
+    public static uint ReadEnumUInt32<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumUInt32(reader);
+        return PrimitiveReader.ReadEnumUInt32(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static uint? ReadEnumUInt32Nullable(BufferReaderBase reader)
+    public static uint? ReadEnumUInt32Nullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumUInt32Nullable(reader);
+        return PrimitiveReader.ReadEnumUInt32Nullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ulong ReadEnumUInt64(BufferReaderBase reader)
+    public static ulong ReadEnumUInt64<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumUInt64(reader);
+        return PrimitiveReader.ReadEnumUInt64(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ulong? ReadEnumUInt64Nullable(BufferReaderBase reader)
+    public static ulong? ReadEnumUInt64Nullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumUInt64Nullable(reader);
+        return PrimitiveReader.ReadEnumUInt64Nullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte ReadEnumByte(BufferReaderBase reader)
+    public static byte ReadEnumByte<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumByte(reader);
+        return PrimitiveReader.ReadEnumByte(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte? ReadEnumByteNullable(BufferReaderBase reader)
+    public static byte? ReadEnumByteNullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumByteNullable(reader);
+        return PrimitiveReader.ReadEnumByteNullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static sbyte ReadEnumSByte(BufferReaderBase reader)
+    public static sbyte ReadEnumSByte<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumSByte(reader);
+        return PrimitiveReader.ReadEnumSByte(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static sbyte? ReadEnumSByteNullable(BufferReaderBase reader)
+    public static sbyte? ReadEnumSByteNullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadEnumSByteNullable(reader);
+        return PrimitiveReader.ReadEnumSByteNullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TimeSpan? ReadTimeSpanNullable(BufferReaderBase reader)
+    public static TimeSpan? ReadTimeSpanNullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadTimeSpanNullable(reader);
+        return PrimitiveReader.ReadTimeSpanNullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TimeSpan ReadTimeSpan(BufferReaderBase reader)
+    public static TimeSpan ReadTimeSpan<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadTimeSpan(reader);
+        return PrimitiveReader.ReadTimeSpan(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Version? ReadVersion(BufferReaderBase reader)
+    public static Version? ReadVersion<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadVersion(reader);
+        return PrimitiveReader.ReadVersion(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Guid? ReadGuidNullable(BufferReaderBase reader)
+    public static Guid? ReadGuidNullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadGuidNullable(reader);
+        return PrimitiveReader.ReadGuidNullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Guid ReadGuid(BufferReaderBase reader)
+    public static Guid ReadGuid<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadGuid(reader);
+        return PrimitiveReader.ReadGuid(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DBNull? ReadDbNull(BufferReaderBase reader)
+    public static DBNull? ReadDbNull<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadDbNull(reader);
+        return PrimitiveReader.ReadDbNull(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Color? ReadColorNullable(BufferReaderBase reader)
+    public static Color? ReadColorNullable<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadColorNullable(reader);
+        return PrimitiveReader.ReadColorNullable(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Color ReadColor(BufferReaderBase reader)
+    public static Color ReadColor<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadColor(reader);
+        return PrimitiveReader.ReadColor(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Uri? ReadUri(BufferReaderBase reader)
+    public static Uri? ReadUri<TReader>(ref TReader reader)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadUri(reader);
+        return PrimitiveReader.ReadUri(ref reader);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DataTable? ReadDataTable(BufferReaderBase reader, Encoding encoding)
+    public static DataTable? ReadDataTable<TReader>(ref TReader reader, Encoding encoding)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadDataTable(reader, encoding);
+        return PrimitiveReader.ReadDataTable(ref reader, encoding);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DataSet? ReadDataSet(BufferReaderBase reader, Encoding encoding)
+    public static DataSet? ReadDataSet<TReader>(ref TReader reader, Encoding encoding)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
     {
-        return PrimitiveReader.ReadDataSet(reader, encoding);
+        return PrimitiveReader.ReadDataSet(ref reader, encoding);
     }
 }

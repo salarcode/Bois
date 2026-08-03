@@ -9,8 +9,8 @@ public class BoisBufferBenchmark<T> : BenchmarkBase<T>
 	where T : class, IBenchmarkTestObject, new()
 {
 	private readonly BoisSerializer _serializer;
-	private readonly BinaryBufferWriter _binaryBufferWriter;
-	private readonly BinaryBufferReader _binaryBufferReader;
+	private BinaryBufferWriter _binaryBufferWriter;
+	private BinaryBufferReader _binaryBufferReader;
 
 	[Params("Bois.Buffer")]
 	public override string TestName { get; set; }
@@ -42,7 +42,7 @@ public class BoisBufferBenchmark<T> : BenchmarkBase<T>
 		for (int i = 0; i < IterationCount; i++)
 		{
 			_binaryBufferWriter.Position = 0;
-			_serializer.Serialize(TestObject, _binaryBufferWriter);
+			_serializer.Serialize(TestObject, ref _binaryBufferWriter);
 		}
 	}
 
@@ -53,7 +53,7 @@ public class BoisBufferBenchmark<T> : BenchmarkBase<T>
 		for (int i = 0; i < IterationCount; i++)
 		{
 			_binaryBufferReader.Position = 0;
-			_serializer.Deserialize<T>(_binaryBufferReader);
+			_serializer.Deserialize<T, BinaryBufferReader>(ref _binaryBufferReader);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using Salar.BinaryBuffers;
+using Salar.BinaryBuffers;
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -81,7 +81,11 @@ namespace Salar.Bois.Serializers
 
 		#region Readers
 
-		internal static sbyte? ReadVarSByteNullable(BufferReaderBase reader)
+		internal static sbyte? ReadVarSByteNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -98,7 +102,11 @@ namespace Salar.Bois.Serializers
 			}
 		}
 
-		internal static short? ReadVarInt16Nullable(BufferReaderBase reader)
+		internal static short? ReadVarInt16Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -111,17 +119,25 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				return ReadInt16Zigzag(reader);
+				return ReadInt16Zigzag(ref reader);
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static short ReadVarInt16(BufferReaderBase reader)
+		internal static short ReadVarInt16<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return ReadInt16Zigzag(reader);
+			return ReadInt16Zigzag(ref reader);
 		}
 
-		internal static ushort? ReadVarUInt16Nullable(BufferReaderBase reader)
+		internal static ushort? ReadVarUInt16Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -134,17 +150,25 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				return ReadUInt16Zigzag(reader);
+				return ReadUInt16Zigzag(ref reader);
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static ushort ReadVarUInt16(BufferReaderBase reader)
+		internal static ushort ReadVarUInt16<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return ReadUInt16Zigzag(reader);
+			return ReadUInt16Zigzag(ref reader);
 		}
 
-		internal static int? ReadVarInt32Nullable(BufferReaderBase reader)
+		internal static int? ReadVarInt32Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -157,17 +181,25 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				return ReadInt32Zigzag(reader);
+				return ReadInt32Zigzag(ref reader);
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static int ReadVarInt32(BufferReaderBase reader)
+		internal static int ReadVarInt32<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return ReadInt32Zigzag(reader);
+			return ReadInt32Zigzag(ref reader);
 		}
 
-		internal static uint? ReadVarUInt32Nullable(BufferReaderBase reader)
+		internal static uint? ReadVarUInt32Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -180,17 +212,25 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				return ReadUInt32Zigzag(reader);
+				return ReadUInt32Zigzag(ref reader);
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static uint ReadVarUInt32(BufferReaderBase reader)
+		internal static uint ReadVarUInt32<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return ReadUInt32Zigzag(reader);
+			return ReadUInt32Zigzag(ref reader);
 		}
 
-		internal static long? ReadVarInt64Nullable(BufferReaderBase reader)
+		internal static long? ReadVarInt64Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -203,17 +243,25 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				return ReadInt64Zigzag(reader);
+				return ReadInt64Zigzag(ref reader);
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static long ReadVarInt64(BufferReaderBase reader)
+		internal static long ReadVarInt64<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return ReadInt64Zigzag(reader);
+			return ReadInt64Zigzag(ref reader);
 		}
 
-		internal static ulong? ReadVarUInt64Nullable(BufferReaderBase reader)
+		internal static ulong? ReadVarUInt64Nullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -226,17 +274,25 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				return ReadUInt64Zigzag(reader);
+				return ReadUInt64Zigzag(ref reader);
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static ulong ReadVarUInt64(BufferReaderBase reader)
+		internal static ulong ReadVarUInt64<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			return ReadUInt64Zigzag(reader);
+			return ReadUInt64Zigzag(ref reader);
 		}
 
-		internal static decimal? ReadVarDecimalNullable(BufferReaderBase reader)
+		internal static decimal? ReadVarDecimalNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -259,7 +315,11 @@ namespace Salar.Bois.Serializers
 #endif
 		}
 
-		internal static decimal ReadVarDecimal(BufferReaderBase reader)
+		internal static decimal ReadVarDecimal<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 
@@ -280,7 +340,11 @@ namespace Salar.Bois.Serializers
 #endif
 		}
 
-		internal static double? ReadVarDoubleNullable(BufferReaderBase reader)
+		internal static double? ReadVarDoubleNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -308,7 +372,11 @@ namespace Salar.Bois.Serializers
 			return Unsafe.ReadUnaligned<double>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 8)));
 		}
 
-		internal static double ReadVarDouble(BufferReaderBase reader)
+		internal static double ReadVarDouble<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 
@@ -333,7 +401,11 @@ namespace Salar.Bois.Serializers
 			return Unsafe.ReadUnaligned<double>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 8)));
 		}
 
-		internal static float? ReadVarSingleNullable(BufferReaderBase reader)
+		internal static float? ReadVarSingleNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -360,7 +432,11 @@ namespace Salar.Bois.Serializers
 			return Unsafe.ReadUnaligned<float>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 4)));
 		}
 
-		internal static float ReadVarSingle(BufferReaderBase reader)
+		internal static float ReadVarSingle<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 
@@ -385,7 +461,11 @@ namespace Salar.Bois.Serializers
 			return Unsafe.ReadUnaligned<float>(ref MemoryMarshal.GetReference<byte>(buff.AsSpan(0, 4)));
 		}
 
-		internal static byte? ReadVarByteNullable(BufferReaderBase reader)
+		internal static byte? ReadVarByteNullable<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var input = reader.ReadByte();
 			if (input == FlagIsNull)
@@ -410,10 +490,13 @@ namespace Salar.Bois.Serializers
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt<TWriter>(TWriter writer, int num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, int num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			WriteZigzag(writer, num);
+			WriteZigzag(ref writer, num);
 		}
 
 
@@ -422,8 +505,11 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
-		internal static void WriteVarInt<TWriter>(TWriter writer, int? num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, int? num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (num == null)
 			{
@@ -437,7 +523,7 @@ namespace Salar.Bois.Serializers
 				// number is not embeddable 
 
 				writer.Write(FlagNone);
-				WriteZigzag(writer, num.Value);
+				WriteZigzag(ref writer, num.Value);
 			}
 			else
 			{
@@ -455,10 +541,13 @@ namespace Salar.Bois.Serializers
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt<TWriter>(TWriter writer, uint num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, uint num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			WriteZigzag(writer, num);
+			WriteZigzag(ref writer, num);
 		}
 
 		/// <summary>
@@ -466,8 +555,11 @@ namespace Salar.Bois.Serializers
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="num"></param>
-		internal static void WriteVarInt<TWriter>(TWriter writer, uint? num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, uint? num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (num == null)
 			{
@@ -481,7 +573,7 @@ namespace Salar.Bois.Serializers
 				// number is not embeddable 
 
 				writer.Write(FlagNone);
-				WriteZigzag(writer, num.Value);
+				WriteZigzag(ref writer, num.Value);
 			}
 			else unchecked
 				{
@@ -502,8 +594,11 @@ namespace Salar.Bois.Serializers
 		/// the don't have null value, there is no point creating Nullable object to convert it
 		/// </remarks>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteUIntNullableMemberCount<TWriter>(TWriter writer, uint num)
+		internal static void WriteUIntNullableMemberCount<TWriter>(ref TWriter writer, uint num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			// NOTE:
 			// Member count can be null, but not the place this method is being called
@@ -514,7 +609,7 @@ namespace Salar.Bois.Serializers
 				// number is not embeddable 
 
 				writer.Write(FlagNone);
-				WriteZigzag(writer, num);
+				WriteZigzag(ref writer, num);
 			}
 			else
 			{
@@ -530,17 +625,23 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt<TWriter>(TWriter writer, short num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, short num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			WriteZigzag(writer, num);
+			WriteZigzag(ref writer, num);
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt<TWriter>(TWriter writer, short? num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, short? num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (num == null)
 			{
@@ -554,7 +655,7 @@ namespace Salar.Bois.Serializers
 				// number is not embeddable 
 
 				writer.Write(FlagNone);
-				WriteZigzag(writer, num.Value);
+				WriteZigzag(ref writer, num.Value);
 			}
 			else
 			{
@@ -570,17 +671,23 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt<TWriter>(TWriter writer, ushort num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, ushort num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			WriteZigzag(writer, num);
+			WriteZigzag(ref writer, num);
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt<TWriter>(TWriter writer, ushort? num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, ushort? num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (num == null)
 			{
@@ -594,7 +701,7 @@ namespace Salar.Bois.Serializers
 				// number is not embeddable 
 
 				writer.Write(FlagNone);
-				WriteZigzag(writer, num.Value);
+				WriteZigzag(ref writer, num.Value);
 			}
 			else
 			{
@@ -610,17 +717,23 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt<TWriter>(TWriter writer, long num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, long num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			WriteZigzag(writer, num);
+			WriteZigzag(ref writer, num);
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt<TWriter>(TWriter writer, long? num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, long? num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (num == null)
 			{
@@ -634,7 +747,7 @@ namespace Salar.Bois.Serializers
 				// number is not embeddable 
 
 				writer.Write(FlagNone);
-				WriteZigzag(writer, num.Value);
+				WriteZigzag(ref writer, num.Value);
 			}
 			else
 			{
@@ -650,17 +763,23 @@ namespace Salar.Bois.Serializers
 		/// 
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal static void WriteVarInt<TWriter>(TWriter writer, ulong num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, ulong num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
-			WriteZigzag(writer, num);
+			WriteZigzag(ref writer, num);
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt<TWriter>(TWriter writer, ulong? num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, ulong? num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (num == null)
 			{
@@ -674,7 +793,7 @@ namespace Salar.Bois.Serializers
 				// number is not embeddable 
 
 				writer.Write(FlagNone);
-				WriteZigzag(writer, num.Value);
+				WriteZigzag(ref writer, num.Value);
 			}
 			else
 			{
@@ -689,8 +808,11 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt<TWriter>(TWriter writer, byte? num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, byte? num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (num == null)
 			{
@@ -719,8 +841,11 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarInt<TWriter>(TWriter writer, sbyte? num)
+		internal static void WriteVarInt<TWriter>(ref TWriter writer, sbyte? num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (num == null)
 			{
@@ -749,8 +874,11 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal<TWriter>(TWriter writer, float num)
+		internal static void WriteVarDecimal<TWriter>(ref TWriter writer, float num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen, out var position);
 			var firstByte = numBuff[position];
@@ -772,8 +900,11 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal<TWriter>(TWriter writer, float? num)
+		internal static void WriteVarDecimal<TWriter>(ref TWriter writer, float? num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (num == null)
 			{
@@ -803,8 +934,11 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal<TWriter>(TWriter writer, double num)
+		internal static void WriteVarDecimal<TWriter>(ref TWriter writer, double num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen, out var position);
 			var firstByte = numBuff[position];
@@ -826,8 +960,11 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal<TWriter>(TWriter writer, double? num)
+		internal static void WriteVarDecimal<TWriter>(ref TWriter writer, double? num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (num == null)
 			{
@@ -858,8 +995,11 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal<TWriter>(TWriter writer, decimal num)
+		internal static void WriteVarDecimal<TWriter>(ref TWriter writer, decimal num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var numBuff = NumericSerializers.ConvertToVarBinary(num, out var numLen);
 			var firstByte = numBuff[0];
@@ -881,8 +1021,11 @@ namespace Salar.Bois.Serializers
 		/// <summary>
 		/// 
 		/// </summary>
-		internal static void WriteVarDecimal<TWriter>(TWriter writer, decimal? num)
+		internal static void WriteVarDecimal<TWriter>(ref TWriter writer, decimal? num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			if (num == null)
 			{
@@ -912,7 +1055,11 @@ namespace Salar.Bois.Serializers
 
 		#region Binary Converters & Writers
 
-		private static short ReadInt16Zigzag(BufferReaderBase reader)
+		private static short ReadInt16Zigzag<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var currentByte = (uint)reader.ReadByte();
 			byte read = 1;
@@ -932,7 +1079,11 @@ namespace Salar.Bois.Serializers
 			return (short)((-(result & 1)) ^ ((result >> 1) & (ushort)0x7FFFU));
 		}
 
-		private static ushort ReadUInt16Zigzag(BufferReaderBase reader)
+		private static ushort ReadUInt16Zigzag<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var currentByte = (ushort)reader.ReadByte();
 			byte read = 1;
@@ -952,7 +1103,11 @@ namespace Salar.Bois.Serializers
 			return result;
 		}
 
-		private static int ReadInt32Zigzag(BufferReaderBase reader)
+		private static int ReadInt32Zigzag<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var currentByte = (uint)reader.ReadByte();
 			byte read = 1;
@@ -972,7 +1127,11 @@ namespace Salar.Bois.Serializers
 			return (int)((-(result & 1)) ^ ((result >> 1) & 0x7FFFFFFFU));
 		}
 
-		private static uint ReadUInt32Zigzag(BufferReaderBase reader)
+		private static uint ReadUInt32Zigzag<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var currentByte = (uint)reader.ReadByte();
 			byte read = 1;
@@ -992,7 +1151,11 @@ namespace Salar.Bois.Serializers
 			return result;
 		}
 
-		private static long ReadInt64Zigzag(BufferReaderBase reader)
+		private static long ReadInt64Zigzag<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var value = (uint)reader.ReadByte();
 			byte read = 1;
@@ -1013,7 +1176,11 @@ namespace Salar.Bois.Serializers
 			return (-(tmp & 0x1L)) ^ ((tmp >> 1) & 0x7FFFFFFFFFFFFFFFL);
 		}
 
-		private static ulong ReadUInt64Zigzag(BufferReaderBase reader)
+		private static ulong ReadUInt64Zigzag<TReader>(ref TReader reader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var value = (uint)reader.ReadByte();
 			byte read = 1;
@@ -1034,8 +1201,11 @@ namespace Salar.Bois.Serializers
 		}
 
 
-		private static void WriteZigzag<TWriter>(TWriter writer, long num)
+		private static void WriteZigzag<TWriter>(ref TWriter writer, long num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var zigZagEncoded = unchecked((ulong)((num << 1) ^ (num >> 63)));
 			while ((zigZagEncoded & ~0x7FUL) != 0)
@@ -1046,8 +1216,11 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)zigZagEncoded);
 		}
 
-		private static void WriteZigzag<TWriter>(TWriter writer, ulong num)
+		private static void WriteZigzag<TWriter>(ref TWriter writer, ulong num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			while ((num & ~0x7FUL) != 0)
 			{
@@ -1057,8 +1230,11 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)num);
 		}
 
-		private static void WriteZigzag<TWriter>(TWriter writer, int num)
+		private static void WriteZigzag<TWriter>(ref TWriter writer, int num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			uint v = unchecked((uint)((num << 1) ^ (num >> 31)));
 
@@ -1111,8 +1287,11 @@ namespace Salar.Bois.Serializers
 			writer.Write(upper5);
 		}
 
-		private static void WriteZigzag<TWriter>(TWriter writer, uint num)
+		private static void WriteZigzag<TWriter>(ref TWriter writer, uint num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			while ((num & ~0x7F) != 0)
 			{
@@ -1122,8 +1301,11 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)num);
 		}
 
-		private static void WriteZigzag<TWriter>(TWriter writer, short num)
+		private static void WriteZigzag<TWriter>(ref TWriter writer, short num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			var zigZagEncoded = unchecked((ushort)((num << 1) ^ (num >> 15)));
 			while ((zigZagEncoded & ~0x7F) != 0)
@@ -1134,8 +1316,11 @@ namespace Salar.Bois.Serializers
 			writer.Write((byte)zigZagEncoded);
 		}
 
-		private static void WriteZigzag<TWriter>(TWriter writer, ushort num)
+		private static void WriteZigzag<TWriter>(ref TWriter writer, ushort num)
 			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
 		{
 			while ((num & ~0x7F) != 0)
 			{

@@ -15,7 +15,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
-		<PackageReference Include="Salar.BinaryBuffers" Version="4.0.0" />
+		<PackageReference Include="Salar.BinaryBuffers" Version="4.0.1" />
 	</ItemGroup>
 
 </Project>

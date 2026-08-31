@@ -1,4 +1,4 @@
-﻿namespace Salar.Bois.Types;
+﻿namespace Salar.Bois.CodeGen.Types;
 
 enum EnBasicKnownType
 {

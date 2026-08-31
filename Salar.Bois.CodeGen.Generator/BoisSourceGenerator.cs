@@ -543,11 +543,20 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
                 if (_method.Operation == OperationKind.Reader)
                 {
-                    EmitReaderSourceSetup(builder);
-                    if (!TryEmitRead(_method.RootType, builder, out error, setupEncoding: true))
+                    var readerSignature = (ReaderSignature)_method.Signature;
+                    if (readerSignature.InputKind == ReaderInputKind.Stream)
                     {
-                        _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
-                        builder.Line($"throw new global::System.NotSupportedException({Literal(error)});");
+                        EmitReadRefSetup(builder);
+                        EmitReadRefLocalFunction(builder);
+                    }
+                    else
+                    {
+                        EmitReaderSourceSetup(builder);
+                        if (!TryEmitRead(_method.RootType, builder, out error, setupEncoding: true))
+                        {
+                            _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
+                            builder.Line($"throw new global::System.NotSupportedException({Literal(error)});");
+                        }
                     }
                 }
                 else
@@ -752,6 +761,66 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line("#endif");
             }
 
+            private string ReadRefMethodName => $"Read_Ref_{_method.Method.Name}";
+
+            /// <summary>
+            /// Emits the outer Read method body that detects a MemoryStream and dispatches to a shared generic reader.
+            /// </summary>
+            private void EmitReadRefSetup(CodeBuilder builder)
+            {
+                var signature = (ReaderSignature)_method.Signature;
+                var sourceName = Escape(_method.Method.Parameters[signature.SourceParameterIndex].Name);
+
+                EmitEncodingSetup(builder, signature.EncodingParameterIndex);
+                builder.Line();
+
+                builder.Line($"if ({sourceName} is global::System.IO.MemoryStream memoryStream)");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line("if (memoryStream.TryGetBuffer(out var buffer))");
+                builder.Line("{");
+                builder.Indent();
+                builder.Line("#if NET9_0_OR_GREATER");
+                builder.Line("var spanReader = new BinarySpanBufferReader(buffer.AsSpan());");
+                builder.Line($"return {ReadRefMethodName}(ref spanReader, encoding);");
+                builder.Line("#else");
+                builder.Line("var bufferReader = new BinaryBufferReader(buffer);");
+                builder.Line($"return {ReadRefMethodName}(ref bufferReader, encoding);");
+                builder.Line("#endif");
+                builder.Unindent();
+                builder.Line("}");
+                builder.Unindent();
+                builder.Line("}");
+                builder.Line();
+
+                builder.Line($"var reader = new StreamBufferReader({sourceName});");
+                builder.Line($"return {ReadRefMethodName}(ref reader, encoding);");
+            }
+
+            /// <summary>
+            /// Emits the shared generic reader local function that contains the actual read logic.
+            /// </summary>
+            private void EmitReadRefLocalFunction(CodeBuilder builder)
+            {
+                builder.Line();
+                builder.Line($"static {TypeName(_method.RootType)} {ReadRefMethodName}<TReader>(ref TReader reader, global::System.Text.Encoding encoding)");
+                builder.Line("    where TReader : global::Salar.BinaryBuffers.IBufferReader");
+                builder.Line("#if NET9_0_OR_GREATER");
+                builder.Line("        , allows ref struct");
+                builder.Line("#endif");
+                builder.Line("{");
+                builder.Indent();
+
+                if (!TryEmitRead(_method.RootType, builder, out var error, emitEncodingSetup: false))
+                {
+                    _owner.Report(_method.Method.Locations.FirstOrDefault(), error);
+                    builder.Line($"throw new global::System.NotSupportedException({Literal(error)});");
+                }
+
+                builder.Unindent();
+                builder.Line("}");
+            }
+
             private void EmitWriterValueSetup(CodeBuilder builder)
             {
                 var signature = (WriterSignature)_method.Signature;
@@ -847,7 +916,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return EmitWriteObject(type, builder, out error, suppressNullCheck);
             }
 
-            private bool TryEmitRead(ITypeSymbol type, CodeBuilder builder, out string error, bool setupEncoding = false)
+            private bool TryEmitRead(ITypeSymbol type, CodeBuilder builder, out string error, bool setupEncoding = false, bool emitEncodingSetup = true)
             {
                 if (_owner.IsUnsupportedType(type))
                 {
@@ -872,18 +941,18 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 }
 
                 if (type is IArrayTypeSymbol arrayType)
-                    return EmitReadArray(arrayType, builder, out error, setupEncoding);
+                    return EmitReadArray(arrayType, builder, out error, setupEncoding, emitEncodingSetup);
 
                 if (_owner.TryGetDictionaryInfo(type, out var dict))
-                    return EmitReadDictionary(type, dict, builder, out error, setupEncoding);
+                    return EmitReadDictionary(type, dict, builder, out error, setupEncoding, emitEncodingSetup);
 
                 if (_owner.TryGetCollectionInfo(type, out var coll))
-                    return EmitReadCollection(type, coll, builder, out error, setupEncoding);
+                    return EmitReadCollection(type, coll, builder, out error, setupEncoding, emitEncodingSetup);
 
                 if (_owner.IsNameValueCollection(type))
-                    return EmitReadNameValueCollection(type, builder, out error, setupEncoding);
+                    return EmitReadNameValueCollection(type, builder, out error, setupEncoding, emitEncodingSetup);
 
-                return EmitReadObject(type, builder, out error, setupEncoding);
+                return EmitReadObject(type, builder, out error, setupEncoding, emitEncodingSetup);
             }
 
             private void EmitReaderEncodingSetup(CodeBuilder builder)
@@ -928,7 +997,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitReadObject(ITypeSymbol type, CodeBuilder builder, out string error, bool setupEncoding = false)
+            private bool EmitReadObject(ITypeSymbol type, CodeBuilder builder, out string error, bool setupEncoding = false, bool emitEncodingSetup = true)
             {
                 if (!_owner.TryGetMembers(type, out var members, out error))
                     return false;
@@ -958,7 +1027,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 {
                     builder.Line("uint? memberCount = null;");
                 }
-                if (setupEncoding)
+                if (setupEncoding && emitEncodingSetup)
                     EmitReaderEncodingSetup(builder);
                 builder.Line($"var instance = {creationExpression};");
                 foreach (var member in members)
@@ -1345,14 +1414,14 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitReadArray(IArrayTypeSymbol arrayType, CodeBuilder builder, out string error, bool setupEncoding = false)
+            private bool EmitReadArray(IArrayTypeSymbol arrayType, CodeBuilder builder, out string error, bool setupEncoding = false, bool emitEncodingSetup = true)
             {
                 builder.Line("var itemCount = BoisNumericSerializers.ReadVarUInt32Nullable(ref reader);");
                 builder.Line("if (itemCount is null)");
                 builder.Indent();
                 builder.Line("return null!;");
                 builder.Unindent();
-                if (setupEncoding)
+                if (setupEncoding && emitEncodingSetup)
                     EmitReaderEncodingSetup(builder);
                 builder.Line($"var items = new {TypeName(arrayType.ElementType)}[(int)itemCount.Value];");
                 builder.Line("for (var i = 0; i < items.Length; i++)");
@@ -1399,7 +1468,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitReadCollection(ITypeSymbol type, CollectionInfo collectionInfo, CodeBuilder builder, out string error, bool setupEncoding = false)
+            private bool EmitReadCollection(ITypeSymbol type, CollectionInfo collectionInfo, CodeBuilder builder, out string error, bool setupEncoding = false, bool emitEncodingSetup = true)
             {
                 if (!_owner.TryGetCreationExpression(type, out var create, out error))
                     return false;
@@ -1408,7 +1477,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Indent();
                 builder.Line("return null!;");
                 builder.Unindent();
-                if (setupEncoding)
+                if (setupEncoding && emitEncodingSetup)
                     EmitReaderEncodingSetup(builder);
                 builder.Line($"var items = {create};");
                 EmitReadIntoCollectionBody(collectionInfo, "items", "itemCount.Value", builder);
@@ -1472,7 +1541,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitReadDictionary(ITypeSymbol type, DictionaryInfo dictionaryInfo, CodeBuilder builder, out string error, bool setupEncoding = false)
+            private bool EmitReadDictionary(ITypeSymbol type, DictionaryInfo dictionaryInfo, CodeBuilder builder, out string error, bool setupEncoding = false, bool emitEncodingSetup = true)
             {
                 if (!_owner.TryGetCreationExpression(type, out var create, out error))
                     return false;
@@ -1481,7 +1550,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Indent();
                 builder.Line("return null!;");
                 builder.Unindent();
-                if (setupEncoding)
+                if (setupEncoding && emitEncodingSetup)
                     EmitReaderEncodingSetup(builder);
                 builder.Line($"var items = {create};");
                 EmitReadIntoDictionaryBody(dictionaryInfo, "items", "itemCount.Value", builder);
@@ -1547,7 +1616,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 return true;
             }
 
-            private bool EmitReadNameValueCollection(ITypeSymbol type, CodeBuilder builder, out string error, bool setupEncoding = false)
+            private bool EmitReadNameValueCollection(ITypeSymbol type, CodeBuilder builder, out string error, bool setupEncoding = false, bool emitEncodingSetup = true)
             {
                 if (!_owner.TryGetCreationExpression(type, out var create, out error))
                     return false;
@@ -1556,7 +1625,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Indent();
                 builder.Line("return null!;");
                 builder.Unindent();
-                if (setupEncoding)
+                if (setupEncoding && emitEncodingSetup)
                     EmitReaderEncodingSetup(builder);
                 builder.Line($"var items = {create};");
                 EmitReadIntoNameValueBody("items", "itemCount.Value", builder);

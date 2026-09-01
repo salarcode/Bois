@@ -9,7 +9,7 @@
 		<DefineConstants>$(DefineConstants);SupportsEmit</DefineConstants>
 		<PackageId>Salar.Bois</PackageId>
 		<Title>Salar.Bois</Title>
-		<Version>3.5</Version>
+		<Version>4.0</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
@@ -26,7 +26,7 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageReleaseNotes>
-			* Fixed deserializing a zero-length byte with dynamic type that would throw an exception.
+			* Performance improvements and optimizations for serialization and deserialization.
 		</PackageReleaseNotes>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

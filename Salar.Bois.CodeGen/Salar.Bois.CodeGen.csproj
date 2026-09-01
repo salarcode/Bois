@@ -12,7 +12,7 @@
 		<Title>Salar.Bois.CodeGen</Title>
 		<AssemblyName>Salar.Bois.CodeGen</AssemblyName>
 		<RootNamespace>Salar.Bois.CodeGen</RootNamespace>
-		<Version>4.1</Version>
+		<Version>4.5</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois.CodeGen</Product>
@@ -25,7 +25,7 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS SourceGenerator CodeGeneration</PackageTags>
 		<PackageReleaseNotes>
-			Adds the BOIS source-code-generation serializer package with generated reader and writer support.
+			Performance improvements and optimizations for serialization and deserialization.
 		</PackageReleaseNotes>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IncludeBuildOutput>true</IncludeBuildOutput>

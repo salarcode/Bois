@@ -1325,6 +1325,7 @@ namespace Salar.Bois.Serializers
             return (short)((int)(result >> 1) ^ -(int)(result & 1U));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ushort ReadUInt16Zigzag<TReader>(ref TReader reader)
             where TReader : IBufferReader
 #if NET9_0_OR_GREATER
@@ -1349,6 +1350,7 @@ namespace Salar.Bois.Serializers
             return (ushort)result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int ReadInt32Zigzag<TReader>(ref TReader reader)
             where TReader : IBufferReader
 #if NET9_0_OR_GREATER
@@ -1374,6 +1376,7 @@ namespace Salar.Bois.Serializers
             return (int)(result >> 1) ^ -(int)(result & 1);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint ReadUInt32Zigzag<TReader>(ref TReader reader)
             where TReader : IBufferReader
 #if NET9_0_OR_GREATER
@@ -1398,6 +1401,7 @@ namespace Salar.Bois.Serializers
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static long ReadInt64Zigzag<TReader>(ref TReader reader)
             where TReader : IBufferReader
 #if NET9_0_OR_GREATER
@@ -1423,6 +1427,7 @@ namespace Salar.Bois.Serializers
             return (long)(result >> 1) ^ -(long)(result & 1UL);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ulong ReadUInt64Zigzag<TReader>(ref TReader reader)
             where TReader : IBufferReader
 #if NET9_0_OR_GREATER
@@ -1448,6 +1453,7 @@ namespace Salar.Bois.Serializers
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void WriteZigzag<TWriter>(ref TWriter writer, long num)
             where TWriter : IBufferWriter
 #if NET9_0_OR_GREATER
@@ -1463,6 +1469,7 @@ namespace Salar.Bois.Serializers
             writer.Write((byte)zigZagEncoded);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void WriteZigzag<TWriter>(ref TWriter writer, ulong num)
             where TWriter : IBufferWriter
 #if NET9_0_OR_GREATER
@@ -1477,6 +1484,7 @@ namespace Salar.Bois.Serializers
             writer.Write((byte)num);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void WriteZigzag<TWriter>(ref TWriter writer, int num)
             where TWriter : IBufferWriter
 #if NET9_0_OR_GREATER
@@ -1534,6 +1542,7 @@ namespace Salar.Bois.Serializers
             writer.Write(upper5);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void WriteZigzag<TWriter>(ref TWriter writer, uint num)
             where TWriter : IBufferWriter
 #if NET9_0_OR_GREATER
@@ -1563,6 +1572,7 @@ namespace Salar.Bois.Serializers
             writer.Write((byte)zigZagEncoded);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void WriteZigzag<TWriter>(ref TWriter writer, ushort num)
             where TWriter : IBufferWriter
 #if NET9_0_OR_GREATER

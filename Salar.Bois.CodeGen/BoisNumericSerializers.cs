@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using Salar.BinaryBuffers;
 using Salar.Bois.Serializers;
 using System.Runtime.CompilerServices;
@@ -10,132 +10,220 @@ public static class BoisNumericSerializers
 	#region Readers
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static sbyte? ReadVarSByteNullable(BufferReaderBase reader)
+	public static sbyte? ReadVarSByteNullable<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarSByteNullable(reader);
+		return NumericSerializers.ReadVarSByteNullable(ref reader);
 	}
 
-	public static short? ReadVarInt16Nullable(BufferReaderBase reader)
+	public static short? ReadVarInt16Nullable<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarInt16Nullable(reader);
-	}
-
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static short ReadVarInt16(BufferReaderBase reader)
-	{
-		return NumericSerializers.ReadVarInt16(reader);
-	}
-
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static ushort? ReadVarUInt16Nullable(BufferReaderBase reader)
-	{
-		return NumericSerializers.ReadVarUInt16Nullable(reader);
+		return NumericSerializers.ReadVarInt16Nullable(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static ushort ReadVarUInt16(BufferReaderBase reader)
+	public static short ReadVarInt16<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarUInt16(reader);
+		return NumericSerializers.ReadVarInt16(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static int? ReadVarInt32Nullable(BufferReaderBase reader)
+	public static ushort? ReadVarUInt16Nullable<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarInt32Nullable(reader);
+		return NumericSerializers.ReadVarUInt16Nullable(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static int ReadVarInt32(BufferReaderBase reader)
+	public static ushort ReadVarUInt16<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarInt32(reader);
+		return NumericSerializers.ReadVarUInt16(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static uint? ReadVarUInt32Nullable(BufferReaderBase reader)
+	public static int? ReadVarInt32Nullable<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarUInt32Nullable(reader);
+		return NumericSerializers.ReadVarInt32Nullable(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static uint ReadVarUInt32(BufferReaderBase reader)
+	public static int ReadVarInt32<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarUInt32(reader);
+		return NumericSerializers.ReadVarInt32(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static long? ReadVarInt64Nullable(BufferReaderBase reader)
+	public static uint? ReadVarUInt32Nullable<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarInt64Nullable(reader);
+		return NumericSerializers.ReadVarUInt32Nullable(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static long ReadVarInt64(BufferReaderBase reader)
+	public static uint ReadVarUInt32<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarInt64(reader);
+		return NumericSerializers.ReadVarUInt32(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static ulong? ReadVarUInt64Nullable(BufferReaderBase reader)
+	public static long? ReadVarInt64Nullable<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarUInt64Nullable(reader);
+		return NumericSerializers.ReadVarInt64Nullable(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static ulong ReadVarUInt64(BufferReaderBase reader)
+	public static long ReadVarInt64<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarUInt64(reader);
+		return NumericSerializers.ReadVarInt64(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static decimal? ReadVarDecimalNullable(BufferReaderBase reader)
+	public static ulong? ReadVarUInt64Nullable<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarDecimalNullable(reader);
+		return NumericSerializers.ReadVarUInt64Nullable(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static decimal ReadVarDecimal(BufferReaderBase reader)
+	public static ulong ReadVarUInt64<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarDecimal(reader);
+		return NumericSerializers.ReadVarUInt64(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static double? ReadVarDoubleNullable(BufferReaderBase reader)
+	public static decimal? ReadVarDecimalNullable<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarDoubleNullable(reader);
+		return NumericSerializers.ReadVarDecimalNullable(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static double ReadVarDouble(BufferReaderBase reader)
+	public static decimal ReadVarDecimal<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarDouble(reader);
+		return NumericSerializers.ReadVarDecimal(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static float? ReadVarSingleNullable(BufferReaderBase reader)
+	public static double? ReadVarDoubleNullable<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarSingleNullable(reader);
+		return NumericSerializers.ReadVarDoubleNullable(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static float ReadVarSingle(BufferReaderBase reader)
+	public static double ReadVarDouble<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarSingle(reader);
+		return NumericSerializers.ReadVarDouble(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static byte? ReadVarByteNullable(BufferReaderBase reader)
+	public static float? ReadVarSingleNullable<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		return NumericSerializers.ReadVarByteNullable(reader);
+		return NumericSerializers.ReadVarSingleNullable(ref reader);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static byte ReadByte(BufferReaderBase reader)
+	public static float ReadVarSingle<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
+	{
+		return NumericSerializers.ReadVarSingle(ref reader);
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static byte? ReadVarByteNullable<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
+	{
+		return NumericSerializers.ReadVarByteNullable(ref reader);
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static byte ReadByte<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
 		return reader.ReadByte();
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static sbyte ReadSByte(BufferReaderBase reader)
+	public static sbyte ReadSByte<TReader>(ref TReader reader)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
 		return reader.ReadSByte();
 	}
@@ -150,9 +238,13 @@ public static class BoisNumericSerializers
 	/// <param name="writer"></param>
 	/// <param name="num"></param>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, int num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, int num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 
@@ -162,9 +254,13 @@ public static class BoisNumericSerializers
 	/// <param name="writer"></param>
 	/// <param name="num"></param>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, int? num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, int? num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
@@ -173,9 +269,13 @@ public static class BoisNumericSerializers
 	/// <param name="writer"></param>
 	/// <param name="num"></param>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, uint num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, uint num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
@@ -184,9 +284,13 @@ public static class BoisNumericSerializers
 	/// <param name="writer"></param>
 	/// <param name="num"></param>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, uint? num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, uint? num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
@@ -198,109 +302,161 @@ public static class BoisNumericSerializers
 	/// the don't have null value, there is no point creating Nullable object to convert it
 	/// </remarks>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteUIntNullableMemberCount(BufferWriterBase writer, uint num)
+	public static void WriteUIntNullableMemberCount<TWriter>(ref TWriter writer, uint num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteUIntNullableMemberCount(writer, num);
+		NumericSerializers.WriteUIntNullableMemberCount(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, short num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, short num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, short? num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, short? num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, ushort num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, ushort num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, ushort? num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, ushort? num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, long num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, long num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, long? num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, long? num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, ulong num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, ulong num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, ulong? num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, ulong? num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, byte? num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, byte? num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarInt(BufferWriterBase writer, sbyte? num)
+	public static void WriteVarInt<TWriter>(ref TWriter writer, sbyte? num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarInt(writer, num);
+		NumericSerializers.WriteVarInt(ref writer, num);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteByte(BufferWriterBase writer, byte num)
+	public static void WriteByte<TWriter>(ref TWriter writer, byte num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
 		writer.Write(num);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteSByte(BufferWriterBase writer, sbyte num)
+	public static void WriteSByte<TWriter>(ref TWriter writer, sbyte num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
 		writer.Write(num);
 	}
@@ -309,36 +465,52 @@ public static class BoisNumericSerializers
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarDecimal(BufferWriterBase writer, float num)
+	public static void WriteVarDecimal<TWriter>(ref TWriter writer, float num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarDecimal(writer, num);
+		NumericSerializers.WriteVarDecimal(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarDecimal(BufferWriterBase writer, float? num)
+	public static void WriteVarDecimal<TWriter>(ref TWriter writer, float? num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarDecimal(writer, num);
+		NumericSerializers.WriteVarDecimal(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarDecimal(BufferWriterBase writer, double num)
+	public static void WriteVarDecimal<TWriter>(ref TWriter writer, double num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarDecimal(writer, num);
+		NumericSerializers.WriteVarDecimal(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarDecimal(BufferWriterBase writer, double? num)
+	public static void WriteVarDecimal<TWriter>(ref TWriter writer, double? num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarDecimal(writer, num);
+		NumericSerializers.WriteVarDecimal(ref writer, num);
 	}
 
 
@@ -346,18 +518,26 @@ public static class BoisNumericSerializers
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarDecimal(BufferWriterBase writer, decimal num)
+	public static void WriteVarDecimal<TWriter>(ref TWriter writer, decimal num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarDecimal(writer, num);
+		NumericSerializers.WriteVarDecimal(ref writer, num);
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void WriteVarDecimal(BufferWriterBase writer, decimal? num)
+	public static void WriteVarDecimal<TWriter>(ref TWriter writer, decimal? num)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 	{
-		NumericSerializers.WriteVarDecimal(writer, num);
+		NumericSerializers.WriteVarDecimal(ref writer, num);
 	}
 	#endregion
 

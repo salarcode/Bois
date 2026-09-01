@@ -269,6 +269,20 @@ public class Test_CodeGenGenerator
 	}
 
 	[Fact]
+	public void GeneratedSpanMethodsRoundTripPrimitiveScenario()
+	{
+		var expected = CreatePrimitiveScenario();
+		var buffer = new byte[4096];
+
+		SourceGeneratorScenariosBois.WritePrimitiveScenarioSpan(expected, buffer);
+		AssertPrimitiveScenario(expected, SourceGeneratorScenariosBois.ReadPrimitiveScenarioReadOnlySpan(buffer));
+
+		Array.Clear(buffer);
+		SourceGeneratorScenariosBois.WritePrimitiveScenarioSpanReversed(buffer, expected);
+		AssertPrimitiveScenario(expected, SourceGeneratorScenariosBois.ReadPrimitiveScenarioSpan(buffer));
+	}
+
+	[Fact]
 	public void MovedSourceGeneratorScenariosRoundTripSameTypeAndRootKnownTypes()
 	{
 		var sameType = new SameTypeCastingScenario

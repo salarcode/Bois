@@ -10,9 +10,19 @@ using System.Text;
 
 namespace Salar.Bois.Types
 {
-	delegate void SerializeDelegate<T>(BufferWriterBase writer, T instance, Encoding encoding);
+	delegate void SerializeDelegate<T, TWriter>(ref TWriter writer, T instance, Encoding encoding)
+		where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+		, allows ref struct
+#endif
+		;
 
-	delegate T DeserializeDelegate<T>(BufferReaderBase reader, Encoding encoding);
+	delegate T DeserializeDelegate<T, TReader>(ref TReader reader, Encoding encoding)
+		where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+		, allows ref struct
+#endif
+		;
 
 
 	class BoisComputedTypeInfo
@@ -26,15 +36,23 @@ namespace Salar.Bois.Types
 		internal MethodInfo ReaderMethod;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal void InvokeWriter<T>(BufferWriterBase writer, T instance, Encoding encoding)
+		internal void InvokeWriter<T, TWriter>(ref TWriter writer, T instance, Encoding encoding)
+			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 		{
-			((SerializeDelegate<T>)WriterDelegate).Invoke(writer, instance, encoding);
+			((SerializeDelegate<T, TWriter>)WriterDelegate).Invoke(ref writer, instance, encoding);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal T InvokeReader<T>(BufferReaderBase reader, Encoding encoding)
+		internal T InvokeReader<T, TReader>(ref TReader reader, Encoding encoding)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 		{
-			return ((DeserializeDelegate<T>)ReaderDelegate).Invoke(reader, encoding);
+			return ((DeserializeDelegate<T, TReader>)ReaderDelegate).Invoke(ref reader, encoding);
 		}
 	}
 }

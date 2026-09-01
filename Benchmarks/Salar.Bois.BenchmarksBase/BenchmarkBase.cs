@@ -19,7 +19,7 @@ public abstract class BenchmarkBase<T> : IDisposable, IBenchmark
 
 	protected MemoryStream TestStream { get; } = new MemoryStream();
 
-	protected T TestObject { get; private set; }
+	protected T TestObject { get; set; }
 
 	protected byte[] TestBuffer { get; set; } = Array.Empty<byte>();
 

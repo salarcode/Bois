@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Salar.Bois.NetFx.Tests.Base;
 using Salar.Bois.Serializers;
 using System.Collections.Generic;
@@ -46,10 +46,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarInt32(Reader);
+			var final = NumericSerializers.ReadVarInt32(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -70,10 +70,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarInt32Nullable(Reader);
+			var final = NumericSerializers.ReadVarInt32Nullable(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -103,10 +103,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarUInt32(Reader);
+			var final = NumericSerializers.ReadVarUInt32(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -126,10 +126,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarUInt32Nullable(Reader);
+			var final = NumericSerializers.ReadVarUInt32Nullable(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -166,10 +166,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarSByteNullable(Reader);
+			var final = NumericSerializers.ReadVarSByteNullable(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -189,10 +189,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarByteNullable(Reader);
+			var final = NumericSerializers.ReadVarByteNullable(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -230,10 +230,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarInt16(Reader);
+			var final = NumericSerializers.ReadVarInt16(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -254,10 +254,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarInt16Nullable(Reader);
+			var final = NumericSerializers.ReadVarInt16Nullable(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -288,10 +288,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarUInt16(Reader);
+			var final = NumericSerializers.ReadVarUInt16(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -311,10 +311,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarUInt16Nullable(Reader);
+			var final = NumericSerializers.ReadVarUInt16Nullable(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -357,10 +357,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarInt64(Reader);
+			var final = NumericSerializers.ReadVarInt64(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -381,10 +381,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarInt64Nullable(Reader);
+			var final = NumericSerializers.ReadVarInt64Nullable(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -419,10 +419,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarUInt64(Reader);
+			var final = NumericSerializers.ReadVarUInt64(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -442,10 +442,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarInt(Writer, number);
+			NumericSerializers.WriteVarInt(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarUInt64Nullable(Reader);
+			var final = NumericSerializers.ReadVarUInt64Nullable(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -493,10 +493,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarDecimal(Writer, number);
+			NumericSerializers.WriteVarDecimal(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarSingle(Reader);
+			var final = NumericSerializers.ReadVarSingle(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -526,10 +526,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarDecimal(Writer, number);
+			NumericSerializers.WriteVarDecimal(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarSingleNullable(Reader);
+			var final = NumericSerializers.ReadVarSingleNullable(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -576,10 +576,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarDecimal(Writer, number);
+			NumericSerializers.WriteVarDecimal(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarDouble(Reader);
+			var final = NumericSerializers.ReadVarDouble(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -609,10 +609,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarDecimal(Writer, number);
+			NumericSerializers.WriteVarDecimal(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarDoubleNullable(Reader);
+			var final = NumericSerializers.ReadVarDoubleNullable(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -700,10 +700,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarDecimal(Writer, number);
+			NumericSerializers.WriteVarDecimal(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarDecimal(Reader);
+			var final = NumericSerializers.ReadVarDecimal(ref Reader);
 
 			final.Should().Be(number);
 		}
@@ -715,10 +715,10 @@ namespace Salar.Bois.NetFx.Tests.Tests
 		{
 			ResetBois();
 
-			NumericSerializers.WriteVarDecimal(Writer, number);
+			NumericSerializers.WriteVarDecimal(ref Writer, number);
 			ResetStream();
 
-			var final = NumericSerializers.ReadVarDecimalNullable(Reader);
+			var final = NumericSerializers.ReadVarDecimalNullable(ref Reader);
 
 			final.Should().Be(number);
 		}

@@ -1,4 +1,5 @@
 ﻿#define DotNet
+using Salar.BinaryBuffers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,6 +21,12 @@ namespace Salar.Bois.Types
 	static class BoisTypeCache
 	{
 		private static readonly BoisComputedTypeHashtable<BoisComputedTypeInfo> _computedCache;
+		/// <summary>
+		/// Computed delegates are specialized per buffer type, so each buffer type needs its own cache partition.
+		/// Returning a delegate compiled for a different buffer type would fail the cast in BoisComputedTypeInfo.
+		/// </summary>
+		private static readonly Dictionary<Type, BoisComputedTypeHashtable<BoisComputedTypeInfo>> _computedCachesByBuffer
+			= new Dictionary<Type, BoisComputedTypeHashtable<BoisComputedTypeInfo>>();
 		private static readonly BoisComputedTypeHashtable<BoisBasicTypeInfo> _basicTypeCache;
 		private static readonly BoisComputedTypeHashtable<BoisBasicEnumTypeInfo> _basicEnumCache;
 		static BoisTypeCache()
@@ -36,20 +43,49 @@ namespace Salar.Bois.Types
 				_basicTypeCache.Clear();
 			lock (_computedCache)
 				_computedCache.Clear();
+			lock (_computedCachesByBuffer)
+			{
+				foreach (var cache in _computedCachesByBuffer.Values)
+					cache.Clear();
+				_computedCachesByBuffer.Clear();
+			}
 			lock (_basicEnumCache)
 				_basicEnumCache.Clear();
+		}
+
+		private static BoisComputedTypeHashtable<BoisComputedTypeInfo> GetComputedCache(Type bufferType)
+		{
+			lock (_computedCachesByBuffer)
+			{
+				if (!_computedCachesByBuffer.TryGetValue(bufferType, out var cache))
+				{
+					cache = new BoisComputedTypeHashtable<BoisComputedTypeInfo>();
+					_computedCachesByBuffer.Add(bufferType, cache);
+				}
+				return cache;
+			}
 		}
 
 		internal static BoisComputedTypeInfo GetRootTypeComputed(
 			Type type,
 			bool generateReader,
-			bool generateWriter
+			bool generateWriter,
+			Type bufferType = null
 #if EmitAssemblyOut
 			, 
 			bool outputAssembly = true
 #endif
 			)
 		{
+			if (generateReader && generateWriter && bufferType == null)
+			{
+				// each direction has its own cache partition and buffer type
+				GetRootTypeComputed(type, false, true);
+				return GetRootTypeComputed(type, true, false);
+			}
+
+			bufferType ??= generateWriter ? typeof(BufferWriterBase) : typeof(BufferReaderBase);
+			var _computedCache = GetComputedCache(bufferType);
 			lock (_computedCache)
 			{
 				BoisComputedTypeInfo result;
@@ -88,7 +124,7 @@ namespace Salar.Bois.Types
 							// this call is useful for Recursive Methods
 
 							result.WriterMethod = dynamicMethod;
-						});
+						}, writerType: bufferType);
 #endif
 					result.WriterDelegate = computed.Delegate;
 					result.WriterMethod = computed.Method;
@@ -118,7 +154,7 @@ namespace Salar.Bois.Types
 							// this call is useful for Recursive Methods
 
 							result.ReaderMethod = dynamicMethod;
-						});
+						}, readerType: bufferType);
 #endif
 					result.ReaderDelegate = computed.Delegate;
 					result.ReaderMethod = computed.Method;

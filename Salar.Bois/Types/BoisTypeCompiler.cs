@@ -98,7 +98,7 @@ namespace Salar.Bois.Types
 				attributes: MethodAttributes.Public | MethodAttributes.Static,
 				returnType: null,
 				// Arg0: BufferWriterBase, Arg1: instance, Arg2: Encoding
-				parameterTypes: new[] { typeof(BufferWriterBase), type/*typeof(object)*/, typeof(Encoding) });
+				parameterTypes: new[] { typeof(BufferWriterBase).MakeByRefType(), type/*typeof(object)*/, typeof(Encoding) });
 
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "writer");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "instance");
@@ -119,7 +119,7 @@ namespace Salar.Bois.Types
 			{
 				var generatedType = SaveAssemblyOutput_Writer();
 
-				var delegateType = typeof(SerializeDelegate<>).MakeGenericType(type);
+				var delegateType = typeof(SerializeDelegate<,>).MakeGenericType(type, typeof(BufferWriterBase));
 				var writerDelegate = generatedType.GetMethod(ilMethod.Name).CreateDelegate(delegateType);
 
 				return new ComputeResult()
@@ -148,15 +148,16 @@ namespace Salar.Bois.Types
 
 #endif
 
-		public static ComputeResult ComputeWriter(Type type, BoisComplexTypeInfo typeInfo, Action<DynamicMethod> beforeMehodBody = null, Module containerModule = null)
+		public static ComputeResult ComputeWriter(Type type, BoisComplexTypeInfo typeInfo, Action<DynamicMethod> beforeMehodBody = null, Module containerModule = null, Type writerType = null)
 		{
+			writerType ??= typeof(BufferWriterBase);
 			var module = containerModule ?? typeof(BoisSerializer).Module;
 
 			var ilMethod = new DynamicMethod(
 				name: GetTypeMethodName(type, serialize: true),
 				returnType: null,
-				// Arg0: BufferWriterBase, Arg1: instance, Arg2: Encoding
-				parameterTypes: new[] { typeof(BufferWriterBase), type/*typeof(object)*/, typeof(Encoding) },
+				// Arg0: ref TWriter, Arg1: instance, Arg2: Encoding
+				parameterTypes: new[] { writerType.MakeByRefType(), type/*typeof(object)*/, typeof(Encoding) },
 				m: module,
 				skipVisibility: true);
 #if NetFX || NETFRAMEWORK || NETSTANDARD || NET5_0_OR_GREATER || NETCOREAPP2_2_OR_GREATER
@@ -171,12 +172,20 @@ namespace Salar.Bois.Types
 			// the il generator
 			var il = ilMethod.GetILGenerator();
 
-			ComputeWriter(il, type, typeInfo);
+			var previousWriterType = EmitGenerator.SetCurrentWriterType(writerType);
+			try
+			{
+				ComputeWriter(il, type, typeInfo);
+			}
+			finally
+			{
+				EmitGenerator.SetCurrentWriterType(previousWriterType);
+			}
 
 			// never forget
 			il.Emit(OpCodes.Ret);
 
-			var delegateType = typeof(SerializeDelegate<>).MakeGenericType(type);
+			var delegateType = typeof(SerializeDelegate<,>).MakeGenericType(type, writerType);
 
 			// the serializer method is ready
 			var writerDelegate = ilMethod.CreateDelegate(delegateType);
@@ -254,9 +263,8 @@ namespace Salar.Bois.Types
 
 				// CODE-FOR: PrimitiveWriter.WriteNullValue(writer);
 				il.Emit(OpCodes.Ldarg_0); // BufferWriterBase
-				il.Emit(OpCodes.Call,
-					typeof(PrimitiveWriter).GetMethod(nameof(PrimitiveWriter.WriteNullValue),
-						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
+				il.Emit(OpCodes.Call, EmitGenerator.GetGenericWriterMethod(typeof(PrimitiveWriter),
+					nameof(PrimitiveWriter.WriteNullValue), typeof(BufferWriterBase)));
 				il.Emit(OpCodes.Nop);
 
 				// CODE-FOR: return;
@@ -273,8 +281,8 @@ namespace Salar.Bois.Types
 
 			il.Emit(OpCodes.Ldarg_0); // BufferWriterBase
 			il.Emit(OpCodes.Ldc_I4_S, memberCount);
-			il.Emit(OpCodes.Call, meth: typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.WriteUIntNullableMemberCount),
-				BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new[] { typeof(BufferWriterBase), typeof(uint) }, null));
+			il.Emit(OpCodes.Call, EmitGenerator.GetGenericWriterMethod(typeof(NumericSerializers),
+				nameof(NumericSerializers.WriteUIntNullableMemberCount), typeof(BufferWriterBase), typeof(uint)));
 			il.Emit(OpCodes.Nop);
 
 			il.MarkLabel(labelEndOfCode);
@@ -660,7 +668,7 @@ namespace Salar.Bois.Types
 				attributes: MethodAttributes.Public | MethodAttributes.Static,
 				returnType: type,
 				// Arg0: BufferWriterBase, Arg1: Encoding
-				parameterTypes: new[] { typeof(BufferReaderBase), typeof(Encoding) });
+				parameterTypes: new[] { typeof(BufferReaderBase).MakeByRefType(), typeof(Encoding) });
 
 			ilMethod.DefineParameter(1, ParameterAttributes.None, "reader");
 			ilMethod.DefineParameter(2, ParameterAttributes.None, "encoding");
@@ -690,7 +698,7 @@ namespace Salar.Bois.Types
 			{
 				var generatedType = SaveAssemblyOutput_Reader();
 
-				var delegateType = typeof(DeserializeDelegate<>).MakeGenericType(type);
+				var delegateType = typeof(DeserializeDelegate<,>).MakeGenericType(type, typeof(BufferReaderBase));
 				var readerDelegate = generatedType.GetMethod(ilMethod.Name).CreateDelegate(delegateType);
 
 				return new ComputeResult()
@@ -716,8 +724,9 @@ namespace Salar.Bois.Types
 		}
 #endif
 
-		public static ComputeResult ComputeReader(Type type, BoisComplexTypeInfo typeInfo, Action<DynamicMethod> beforeMehodBody = null, Module containerModule = null)
+		public static ComputeResult ComputeReader(Type type, BoisComplexTypeInfo typeInfo, Action<DynamicMethod> beforeMehodBody = null, Module containerModule = null, Type readerType = null)
 		{
+			readerType ??= typeof(BufferReaderBase);
 			Module module = null;
 			if (containerModule == null)
 				module = typeof(BoisSerializer).Module;
@@ -728,7 +737,7 @@ namespace Salar.Bois.Types
 			   name: GetTypeMethodName(type, serialize: false),
 			   returnType: type,
 			   // Arg0: BufferWriterBase, Arg1: Encoding
-			   parameterTypes: new[] { typeof(BufferReaderBase), typeof(Encoding) },
+			   parameterTypes: new[] { readerType.MakeByRefType(), typeof(Encoding) },
 			   m: module,
 			   skipVisibility: true);
 #if NetFX || NETFRAMEWORK || NETSTANDARD || NET5_0_OR_GREATER || NETCOREAPP2_2_OR_GREATER
@@ -742,22 +751,30 @@ namespace Salar.Bois.Types
 			// the il generator
 			var il = ilMethod.GetILGenerator();
 
-			if (typeInfo.ComplexKnownType == EnComplexKnownType.Unknown)
+			var previousReaderType = EmitGenerator.SetCurrentReaderType(readerType);
+			try
 			{
-				var instanceVar = ComputeReaderTypeCreation(il, type);
-				ComputeReader(il, type, typeInfo);
+				if (typeInfo.ComplexKnownType == EnComplexKnownType.Unknown)
+				{
+					var instanceVar = ComputeReaderTypeCreation(il, type);
+					ComputeReader(il, type, typeInfo);
 
-				// never forget
-				il.LoadLocalValue(instanceVar);
-				il.Emit(OpCodes.Ret);
+					// never forget
+					il.LoadLocalValue(instanceVar);
+					il.Emit(OpCodes.Ret);
+				}
+				else
+				{
+					// root object should return the instance variable
+					ComputeReader(il, type, typeInfo);
+				}
 			}
-			else
+			finally
 			{
-				// root object should return the instance variable
-				ComputeReader(il, type, typeInfo);
+				EmitGenerator.SetCurrentReaderType(previousReaderType);
 			}
 
-			var delegateType = typeof(DeserializeDelegate<>).MakeGenericType(type);
+			var delegateType = typeof(DeserializeDelegate<,>).MakeGenericType(type, readerType);
 
 			// the serializer method is ready
 			var readerDelegate = ilMethod.CreateDelegate(delegateType);
@@ -858,9 +875,8 @@ namespace Salar.Bois.Types
 			var notNull = il.DefineLabel();
 			// CODE-FOR: if (!NumericSerializers.ReadVarUInt32Nullable(reader).HasValue)
 
-			var readCountMethod = typeof(NumericSerializers).GetMethod(nameof(NumericSerializers.ReadVarUInt32Nullable),
-				BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public, Type.DefaultBinder,
-				new[] { typeof(BufferReaderBase) }, null);
+			var readCountMethod = EmitGenerator.GetGenericWriterMethod(typeof(NumericSerializers),
+				nameof(NumericSerializers.ReadVarUInt32Nullable), new[] { typeof(BufferReaderBase) });
 
 			var memberCount_shared = variableCache.GetOrAdd(typeof(uint?));
 			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase

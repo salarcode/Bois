@@ -95,11 +95,14 @@ namespace Salar.Bois
 		/// <typeparam name="T">The object type.</typeparam>
 		public void Serialize<T>(T obj, byte[] output, int position, int length)
 		{
+#if NET9_0_OR_GREATER
+			var writer = new BinarySpanBufferWriter(new Span<byte>(output, position, length));
+			Serialize<T, BinarySpanBufferWriter>(obj, ref writer);
+#else
 			var writer = new BinaryBufferWriter(output, position, length);
-
-			Serialize<T>(obj, writer);
+			Serialize<T, BinaryBufferWriter>(obj, ref writer);
+#endif
 		}
-
 		/// <summary>
 		/// Serializing an object to binary bois format.
 		/// </summary>
@@ -108,9 +111,9 @@ namespace Salar.Bois
 		/// <typeparam name="T">The object type.</typeparam>
 		public void Serialize<T>(T obj, Stream output)
 		{
-            var writer = new StreamBufferWriter(output);
+			var writer = new StreamBufferWriter(output);
 
-            Serialize(obj, writer);
+			Serialize<T, StreamBufferWriter>(obj, ref writer);
 		}
 
 		/// <summary>
@@ -119,7 +122,12 @@ namespace Salar.Bois
 		/// <param name="obj">The object to be serialized.</param>
 		/// <param name="bufferWriter"></param>
 		/// <typeparam name="T">The object type.</typeparam>
-		public void Serialize<T>(T obj, BufferWriterBase bufferWriter)
+		/// <typeparam name="TWriter">The buffer writer type of BufferWriterBase or IBufferWriter.</typeparam>
+		public void Serialize<T, TWriter>(T obj, ref TWriter bufferWriter)
+			where TWriter : IBufferWriter
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 		{
 			if (obj == null)
 				throw new ArgumentNullException(nameof(obj), "Object cannot be null.");
@@ -128,17 +136,18 @@ namespace Salar.Bois
 			var typeInfo = BoisTypeCache.GetBasicType(type);
 			if (typeInfo.AsRootNeedsCompute)
 			{
-				var computedType = BoisTypeCache.GetRootTypeComputed(type, false, true);
+				var computedType = BoisTypeCache.GetRootTypeComputed(type, false, true, typeof(TWriter));
 
-				computedType.InvokeWriter(bufferWriter, obj, Encoding);
+				computedType.InvokeWriter(ref bufferWriter, obj, Encoding);
 			}
 			else
 			{
-				PrimitiveWriter.WriteRootBasicType(bufferWriter, obj, type, typeInfo, Encoding);
+				PrimitiveWriter.WriteRootBasicType(ref bufferWriter, obj, type, typeInfo, Encoding);
 			}
 		}
 		/// <summary>
 		/// Serializing an object to binary bois format.
+		/// Prefer to use `byte[]` overload for better performance.
 		/// </summary>
 		/// <param name="obj">The object to be serialized.</param>
 		/// <param name="type">The object type.</param>
@@ -164,18 +173,18 @@ namespace Salar.Bois
 			var typeInfo = BoisTypeCache.GetBasicType(type);
 			if (typeInfo.AsRootNeedsCompute)
 			{
-				var computedType = BoisTypeCache.GetRootTypeComputed(type, false, true);
+				var computedType = BoisTypeCache.GetRootTypeComputed(type, false, true, typeof(BufferWriterBase));
 
 				// ReSharper disable once PossibleNullReferenceException
 				var invokeMethod = typeof(BoisComputedTypeInfo).GetMethod(nameof(BoisComputedTypeInfo.InvokeWriter),
 						BindingFlags.Instance | BindingFlags.NonPublic)
-					.MakeGenericMethod(type);
+					.MakeGenericMethod(type, typeof(BufferWriterBase));
 
 				invokeMethod.Invoke(computedType, new object[] { bufferWriter, obj, Encoding });
 			}
 			else
 			{
-				PrimitiveWriter.WriteRootBasicType(bufferWriter, obj, type, typeInfo, Encoding);
+				PrimitiveWriter.WriteRootBasicType(ref bufferWriter, obj, type, typeInfo, Encoding);
 			}
 		}
 
@@ -189,13 +198,18 @@ namespace Salar.Bois
 		/// <returns>New instance of the deserialized data.</returns>
 		public T Deserialize<T>(byte[] buffer, int position, int length)
 		{
+#if NET9_0_OR_GREATER
+			var reader = new BinarySpanBufferReader(new ReadOnlySpan<byte>(buffer, position, length));
+			return Deserialize<T, BinarySpanBufferReader>(ref reader);
+#else
 			var reader = new BinaryBufferReader(buffer, position, length);
-
-			return Deserialize<T>(reader);
+			return Deserialize<T, BinaryBufferReader>(ref reader);
+#endif
 		}
 
 		/// <summary>
 		/// Deserializing binary data to a new instance.
+		/// Prefer to use `byte[]` overload for better performance.
 		/// </summary>
 		/// <param name="objectData">The binary data.</param>
 		/// <typeparam name="T">The object type.</typeparam>
@@ -212,7 +226,7 @@ namespace Salar.Bois
 				reader ??= new StreamBufferReader(objectData);
 			}
 
-			return Deserialize<T>(reader);
+			return Deserialize<T, BufferReaderBase>(ref reader);
 		}
 
 		/// <summary>
@@ -220,21 +234,26 @@ namespace Salar.Bois
 		/// </summary>
 		/// <param name="bufferReader"></param>
 		/// <typeparam name="T">The object type.</typeparam>
+		/// <typeparam name="TReader">The buffer reader type of BufferReaderBase or IBufferReader.</typeparam>
 		/// <returns>New instance of the deserialized data.</returns>
-		public T Deserialize<T>(BufferReaderBase bufferReader)
+		public T Deserialize<T, TReader>(ref TReader bufferReader)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+			, allows ref struct
+#endif
 		{
 			var type = typeof(T);
 			var typeInfo = BoisTypeCache.GetBasicType(type);
 
 			if (typeInfo.AsRootNeedsCompute)
 			{
-				var computedType = BoisTypeCache.GetRootTypeComputed(type, true, false);
+				var computedType = BoisTypeCache.GetRootTypeComputed(type, true, false, typeof(TReader));
 
-				return computedType.InvokeReader<T>(bufferReader, Encoding);
+				return computedType.InvokeReader<T, TReader>(ref bufferReader, Encoding);
 			}
 			else
 			{
-				return (T)PrimitiveReader.ReadRootBasicType(bufferReader, type, typeInfo, Encoding);
+				return (T)PrimitiveReader.ReadRootBasicType(ref bufferReader, type, typeInfo, Encoding);
 			}
 		}
 
@@ -261,7 +280,7 @@ namespace Salar.Bois
 		/// <summary>
 		/// Deserializing binary data to a new instance.
 		/// </summary>
-		/// <param name="objectData">The binary data.</param>
+		/// <param name="bufferReader">The buffer reader.</param>
 		/// <param name="type">The object type.</param>
 		/// <returns>New instance of the deserialized data.</returns>
 		public object Deserialize(BufferReaderBase bufferReader, Type type)
@@ -270,18 +289,18 @@ namespace Salar.Bois
 
 			if (typeInfo.AsRootNeedsCompute)
 			{
-				var computedType = BoisTypeCache.GetRootTypeComputed(type, true, false);
+				var computedType = BoisTypeCache.GetRootTypeComputed(type, true, false, typeof(BufferReaderBase));
 
 				// ReSharper disable once PossibleNullReferenceException
 				var invokeMethod = typeof(BoisComputedTypeInfo).GetMethod(nameof(BoisComputedTypeInfo.InvokeReader),
 					BindingFlags.Instance | BindingFlags.NonPublic)
-					.MakeGenericMethod(type);
+					.MakeGenericMethod(type, typeof(BufferReaderBase));
 
-				return invokeMethod.Invoke(computedType, new object[] { bufferReader, Encoding });
+				return invokeMethod.Invoke(computedType, [bufferReader, Encoding]);
 			}
 			else
 			{
-				return PrimitiveReader.ReadRootBasicType(bufferReader, type, typeInfo, Encoding);
+				return PrimitiveReader.ReadRootBasicType(ref bufferReader, type, typeInfo, Encoding);
 			}
 		}
 	}

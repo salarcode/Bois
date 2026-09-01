@@ -225,6 +225,12 @@ public static partial class SourceGeneratorScenariosBois
 	[BoisReader]
 	public static partial PrimitiveScenario? ReadPrimitiveScenario(byte[] buffer, int position, int length);
 
+	[BoisReader]
+	public static partial PrimitiveScenario? ReadPrimitiveScenarioReadOnlySpan(ReadOnlySpan<byte> source);
+
+	[BoisReader]
+	public static partial PrimitiveScenario? ReadPrimitiveScenarioSpan(Span<byte> source);
+
 	[BoisWriter]
 	public static partial void WritePrimitiveScenario(PrimitiveScenario? model, Stream output);
 
@@ -242,6 +248,12 @@ public static partial class SourceGeneratorScenariosBois
 
 	[BoisWriter]
 	public static partial void WritePrimitiveScenario(byte[] output, int position, int length, PrimitiveScenario? model);
+
+	[BoisWriter]
+	public static partial void WritePrimitiveScenarioSpan(PrimitiveScenario? model, Span<byte> output);
+
+	[BoisWriter]
+	public static partial void WritePrimitiveScenarioSpanReversed(Span<byte> output, PrimitiveScenario? model);
 
 	[BoisReader]
 	public static partial CollectionScenario? ReadCollectionScenario(Stream source);

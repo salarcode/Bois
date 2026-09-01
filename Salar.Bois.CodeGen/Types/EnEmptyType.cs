@@ -2,6 +2,6 @@
 
 enum EnEmptyType
 {
-    // Note, this type is set to preserve the namespance only.
+    // Note, this type is set to preserve the namespace only.
     // DO NOT REMOVE.
 }

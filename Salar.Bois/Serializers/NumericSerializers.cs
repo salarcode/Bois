@@ -519,21 +519,17 @@ namespace Salar.Bois.Serializers
                 writer.Write(FlagIsNull);
                 return;
             }
+            int value = num.GetValueOrDefault();
 
-            if (num > EmbeddedNullableMaxNumInByte || num < 0)
+            // Embedded optimization: non-negative values within byte limit
+            if ((uint)value <= EmbeddedNullableMaxNumInByte)
             {
-                // number is not embeddable 
-
-                writer.Write(FlagNone);
-                WriteZigzag(ref writer, num.Value);
+                writer.Write((byte)(value | FlagEmbedded));
             }
             else
             {
-                byte numByte = (byte)num;
-
-                // set the flag of inside
-                numByte = (byte)(numByte | FlagEmbedded);
-                writer.Write(numByte);
+                writer.Write(FlagNone);
+                WriteZigzag(ref writer, value);
             }
         }
 

@@ -139,8 +139,14 @@ public sealed class BoisSourceGenerator : ISourceGenerator
     private static bool IsBufferReader(ITypeSymbol type)
         => type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::Salar.BinaryBuffers.BufferReaderBase";
 
+    private static bool IsBinarySpanBufferReader(ITypeSymbol type)
+        => type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::Salar.BinaryBuffers.BinarySpanBufferReader";
+
     private static bool IsBufferWriter(ITypeSymbol type)
         => type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::Salar.BinaryBuffers.BufferWriterBase";
+
+    private static bool IsBinarySpanBufferWriter(ITypeSymbol type)
+        => type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::Salar.BinaryBuffers.BinarySpanBufferWriter";
 
     private static bool IsEncoding(ITypeSymbol type)
         => type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.Text.Encoding";
@@ -188,7 +194,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             {
                 signature = new ReaderSignature(ReaderInputKind.Stream, 0, -1, -1, encodingParameterIndex);
             }
-            else if (IsBufferReader(parameters[0].Type))
+            else if (IsBufferReader(parameters[0].Type) || IsBinarySpanBufferReader(parameters[0].Type))
             {
                 signature = new ReaderSignature(ReaderInputKind.BufferReader, 0, -1, -1, encodingParameterIndex);
             }
@@ -239,20 +245,20 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
         if (parameterCount == 2)
         {
-            if (IsStream(parameters[0].Type) || IsBufferWriter(parameters[0].Type) || IsByteSpan(parameters[0].Type))
+            if (IsStream(parameters[0].Type) || IsBufferWriter(parameters[0].Type) || IsBinarySpanBufferWriter(parameters[0].Type) || IsByteSpan(parameters[0].Type))
             {
                 signature = new WriterSignature(
-                    IsStream(parameters[0].Type) ? WriterOutputKind.Stream : IsBufferWriter(parameters[0].Type) ? WriterOutputKind.BufferWriter : WriterOutputKind.ByteSpan,
+                    IsStream(parameters[0].Type) ? WriterOutputKind.Stream : (IsBufferWriter(parameters[0].Type) || IsBinarySpanBufferWriter(parameters[0].Type)) ? WriterOutputKind.BufferWriter : WriterOutputKind.ByteSpan,
                     1,
                     0,
                     -1,
                     -1,
                     encodingParameterIndex);
             }
-            else if (IsStream(parameters[1].Type) || IsBufferWriter(parameters[1].Type) || IsByteSpan(parameters[1].Type))
+            else if (IsStream(parameters[1].Type) || IsBufferWriter(parameters[1].Type) || IsBinarySpanBufferWriter(parameters[1].Type) || IsByteSpan(parameters[1].Type))
             {
                 signature = new WriterSignature(
-                    IsStream(parameters[1].Type) ? WriterOutputKind.Stream : IsBufferWriter(parameters[1].Type) ? WriterOutputKind.BufferWriter : WriterOutputKind.ByteSpan,
+                    IsStream(parameters[1].Type) ? WriterOutputKind.Stream : (IsBufferWriter(parameters[1].Type) || IsBinarySpanBufferWriter(parameters[1].Type)) ? WriterOutputKind.BufferWriter : WriterOutputKind.ByteSpan,
                     0,
                     1,
                     -1,
@@ -300,6 +306,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 "'static partial T Method(System.IO.Stream source, System.Text.Encoding encoding)'",
                 "'static partial T Method(Salar.BinaryBuffers.BufferReaderBase reader)'",
                 "'static partial T Method(Salar.BinaryBuffers.BufferReaderBase reader, System.Text.Encoding encoding)'",
+                "'static partial T Method(ref Salar.BinaryBuffers.BinarySpanBufferReader reader)'",
+                "'static partial T Method(ref Salar.BinaryBuffers.BinarySpanBufferReader reader, System.Text.Encoding encoding)'",
                 "'static partial T Method(byte[] buffer)'",
                 "'static partial T Method(byte[] buffer, System.Text.Encoding encoding)'",
                 "'static partial T Method(System.ArraySegment<byte> bytes)'",
@@ -322,6 +330,8 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 "'static partial void Method(System.IO.Stream output, T model)'",
                 "'static partial void Method(T model, Salar.BinaryBuffers.BufferWriterBase writer)'",
                 "'static partial void Method(Salar.BinaryBuffers.BufferWriterBase writer, T model)'",
+                "'static partial void Method(T model, ref Salar.BinaryBuffers.BinarySpanBufferWriter writer)'",
+                "'static partial void Method(ref Salar.BinaryBuffers.BinarySpanBufferWriter writer, T model)'",
                 "'static partial void Method(T model, System.Span<byte> output)'",
                 "'static partial void Method(System.Span<byte> output, T model)'",
                 "'static partial void Method(T model, byte[] output, int position, int length)'",

@@ -280,6 +280,18 @@ public class Test_CodeGenGenerator
 		Array.Clear(buffer);
 		SourceGeneratorScenariosBois.WritePrimitiveScenarioSpanReversed(buffer, expected);
 		AssertPrimitiveScenario(expected, SourceGeneratorScenariosBois.ReadPrimitiveScenarioSpan(buffer));
+
+		Array.Clear(buffer);
+		var spanWriter = new BinarySpanBufferWriter(buffer);
+		SourceGeneratorScenariosBois.WritePrimitiveScenarioBinarySpanBufferWriter(expected, ref spanWriter);
+		var spanReader = new BinarySpanBufferReader(buffer);
+		AssertPrimitiveScenario(expected, SourceGeneratorScenariosBois.ReadPrimitiveScenarioBinarySpanBufferReader(ref spanReader));
+
+		Array.Clear(buffer);
+		var spanWriterReversed = new BinarySpanBufferWriter(buffer);
+		SourceGeneratorScenariosBois.WritePrimitiveScenarioBinarySpanBufferWriter(ref spanWriterReversed, expected);
+		var spanReaderWithEncoding = new BinarySpanBufferReader(buffer);
+		AssertPrimitiveScenario(expected, SourceGeneratorScenariosBois.ReadPrimitiveScenarioBinarySpanBufferReader(ref spanReaderWithEncoding, Encoding.UTF8));
 	}
 
 	[Fact]

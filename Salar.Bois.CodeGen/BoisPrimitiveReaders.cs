@@ -422,4 +422,18 @@ public static class BoisPrimitiveReaders
     {
         return PrimitiveReader.ReadDataSet(ref reader, encoding);
     }
+
+    /// <summary>
+    /// Used by the generated code. Validates an array length or item count read from the data before
+    /// anything is allocated or looped, and returns it. See <see cref="BoisCodeGen.MaxUnverifiedCount"/>.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int CheckedCount<TReader>(ref TReader reader, uint count)
+        where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
+    {
+        return PrimitiveReader.CheckedCount(ref reader, count);
+    }
 }

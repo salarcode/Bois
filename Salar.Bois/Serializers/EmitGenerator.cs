@@ -2905,7 +2905,7 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<uint>.HasValue)).GetGetMethod());
-			il.Emit(OpCodes.Brfalse_S, beforeEndReturn);
+			il.Emit(OpCodes.Brfalse, beforeEndReturn);
 
 			// int value = num.Value;
 			il.LoadLocalAddress(itemCountNullableVar_shared);
@@ -2914,6 +2914,14 @@ namespace Salar.Bois.Serializers
 				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<uint>.Value)).GetGetMethod());
 			il.StoreLocal(itemCountVar_shared);
 
+
+			// PrimitiveReader.CheckedCount(ref reader, itemCount);
+			// the count is untrusted and items might take no space in the data (empty structs)
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
+			il.Emit(OpCodes.Ldloc, itemCountVar_shared);
+			il.Emit(OpCodes.Call, GetGenericWriterMethod(typeof(PrimitiveReader), nameof(PrimitiveReader.CheckedCount),
+				typeof(BufferReaderBase), typeof(uint)));
+			il.Emit(OpCodes.Pop);
 
 			// List<int> list2 = new List<int>();
 			var collectionInstance = il.DeclareLocal(collectionType);
@@ -3431,7 +3439,7 @@ namespace Salar.Bois.Serializers
 			il.Emit(OpCodes.Call,
 				// ReSharper disable once PossibleNullReferenceException
 				meth: methodReadVarInt32Nullable.ReturnType.GetProperty(nameof(Nullable<uint>.HasValue)).GetGetMethod());
-			il.Emit(OpCodes.Brfalse_S, beforeEndReturn);
+			il.Emit(OpCodes.Brfalse, beforeEndReturn);
 
 			// int value = num.Value;
 			il.LoadLocalAddress(itemCountNullableVar_shared);
@@ -3444,7 +3452,11 @@ namespace Salar.Bois.Serializers
 			var arrayItemType = arrType.GetElementType();
 			// var arr = new Array();
 			var arrInstance = il.DeclareLocal(arrType);
+			// arr = new T[PrimitiveReader.CheckedCount(ref reader, itemCount)];
+			il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
 			il.Emit(OpCodes.Ldloc, itemCountVar_shared);
+			il.Emit(OpCodes.Call, GetGenericWriterMethod(typeof(PrimitiveReader), nameof(PrimitiveReader.CheckedCount),
+				typeof(BufferReaderBase), typeof(uint)));
 			il.Emit(OpCodes.Newarr, arrayItemType);
 			il.StoreLocal(arrInstance);
 

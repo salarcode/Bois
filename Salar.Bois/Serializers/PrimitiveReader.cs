@@ -11,6 +11,91 @@ namespace Salar.Bois.Serializers
 {
 	internal static class PrimitiveReader
 	{
+		private const int GuidByteLength = 16;
+
+		/// <summary>
+		/// Counts up to this are not checked.
+		/// </summary>
+		internal const int MaxDirectCount = 1024;
+
+		/// <summary>
+		/// Byte lengths up to this are not checked.
+		/// </summary>
+		internal const int MaxDirectByteLength = 64 * 1024;
+
+		/// <summary>
+		/// Counts above <see cref="MaxDirectCount"/> and up to this are accepted without checking the data left.
+		/// Larger counts must fit in the data left, which only readers that know their length can tell.
+		/// </summary>
+		internal static int MaxUnverifiedCount = 1_000_000;
+
+		/// <summary>
+		/// Byte lengths above <see cref="MaxDirectByteLength"/> and up to this are accepted without checking the data left.
+		/// Larger lengths must fit in the data left, which only readers that know their length can tell.
+		/// </summary>
+		internal static int MaxUnverifiedByteLength = 16 * 1024 * 1024;
+
+		/// <summary>
+		/// Validates an array length or item count read from the data, before anything is allocated or looped.
+		/// Every item takes at least a byte in the data, except empty structs, which is why the count is limited too.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static int CheckedCount<TReader>(ref TReader reader, uint count)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
+		{
+			if (count <= MaxDirectCount)
+				return (int)count;
+
+			return CheckLargeLength(ref reader, count, MaxUnverifiedCount, nameof(MaxUnverifiedCount));
+		}
+
+		/// <summary>
+		/// Validates the byte length of a string or byte array read from the data, before it is allocated.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static int CheckedByteLength<TReader>(ref TReader reader, uint length)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
+		{
+			if (length <= MaxDirectByteLength)
+				return (int)length;
+
+			return CheckLargeLength(ref reader, length, MaxUnverifiedByteLength, nameof(MaxUnverifiedByteLength));
+		}
+
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private static int CheckLargeLength<TReader>(ref TReader reader, uint length, int maxUnverified, string settingName)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
+		{
+			if (length <= maxUnverified)
+				return (int)length;
+
+			long remaining;
+			try
+			{
+				remaining = reader.Remaining;
+			}
+			catch (Exception ex) when (ex is NotSupportedException || ex is NotImplementedException)
+			{
+				// non-seekable stream
+				remaining = -1;
+			}
+
+			if (length <= remaining && length <= int.MaxValue)
+				return (int)length;
+
+			throw new InvalidDataException(
+				$"The declared length {length} is more than the data left and more than the allowed {settingName} ({maxUnverified}).");
+		}
+
 		/// <summary>
 		/// Reads a raw byte. Used by the emitted IL, which can only pass the buffer by reference.
 		/// </summary>
@@ -55,10 +140,10 @@ namespace Salar.Bois.Serializers
 			else
 			{
 #if NETFRAMEWORK
-				var strBuff = reader.ReadBytes((int)length.Value);
+				var strBuff = reader.ReadBytes(CheckedByteLength(ref reader, length.Value));
 				return encoding.GetString(strBuff);
 #else
-				var strBuff = reader.ReadSpan((int)length.Value);
+				var strBuff = reader.ReadSpan(CheckedByteLength(ref reader, length.Value));
 				return encoding.GetString(strBuff);
 #endif
 			}
@@ -284,7 +369,7 @@ namespace Salar.Bois.Serializers
 
 			if (length.Value == 0) return [];
 
-			return reader.ReadBytes((int)length.Value);
+			return reader.ReadBytes(CheckedByteLength(ref reader, length.Value));
 		}
 
 #if SupportsEmit
@@ -745,6 +830,9 @@ namespace Salar.Bois.Serializers
 			if (len == 0)
 				return Guid.Empty;
 
+			if (len.Value != GuidByteLength)
+				throw new InvalidDataException("Invalid Guid length.");
+
 #if NETFRAMEWORK
 			var gbuff = reader.ReadBytes((int)len.Value);
 			return new Guid(gbuff);
@@ -763,6 +851,9 @@ namespace Salar.Bois.Serializers
 			uint len = NumericSerializers.ReadVarUInt32(ref reader);
 			if (len == 0)
 				return Guid.Empty;
+
+			if (len != GuidByteLength)
+				throw new InvalidDataException("Invalid Guid length.");
 
 #if NETFRAMEWORK
 			var gbuff = reader.ReadBytes((int)len);
@@ -856,6 +947,11 @@ namespace Salar.Bois.Serializers
 			}
 
 			var rowsCount = NumericSerializers.ReadVarInt32(ref reader);
+			if (columnCount.Value == 0 && rowsCount > 0)
+			{
+				// rows without columns take no space in the data
+				CheckedCount(ref reader, (uint)rowsCount);
+			}
 			for (int index = 0; index < rowsCount; index++)
 			{
 				var itemArray = new object[columnCount.Value];
@@ -1075,9 +1171,9 @@ namespace Salar.Bois.Serializers
 			var arrayItemType = typeInfo.BareType;
 			var boisBasicTypeInfo = BoisTypeCache.GetBasicType(typeInfo.BareType);
 
-			var result = Array.CreateInstance(arrayItemType, (int)length.Value);
+			var result = Array.CreateInstance(arrayItemType, CheckedCount(ref reader, length.Value));
 
-			for (int i = 0; i < length; i++)
+			for (int i = 0; i < result.Length; i++)
 			{
 				var item = ReadRootBasicType(ref reader, arrayItemType, boisBasicTypeInfo, encoding);
 				result.SetValue(item, i);

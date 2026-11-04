@@ -28,6 +28,13 @@ public sealed class EmptyScenario
 {
 }
 
+/// <summary>
+/// A struct without members takes no space in the data.
+/// </summary>
+public struct EmptyStructScenario
+{
+}
+
 public sealed class PrimitiveScenario
 {
 	public string Text { get; set; } = string.Empty;
@@ -347,6 +354,18 @@ public static partial class SourceGeneratorScenariosBois
 
 	[BoisWriter]
 	public static partial void WriteStringIntDictionary(Dictionary<string, int>? model, Stream output);
+
+	[BoisReader]
+	public static partial EmptyStructScenario[]? ReadEmptyStructArray(Stream source);
+
+	[BoisWriter]
+	public static partial void WriteEmptyStructArray(EmptyStructScenario[]? model, Stream output);
+
+	[BoisReader]
+	public static partial List<EmptyStructScenario>? ReadEmptyStructList(Stream source);
+
+	[BoisWriter]
+	public static partial void WriteEmptyStructList(List<EmptyStructScenario>? model, Stream output);
 
 	[BoisReader]
 	public static partial int[]? ReadInt32Array(Stream source);

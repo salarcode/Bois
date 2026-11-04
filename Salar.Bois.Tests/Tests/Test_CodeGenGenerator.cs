@@ -468,6 +468,53 @@ public class Test_CodeGenGenerator
 	}
 
 	[Fact]
+	public void GeneratedArrayReaderDoesNotAllocateForForgedLargeCount()
+	{
+		// Forged header: claims 200 million elements (a count which is allocatable, unlike int.MaxValue), followed by a couple of bytes.
+		using var forged = new MemoryStream();
+		var writer = new StreamBufferWriter(forged);
+		Salar.Bois.CodeGen.BoisNumericSerializers.WriteUIntNullableMemberCount(ref writer, 200_000_000);
+		forged.WriteByte(1);
+		var bytes = forged.ToArray();
+
+		var before = GC.GetAllocatedBytesForCurrentThread();
+		foreach (var stream in new Func<Stream>[] { () => new MemoryStream(bytes), () => new NonSeekableStream(bytes) })
+		{
+			var ex = Record.Exception(() => SourceGeneratorScenariosBois.ReadInt32Array(stream()));
+			Assert.NotNull(ex);
+			Assert.False(ex is OutOfMemoryException, "The declared length was allocated: " + ex);
+		}
+		var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+		Assert.True(allocated < 1_000_000, $"Allocated {allocated} bytes for a forged array count.");
+	}
+
+	[Fact]
+	public void GeneratedArrayReaderReadsValidDataFromNonSeekableStream()
+	{
+		using var stream = new MemoryStream();
+		var expected = Enumerable.Range(0, 1000).ToArray();
+		SourceGeneratorScenariosBois.WriteInt32Array(expected, stream);
+
+		Assert.Equal(expected, SourceGeneratorScenariosBois.ReadInt32Array(new NonSeekableStream(stream.ToArray())));
+	}
+
+	private sealed class NonSeekableStream(byte[] data) : Stream
+	{
+		private readonly MemoryStream _inner = new(data);
+		public override bool CanRead => true;
+		public override bool CanSeek => false;
+		public override bool CanWrite => false;
+		public override long Length => throw new NotSupportedException();
+		public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+		public override void Flush() { }
+		public override int Read(byte[] buffer, int offset, int count) => _inner.Read(buffer, offset, count);
+		public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+		public override void SetLength(long value) => throw new NotSupportedException();
+		public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+	}
+
+	[Fact]
 	public void GeneratedRootByteArrayWriterSupportsNullValues()
 	{
 		byte[] nullByteArray = null!;

@@ -1317,14 +1317,23 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Line("else");
                 builder.Line("{");
                 builder.Indent();
-                builder.Line($"var {localName} = new {TypeName(arrayType.ElementType)}[(int){countName}.Value];");
+                EmitArrayReadLoop(arrayType, localName, countName + ".Value", builder);
+                builder.Line($"{target} = {localName};");
+                builder.Unindent();
+                builder.Line("}");
+            }
+
+            /// <summary>
+            /// Emits the array allocation and the element loop. The count comes from untrusted data, so it is
+            /// validated before allocating.
+            /// </summary>
+            private void EmitArrayReadLoop(IArrayTypeSymbol arrayType, string localName, string countExpression, CodeBuilder builder)
+            {
+                builder.Line($"var {localName} = new {TypeName(arrayType.ElementType)}[BoisPrimitiveReaders.CheckedCount(ref reader, {countExpression})];");
                 builder.Line($"for (var i = 0; i < {localName}.Length; i++)");
                 builder.Line("{");
                 builder.Indent();
                 builder.Line($"{localName}[i] = {GetReadValueExpression(arrayType.ElementType)};");
-                builder.Unindent();
-                builder.Line("}");
-                builder.Line($"{target} = {localName};");
                 builder.Unindent();
                 builder.Line("}");
             }
@@ -1433,13 +1442,7 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                 builder.Unindent();
                 if (setupEncoding && emitEncodingSetup)
                     EmitReaderEncodingSetup(builder);
-                builder.Line($"var items = new {TypeName(arrayType.ElementType)}[(int)itemCount.Value];");
-                builder.Line("for (var i = 0; i < items.Length; i++)");
-                builder.Line("{");
-                builder.Indent();
-                builder.Line($"items[i] = {GetReadValueExpression(arrayType.ElementType)};");
-                builder.Unindent();
-                builder.Line("}");
+                EmitArrayReadLoop(arrayType, "items", "itemCount.Value", builder);
                 builder.Line("return items;");
                 error = string.Empty;
                 return true;
@@ -1509,6 +1512,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             private void EmitReadIntoCollectionBody(CollectionInfo collectionInfo, string target, string countExpression, CodeBuilder builder)
             {
+                // the count is untrusted and items might take no space in the data (empty structs)
+                builder.Line($"BoisPrimitiveReaders.CheckedCount(ref reader, {countExpression});");
+
                 builder.Line($"for (var i = 0; i < {countExpression}; i++)");
                 builder.Line("{");
                 builder.Indent();
@@ -2206,6 +2212,10 @@ public sealed class BoisSourceGenerator : ISourceGenerator
         }
         public bool IsEnum(ITypeSymbol type) => Bare(type).TypeKind == TypeKind.Enum;
         public bool IsExplicitStruct(ITypeSymbol type) => Bare(type).IsValueType && Bare(type).TypeKind != TypeKind.Enum && Bare(type).SpecialType == SpecialType.None;
+        /// <summary>
+        /// Custom structs have no null indicator and no member count, so they can take no space in the data.
+        /// Everything else takes at least a byte.
+        /// </summary>
         public bool IsNonNullableExplicitStruct(ITypeSymbol type) => IsExplicitStruct(type) && !IsNullableValueType(type);
         public bool IsNullable(ITypeSymbol type) => !Bare(type).IsValueType || IsNullableValueType(type);
         private bool IsNullableValueType(ITypeSymbol type) => type is INamedTypeSymbol named && Equal(named.OriginalDefinition, _nullableType);

@@ -262,6 +262,34 @@ var boisLz4Serializer = new BoisLz4Serializer();
 return boisLz4Serializer.Unpickle<Project>(dataStream);
 ```
 
+## Reading large arrays and strings
+When reading, the length of an array, collection, string or byte array is taken from the data before the items are read. To keep memory use predictable, the declared length is validated before the memory is allocated:
+
+* Up to 1024 items (or 64 KB for a string or byte array) are read directly.
+* A bigger declared length is accepted if it is within the unverified limit below, or if it fits in the data left in the reader.
+* Otherwise an `InvalidDataException` is thrown.
+
+The data left is known when reading from a `byte[]`, a `MemoryStream` or any seekable stream, so those readers have no practical limit. A non-seekable stream (for example a network stream) can't tell how much data is left, so for it the declared length must be within the limit.
+
+The limits are static properties. Set them once, during application startup:
+
+| Property | Default | Applies to |
+| --- | --- | --- |
+| `MaxUnverifiedCount` | 1,000,000 | The number of items of arrays and collections |
+| `MaxUnverifiedByteLength` | 16 MB | The byte length of strings and byte arrays |
+
+```csharp
+// dynamic BoisSerializer
+BoisSerializer.MaxUnverifiedCount = 5_000_000;
+BoisSerializer.MaxUnverifiedByteLength = 64 * 1024 * 1024;
+
+// source generated methods
+BoisCodeGen.MaxUnverifiedCount = 5_000_000;
+BoisCodeGen.MaxUnverifiedByteLength = 64 * 1024 * 1024;
+```
+
+`BoisSerializer` and `BoisCodeGen` are in different packages and have separate values, so set both if your application uses both.
+
 ## Defining objects
 Nothing special is really required. Just these small easy rules.
 

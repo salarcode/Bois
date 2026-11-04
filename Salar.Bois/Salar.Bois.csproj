@@ -9,7 +9,7 @@
 		<DefineConstants>$(DefineConstants);SupportsEmit</DefineConstants>
 		<PackageId>Salar.Bois</PackageId>
 		<Title>Salar.Bois</Title>
-		<Version>4.0</Version>
+		<Version>4.1</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
@@ -26,7 +26,7 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageReleaseNotes>
-			* Performance improvements and optimizations for serialization and deserialization.
+			* Security update for deserializers.
 		</PackageReleaseNotes>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

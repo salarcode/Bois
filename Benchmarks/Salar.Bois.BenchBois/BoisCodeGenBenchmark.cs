@@ -61,6 +61,34 @@ public class BoisCodeGenBenchmark_Small : BenchmarkBase<Test1_Arrays_Small>
 	}
 }
 
+public class BoisCodeGenBenchmark_Objects : BenchmarkBase<Test2_Objects>
+{
+	[Params("BoisCodeGen")]
+	public override string TestName { get; set; }
+
+	[Benchmark(Description = "Serialize")]
+	[BenchmarkCategory("BoisCodeGen")]
+	public override void Serialize()
+	{
+		for (int i = 0; i < IterationCount; i++)
+		{
+			Reset();
+			CodeGenBois_Objects.Write(TestObject, TestStream);
+		}
+	}
+
+	[Benchmark(Description = "Deserialize")]
+	[BenchmarkCategory("BoisCodeGen")]
+	public override void Deserialize()
+	{
+		for (int i = 0; i < IterationCount; i++)
+		{
+			Reset();
+			CodeGenBois_Objects.Read(TestStream);
+		}
+	}
+}
+
 public static partial class CodeGenBois_Big
 {
 	[CodeGen.BoisReader]

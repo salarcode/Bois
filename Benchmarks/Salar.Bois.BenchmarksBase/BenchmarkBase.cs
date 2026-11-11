@@ -62,7 +62,8 @@ public abstract class BenchmarkBase<T> : IDisposable, IBenchmark
 		TestBuffer = Array.Empty<byte>();
 	}
 
-	[IterationSetup]
+	// Not an [IterationSetup]: every benchmark calls Reset() in its own loop. As an iteration setup it forced
+	// one invocation per iteration, which made the results noisy.
 	public virtual void Reset()
 	{
 		TestStream.Position = 0;

@@ -629,7 +629,7 @@ public class Test_CodeGenGenerator
 		return SourceGeneratorScenariosBois.ReadString(stream, Encoding.UTF8);
 	}
 
-	private static PrimitiveScenario CreatePrimitiveScenario(string suffix = "value")
+	internal static PrimitiveScenario CreatePrimitiveScenario(string suffix = "value")
 	{
 		return new PrimitiveScenario
 		{
@@ -701,7 +701,7 @@ public class Test_CodeGenGenerator
 		return company;
 	}
 
-	private static CollectionScenario CreateCollectionScenario()
+	internal static CollectionScenario CreateCollectionScenario()
 	{
 		var collection = new CollectionScenario
 		{
@@ -714,7 +714,7 @@ public class Test_CodeGenGenerator
 		return collection;
 	}
 
-	private static NestedScenario CreateNestedScenario()
+	internal static NestedScenario CreateNestedScenario()
 	{
 		return new NestedScenario
 		{
@@ -725,7 +725,7 @@ public class Test_CodeGenGenerator
 		};
 	}
 
-	private static ReusedNestedScenario CreateReusedNestedScenario()
+	internal static ReusedNestedScenario CreateReusedNestedScenario()
 	{
 		return new ReusedNestedScenario
 		{
@@ -735,7 +735,7 @@ public class Test_CodeGenGenerator
 		};
 	}
 
-	private static SameTypeCastingScenario CreateSameTypeCastingScenario()
+	internal static SameTypeCastingScenario CreateSameTypeCastingScenario()
 	{
 		return new SameTypeCastingScenario
 		{

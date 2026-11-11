@@ -1073,7 +1073,24 @@ namespace Salar.Bois.Serializers
 				}
 				else
 				{
-					// no null check struct
+					// struct, no null indicator
+					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(memberType, false, true, ResolveBufferType(typeof(BufferWriterBase)));
+
+					// CODE-FOR: computed_function_name(writer, instance.prop, encoding);
+					il.Emit(OpCodes.Ldarg_0); // BufferWriterBase
+					if (prop != null)
+					{
+						var getter = prop.GetGetMethod(true);
+						il.LoadArgAuto(1, containerType); // instance
+						il.Emit(OpCodes.Callvirt, meth: getter);
+					}
+					else
+					{
+						il.LoadArgAuto(1, containerType); // instance
+						il.Emit(OpCodes.Ldfld, field: field);
+					}
+					il.Emit(OpCodes.Ldarg_2); // Encoding
+					il.Emit(OpCodes.Call, meth: valueTypeInfo.WriterMethod);
 				}
 			}
 
@@ -2828,26 +2845,24 @@ namespace Salar.Bois.Serializers
 			}
 			else
 			{
-				if (!memberIsStruct)
+				// reference type after the null check, or struct which has no null indicator
+				var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(memberType, true, false, ResolveBufferType(typeof(BufferReaderBase)));
+
+				il.MarkLabel(LabelReadValue);
+
+				// CODE-FOR: Set value
+				il.LoadLocalAuto(0, containerType); // instance
+				il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
+				il.Emit(OpCodes.Ldarg_1); // Encoding
+				il.Emit(OpCodes.Call, meth: valueTypeInfo.ReaderMethod);
+
+				if (prop != null)
 				{
-					var valueTypeInfo = BoisTypeCache.GetRootTypeComputed(memberType, true, false, ResolveBufferType(typeof(BufferReaderBase)));
-
-					il.MarkLabel(LabelReadValue);
-
-					// CODE-FOR: Set value
-					il.LoadLocalAuto(0, containerType); // instance
-					il.Emit(OpCodes.Ldarg_0); // BufferReaderBase
-					il.Emit(OpCodes.Ldarg_1); // Encoding
-					il.Emit(OpCodes.Call, meth: valueTypeInfo.ReaderMethod);
-
-					if (prop != null)
-					{
-						il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
-					}
-					else
-					{
-						il.Emit(OpCodes.Stfld, field: field); // field value
-					}
+					il.Emit(OpCodes.Callvirt, prop.GetSetMethod(true));
+				}
+				else
+				{
+					il.Emit(OpCodes.Stfld, field: field); // field value
 				}
 			}
 

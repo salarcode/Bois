@@ -371,9 +371,9 @@ Root custom structs are emitted without a reference null check and without a nul
 
 Nullable custom structs are not treated as ordinary reference objects. Validate support through `ValidateRootType` and current tests before adding or changing their emission.
 
-Compatibility rule: non-nullable custom struct members inside another complex object are intentionally skipped by generated readers and writers because the runtime serializer currently skips them. They deserialize to `default(T)`. This unusual behavior is covered by tests for `NestedScenario.Location`, `SameTypeCastingScenario.FirstLocation`, and `SecondLocation`. Do not "fix" only one serializer path.
+Non-nullable custom struct members inside another complex object (class or struct) are written and read the same way as root structs: no null indicator and no member count, only their members. The runtime serializer and the generator must match. This is covered by tests for `NestedScenario.Location`, `SameTypeCastingScenario.FirstLocation`, and `SecondLocation`. Change both serializer paths together.
 
-Known basic structs such as `Guid`, `DateTime`, and `Color` are not skipped; they use their primitive helpers.
+Known basic structs such as `Guid`, `DateTime`, and `Color` use their primitive helpers instead.
 
 ## Reused and recursive nested types
 

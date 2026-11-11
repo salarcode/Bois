@@ -429,6 +429,19 @@ public class Test_CodeGenGenerator
 	}
 
 	[Fact]
+	public void StructMembersCrossReadBetweenRuntimeAndGenerated()
+	{
+		var init = CreateNestedScenario();
+		var serializer = new BoisSerializer();
+
+		var runtimeBytes = SerializeWithBoisSerializer(init);
+		AssertNestedScenario(init, SourceGeneratorScenariosBois.ReadNestedScenario(new MemoryStream(runtimeBytes)));
+
+		var generatedBytes = SerializeWithCodeGen(init, SourceGeneratorScenariosBois.WriteNestedScenario);
+		AssertNestedScenario(init, serializer.Deserialize<NestedScenario>(new MemoryStream(generatedBytes)));
+	}
+
+	[Fact]
 	public void GeneratedWritersAreBinaryCompatibleWithBoisSerializerForSampleTypes()
 	{
 		AssertBinaryCompatible("CompanyModel", CreateCompanyModel(), CompanyModelBois.WriteCompanyModel);
@@ -869,10 +882,7 @@ public class Test_CodeGenGenerator
 		Assert.NotNull(actual);
 		AssertPrimitiveScenario(expected.Primitive, actual.Primitive);
 		AssertPrimitiveScenario(expected.NullablePrimitive, actual.NullablePrimitive);
-		// Non-nullable custom struct members are not serialized by the runtime serializer,
-		// so CodeGen skips them too. They round-trip as their default value.
-		Assert.Equal(0, actual.Location.X);
-		Assert.Equal(0, actual.Location.Y);
+		Assert.Equal(expected.Location, actual.Location);
 		Assert.NotNull(actual.Empty);
 	}
 
@@ -892,12 +902,8 @@ public class Test_CodeGenGenerator
 		Assert.Equal(expected.OptionalStatus1, actual.OptionalStatus1);
 		Assert.Equal(expected.OptionalStatus2, actual.OptionalStatus2);
 		Assert.Equal(expected.OptionalStatus3, actual.OptionalStatus3);
-		// Non-nullable custom struct members are not serialized by the runtime serializer,
-		// so CodeGen skips them too. They round-trip as their default value.
-		Assert.Equal(0, actual.FirstLocation.X);
-		Assert.Equal(0, actual.FirstLocation.Y);
-		Assert.Equal(0, actual.SecondLocation.X);
-		Assert.Equal(0, actual.SecondLocation.Y);
+		Assert.Equal(expected.FirstLocation, actual.FirstLocation);
+		Assert.Equal(expected.SecondLocation, actual.SecondLocation);
 		AssertPrimitiveScenario(expected.FirstPrimitive, actual.FirstPrimitive);
 		AssertPrimitiveScenario(expected.SecondPrimitive, actual.SecondPrimitive);
 		AssertPrimitiveScenario(expected.OptionalPrimitive1, actual.OptionalPrimitive1);

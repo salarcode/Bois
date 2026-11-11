@@ -9,7 +9,7 @@
 		<DefineConstants>$(DefineConstants);SupportsEmit</DefineConstants>
 		<PackageId>Salar.Bois</PackageId>
 		<Title>Salar.Bois</Title>
-		<Version>4.1</Version>
+		<Version>4.2</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois</Product>
@@ -26,7 +26,7 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageReleaseNotes>
-			* Security update for deserializers.
+			* Non-nullable struct members are now serialized, changing the binary format for types that have them. This is a breaking change.
 		</PackageReleaseNotes>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS JSON LZ4 Compressed</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

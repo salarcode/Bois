@@ -12,7 +12,7 @@
 		<Title>Salar.Bois.CodeGen</Title>
 		<AssemblyName>Salar.Bois.CodeGen</AssemblyName>
 		<RootNamespace>Salar.Bois.CodeGen</RootNamespace>
-		<Version>4.6</Version>
+		<Version>4.7</Version>
 		<Authors>Salar Khalilzadeh</Authors>
 		<Company>Salar Khalilzadeh</Company>
 		<Product>Salar.Bois.CodeGen</Product>
@@ -25,7 +25,7 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageTags>Binary Serializer Serialization Serialize Compact BOIS SourceGenerator CodeGeneration</PackageTags>
 		<PackageReleaseNotes>
-			* Security update for deserializers.
+			* Non-nullable struct members are now serialized, changing the binary format for types that have them. This is a breaking change.
 		</PackageReleaseNotes>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IncludeBuildOutput>true</IncludeBuildOutput>

@@ -36,6 +36,12 @@ namespace Salar.Bois.Serializers
 		internal static int MaxUnverifiedByteLength = 16 * 1024 * 1024;
 
 		/// <summary>
+		/// The largest byte size a versioned object may declare. The size is never allocated, it is only used to
+		/// jump over data, so the default is the maximum.
+		/// </summary>
+		internal static int MaxVersionedObjectLength = int.MaxValue;
+
+		/// <summary>
 		/// Validates an array length or item count read from the data, before anything is allocated or looped.
 		/// Every item takes at least a byte in the data, except empty structs, which is why the count is limited too.
 		/// </summary>
@@ -66,6 +72,51 @@ namespace Salar.Bois.Serializers
 				return (int)length;
 
 			return CheckLargeLength(ref reader, length, MaxUnverifiedByteLength, nameof(MaxUnverifiedByteLength));
+		}
+
+		/// <summary>
+		/// Validates the byte size of a versioned object read from the data. It must be at most
+		/// <see cref="MaxVersionedObjectLength"/>, and fit in the data left when the reader knows it.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal static int CheckedObjectLength<TReader>(ref TReader reader, uint length)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
+		{
+			if (length <= MaxDirectByteLength && length <= MaxVersionedObjectLength)
+				return (int)length;
+
+			return CheckLargeObjectLength(ref reader, length);
+		}
+
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private static int CheckLargeObjectLength<TReader>(ref TReader reader, uint length)
+			where TReader : IBufferReader
+#if NET9_0_OR_GREATER
+				, allows ref struct
+#endif
+		{
+			if (length > MaxVersionedObjectLength)
+				throw new InvalidDataException(
+					$"The declared object size {length} is more than the allowed {nameof(MaxVersionedObjectLength)} ({MaxVersionedObjectLength}).");
+
+			long remaining;
+			try
+			{
+				remaining = reader.Remaining;
+			}
+			catch (Exception ex) when (ex is NotSupportedException || ex is NotImplementedException)
+			{
+				// non-seekable stream, the data left is unknown
+				return (int)length;
+			}
+
+			if (length > remaining)
+				throw new InvalidDataException($"The declared object size {length} is more than the data left ({remaining}).");
+
+			return (int)length;
 		}
 
 		[MethodImpl(MethodImplOptions.NoInlining)]

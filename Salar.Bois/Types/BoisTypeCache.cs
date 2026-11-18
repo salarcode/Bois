@@ -2,6 +2,7 @@
 using Salar.BinaryBuffers;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
@@ -51,6 +52,7 @@ namespace Salar.Bois.Types
 			}
 			lock (_basicEnumCache)
 				_basicEnumCache.Clear();
+			_versionedGraphs.Clear();
 		}
 
 		private static BoisComputedTypeHashtable<BoisComputedTypeInfo> GetComputedCache(Type bufferType)
@@ -195,6 +197,87 @@ namespace Salar.Bois.Types
 				_basicEnumCache.TryAdd(type, result);
 
 				return result;
+			}
+		}
+
+		/// <summary>
+		/// Read on every call of the non-generic stream overloads, so reads take no lock.
+		/// </summary>
+		private static readonly ConcurrentDictionary<Type, bool> _versionedGraphs = new ConcurrentDictionary<Type, bool>();
+
+		/// <summary>
+		/// True when <paramref name="rootType"/> or any type it contains is versioned, so it needs a writer that can
+		/// fill in object sizes and a reader that knows its position. Computed once per type.
+		/// </summary>
+		internal static bool ContainsVersioned(Type rootType)
+		{
+			if (_versionedGraphs.TryGetValue(rootType, out var cached))
+				return cached;
+
+			return ComputeContainsVersioned(rootType);
+		}
+
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+		private static bool ComputeContainsVersioned(Type rootType)
+		{
+			bool result;
+			try
+			{
+				result = ContainsVersioned(rootType, new HashSet<Type>());
+			}
+			catch (Exception)
+			{
+				// an invalid type fails with its real error when its serializer is generated
+				result = false;
+			}
+
+			_versionedGraphs[rootType] = result;
+			return result;
+		}
+
+		private static bool ContainsVersioned(Type type, HashSet<Type> visited)
+		{
+			if (type == null || !visited.Add(type))
+				return false;
+
+			var nullableOf = Nullable.GetUnderlyingType(type);
+			if (nullableOf != null)
+				return ContainsVersioned(nullableOf, visited);
+
+			if (type.IsArray)
+				return ContainsVersioned(type.GetElementType(), visited);
+
+			if (GetBasicType(type).KnownType != EnBasicKnownType.Unknown)
+				return false;
+
+			var complex = GetComplexTypeUnCached(type);
+			switch (complex?.ComplexKnownType)
+			{
+				case EnComplexKnownType.Collection:
+				case EnComplexKnownType.ISet:
+					return ContainsVersioned(ReflectionHelper.FindUnderlyingGenericElementType(type), visited);
+
+				case EnComplexKnownType.Dictionary:
+				{
+					var keyValue = ReflectionHelper.FindUnderlyingGenericDictionaryElementType(type);
+					return keyValue != null && (ContainsVersioned(keyValue[0], visited) || ContainsVersioned(keyValue[1], visited));
+				}
+
+				case EnComplexKnownType.Unknown:
+					if (complex.VersionedSlots != null)
+						return true;
+					if (complex.Members == null)
+						return false;
+					foreach (var member in complex.Members)
+					{
+						var memberType = member is PropertyInfo property ? property.PropertyType : ((FieldInfo)member).FieldType;
+						if (ContainsVersioned(memberType, visited))
+							return true;
+					}
+					return false;
+
+				default:
+					return false;
 			}
 		}
 
@@ -791,9 +874,9 @@ namespace Salar.Bois.Types
 			return objectMemInfo;
 		}
 
-		private static BoisComplexTypeInfo ReadComplexTypeMembers(Type type)
+		internal static BoisComplexTypeInfo ReadComplexTypeMembers(Type type)
 		{
-			bool readFields = true, readProps = true;
+			bool readFields = true, readProps = true, versioned = false;
 
 			var objectAttr = type.GetCustomAttributes(typeof(BoisContractAttribute), false);
 			if (objectAttr.Length > 0)
@@ -803,6 +886,7 @@ namespace Salar.Bois.Types
 				{
 					readFields = boisContract.Fields;
 					readProps = boisContract.Properties;
+					versioned = boisContract.Versioned;
 				}
 			}
 			var typeInfo = new BoisComplexTypeInfo
@@ -814,6 +898,12 @@ namespace Salar.Bois.Types
 				BareType = type,
 				IsStruct = type.IsValueType
 			};
+
+			if (versioned)
+				return ReadVersionedTypeMembers(type, typeInfo, readFields, readProps);
+
+			if (type.IsDefined(typeof(BoisReservedAttribute), false))
+				throw new InvalidTypeException(VersionedContractRules.ReservedOnNonVersionedType(BoisContractInfo.TypeName(type)));
 
 			var members = new List<MemberInfo>();
 
@@ -878,5 +968,92 @@ namespace Salar.Bois.Types
 			return typeInfo;
 		}
 
+		/// <summary>
+		/// Reads the slots of a versioned type and checks its rules. Throws one <see cref="InvalidTypeException"/>
+		/// listing every broken rule.
+		/// </summary>
+		private static BoisComplexTypeInfo ReadVersionedTypeMembers(Type type, BoisComplexTypeInfo typeInfo, bool readFields, bool readProps)
+		{
+			var members = new List<VersionedMember>();
+
+			if (readFields)
+			{
+				foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+				{
+					ReadMemberOptions(field, out var excluded, out var slot);
+					members.Add(new VersionedMember(field.Name, BoisContractInfo.TypeName(field.FieldType), slot, excluded,
+						canWrite: !field.IsInitOnly, field));
+				}
+			}
+
+			if (readProps)
+			{
+				foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+				{
+					if (property.GetIndexParameters().Length > 0 || property.GetGetMethod() == null)
+						continue;
+
+					ReadMemberOptions(property, out var excluded, out var slot);
+					var setter = property.GetSetMethod();
+					members.Add(new VersionedMember(property.Name, BoisContractInfo.TypeName(property.PropertyType), slot, excluded,
+						canWrite: setter != null && !IsInitOnly(setter), property));
+				}
+			}
+
+			var reservations = new List<VersionedReservation>();
+			for (var current = type; current != null && current != typeof(object); current = current.BaseType)
+			{
+				foreach (BoisReservedAttribute reserved in current.GetCustomAttributes(typeof(BoisReservedAttribute), false))
+				{
+					reservations.Add(new VersionedReservation(reserved.Index,
+						reserved.Type == null ? null : BoisContractInfo.TypeName(reserved.Type),
+						IsValidReservedType(reserved.Type), reserved));
+				}
+			}
+
+			var typeName = BoisContractInfo.TypeName(type);
+			var problems = new List<VersionedProblem>();
+			var slots = VersionedContractRules.Build(typeName, members, reservations, problems);
+			if (problems.Count > 0)
+				throw new InvalidTypeException(VersionedContractRules.InvalidContractMessage(typeName, problems));
+
+			var slotMembers = new List<MemberInfo>(slots.Length);
+			foreach (var slot in slots)
+			{
+				if (slot.Member != null)
+					slotMembers.Add((MemberInfo)slot.Member.Source);
+			}
+
+			typeInfo.Members = slotMembers.ToArray();
+			typeInfo.VersionedSlots = slots;
+			return typeInfo;
+		}
+
+		private static void ReadMemberOptions(MemberInfo member, out bool excluded, out int slot)
+		{
+			var attribute = (BoisMemberAttribute)Attribute.GetCustomAttribute(member, typeof(BoisMemberAttribute), false);
+			excluded = attribute != null && !attribute.Included;
+			slot = attribute?.Index ?? -1;
+		}
+
+		private static bool IsInitOnly(MethodInfo setter)
+		{
+			foreach (var modifier in setter.ReturnParameter.GetRequiredCustomModifiers())
+			{
+				if (modifier.FullName == "System.Runtime.CompilerServices.IsExternalInit")
+					return true;
+			}
+			return false;
+		}
+
+		private static bool IsValidReservedType(Type type)
+		{
+			return type != null &&
+				   type != typeof(void) &&
+				   type != typeof(object) &&
+				   !type.IsPointer &&
+				   !type.IsByRef &&
+				   !type.ContainsGenericParameters;
+		}
 	}
 }

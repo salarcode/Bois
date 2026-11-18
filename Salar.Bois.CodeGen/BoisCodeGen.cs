@@ -33,4 +33,15 @@ public static class BoisCodeGen
         get => PrimitiveReader.MaxUnverifiedByteLength;
         set => PrimitiveReader.MaxUnverifiedByteLength = value;
     }
+
+    /// <summary>
+    /// The largest byte size a versioned object (<c>[BoisContract(Versioned = true)]</c>) may declare in the data.
+    /// The size must also fit in the data left when the reader knows it. Default is <see cref="int.MaxValue"/>,
+    /// because the size is only used to jump over data, never to allocate memory.
+    /// </summary>
+    public static int MaxVersionedObjectLength
+    {
+        get => PrimitiveReader.MaxVersionedObjectLength;
+        set => PrimitiveReader.MaxVersionedObjectLength = value;
+    }
 }

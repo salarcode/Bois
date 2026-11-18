@@ -47,7 +47,7 @@ namespace Salar.Bois.Serializers
 			return previous;
 		}
 
-		private static Type ResolveBufferType(Type placeholder)
+		internal static Type ResolveBufferType(Type placeholder)
 		{
 			if (placeholder == typeof(BufferReaderBase))
 				return _currentReaderType ?? placeholder;

@@ -232,6 +232,13 @@ namespace Salar.Bois.Types
 
 		private static void WriteRootObject(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
 		{
+			if (typeInfo.VersionedSlots != null)
+			{
+				// chosen here, while generating code, so normal types get exactly the code they always got
+				WriteVersionedObject(il, type, typeInfo);
+				return;
+			}
+
 			if (typeInfo.Members == null || typeInfo.Members.Length == 0)
 			{
 				// no member
@@ -245,6 +252,125 @@ namespace Salar.Bois.Types
 			{
 				WriteRootObjectMember(member, type, il);
 			}
+		}
+
+		/// <summary>
+		/// A versioned type ([BoisContract(Versioned = true)]): its byte size, then slots 1..N in slot order.
+		/// N is the highest slot that is a member, so reserved slots at the end are not written.
+		/// </summary>
+		private static void WriteVersionedObject(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
+		{
+			if (!type.IsValueType)
+			{
+				// CODE-FOR: if (instance == null) { PrimitiveWriter.WriteNullValue(ref writer); return; }
+				var notNull = il.DefineLabel();
+				il.LoadArgAuto(1, type); // instance
+				il.Emit(OpCodes.Brtrue, notNull);
+
+				il.Emit(OpCodes.Ldarg_0); // writer
+				il.Emit(OpCodes.Call, EmitGenerator.GetGenericWriterMethod(typeof(PrimitiveWriter),
+					nameof(PrimitiveWriter.WriteNullValue), typeof(BufferWriterBase)));
+				il.Emit(OpCodes.Ret);
+
+				il.MarkLabel(notNull);
+			}
+
+			// CODE-FOR: var start = VersionedWriter.Begin(ref writer);
+			var start = il.DeclareLocal(typeof(int));
+			EmitVersionedWriterCall(il, nameof(VersionedWriter.Begin), null);
+			il.StoreLocal(start);
+
+			var slots = typeInfo.VersionedSlots;
+			var lastMember = slots.Length - 1;
+			while (lastMember >= 0 && slots[lastMember].Member == null)
+				lastMember--;
+
+			for (var i = 0; i <= lastMember; i++)
+			{
+				var slot = slots[i];
+				if (slot.Member != null)
+					WriteRootObjectMember((MemberInfo)slot.Member.Source, type, il);
+				else
+					WriteReservedSlot(il, type, ((BoisReservedAttribute)slot.Reservation.Source).Type);
+			}
+
+			// CODE-FOR: VersionedWriter.End(ref writer, start);
+			EmitVersionedWriterCall(il, nameof(VersionedWriter.End), start);
+		}
+
+		/// <summary>
+		/// Calls <see cref="VersionedWriter"/> Begin or End. Writer classes with their own overload get a direct call,
+		/// so they skip the generic code shared by all classes and its type checks.
+		/// </summary>
+		private static void EmitVersionedWriterCall(ILGenerator il, string name, LocalBuilder start)
+		{
+			var writerType = EmitGenerator.ResolveBufferType(typeof(BufferWriterBase));
+			var parameters = start == null ? new[] { writerType } : new[] { writerType, typeof(int) };
+			var direct = typeof(VersionedWriter).GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic, null, parameters, null);
+
+			il.Emit(OpCodes.Ldarg_0); // writer
+			if (direct != null)
+				il.Emit(OpCodes.Ldind_Ref);
+			if (start != null)
+				il.LoadLocalValue(start);
+
+			var genericParameters = start == null ? new[] { typeof(BufferWriterBase) } : new[] { typeof(BufferWriterBase), typeof(int) };
+			il.Emit(OpCodes.Call, direct ?? EmitGenerator.GetGenericWriterMethod(typeof(VersionedWriter), name, genericParameters));
+		}
+
+		/// <summary>
+		/// A reserved slot holds the cheapest value of the removed member's type: null for types that can be null,
+		/// default(T) through the normal writer for the others.
+		/// </summary>
+		private static void WriteReservedSlot(ILGenerator il, Type containerType, Type reservedType)
+		{
+			var basicInfo = BoisTypeCache.GetBasicType(reservedType);
+			if (basicInfo.KnownType != EnBasicKnownType.Unknown)
+			{
+				// written by the same code as a member of that type, so the bytes are exactly that type's
+				WriteRootObjectBasicMember(reservedType, basicInfo, null, null, containerType, il, () =>
+				{
+					EmitDefaultValue(il, reservedType);
+					return reservedType;
+				});
+				return;
+			}
+
+			if (!reservedType.IsValueType || Nullable.GetUnderlyingType(reservedType) != null)
+			{
+				// classes, collections, nullable structs and BoisSkip.Contract are all written as 0x40 when null
+				il.Emit(OpCodes.Ldarg_0); // writer
+				il.Emit(OpCodes.Call, EmitGenerator.GetGenericWriterMethod(typeof(PrimitiveWriter),
+					nameof(PrimitiveWriter.WriteNullValue), typeof(BufferWriterBase)));
+				return;
+			}
+
+			var complexInfo = BoisTypeCache.GetComplexTypeUnCached(reservedType);
+			if (complexInfo.ComplexKnownType != EnComplexKnownType.Unknown)
+				throw new InvalidTypeException(
+					$"Reserved slot type '{BoisContractInfo.TypeName(reservedType)}' is a struct collection, which is not supported in a reserved slot.");
+
+			// a struct: default(T) through its own writer
+			var writerInfo = BoisTypeCache.GetRootTypeComputed(reservedType, false, true,
+				EmitGenerator.ResolveBufferType(typeof(BufferWriterBase)));
+			il.Emit(OpCodes.Ldarg_0); // writer
+			EmitDefaultValue(il, reservedType);
+			il.Emit(OpCodes.Ldarg_2); // Encoding
+			il.Emit(OpCodes.Call, writerInfo.WriterMethod);
+		}
+
+		private static void EmitDefaultValue(ILGenerator il, Type type)
+		{
+			if (!type.IsValueType)
+			{
+				il.Emit(OpCodes.Ldnull);
+				return;
+			}
+
+			var value = il.DeclareLocal(type);
+			il.LoadLocalAddress(value);
+			il.Emit(OpCodes.Initobj, type);
+			il.LoadLocalValue(value);
 		}
 
 		private static void WriteRootObjectMembersCount(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
@@ -350,126 +476,126 @@ namespace Salar.Bois.Types
 			}
 		}
 
-		private static void WriteRootObjectBasicMember(Type memberType, BoisBasicTypeInfo basicInfo, PropertyInfo prop, FieldInfo field, Type containerType, ILGenerator il)
+		private static void WriteRootObjectBasicMember(Type memberType, BoisBasicTypeInfo basicInfo, PropertyInfo prop, FieldInfo field, Type containerType, ILGenerator il, Func<Type> valueLoader = null)
 		{
 			switch (basicInfo.KnownType)
 			{
 				case EnBasicKnownType.String:
-					EmitGenerator.WriteString(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteString(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Bool:
-					EmitGenerator.WriteBool(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteBool(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Int16:
-					EmitGenerator.WriteInt16(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteInt16(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Int32:
-					EmitGenerator.WriteInt32(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteInt32(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Int64:
-					EmitGenerator.WriteInt64(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteInt64(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.UInt16:
-					EmitGenerator.WriteUInt16(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteUInt16(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.UInt32:
-					EmitGenerator.WriteUInt32(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteUInt32(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.UInt64:
-					EmitGenerator.WriteUInt64(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteUInt64(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Double:
-					EmitGenerator.WriteDouble(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDouble(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Decimal:
-					EmitGenerator.WriteDecimal(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDecimal(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Single:
-					EmitGenerator.WriteFloat(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteFloat(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Byte:
-					EmitGenerator.WriteByte(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteByte(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.SByte:
-					EmitGenerator.WriteSByte(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteSByte(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DateTime:
-					EmitGenerator.WriteDateTime(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDateTime(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DateTimeOffset:
-					EmitGenerator.WriteDateTimeOffset(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDateTimeOffset(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 #if NET6_0_OR_GREATER
 				case EnBasicKnownType.DateOnly:
-					EmitGenerator.WriteDateOnly(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDateOnly(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.TimeOnly:
-					EmitGenerator.WriteTimeOnly(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteTimeOnly(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 #endif
 
 				case EnBasicKnownType.ByteArray:
-					EmitGenerator.WriteByteArray(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteByteArray(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.KnownTypeArray:
-					EmitGenerator.WriteKnownTypeArray(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteKnownTypeArray(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Enum:
-					EmitGenerator.WriteEnum(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteEnum(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.TimeSpan:
-					EmitGenerator.WriteTimeSpan(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteTimeSpan(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Char:
-					EmitGenerator.WriteChar(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteChar(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Guid:
-					EmitGenerator.WriteGuid(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteGuid(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Color:
-					EmitGenerator.WriteColor(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteColor(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DbNull:
-					EmitGenerator.WriteDbNull(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDbNull(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Uri:
-					EmitGenerator.WriteUri(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteUri(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.Version:
-					EmitGenerator.WriteVersion(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteVersion(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DataTable:
-					EmitGenerator.WriteDataTable(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDataTable(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				case EnBasicKnownType.DataSet:
-					EmitGenerator.WriteDataSet(prop, field, null, containerType, il, basicInfo.IsNullable);
+					EmitGenerator.WriteDataSet(prop, field, valueLoader, containerType, il, basicInfo.IsNullable);
 					break;
 
 				default:
@@ -848,6 +974,13 @@ namespace Salar.Bois.Types
 
 		private static void ReadRootObject(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
 		{
+			if (typeInfo.VersionedSlots != null)
+			{
+				// chosen here, while generating code, so normal types get exactly the code they always got
+				ReadVersionedObject(il, type, typeInfo);
+				return;
+			}
+
 			if (typeInfo.Members == null || typeInfo.Members.Length == 0)
 			{
 				// no mmeber
@@ -862,6 +995,154 @@ namespace Salar.Bois.Types
 			{
 				ReadRootObjectMember(member, type, il, variableCache);
 			}
+		}
+
+		/// <summary>
+		/// A versioned type. The instance is already created (local 0), so slots missing from the data keep the
+		/// constructor's values.
+		/// <code>
+		/// switch (VersionedReader.ReadPrefix(ref reader, slotCount, allowNull, typeName, out var value))
+		/// {
+		///     case PrefixNull: return null;
+		///     case PrefixMemberCount:   // today's format, value is the member count, member i is slot i
+		///         if (value &lt; 1) break; read slot 1;
+		///         if (value &lt; 2) break; read slot 2; ...
+		///         break;
+		///     case PrefixSize:          // versioned, value is the object's size
+		///         var end = (long)reader.Position + value;
+		///         if (reader.Position &lt; end) read slot 1, and so on;
+		///         if (reader.Position != end) VersionedReader.SkipTo(ref reader, end, typeName);   // slots from a newer version
+		///         break;
+		/// }
+		/// </code>
+		/// Position is called on the concrete reader type, so the JIT calls it directly instead of through generic code.
+		/// </summary>
+		private static void ReadVersionedObject(ILGenerator il, Type type, BoisComplexTypeInfo typeInfo)
+		{
+			var variableCache = new SharedVariables(il);
+			var slots = typeInfo.VersionedSlots;
+			var typeName = BoisContractInfo.TypeName(type);
+			var readerType = EmitGenerator.ResolveBufferType(typeof(BufferReaderBase));
+
+			if (readerType == typeof(Salar.BinaryBuffers.Compatibility.StreamBufferReader))
+			{
+				// it can't tell its position, which versioned data needs to find where each object ends
+				il.Emit(OpCodes.Ldstr, typeName);
+				il.Emit(OpCodes.Call, typeof(VersionedReader).GetMethod(nameof(VersionedReader.ThrowNoPosition), BindingFlags.Static | BindingFlags.NonPublic));
+				return;
+			}
+
+			var format = il.DeclareLocal(typeof(int));
+			var value = il.DeclareLocal(typeof(int));
+			var end = il.DeclareLocal(typeof(long));
+			var labelMemberCount = il.DefineLabel();
+			var labelSize = il.DefineLabel();
+			var labelSkipRest = il.DefineLabel();
+			var labelEnd = il.DefineLabel();
+
+			// CODE-FOR: format = VersionedReader.ReadPrefix(ref reader, slotCount, allowNull, typeName, out value);
+			il.Emit(OpCodes.Ldarg_0); // reader
+			il.Emit(OpCodes.Ldc_I4, slots.Length);
+			il.Emit(type.IsValueType ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1);
+			il.Emit(OpCodes.Ldstr, typeName);
+			il.LoadLocalAddress(value);
+			il.Emit(OpCodes.Call, EmitGenerator.GetGenericWriterMethod(typeof(VersionedReader),
+				nameof(VersionedReader.ReadPrefix), typeof(BufferReaderBase), typeof(int), typeof(bool), typeof(string), typeof(int)));
+			il.StoreLocal(format);
+
+			il.LoadLocalValue(format);
+			il.Emit(OpCodes.Ldc_I4, VersionedReader.PrefixSize);
+			il.Emit(OpCodes.Beq, labelSize);
+
+			il.LoadLocalValue(format);
+			il.Emit(OpCodes.Ldc_I4, VersionedReader.PrefixMemberCount);
+			il.Emit(OpCodes.Beq, labelMemberCount);
+
+			// CODE-FOR: return null; (ReadPrefix throws instead for structs)
+			if (type.IsValueType)
+			{
+				il.Emit(OpCodes.Br, labelEnd);
+			}
+			else
+			{
+				il.Emit(OpCodes.Ldnull);
+				il.Emit(OpCodes.Ret);
+			}
+
+			// today's format: value is the member count
+			il.MarkLabel(labelMemberCount);
+			for (var i = 0; i < slots.Length; i++)
+			{
+				// CODE-FOR: if (value < slot) goto end;
+				il.LoadLocalValue(value);
+				il.Emit(OpCodes.Ldc_I4, i + 1);
+				il.Emit(OpCodes.Blt, labelEnd);
+
+				ReadVersionedSlot(il, type, slots[i], variableCache);
+			}
+			il.Emit(OpCodes.Br, labelEnd);
+
+			// versioned: value is the object's size
+			il.MarkLabel(labelSize);
+
+			// CODE-FOR: end = (long)reader.Position + value;
+			EmitReaderPosition(il, readerType);
+			il.LoadLocalValue(value);
+			il.Emit(OpCodes.Conv_I8);
+			il.Emit(OpCodes.Add);
+			il.StoreLocal(end);
+
+			foreach (var slot in slots)
+			{
+				// CODE-FOR: if (reader.Position >= end) goto skipRest;
+				EmitReaderPosition(il, readerType);
+				il.LoadLocalValue(end);
+				il.Emit(OpCodes.Bge, labelSkipRest);
+
+				ReadVersionedSlot(il, type, slot, variableCache);
+			}
+
+			// CODE-FOR: if (reader.Position != end) VersionedReader.SkipTo(ref reader, end, typeName);
+			il.MarkLabel(labelSkipRest);
+			EmitReaderPosition(il, readerType);
+			il.LoadLocalValue(end);
+			il.Emit(OpCodes.Beq, labelEnd);
+
+			il.Emit(OpCodes.Ldarg_0); // reader
+			il.LoadLocalValue(end);
+			il.Emit(OpCodes.Ldstr, typeName);
+			il.Emit(OpCodes.Call, EmitGenerator.GetGenericWriterMethod(typeof(VersionedReader),
+				nameof(VersionedReader.SkipTo), typeof(BufferReaderBase), typeof(long), typeof(string)));
+
+			il.MarkLabel(labelEnd);
+		}
+
+		/// <summary>
+		/// CODE-FOR: (long)reader.Position
+		/// </summary>
+		private static void EmitReaderPosition(ILGenerator il, Type readerType)
+		{
+			il.Emit(OpCodes.Ldarg_0); // reader
+			il.Emit(OpCodes.Constrained, readerType);
+			il.Emit(OpCodes.Callvirt, typeof(IBufferReader).GetProperty(nameof(IBufferReader.Position)).GetMethod);
+			il.Emit(OpCodes.Conv_I8);
+		}
+
+		private static void ReadVersionedSlot(ILGenerator il, Type type, VersionedSlot slot, SharedVariables variableCache)
+		{
+			if (slot.Member != null)
+			{
+				ReadRootObjectMember((MemberInfo)slot.Member.Source, type, il, variableCache);
+				return;
+			}
+
+			// CODE-FOR: VersionedSkipper.Skip(ref reader, skipId, encoding);
+			var skipId = VersionedSkipper.Register(((BoisReservedAttribute)slot.Reservation.Source).Type);
+			il.Emit(OpCodes.Ldarg_0); // reader
+			il.Emit(OpCodes.Ldc_I4, skipId);
+			il.Emit(OpCodes.Ldarg_1); // Encoding
+			il.Emit(OpCodes.Call, EmitGenerator.GetGenericWriterMethod(typeof(VersionedSkipper),
+				nameof(VersionedSkipper.Skip), typeof(BufferReaderBase), typeof(int), typeof(Encoding)));
 		}
 
 		private static void ReadRootObjectMembersCount(ILGenerator il, Type type, SharedVariables variableCache)

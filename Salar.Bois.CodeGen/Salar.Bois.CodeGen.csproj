@@ -33,12 +33,17 @@
 		<AssemblyOriginatorKeyFile>Salar.Bois.snk</AssemblyOriginatorKeyFile>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<VerifyReferenceTrimCompatibility>true</VerifyReferenceTrimCompatibility>
+		<!-- shared source files use it to pick the CodeGen namespace -->
+		<DefineConstants>$(DefineConstants);BOIS_CODEGEN</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Compile Include="..\Salar.Bois\Serializers\NumericSerializers.cs" Link="Serializers\NumericSerializers.cs" />
 		<Compile Include="..\Salar.Bois\Serializers\PrimitiveReader.cs" Link="Serializers\PrimitiveReader.cs" />
 		<Compile Include="..\Salar.Bois\Serializers\PrimitiveWriter.cs" Link="Serializers\PrimitiveWriter.cs" />
+		<Compile Include="..\Salar.Bois\Serializers\VersionedFormat.cs" Link="Serializers\VersionedFormat.cs" />
+		<Compile Include="..\Salar.Bois\Types\BoisBufferWriter.cs" Link="Types\BoisBufferWriter.cs" />
+		<Compile Include="..\Salar.Bois\Types\BoisStreamReader.cs" Link="Types\BoisStreamReader.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

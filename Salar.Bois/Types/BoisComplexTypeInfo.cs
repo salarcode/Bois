@@ -33,5 +33,11 @@ namespace Salar.Bois.Types
 		/// List of members
 		/// </summary>
 		public MemberInfo[] Members;
+
+		/// <summary>
+		/// Slots 1..N of a versioned type (<c>[BoisContract(Versioned = true)]</c>). Null for other types.
+		/// For a versioned type, <see cref="Members"/> holds its members in slot order.
+		/// </summary>
+		public VersionedSlot[] VersionedSlots;
 	}
 }

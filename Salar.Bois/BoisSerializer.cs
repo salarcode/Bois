@@ -61,6 +61,17 @@ namespace Salar.Bois
         }
 
         /// <summary>
+        /// The largest byte size a versioned object (<c>[BoisContract(Versioned = true)]</c>) may declare in the data.
+        /// The size must also fit in the data left when the reader knows it. Default is <see cref="int.MaxValue"/>,
+        /// because the size is only used to jump over data, never to allocate memory.
+        /// </summary>
+        public static int MaxVersionedObjectLength
+        {
+            get => PrimitiveReader.MaxVersionedObjectLength;
+            set => PrimitiveReader.MaxVersionedObjectLength = value;
+        }
+
+        /// <summary>
         /// Initializing a new instance of Bois serializer.
         /// </summary>
         public BoisSerializer()
@@ -132,9 +143,27 @@ namespace Salar.Bois
 		/// <typeparam name="T">The object type.</typeparam>
 		public void Serialize<T>(T obj, Stream output)
 		{
+			if (VersionedRoot<T>.Contains)
+			{
+				SerializeVersioned(obj, output);
+				return;
+			}
+
 			var writer = new StreamBufferWriter(output);
 
 			Serialize<T, StreamBufferWriter>(obj, ref writer);
+		}
+
+		/// <summary>
+		/// Versioned types write their size after their members, so the bytes are held in the writer's buffer until
+		/// the size is filled in.
+		/// </summary>
+		private void SerializeVersioned<T>(T obj, Stream output)
+		{
+			var writer = BoisBufferWriter.Rent(output);
+
+			Serialize<T, BoisBufferWriter>(obj, ref writer);
+			writer.Return();
 		}
 
 		/// <summary>
@@ -175,6 +204,14 @@ namespace Salar.Bois
 		/// <param name="output">The output of the serialization in binary.</param>
 		public void Serialize(object obj, Type type, Stream output)
 		{
+			if (BoisTypeCache.ContainsVersioned(type))
+			{
+				var versionedWriter = BoisBufferWriter.Rent(output);
+				Serialize(obj, type, versionedWriter);
+				versionedWriter.Return();
+				return;
+			}
+
             var writer = new StreamBufferWriter(output);
 
             Serialize(obj, type, writer);
@@ -242,6 +279,11 @@ namespace Salar.Bois
 			{
 				reader = _getBufferReaderFromMemoryStream(memoryStream);
 			}
+			else if (VersionedRoot<T>.Contains)
+			{
+				// versioned types need a reader that counts its position and skips without allocating
+				reader = new BoisStreamReader(objectData);
+			}
 			else
 			{
 				reader ??= new StreamBufferReader(objectData);
@@ -291,6 +333,10 @@ namespace Salar.Bois
 			{
 				reader = _getBufferReaderFromMemoryStream(memoryStream);
 			}
+			else if (BoisTypeCache.ContainsVersioned(type))
+			{
+				reader = new BoisStreamReader(objectData);
+			}
 			else
 			{
 				reader ??= new StreamBufferReader(objectData);
@@ -323,6 +369,14 @@ namespace Salar.Bois
 			{
 				return PrimitiveReader.ReadRootBasicType(ref bufferReader, type, typeInfo, Encoding);
 			}
+		}
+
+		/// <summary>
+		/// Whether <typeparamref name="T"/> contains a versioned type, worked out once per type.
+		/// </summary>
+		private static class VersionedRoot<T>
+		{
+			internal static readonly bool Contains = BoisTypeCache.ContainsVersioned(typeof(T));
 		}
 	}
 }

@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Text;
+using Salar.Bois.Types;
 
 namespace Salar.Bois.Generator;
 
@@ -24,6 +25,14 @@ public sealed class BoisSourceGenerator : ISourceGenerator
     private static readonly DiagnosticDescriptor UnsupportedType = new(
         "BOISGEN002",
         "Unsupported BOIS generator type",
+        "{0}",
+        "Salar.Bois.Generator",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor InvalidVersionedContract = new(
+        "BOISGEN003",
+        "Invalid BOIS versioned contract",
         "{0}",
         "Salar.Bois.Generator",
         DiagnosticSeverity.Error,
@@ -68,9 +77,11 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             methods.Add(generationMethod);
         }
 
+        // versioned contract errors are reported once per type, however many methods use it
+        var checkedVersionedTypes = new HashSet<string>(StringComparer.Ordinal);
         foreach (var group in groups)
         {
-            var source = EmitContainingType(context.Compilation, group.Key.ContainingType, group.Value.ToImmutableArray(), context.ReportDiagnostic);
+            var source = EmitContainingType(context.Compilation, group.Key.ContainingType, group.Value.ToImmutableArray(), context.ReportDiagnostic, checkedVersionedTypes);
             if (!string.IsNullOrWhiteSpace(source))
                 context.AddSource(group.Key.FileName + "-generated.cs", SourceText.From(source, Encoding.UTF8));
         }
@@ -124,9 +135,9 @@ public sealed class BoisSourceGenerator : ISourceGenerator
         return true;
     }
 
-    private static string EmitContainingType(Compilation compilation, INamedTypeSymbol containingType, ImmutableArray<GenerationMethod> methods, Action<Diagnostic> report)
+    private static string EmitContainingType(Compilation compilation, INamedTypeSymbol containingType, ImmutableArray<GenerationMethod> methods, Action<Diagnostic> report, HashSet<string> checkedVersionedTypes)
     {
-        var emitter = new ContainingTypeEmitter(compilation, containingType, report);
+        var emitter = new ContainingTypeEmitter(compilation, containingType, report, checkedVersionedTypes);
         return emitter.Emit(methods);
     }
 
@@ -418,12 +429,14 @@ public sealed class BoisSourceGenerator : ISourceGenerator
         private readonly ITypeSymbol? _dbNullType;
         private readonly ITypeSymbol? _dataTableType;
         private readonly ITypeSymbol? _dataSetType;
+        private readonly HashSet<string> _checkedVersionedTypes;
 
-        public ContainingTypeEmitter(Compilation compilation, INamedTypeSymbol containingType, Action<Diagnostic> report)
+        public ContainingTypeEmitter(Compilation compilation, INamedTypeSymbol containingType, Action<Diagnostic> report, HashSet<string> checkedVersionedTypes)
         {
             _compilation = compilation;
             _containingType = containingType;
             _report = report;
+            _checkedVersionedTypes = checkedVersionedTypes;
             _nullableType = compilation.GetTypeByMetadataName("System.Nullable`1");
             _collectionType = compilation.GetTypeByMetadataName("System.Collections.Generic.ICollection`1");
             _dictionaryType = compilation.GetTypeByMetadataName("System.Collections.Generic.IDictionary`2");
@@ -1731,10 +1744,20 @@ public sealed class BoisSourceGenerator : ISourceGenerator
             var ordered = new List<MemberModel>();
             var readFields = true;
             var readProps = true;
+            AttributeData? contract = null;
+            var versioned = false;
+            var hasReservation = false;
             foreach (var attribute in type.GetAttributes())
             {
-                if (attribute.AttributeClass?.ToDisplayString() == "Salar.Bois.CodeGen.BoisContractAttribute")
+                var attributeName = attribute.AttributeClass?.ToDisplayString();
+                if (attributeName == ReservedAttributeName)
                 {
+                    hasReservation = true;
+                    continue;
+                }
+                if (contract is null && attributeName == "Salar.Bois.CodeGen.BoisContractAttribute")
+                {
+                    contract = attribute;
                     if (attribute.ConstructorArguments.Length == 2)
                     {
                         readFields = attribute.ConstructorArguments[0].Value as bool? ?? true;
@@ -1742,8 +1765,19 @@ public sealed class BoisSourceGenerator : ISourceGenerator
                     }
                     readFields = ReadNamedBool(attribute, "Fields", readFields);
                     readProps = ReadNamedBool(attribute, "Properties", readProps);
-                    break;
+                    versioned = ReadNamedBool(attribute, "Versioned", false);
                 }
+            }
+
+            if (versioned)
+                return TryGetVersionedMembers(type, contract!, readFields, readProps, out members, out error);
+
+            if (hasReservation)
+            {
+                error = VersionedContractRules.ReservedOnNonVersionedType(ContractTypeName(type));
+                ReportVersionedProblems(type, [new VersionedProblem(error, null)], type.Locations.FirstOrDefault());
+                members = ImmutableArray<MemberModel>.Empty;
+                return false;
             }
 
             foreach (var symbol in EnumerateMembers(type, readFields, readProps))
@@ -1780,6 +1814,116 @@ public sealed class BoisSourceGenerator : ISourceGenerator
 
             members = ordered.ToImmutableArray();
             return true;
+        }
+
+        private const string ReservedAttributeName = "Salar.Bois.CodeGen.BoisReservedAttribute";
+
+        private static readonly SymbolDisplayFormat ContractTypeNameFormat = new(
+            typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes,
+            genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
+            miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
+
+        /// <summary>
+        /// The same short name the runtime serializer uses in <c>BoisContractInfo</c>, e.g. <c>List&lt;int?&gt;</c>.
+        /// </summary>
+        private static string ContractTypeName(ITypeSymbol type)
+            => type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(ContractTypeNameFormat);
+
+        /// <summary>
+        /// Members of a versioned type in slot order. Checks the versioned rules and reports each broken rule once.
+        /// </summary>
+        private bool TryGetVersionedMembers(ITypeSymbol type, AttributeData contract, bool readFields, bool readProps,
+            out ImmutableArray<MemberModel> members, out string error)
+        {
+            var candidates = new List<VersionedMember>();
+            var propertyNames = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var symbol in EnumerateMembers(type, readFields, readProps))
+            {
+                if (symbol is IFieldSymbol field)
+                {
+                    if (field.IsStatic || field.IsConst || field.DeclaredAccessibility != Accessibility.Public || field.IsImplicitlyDeclared)
+                        continue;
+                    var (included, slot) = ReadMemberOptions(field);
+                    candidates.Add(new VersionedMember(field.Name, ContractTypeName(field.Type), slot, !included, canWrite: !field.IsReadOnly, field));
+                    continue;
+                }
+
+                if (symbol is IPropertySymbol property)
+                {
+                    if (property.IsStatic ||
+                        property.IsIndexer ||
+                        property.DeclaredAccessibility != Accessibility.Public ||
+                        property.GetMethod is null ||
+                        property.GetMethod.DeclaredAccessibility != Accessibility.Public ||
+                        !propertyNames.Add(property.Name)) // an override is listed again by its base class
+                        continue;
+
+                    var (included, slot) = ReadMemberOptions(property);
+                    var canWrite = property.SetMethod is { DeclaredAccessibility: Accessibility.Public, IsInitOnly: false };
+                    candidates.Add(new VersionedMember(property.Name, ContractTypeName(property.Type), slot, !included, canWrite, property));
+                }
+            }
+
+            var reservations = new List<VersionedReservation>();
+            for (var current = type as INamedTypeSymbol; current is not null && current.SpecialType != SpecialType.System_Object; current = current.BaseType)
+            {
+                foreach (var attribute in current.GetAttributes())
+                {
+                    if (attribute.AttributeClass?.ToDisplayString() != ReservedAttributeName || attribute.ConstructorArguments.Length != 2)
+                        continue;
+
+                    var slot = attribute.ConstructorArguments[0].Value as int? ?? 0;
+                    var reservedType = attribute.ConstructorArguments[1].Value as ITypeSymbol;
+                    reservations.Add(new VersionedReservation(slot,
+                        reservedType is null ? null : ContractTypeName(reservedType),
+                        IsValidReservedType(reservedType), attribute));
+                }
+            }
+
+            var typeName = ContractTypeName(type);
+            var problems = new List<VersionedProblem>();
+            var slots = VersionedContractRules.Build(typeName, candidates, reservations, problems);
+            if (problems.Count > 0)
+            {
+                ReportVersionedProblems(type, problems, contract.ApplicationSyntaxReference?.GetSyntax().GetLocation() ?? type.Locations.FirstOrDefault());
+                error = $"Type '{typeName}' is not a valid versioned contract. See the BOISGEN003 errors.";
+                members = ImmutableArray<MemberModel>.Empty;
+                return false;
+            }
+
+            var ordered = ImmutableArray.CreateBuilder<MemberModel>(slots.Length);
+            foreach (var slot in slots)
+            {
+                if (slot.Member?.Source is ISymbol symbol)
+                    ordered.Add(new MemberModel(symbol, symbol is IFieldSymbol f ? f.Type : ((IPropertySymbol)symbol).Type, slot.Slot));
+            }
+
+            members = ordered.ToImmutable();
+            error = string.Empty;
+            return true;
+        }
+
+        private static bool IsValidReservedType(ITypeSymbol? type)
+            => type is not null &&
+               type.TypeKind is not (TypeKind.Error or TypeKind.Pointer or TypeKind.FunctionPointer or TypeKind.TypeParameter) &&
+               type.SpecialType is not (SpecialType.System_Object or SpecialType.System_Void) &&
+               type is not INamedTypeSymbol { IsUnboundGenericType: true };
+
+        private void ReportVersionedProblems(ITypeSymbol type, List<VersionedProblem> problems, Location? typeLocation)
+        {
+            if (!_checkedVersionedTypes.Add(TypeKey(type)))
+                return;
+
+            foreach (var problem in problems)
+            {
+                var location = problem.Source switch
+                {
+                    ISymbol symbol => symbol.Locations.FirstOrDefault(),
+                    AttributeData attribute => attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation(),
+                    _ => typeLocation,
+                };
+                _report(Diagnostic.Create(InvalidVersionedContract, location, problem.Message));
+            }
         }
 
         private static IEnumerable<ISymbol> EnumerateMembers(ITypeSymbol type, bool includeFields, bool includeProperties)

@@ -17,6 +17,10 @@ public class BoisMemberAttribute : Attribute
 {
     /// <summary>
     /// In which order should this member be serialized.
+    /// <para>
+    /// On a type that is not versioned, this is an ordering hint: the member is inserted at this position.
+    /// On a type with <c>[BoisContract(Versioned = true)]</c>, this is the member's permanent slot, starting at 1.
+    /// </para>
     /// </summary>
     public int Index { get; private set; }
 

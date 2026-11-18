@@ -547,7 +547,7 @@ public class Test_CodeGenGenerator
 		Assert.Null(RoundTrip(nullablePrimitiveScenario, SourceGeneratorScenariosBois.WritePrimitiveScenario, SourceGeneratorScenariosBois.ReadPrimitiveScenario));
 	}
 
-	private static IReadOnlyList<MetadataReference> GetMetadataReferences()
+	internal static IReadOnlyList<MetadataReference> GetMetadataReferences()
 	{
 		var references = new Dictionary<string, MetadataReference>(StringComparer.OrdinalIgnoreCase);
 		var trustedAssemblies = ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))?.Split(Path.PathSeparator) ?? [];
